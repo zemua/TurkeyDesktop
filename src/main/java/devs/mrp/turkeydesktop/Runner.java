@@ -5,6 +5,8 @@
  */
 package devs.mrp.turkeydesktop;
 
+import devs.mrp.turkeydesktop.controllers.main.FStarter;
+
 /**
  *
  * @author miguel
@@ -12,5 +14,6 @@ package devs.mrp.turkeydesktop;
 public class Runner {
     public static void main(String[] args) {
         System.out.println("my turkey desktop runner initialized");
+        FStarter.getStarterController().start();
     }
 }
