@@ -5,7 +5,7 @@
  */
 package devs.mrp.turkeydesktop;
 
-import devs.mrp.turkeydesktop.controllers.FStarter;
+import devs.mrp.turkeydesktop.controllers.main.FStarter;
 
 /**
  *
