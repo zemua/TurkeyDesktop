@@ -5,12 +5,15 @@
  */
 package devs.mrp.turkeydesktop.view.mainpanel;
 
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+
 /**
  *
  * @author miguel
  */
-public class FMainPanel {
-    public static AMainPanel getMainPanel() {
-        return new MainPanel();
-    }
+public abstract class AMainPanel extends JPanel {
+    
+    public abstract JTextArea getLogger();
+    
 }

@@ -6,10 +6,10 @@
 package devs.mrp.turkeydesktop.controllers.main;
 
 import devs.mrp.turkeydesktop.view.container.FContainer;
+import devs.mrp.turkeydesktop.view.mainpanel.AMainPanel;
 import devs.mrp.turkeydesktop.view.mainpanel.FMainPanel;
 import java.awt.Toolkit;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 /**
  *
@@ -35,8 +35,8 @@ public class MainController implements IStarter {
         mainFrame.revalidate();
     }
     
-    private JPanel initMainPanel() {
-        JPanel panel = FMainPanel.getMainPanel();
+    private AMainPanel initMainPanel() {
+        AMainPanel panel = FMainPanel.getMainPanel();
         return panel;
     }
     

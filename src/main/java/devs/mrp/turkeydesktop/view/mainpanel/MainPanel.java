@@ -5,11 +5,13 @@
  */
 package devs.mrp.turkeydesktop.view.mainpanel;
 
+import javax.swing.JTextArea;
+
 /**
  *
  * @author miguel
  */
-public class MainPanel extends javax.swing.JPanel {
+public class MainPanel extends AMainPanel {
 
     /**
      * Creates new form MainPanel
@@ -29,7 +31,7 @@ public class MainPanel extends javax.swing.JPanel {
 
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        logTextArea = new javax.swing.JTextArea();
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -42,9 +44,10 @@ public class MainPanel extends javax.swing.JPanel {
             .addGap(0, 100, Short.MAX_VALUE)
         );
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
+        logTextArea.setEditable(false);
+        logTextArea.setColumns(20);
+        logTextArea.setRows(5);
+        jScrollPane1.setViewportView(logTextArea);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -72,6 +75,12 @@ public class MainPanel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextArea logTextArea;
     // End of variables declaration//GEN-END:variables
+    
+    @Override
+    public JTextArea getLogger() {
+        return logTextArea;
+    }
+
 }
