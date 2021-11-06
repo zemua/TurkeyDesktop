@@ -30,5 +30,9 @@ public class WatchDog implements IWatchDog {
     public void stop() {
         on = false;
     }
+    
+    private void log(String text) {
+        mLogger.append(String.format("%s \n", text));
+    }
 
 }
