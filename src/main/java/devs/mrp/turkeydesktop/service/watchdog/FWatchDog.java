@@ -11,8 +11,8 @@ package devs.mrp.turkeydesktop.service.watchdog;
  */
 public class FWatchDog {
     
-    public static IWatchDog getNew() {
-        return new WatchDog();
+    public static IWatchDog getInstance() {
+        return WatchDog.getInstance();
     }
     
 }

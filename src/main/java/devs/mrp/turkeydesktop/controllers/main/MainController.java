@@ -48,7 +48,7 @@ public class MainController implements IStarter {
     }
     
     private IWatchDog initWatchDog(JTextArea logger) {
-        watchDog = FWatchDog.getNew();
+        watchDog = FWatchDog.getInstance();
         watchDog.begin(logger);
         return watchDog;
     }
