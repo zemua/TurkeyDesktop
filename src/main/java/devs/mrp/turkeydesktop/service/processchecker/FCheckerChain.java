@@ -5,22 +5,16 @@
  */
 package devs.mrp.turkeydesktop.service.processchecker;
 
-import devs.mrp.turkeydesktop.common.ChainCommander;
 import devs.mrp.turkeydesktop.common.ChainHandler;
 
 /**
  *
  * @author miguel
  */
-public class CheckerChainCommander implements ChainCommander {
-
-    ChainHandler linuxHandler;
+public class FCheckerChain {
     
-    @Override
-    public ChainHandler getHandlerChain() {
-        linuxHandler = new CheckerChainHandlerLinux();
-        
-        return linuxHandler;
+    public static ChainHandler getChain() {
+        return new CheckerChainCommander().getHandlerChain();
     }
     
 }

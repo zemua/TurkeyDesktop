@@ -5,6 +5,8 @@
  */
 package devs.mrp.turkeydesktop.service.watchdog;
 
+import devs.mrp.turkeydesktop.service.processchecker.FProcessChecker;
+import devs.mrp.turkeydesktop.service.processchecker.IProcessChecker;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.swing.JTextArea;
@@ -24,9 +26,11 @@ public class WatchDog implements IWatchDog {
     private JTextArea mLogger;
     private SwingWorker worker;
     private AtomicLong timestamp;
+    private IProcessChecker processChecker;
 
     private WatchDog() {
         timestamp = new AtomicLong();
+        processChecker = FProcessChecker.getNew();
     }
     
     public static IWatchDog getInstance() {
@@ -87,6 +91,7 @@ public class WatchDog implements IWatchDog {
         Long current = System.currentTimeMillis();
         Long elapsed = current - timestamp.getAndSet(current);
         log(String.format("elapsed %d millis", elapsed));
+        log(String.format("current window name: %s", processChecker.currentProcessName()));
     }
 
 }
