@@ -17,21 +17,35 @@ import javax.swing.SwingWorker;
 public class WatchDog implements IWatchDog {
 
     private static final long SLEEP_MILIS = 3000;
+    
+    private static IWatchDog instance;
 
     private boolean on = true;
     private JTextArea mLogger;
     private SwingWorker worker;
     private AtomicLong timestamp;
 
-    public WatchDog() {
+    private WatchDog() {
+        timestamp = new AtomicLong();
+    }
+    
+    public static IWatchDog getInstance() {
+        if (instance == null) {
+            instance = new WatchDog();
+        }
+        return instance;
     }
 
+    /**
+     * Not thread-safe
+     * @param logger 
+     */
     @Override
     public void begin(JTextArea logger) {
+        setLogger(logger);
         if (worker == null || worker.isDone() || worker.getState().equals(SwingWorker.StateValue.PENDING)) {
             initializeWorker();
-            setLogger(logger);
-            timestamp = new AtomicLong(System.currentTimeMillis());
+            timestamp.set(System.currentTimeMillis());
             worker.execute();
         }
 
