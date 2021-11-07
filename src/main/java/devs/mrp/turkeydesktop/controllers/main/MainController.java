@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.controllers.main;
 
+import devs.mrp.turkeydesktop.service.watchdog.IWatchDog;
 import devs.mrp.turkeydesktop.view.container.FContainer;
 import devs.mrp.turkeydesktop.view.mainpanel.AMainPanel;
 import devs.mrp.turkeydesktop.view.mainpanel.FMainPanel;
@@ -38,6 +39,10 @@ public class MainController implements IStarter {
     private AMainPanel initMainPanel() {
         AMainPanel panel = FMainPanel.getMainPanel();
         return panel;
+    }
+    
+    private IWatchDog initWatchDog() {
+        
     }
     
 }
