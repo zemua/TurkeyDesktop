@@ -5,12 +5,14 @@
  */
 package devs.mrp.turkeydesktop.controllers.main;
 
+import devs.mrp.turkeydesktop.service.watchdog.FWatchDog;
 import devs.mrp.turkeydesktop.service.watchdog.IWatchDog;
 import devs.mrp.turkeydesktop.view.container.FContainer;
 import devs.mrp.turkeydesktop.view.mainpanel.AMainPanel;
 import devs.mrp.turkeydesktop.view.mainpanel.FMainPanel;
 import java.awt.Toolkit;
 import javax.swing.JFrame;
+import javax.swing.JTextArea;
 
 /**
  *
@@ -22,27 +24,33 @@ public class MainController implements IStarter {
     private static final String TURKEY_IMG = "resources/turkey.png";
 
     private JFrame mainFrame;
+    private AMainPanel mainPanel;
+    private IWatchDog watchDog;
     
     @Override
     public void start() {
         initMainFrame();
+        initWatchDog(mainPanel.getLogger());
     }
     
     private void initMainFrame() {
         mainFrame = FContainer.getContainer();
         mainFrame.setTitle(MAIN_TITLE);
         mainFrame.setIconImage(Toolkit.getDefaultToolkit().getImage(TURKEY_IMG));
-        mainFrame.setContentPane(initMainPanel());
+        initMainPanel();
+        mainFrame.setContentPane(mainPanel);
         mainFrame.revalidate();
     }
     
     private AMainPanel initMainPanel() {
-        AMainPanel panel = FMainPanel.getMainPanel();
-        return panel;
+        mainPanel = FMainPanel.getMainPanel();
+        return mainPanel;
     }
     
-    private IWatchDog initWatchDog() {
-        
+    private IWatchDog initWatchDog(JTextArea logger) {
+        watchDog = FWatchDog.getNew();
+        watchDog.begin(logger);
+        return watchDog;
     }
     
 }
