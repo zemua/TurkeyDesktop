@@ -26,16 +26,20 @@ import javax.script.ScriptException;
  * @author miguel
  */
 public class CheckerChainHandlerLinux extends ChainHandler<Dupla<String, String>> {
-    
+
     /**
      * Referencias
      * https://stackoverflow.com/questions/5206633/find-out-what-application-window-is-in-focus-in-java
      * https://stackoverflow.com/questions/41503180/jna-ubuntu-xgetinputfocus
      * https://stackoverflow.com/questions/41804977/jna-jvm-fatal-error-xgetinputfocus-ubuntu
      */
+    final X11 x11 = X11.INSTANCE;
+    final XLib xlib = XLib.INSTANCE;
 
     public interface XLib extends X11 {
+
         XLib INSTANCE = (XLib) Native.loadLibrary("X11", XLib.class);
+
         //int XGetInputFocus(X11.Display display, X11.Window focus_return, Pointer revert_to_return);
         int XGetInputFocus(X11.Display display, X11.WindowByReference focus_return, IntByReference revert_to_return);
     }
@@ -47,18 +51,32 @@ public class CheckerChainHandlerLinux extends ChainHandler<Dupla<String, String>
 
     @Override
     protected void handle(Dupla<String, String> dupla) {
-        final X11 x11 = X11.INSTANCE;
-        final XLib xlib = XLib.INSTANCE;
+        // These elements need to be freed afterwards
         X11.Display display = x11.XOpenDisplay(null);
         X11.WindowByReference winRef = new X11.WindowByReference();
-        xlib.XGetInputFocus(display, winRef, new IntByReference());
-        PointerByReference pointer = new PointerByReference();
-        
+        IntByReference intByReference = new IntByReference();
         X11.XTextProperty name = new X11.XTextProperty();
+        // ###########################################
+
+        xlib.XGetInputFocus(display, winRef, intByReference);
+
         x11.XGetWMName(display, winRef.getValue(), name);
-        
-        System.out.println(name.value);
+
+        System.out.println("complete structure: " + name);
+        System.out.println("name: " + name.value);
+        System.out.println("intByReference: " + intByReference);
+        System.out.println("winRef: " + winRef);
+        System.out.println("winRef Value: " + winRef.getValue());
+        System.out.println("display: " + display);
+        System.out.println("");
+        System.out.println("");
+        System.out.println("");
         dupla.setValue1(name.value);
+
+        x11.XFree(name.getPointer());
+        x11.XFree(intByReference.getPointer());
+        x11.XFree(winRef.getPointer());
+        x11.XFree(display.getPointer());
     }
 
 }
