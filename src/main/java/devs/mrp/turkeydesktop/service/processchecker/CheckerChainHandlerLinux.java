@@ -11,6 +11,8 @@ import com.sun.jna.Pointer;
 import com.sun.jna.win32.StdCallLibrary;
 import com.sun.jna.platform.unix.X11;
 import com.sun.jna.platform.win32.Psapi;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.common.Dupla;
@@ -28,12 +30,14 @@ public class CheckerChainHandlerLinux extends ChainHandler<Dupla<String, String>
     /**
      * Referencias
      * https://stackoverflow.com/questions/5206633/find-out-what-application-window-is-in-focus-in-java
+     * https://stackoverflow.com/questions/41503180/jna-ubuntu-xgetinputfocus
      * https://stackoverflow.com/questions/41804977/jna-jvm-fatal-error-xgetinputfocus-ubuntu
      */
 
     public interface XLib extends X11 {
         XLib INSTANCE = (XLib) Native.loadLibrary("X11", XLib.class);
-        int XGetInputFocus(X11.Display display, X11.Window focus_return, Pointer revert_to_return);
+        //int XGetInputFocus(X11.Display display, X11.Window focus_return, Pointer revert_to_return);
+        int XGetInputFocus(X11.Display display, X11.WindowByReference focus_return, IntByReference revert_to_return);
     }
 
     @Override
@@ -44,14 +48,17 @@ public class CheckerChainHandlerLinux extends ChainHandler<Dupla<String, String>
     @Override
     protected void handle(Dupla<String, String> dupla) {
         final X11 x11 = X11.INSTANCE;
-        final XLib xlib= XLib.INSTANCE;
+        final XLib xlib = XLib.INSTANCE;
         X11.Display display = x11.XOpenDisplay(null);
-        X11.Window window=new X11.Window();
-        xlib.XGetInputFocus(display, window,Pointer.NULL);
-        X11.XTextProperty name=new X11.XTextProperty();
-        x11.XGetWMName(display, window, name);
-        System.out.println(name.toString());
-        dupla.setValue1(name.toString());
+        X11.WindowByReference winRef = new X11.WindowByReference();
+        xlib.XGetInputFocus(display, winRef, new IntByReference());
+        PointerByReference pointer = new PointerByReference();
+        
+        X11.XTextProperty name = new X11.XTextProperty();
+        x11.XGetWMName(display, winRef.getValue(), name);
+        
+        System.out.println(name.value);
+        dupla.setValue1(name.value);
     }
 
 }
