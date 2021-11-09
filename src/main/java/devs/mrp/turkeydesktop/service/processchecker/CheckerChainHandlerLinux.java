@@ -57,37 +57,21 @@ public class CheckerChainHandlerLinux extends ChainHandler<Dupla<String, String>
         IntByReference intByReference = new IntByReference();
         X11.XTextProperty name = new X11.XTextProperty();
         // ###########################################
-
-        xlib.XGetInputFocus(display, winRef, intByReference);
-
-        x11.XGetWMName(display, winRef.getValue(), name);
-
-        /*System.out.println("complete structure: " + name);
-        System.out.println("name: " + name.value);
-        System.out.println("intByReference: " + intByReference);
-        System.out.println("winRef: " + winRef);
-        System.out.println("winRef Value: " + winRef.getValue());
-        System.out.println("display: " + display);
-        System.out.println("");
-        System.out.println("");
-        System.out.println("");*/
-        dupla.setValue1(name.value);
         
-        //X11.Window root = x11.XDefaultRootWindow(display);
+        xlib.XGetInputFocus(display, winRef, intByReference);
+        x11.XGetWMName(display, winRef.getValue(), name);
+        
         X11.WindowByReference windowRef = new X11.WindowByReference();
         X11.WindowByReference parentRef = new X11.WindowByReference();
         PointerByReference childrenRef = new PointerByReference();
         IntByReference childCountRef = new IntByReference();
         x11.XQueryTree(display, winRef.getValue(), windowRef, parentRef, childrenRef, childCountRef);
         
-        /*System.out.println("root window: " + windowRef);
-        System.out.println("parent ref: " + parentRef);
-        System.out.println("children ref: " + childrenRef);
-        System.out.println("child count ref: " + childCountRef);*/
-        
         X11.XTextProperty parentname = new X11.XTextProperty();
         x11.XGetWMName(display, parentRef.getValue(), parentname);
         System.out.println("parent name: " + parentname.value);
+        
+        dupla.setValue1(parentname.value);
         
         // Free Memory
         x11.XFree(name.getPointer());
