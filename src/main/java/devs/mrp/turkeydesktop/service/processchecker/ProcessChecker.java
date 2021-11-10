@@ -24,13 +24,13 @@ public class ProcessChecker implements IProcessChecker {
 
     @Override
     public String currentProcessName() {
-        chainHandler.receiveRequest("name", dupla);
-        return dupla.getValue1();
+        chainHandler.receiveRequest("both", dupla);
+        return dupla.getValue2();
     }
 
     @Override
     public String currentWindowTitle() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return dupla.getValue1();
     }
     
 }

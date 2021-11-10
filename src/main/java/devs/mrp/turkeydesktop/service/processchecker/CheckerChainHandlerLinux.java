@@ -71,6 +71,7 @@ public class CheckerChainHandlerLinux extends ChainHandler<Dupla<String, String>
         x11.XGetWMName(display, parentWindowRef.getValue(), parentname);
         
         dupla.setValue1(parentname.value);
+        dupla.setValue2(""); // TODO
         
         // Free Memory
         x11.XFree(focusRevertToReturn.getPointer());
