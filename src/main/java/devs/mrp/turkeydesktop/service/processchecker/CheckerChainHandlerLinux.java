@@ -51,33 +51,37 @@ public class CheckerChainHandlerLinux extends ChainHandler<Dupla<String, String>
 
     @Override
     protected void handle(Dupla<String, String> dupla) {
-        // These elements need to be freed afterwards
+        // Elements to be freed afterwards
         X11.Display display = x11.XOpenDisplay(null);
-        X11.WindowByReference winRef = new X11.WindowByReference();
-        IntByReference intByReference = new IntByReference();
-        X11.XTextProperty name = new X11.XTextProperty();
-        // ###########################################
-        
-        xlib.XGetInputFocus(display, winRef, intByReference);
-        x11.XGetWMName(display, winRef.getValue(), name);
-        
         X11.WindowByReference windowRef = new X11.WindowByReference();
-        X11.WindowByReference parentRef = new X11.WindowByReference();
+        IntByReference focusRevertToReturn = new IntByReference();
+        // ###############################
+        X11.WindowByReference windowRootRef = new X11.WindowByReference();
+        X11.WindowByReference parentWindowRef = new X11.WindowByReference();
         PointerByReference childrenRef = new PointerByReference();
         IntByReference childCountRef = new IntByReference();
-        x11.XQueryTree(display, winRef.getValue(), windowRef, parentRef, childrenRef, childCountRef);
-        
         X11.XTextProperty parentname = new X11.XTextProperty();
-        x11.XGetWMName(display, parentRef.getValue(), parentname);
-        System.out.println("parent name: " + parentname.value);
+        // ###############################
+        
+        // Get a reference to the window that is in focus
+        xlib.XGetInputFocus(display, windowRef, focusRevertToReturn);
+        // Get the hierarchy of the nodes to retrieve the parent
+        x11.XQueryTree(display, windowRef.getValue(), windowRootRef, parentWindowRef, childrenRef, childCountRef);
+        // Get the name of the parent window
+        x11.XGetWMName(display, parentWindowRef.getValue(), parentname);
         
         dupla.setValue1(parentname.value);
         
         // Free Memory
-        x11.XFree(name.getPointer());
-        x11.XFree(intByReference.getPointer());
-        x11.XFree(winRef.getPointer());
+        x11.XFree(focusRevertToReturn.getPointer());
+        x11.XFree(windowRef.getPointer());
         x11.XFree(display.getPointer());
+        // ---
+        x11.XFree(windowRootRef.getPointer());
+        x11.XFree(parentWindowRef.getPointer());
+        x11.XFree(childrenRef.getPointer());
+        x11.XFree(childCountRef.getPointer());
+        x11.XFree(parentname.getPointer());
     }
 
 }
