@@ -14,23 +14,23 @@ import devs.mrp.turkeydesktop.common.Dupla;
  */
 public class ProcessChecker implements IProcessChecker {
     
-    ChainHandler<Dupla<String, String>> chainHandler;
-    Dupla<String, String> dupla;
+    ChainHandler<IProcessInfo> chainHandler;
+    IProcessInfo processInfo;
     
     public ProcessChecker() {
         chainHandler = FCheckerChain.getChain();
-        dupla = new Dupla<>();
+        processInfo = FProcessInfo.getNew();
     }
 
     @Override
     public String currentProcessName() {
-        chainHandler.receiveRequest("both", dupla);
-        return dupla.getValue2();
+        chainHandler.receiveRequest("both", processInfo);
+        return processInfo.getProcessName();
     }
 
     @Override
     public String currentWindowTitle() {
-        return dupla.getValue1();
+        return processInfo.getWindowTitle();
     }
     
 }

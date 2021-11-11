@@ -25,7 +25,7 @@ import javax.script.ScriptException;
  *
  * @author miguel
  */
-public class CheckerChainHandlerLinux extends ChainHandler<Dupla<String, String>> {
+public class CheckerChainHandlerLinux extends ChainHandler<IProcessInfo> {
 
     /**
      * Referencias
@@ -35,6 +35,12 @@ public class CheckerChainHandlerLinux extends ChainHandler<Dupla<String, String>
      */
     final X11 x11 = X11.INSTANCE;
     final XLib xlib = XLib.INSTANCE;
+    
+    /**
+     * Limitations:
+     * xlib cannot get process info
+     * only window info
+     */
 
     public interface XLib extends X11 {
 
@@ -50,7 +56,7 @@ public class CheckerChainHandlerLinux extends ChainHandler<Dupla<String, String>
     }
 
     @Override
-    protected void handle(Dupla<String, String> dupla) {
+    protected void handle(IProcessInfo processInfo) {
         // Elements to be freed afterwards
         X11.Display display = x11.XOpenDisplay(null);
         X11.WindowByReference windowRef = new X11.WindowByReference();
@@ -70,8 +76,7 @@ public class CheckerChainHandlerLinux extends ChainHandler<Dupla<String, String>
         // Get the name of the parent window
         x11.XGetWMName(display, parentWindowRef.getValue(), parentname);
         
-        dupla.setValue1(parentname.value);
-        dupla.setValue2(""); // TODO
+        processInfo.setWindowTitle(parentname.value);
         
         // Free Memory
         x11.XFree(focusRevertToReturn.getPointer());
