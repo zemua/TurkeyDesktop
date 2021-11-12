@@ -15,4 +15,6 @@ public interface IProcessChecker {
     
     public String currentWindowTitle();
     
+    public String currentProcessPid();
+    
 }

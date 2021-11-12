@@ -18,8 +18,8 @@ public class CheckerChainCommander implements ChainCommander {
     
     @Override
     public ChainHandler getHandlerChain() {
-        //linuxHandler = new CheckerChainHandlerLinux(); // implementation has limitations to get process info
-        linuxHandler = new CheckerChainHandlerLinuxXdotool();
+        linuxHandler = new CheckerChainHandlerLinux();
+        //linuxHandler = new CheckerChainHandlerLinuxXdotool();
         
         return linuxHandler;
     }

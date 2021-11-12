@@ -33,4 +33,8 @@ public class ProcessChecker implements IProcessChecker {
         return processInfo.getWindowTitle();
     }
     
+    @Override
+    public String currentProcessPid() {
+        return processInfo.getProcessPid();
+    }
 }

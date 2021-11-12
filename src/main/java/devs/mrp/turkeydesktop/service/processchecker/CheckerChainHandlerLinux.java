@@ -7,54 +7,37 @@ package devs.mrp.turkeydesktop.service.processchecker;
 
 import com.sun.jna.Native;
 import com.sun.jna.Platform;
-import com.sun.jna.Pointer;
-import com.sun.jna.win32.StdCallLibrary;
 import com.sun.jna.platform.unix.X11;
-import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 import devs.mrp.turkeydesktop.common.ChainHandler;
-import devs.mrp.turkeydesktop.common.Dupla;
+import io.github.kingpulse.structs.xdo_t;
+import io.github.kingpulse.xdotool;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 
 /**
  *
  * @author miguel
  */
 public class CheckerChainHandlerLinux extends ChainHandler<IProcessInfo> {
-
-    /**
-     * Referencias
-     * https://stackoverflow.com/questions/5206633/find-out-what-application-window-is-in-focus-in-java
-     * https://stackoverflow.com/questions/41503180/jna-ubuntu-xgetinputfocus
-     * https://stackoverflow.com/questions/41804977/jna-jvm-fatal-error-xgetinputfocus-ubuntu
-     */
+    
+    private static final String DISPLAY_STRING = ":1";
+    
     final X11 x11 = X11.INSTANCE;
     final XLib xlib = XLib.INSTANCE;
+    private xdotool lib = xdotool.loadLib();
+    private xdo_t xdo = null;
     
-    /**
-     * Limitations:
-     * xlib cannot get process info
-     * only window info
-     */
-
-    public interface XLib extends X11 {
-
-        XLib INSTANCE = (XLib) Native.loadLibrary("X11", XLib.class);
-
-        //int XGetInputFocus(X11.Display display, X11.Window focus_return, Pointer revert_to_return);
-        int XGetInputFocus(X11.Display display, X11.WindowByReference focus_return, IntByReference revert_to_return);
+    public CheckerChainHandlerLinux() {
+        xdo = lib.xdo_new(DISPLAY_STRING);
     }
-
+    
     @Override
     protected boolean canHandle(String tipo) {
         return Platform.isLinux();
     }
-
+    
     @Override
     protected void handle(IProcessInfo processInfo) {
         // Elements to be freed afterwards
@@ -68,15 +51,23 @@ public class CheckerChainHandlerLinux extends ChainHandler<IProcessInfo> {
         IntByReference childCountRef = new IntByReference();
         X11.XTextProperty parentname = new X11.XTextProperty();
         // ###############################
+        X11.XWindowAttributes windowAttributes = new X11.XWindowAttributes();
+        // ###############################
         
         // Get a reference to the window that is in focus
         xlib.XGetInputFocus(display, windowRef, focusRevertToReturn);
         // Get the hierarchy of the nodes to retrieve the parent
         x11.XQueryTree(display, windowRef.getValue(), windowRootRef, parentWindowRef, childrenRef, childCountRef);
-        // Get the name of the parent window
+        // Get the name of the parent window which is the title we are looking for
         x11.XGetWMName(display, parentWindowRef.getValue(), parentname);
         
         processInfo.setWindowTitle(parentname.value);
+        
+        int processPid = lib.xdo_get_pid_window(xdo, windowRef.getValue());
+        
+        x11.XGetWindowAttributes(display, windowRef.getValue(), windowAttributes);
+        
+        processInfo.setProcessPid(String.valueOf(processPid));
         
         // Free Memory
         x11.XFree(focusRevertToReturn.getPointer());
@@ -88,6 +79,14 @@ public class CheckerChainHandlerLinux extends ChainHandler<IProcessInfo> {
         x11.XFree(childrenRef.getPointer());
         x11.XFree(childCountRef.getPointer());
         x11.XFree(parentname.getPointer());
+    }
+    
+    public interface XLib extends X11 {
+        
+        XLib INSTANCE = (XLib) Native.loadLibrary("X11", XLib.class);
+        
+        //int XGetInputFocus(X11.Display display, X11.Window focus_return, Pointer revert_to_return);
+        int XGetInputFocus(X11.Display display, X11.WindowByReference focus_return, IntByReference revert_to_return);
     }
 
 }
