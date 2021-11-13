@@ -11,6 +11,8 @@ package devs.mrp.turkeydesktop.service.processchecker;
  */
 public interface IProcessChecker {
     
+    public void refresh();
+    
     public String currentProcessName();
     
     public String currentWindowTitle();

@@ -21,10 +21,14 @@ public class ProcessChecker implements IProcessChecker {
         chainHandler = FCheckerChain.getChain();
         processInfo = FProcessInfo.getNew();
     }
+    
+    @Override
+    public void refresh() {
+        chainHandler.receiveRequest("both", processInfo);
+    }
 
     @Override
     public String currentProcessName() {
-        chainHandler.receiveRequest("both", processInfo);
         return processInfo.getProcessName();
     }
 

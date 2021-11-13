@@ -91,6 +91,7 @@ public class WatchDog implements IWatchDog {
         Long current = System.currentTimeMillis();
         Long elapsed = current - timestamp.getAndSet(current);
         log(String.format("elapsed %d millis", elapsed));
+        processChecker.refresh();
         log(String.format("current window name: %s", processChecker.currentWindowTitle()));
         log(String.format("current process PID: %s", processChecker.currentProcessPid()));
         log(String.format("current process name: %s", processChecker.currentProcessName()));
