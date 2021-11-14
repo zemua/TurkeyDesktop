@@ -12,19 +12,29 @@ import java.io.File;
  * @author miguel
  */
 public class DbFiles {
+
+    public static final String FOLDER_NAME = "TurkeyDesktop";
     static String rootpath;
-    private static final String FOLDER_NAME = "TurkeyDesktop";
-    
-    public static String getDbPath(){
-        String path = ArchivosModel.getResetedPath().concat(File.separator + "db");
+
+    public static String getDbPath() {
+        String path = getResetedPath().concat(File.separator + "db");
+        File f = new File(path);
+        if (!f.isDirectory()) {
+            f.mkdir();
+        }
+        return path;
+    }
+
+    public static String getDbFilePath() {
+        return getDbPath().concat(File.separator + FOLDER_NAME);
+    }
+
+    public static String getResetedPath() {
+        String path = System.getProperty("user.home").concat(File.separator + FOLDER_NAME);
         File f = new File(path);
         if (!f.isDirectory()){
             f.mkdir();
         }
         return path;
-    }
-    
-    public static String getDbFilePath(){
-        return getDbPath().concat(File.separator + FOLDER_NAME);
     }
 }
