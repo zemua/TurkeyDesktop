@@ -52,7 +52,7 @@ public class Db {
     private void inicializar(){
         setConnection();
         
-        execute("CREATE TABLE IF NOT EXISTS COMPOSICIONES("
+        /*execute("CREATE TABLE IF NOT EXISTS COMPOSICIONES("
                 + "ID INT NOT NULL AUTO_INCREMENT, "
                 + "NOMBRE VARCHAR(50), "
                 + "PRIMARY KEY (ID))");
@@ -90,7 +90,7 @@ public class Db {
                 + "Y INT, "
                 + "COLOR INT, "
                 + "ZORDER INT, "
-                + "PRIMARY KEY (ID))");
+                + "PRIMARY KEY (ID))");*/
         //close();
     }
     

@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.service.watchdog;
 
+import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.processchecker.FProcessChecker;
 import devs.mrp.turkeydesktop.service.processchecker.IProcessChecker;
 import java.util.List;
@@ -27,10 +28,12 @@ public class WatchDog implements IWatchDog {
     private SwingWorker worker;
     private AtomicLong timestamp;
     private IProcessChecker processChecker;
+    private LocaleMessages localeMessages;
 
     private WatchDog() {
         timestamp = new AtomicLong();
         processChecker = FProcessChecker.getNew();
+        localeMessages = LocaleMessages.getInstance();
     }
     
     public static IWatchDog getInstance() {
@@ -92,7 +95,7 @@ public class WatchDog implements IWatchDog {
         Long elapsed = current - timestamp.getAndSet(current);
         log(String.format("elapsed %d millis", elapsed));
         processChecker.refresh();
-        log(String.format("current window name: %s", processChecker.currentWindowTitle()));
+        log(String.format(localeMessages.getString("windowname"), processChecker.currentWindowTitle()));
         log(String.format("current process PID: %s", processChecker.currentProcessPid()));
         log(String.format("current process name: %s", processChecker.currentProcessName()));
     }
