@@ -5,19 +5,40 @@
  */
 package devs.mrp.turkeydesktop.view.mainpanel;
 
+import devs.mrp.turkeydesktop.common.FeedbackListener;
+import devs.mrp.turkeydesktop.common.Feedbacker;
+import java.awt.AWTEvent;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JTextArea;
 
 /**
  *
  * @author miguel
  */
-public class MainPanel extends AMainPanel {
+public class MainPanel extends AMainPanel implements Feedbacker<MainPanel.Types, AWTEvent> {
 
+    private List<FeedbackListener<MainPanel.Types, AWTEvent>> listeners = new ArrayList<>();
+    
     /**
      * Creates new form MainPanel
      */
     public MainPanel() {
         initComponents();
+    }
+
+    @Override
+    public void addFeedbackListener(FeedbackListener<Types, AWTEvent> listener) {
+        listeners.add(listener);
+    }
+
+    @Override
+    public void giveFeedback(Types tipo, AWTEvent feedback) {
+        listeners.forEach(l -> l.giveFeedback(tipo, feedback));
+    }
+    
+    public enum Types {
+        CATEGORIZE;
     }
 
     /**
@@ -30,18 +51,33 @@ public class MainPanel extends AMainPanel {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
+        catProcButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         logTextArea = new javax.swing.JTextArea();
+
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
+        catProcButton.setText(bundle.getString("categorizeproc")); // NOI18N
+        catProcButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                catProcButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(catProcButton)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(catProcButton)
+                .addContainerGap(60, Short.MAX_VALUE))
         );
 
         logTextArea.setEditable(false);
@@ -71,8 +107,13 @@ public class MainPanel extends AMainPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void catProcButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_catProcButtonActionPerformed
+        giveFeedback(Types.CATEGORIZE, evt);
+    }//GEN-LAST:event_catProcButtonActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton catProcButton;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea logTextArea;
@@ -82,5 +123,7 @@ public class MainPanel extends AMainPanel {
     public JTextArea getLogger() {
         return logTextArea;
     }
+    
+    
 
 }

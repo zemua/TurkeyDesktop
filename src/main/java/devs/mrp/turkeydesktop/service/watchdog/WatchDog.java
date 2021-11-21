@@ -9,6 +9,7 @@ import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.processchecker.FProcessChecker;
 import devs.mrp.turkeydesktop.service.processchecker.IProcessChecker;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.swing.JTextArea;
 import javax.swing.SwingWorker;
@@ -20,12 +21,13 @@ import javax.swing.SwingWorker;
 public class WatchDog implements IWatchDog {
 
     private static final long SLEEP_MILIS = 3000;
-    
+    private static final Semaphore semaphore = new Semaphore(1);
+
     private static IWatchDog instance;
 
     private boolean on = true;
     private JTextArea mLogger;
-    private SwingWorker worker;
+    private SwingWorker<Object, Object> worker;
     private AtomicLong timestamp;
     private IProcessChecker processChecker;
     private LocaleMessages localeMessages;
@@ -35,7 +37,7 @@ public class WatchDog implements IWatchDog {
         processChecker = FProcessChecker.getNew();
         localeMessages = LocaleMessages.getInstance();
     }
-    
+
     public static IWatchDog getInstance() {
         if (instance == null) {
             instance = new WatchDog();
@@ -45,17 +47,27 @@ public class WatchDog implements IWatchDog {
 
     /**
      * Not thread-safe
-     * @param logger 
+     *
+     * @param logger
      */
     @Override
     public void begin(JTextArea logger) {
         setLogger(logger);
-        if (worker == null || worker.isDone() || worker.getState().equals(SwingWorker.StateValue.PENDING)) {
-            initializeWorker();
-            timestamp.set(System.currentTimeMillis());
-            worker.execute();
-        }
+        begin();
+    }
 
+    public void begin() {
+        try {
+            semaphore.acquire();
+            if (worker == null || worker.isDone() || worker.getState().equals(SwingWorker.StateValue.PENDING)) {
+                initializeWorker();
+                timestamp.set(System.currentTimeMillis());
+                worker.execute();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        semaphore.release();
     }
 
     @Override
@@ -69,22 +81,25 @@ public class WatchDog implements IWatchDog {
     }
 
     private void log(String text) {
-        mLogger.append(String.format("%s \n", text));
+        if (mLogger != null) {
+            mLogger.append(String.format("%s \n", text));
+        }
     }
 
     private void initializeWorker() {
-        this.worker = new SwingWorker() {
+        this.worker = new SwingWorker<>() {
             @Override
             protected Object doInBackground() throws Exception {
                 while (WatchDog.this.on) {
                     Thread.sleep(SLEEP_MILIS);
+                    // publish calls to process method of SwingWorker
                     publish();
                 }
                 return null;
             }
 
             @Override
-            protected void process(List chunks) {
+            protected void process(List<Object> chunks) {
                 doLoopedStuff();
             }
         };

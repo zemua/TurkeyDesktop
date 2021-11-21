@@ -13,6 +13,7 @@ import devs.mrp.turkeydesktop.view.mainpanel.AMainPanel;
 import devs.mrp.turkeydesktop.view.mainpanel.FMainPanel;
 import java.awt.Toolkit;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
 /**
@@ -27,6 +28,7 @@ public class MainController implements IStarter {
     private JFrame mainFrame;
     private AMainPanel mainPanel;
     private IWatchDog watchDog;
+    private JPanel mPanel;
     
     @Override
     public void start() {
@@ -40,6 +42,13 @@ public class MainController implements IStarter {
         mainFrame.setIconImage(Toolkit.getDefaultToolkit().getImage(TURKEY_IMG));
         initMainPanel();
         mainFrame.setContentPane(mainPanel);
+        setMainListeners();
+        mainFrame.revalidate();
+    }
+    
+    private <T extends JPanel> void updatePane(T qPanel) {
+        mPanel = qPanel;
+        mainFrame.setContentPane(qPanel);
         mainFrame.revalidate();
     }
     
@@ -52,6 +61,10 @@ public class MainController implements IStarter {
         watchDog = FWatchDog.getInstance();
         watchDog.begin(logger);
         return watchDog;
+    }
+    
+    private void setMainListeners() {
+        
     }
     
 }
