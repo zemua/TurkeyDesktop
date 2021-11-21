@@ -9,7 +9,6 @@ import devs.mrp.turkeydesktop.service.watchdog.FWatchDog;
 import devs.mrp.turkeydesktop.service.watchdog.IWatchDog;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.container.FContainer;
-import devs.mrp.turkeydesktop.view.mainpanel.AMainPanel;
 import devs.mrp.turkeydesktop.view.mainpanel.FMainPanel;
 import javax.swing.JFrame;
 
@@ -20,7 +19,6 @@ import javax.swing.JFrame;
 public class MainController implements IStarter {
 
     private JFrame mainFrame;
-    private AMainPanel mainPanel;
     private IWatchDog watchDog;
     private PanelHandler handler;
     

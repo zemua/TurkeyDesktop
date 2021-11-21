@@ -52,45 +52,15 @@ public class Db {
     private void inicializar(){
         setConnection();
         
-        /*execute("CREATE TABLE IF NOT EXISTS COMPOSICIONES("
+        execute("CREATE TABLE IF NOT EXISTS WATCHDOG_LOG("
                 + "ID INT NOT NULL AUTO_INCREMENT, "
-                + "NOMBRE VARCHAR(50), "
+                + "EPOCH INT NOT NULL, "
+                + "ELAPSED INT NOT NULL, "
+                + "PID VARCHAR(10), "
+                + "PROCESS_NAME VARCHAR(50), "
+                + "WINDOW_TITLE VARCHAR(150), "
                 + "PRIMARY KEY (ID))");
         
-        execute("CREATE TABLE IF NOT EXISTS PICTOGRAMAS("
-                + "ID INT NOT NULL AUTO_INCREMENT, "
-                + "COMPOSICION INT NOT NULL, "
-                + "CODIGO INT NOT NULL, "
-                + "X INT, "
-                + "Y INT, "
-                + "WIDTH INT, "
-                + "HEIGHT INT, "
-                + "ZORDER INT, "
-                + "PRIMARY KEY (ID))");
-        
-        execute("CREATE TABLE IF NOT EXISTS FLECHAS("
-                + "ID INT NOT NULL AUTO_INCREMENT, "
-                + "COMPOSICION INT NOT NULL, "
-                + "X_INICIO INT, "
-                + "Y_INICIO INT, "
-                + "X_FINAL INT, "
-                + "Y_FINAL INT, "
-                + "X INT, "
-                + "Y INT, "
-                + "COLOR INT, "
-                + "ZORDER INT, "
-                + "PRIMARY KEY (ID))");
-        
-        execute("CREATE TABLE IF NOT EXISTS BOCADILLOS("
-                + "ID INT NOT NULL AUTO_INCREMENT, "
-                + "COMPOSICION INT NOT NULL, "
-                + "TIPO VARCHAR(50), "
-                + "TEXTO VARCHAR(500), "
-                + "X INT, "
-                + "Y INT, "
-                + "COLOR INT, "
-                + "ZORDER INT, "
-                + "PRIMARY KEY (ID))");*/
         //close();
     }
     
