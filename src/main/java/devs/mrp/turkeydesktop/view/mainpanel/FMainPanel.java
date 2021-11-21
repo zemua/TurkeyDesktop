@@ -5,6 +5,9 @@
  */
 package devs.mrp.turkeydesktop.view.mainpanel;
 
+import devs.mrp.turkeydesktop.view.PanelHandler;
+import javax.swing.JFrame;
+
 /**
  *
  * @author miguel
@@ -12,5 +15,9 @@ package devs.mrp.turkeydesktop.view.mainpanel;
 public class FMainPanel {
     public static AMainPanel getMainPanel() {
         return new MainPanel();
+    }
+    
+    public static PanelHandler getMainHandler(JFrame frame) {
+        return new MainHandler(frame, null);
     }
 }

@@ -13,6 +13,7 @@ import javax.swing.JTextArea;
  */
 public interface IWatchDog {
     public void begin(JTextArea logger);
+    public void begin();
     public void setLogger(JTextArea logger);
     public void stop();
 }

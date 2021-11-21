@@ -11,6 +11,8 @@ import devs.mrp.turkeydesktop.service.processchecker.IProcessChecker;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JTextArea;
 import javax.swing.SwingWorker;
 
@@ -19,6 +21,8 @@ import javax.swing.SwingWorker;
  * @author miguel
  */
 public class WatchDog implements IWatchDog {
+    
+    private static final Logger LOGGER = Logger.getLogger(WatchDog.class.getName());
 
     private static final long SLEEP_MILIS = 3000;
     private static final Semaphore semaphore = new Semaphore(1);
@@ -44,18 +48,13 @@ public class WatchDog implements IWatchDog {
         }
         return instance;
     }
-
-    /**
-     * Not thread-safe
-     *
-     * @param logger
-     */
+    
     @Override
     public void begin(JTextArea logger) {
         setLogger(logger);
         begin();
     }
-
+    
     public void begin() {
         try {
             semaphore.acquire();
@@ -84,6 +83,7 @@ public class WatchDog implements IWatchDog {
         if (mLogger != null) {
             mLogger.append(String.format("%s \n", text));
         }
+        LOGGER.log(Level.INFO, text);
     }
 
     private void initializeWorker() {
