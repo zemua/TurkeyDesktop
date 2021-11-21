@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.controllers.main;
 
+import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.watchdog.FWatchDog;
 import devs.mrp.turkeydesktop.service.watchdog.IWatchDog;
 import devs.mrp.turkeydesktop.view.container.FContainer;
@@ -20,8 +21,8 @@ import javax.swing.JTextArea;
  */
 public class MainController implements IStarter {
     
-    private static final String MAIN_TITLE = "Time Turkey";
-    private static final String TURKEY_IMG = "resources/turkey.png";
+    private static final String MAIN_TITLE = LocaleMessages.getInstance().getString("timeturkey");
+    private static final String TURKEY_IMG = "turkey.png";
 
     private JFrame mainFrame;
     private AMainPanel mainPanel;
