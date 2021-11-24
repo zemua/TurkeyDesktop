@@ -70,18 +70,43 @@ public class TimeLogRepository implements TimeLogDao {
             // get from last 24 hours only by default to not overload memory
             long frame = System.currentTimeMillis() - (24*60*60*1000);
             stm = dbInstance.getConnection().prepareStatement("SELECT * FROM WATCHDOG_LOG WHERE EPOCH>?");
-            
+            stm.setLong(1, frame);
+            rs = stm.executeQuery();
+        } catch (SQLException ex) {
+            logger.log(Level.SEVERE, null ,ex);
+            rs = null;
         }
+        return rs;
     }
 
     @Override
-    public ResultSet findById() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public ResultSet findById(long id) {
+        PreparedStatement stm;
+        ResultSet rs;
+        try {
+            stm = dbInstance.getConnection().prepareStatement("SELECT * FROM WATCHDOG_LOG WHERE ID=?");
+            stm.setLong(1, id);
+            rs = stm.executeQuery();
+        } catch (SQLException ex) {
+            logger.log(Level.SEVERE, null, ex);
+            rs = null;
+        }
+        return rs;
     }
 
     @Override
-    public long deleteById() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public long deleteById(long id) {
+        PreparedStatement stm;
+        long delid;
+        try {
+            stm = dbInstance.getConnection().prepareStatement("DELETE FROM WATCHDOG_LOG WHERE ID=?");
+            stm.setLong(1, id);
+            delid = stm.executeUpdate();
+        } catch (SQLException ex) {
+            logger.log(Level.SEVERE, null, ex);
+            delid = -1;
+        }
+        return delid;
     }
     
 }

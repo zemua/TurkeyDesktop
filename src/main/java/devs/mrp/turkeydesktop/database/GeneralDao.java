@@ -19,8 +19,8 @@ public interface GeneralDao<T> {
     
     public ResultSet findAll();
     
-    public ResultSet findById();
+    public ResultSet findById(long id);
     
-    public long deleteById();
+    public long deleteById(long id);
     
 }
