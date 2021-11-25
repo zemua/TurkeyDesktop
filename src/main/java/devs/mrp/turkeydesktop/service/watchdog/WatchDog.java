@@ -8,6 +8,8 @@ package devs.mrp.turkeydesktop.service.watchdog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.processchecker.FProcessChecker;
 import devs.mrp.turkeydesktop.service.processchecker.IProcessChecker;
+import devs.mrp.turkeydesktop.service.watchdog.logger.DbLogger;
+import devs.mrp.turkeydesktop.service.watchdog.logger.DbLoggerF;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
@@ -28,6 +30,8 @@ public class WatchDog implements IWatchDog {
     private static final Semaphore semaphore = new Semaphore(1);
 
     private static IWatchDog instance;
+    
+    private DbLogger dbLogger;
 
     private boolean on = true;
     private JTextArea mLogger;
@@ -40,6 +44,7 @@ public class WatchDog implements IWatchDog {
         timestamp = new AtomicLong();
         processChecker = FProcessChecker.getNew();
         localeMessages = LocaleMessages.getInstance();
+        dbLogger = DbLoggerF.getNew();
     }
 
     public static IWatchDog getInstance() {
@@ -109,10 +114,15 @@ public class WatchDog implements IWatchDog {
         Long current = System.currentTimeMillis();
         processChecker.refresh();
         Long elapsed = current - timestamp.getAndSet(current);
+        
+        // log some stuff
         log(String.format(localeMessages.getString("elapsedmillis"), elapsed));
         log(String.format(localeMessages.getString("windowname"), processChecker.currentWindowTitle()));
         log(String.format(localeMessages.getString("currentpid"), processChecker.currentProcessPid()));
         log(String.format(localeMessages.getString("currentprocess"), processChecker.currentProcessName()));
+        
+        // insert entry to db
+        dbLogger.logEntry(elapsed, processChecker.currentProcessPid(), processChecker.currentProcessName(), processChecker.currentWindowTitle());
     }
 
 }
