@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,66 +22,91 @@ public class TimeLogRepository implements TimeLogDao {
     
     Db dbInstance = Db.getInstance();
     Logger logger = Logger.getLogger(TimeLogRepository.class.getName());
+    Semaphore semaphore = new Semaphore(1);
+    
+    // TODO make singleton
     
     @Override
     public long add(TimeLog element) {
-        PreparedStatement stm;
+        long result = -1;
         try {
-            stm = dbInstance.getConnection().prepareStatement("INSERT INTO WATCHDOG_LOG (EPOCH, ELAPSED, PID, PROCESS_NAME, WINDOW_TITLE) "
-                    + "VALUES (?,?,?,?,?)", 
-                    Statement.RETURN_GENERATED_KEYS);
-            stm.setLong(1, element.getEpoch());
-            stm.setLong(2, element.getElapsed());
-            stm.setString(3, element.getPid());
-            stm.setString(4, element.getProcessName());
-            stm.setString(5, element.getWindowTitle());
-            stm.executeUpdate();
-            ResultSet generatedId = stm.getGeneratedKeys();
-            if (generatedId.next()) {
-                return generatedId.getLong(1);
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement("INSERT INTO WATCHDOG_LOG (EPOCH, ELAPSED, PID, PROCESS_NAME, WINDOW_TITLE) "
+                        + "VALUES (?,?,?,?,?)",
+                        Statement.RETURN_GENERATED_KEYS);
+                stm.setLong(1, element.getEpoch());
+                stm.setLong(2, element.getElapsed());
+                stm.setString(3, element.getPid());
+                stm.setString(4, element.getProcessName());
+                stm.setString(5, element.getWindowTitle());
+                stm.executeUpdate();
+                ResultSet generatedId = stm.getGeneratedKeys();
+                if (generatedId.next()) {
+                    result = generatedId.getLong(1);
+                }
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
             }
-            return -1;
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-            return -1;
+        } catch (InterruptedException ex) {
+            Logger.getLogger(TimeLogRepository.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            semaphore.release();
         }
+        return result;
     }
 
     @Override
     public long update(TimeLog element) {
-        PreparedStatement stm;
+        long entriesUpdated = -1;
         try {
-            stm = dbInstance.getConnection().prepareStatement("UPDATE WATCHDOG_LOG SET EPOCH=?, ELAPSED=?, PID=?, PROCESS_NAME=?, WINDOW_TITLE=? WHERE ID=?");
-            stm.setLong(1, element.getEpoch());
-            stm.setLong(2, element.getElapsed());
-            stm.setString(3, element.getPid());
-            stm.setString(4, element.getProcessName());
-            stm.setString(5, element.getWindowTitle());
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement("UPDATE WATCHDOG_LOG SET EPOCH=?, ELAPSED=?, PID=?, PROCESS_NAME=?, WINDOW_TITLE=? WHERE ID=?");
+                stm.setLong(1, element.getEpoch());
+                stm.setLong(2, element.getElapsed());
+                stm.setString(3, element.getPid());
+                stm.setString(4, element.getProcessName());
+                stm.setString(5, element.getWindowTitle());
+                entriesUpdated = stm.executeUpdate();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
+        } catch (InterruptedException ex) {
+            Logger.getLogger(TimeLogRepository.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            semaphore.release();
         }
-        return -1;
+        return entriesUpdated;
     }
 
     @Override
     public ResultSet findAll() {
-        PreparedStatement stm;
-        ResultSet rs;
+        ResultSet rs = null;
         try {
-            // get from last 24 hours only by default to not overload memory
-            long frame = System.currentTimeMillis() - (24*60*60*1000);
-            stm = dbInstance.getConnection().prepareStatement("SELECT * FROM WATCHDOG_LOG WHERE EPOCH>?");
-            stm.setLong(1, frame);
-            rs = stm.executeQuery();
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null ,ex);
-            rs = null;
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                // get from last 24 hours only by default to not overload memory
+                long frame = System.currentTimeMillis() - (24*60*60*1000);
+                stm = dbInstance.getConnection().prepareStatement("SELECT * FROM WATCHDOG_LOG WHERE EPOCH>?");
+                stm.setLong(1, frame);
+                rs = stm.executeQuery();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null ,ex);
+            }
+        } catch (InterruptedException ex) {
+            Logger.getLogger(TimeLogRepository.class.getName()).log(Level.SEVERE, null ,ex);
+        } finally {
+            semaphore.release();
         }
         return rs;
     }
 
     @Override
-    public ResultSet findById(long id) {
+    public ResultSet findById(long id) { // TODO semaphore
         PreparedStatement stm;
         ResultSet rs;
         try {
@@ -95,18 +121,18 @@ public class TimeLogRepository implements TimeLogDao {
     }
 
     @Override
-    public long deleteById(long id) {
+    public long deleteById(long id) { // TODO semaphore
         PreparedStatement stm;
-        long delid;
+        long delQty;
         try {
             stm = dbInstance.getConnection().prepareStatement("DELETE FROM WATCHDOG_LOG WHERE ID=?");
             stm.setLong(1, id);
-            delid = stm.executeUpdate();
+            delQty = stm.executeUpdate();
         } catch (SQLException ex) {
             logger.log(Level.SEVERE, null, ex);
-            delid = -1;
+            delQty = -1;
         }
-        return delid;
+        return delQty;
     }
     
 }

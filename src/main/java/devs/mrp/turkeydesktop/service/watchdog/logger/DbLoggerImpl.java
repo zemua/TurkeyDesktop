@@ -22,7 +22,6 @@ public class DbLoggerImpl implements DbLogger {
     
     @Override
     public void logEntry(long elapsed, String processPid, String processName, String windowTitle) {
-        // TODO
         TimeLog entry = new TimeLog();
         entry.setElapsed(elapsed);
         entry.setEpoch(System.currentTimeMillis());
