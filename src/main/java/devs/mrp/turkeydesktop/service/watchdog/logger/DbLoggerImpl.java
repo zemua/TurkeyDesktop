@@ -6,6 +6,7 @@
 package devs.mrp.turkeydesktop.service.watchdog.logger;
 
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
+import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 
 /**
  *
@@ -13,9 +14,22 @@ import devs.mrp.turkeydesktop.database.logs.TimeLog;
  */
 public class DbLoggerImpl implements DbLogger {
     
+    TimeLogService logService;
+    
+    public DbLoggerImpl() {
+        logService = new TimeLogService();
+    }
+    
     @Override
     public void logEntry(long elapsed, String processPid, String processName, String windowTitle) {
         // TODO
+        TimeLog entry = new TimeLog();
+        entry.setElapsed(elapsed);
+        entry.setEpoch(System.currentTimeMillis());
+        entry.setPid(processPid);
+        entry.setProcessName(processName);
+        entry.setWindowTitle(windowTitle);
+        logService.add(entry);
     }
     
 }
