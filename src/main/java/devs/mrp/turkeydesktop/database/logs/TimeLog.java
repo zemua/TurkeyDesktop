@@ -11,6 +11,13 @@ package devs.mrp.turkeydesktop.database.logs;
  */
 public class TimeLog {
     
+    public static final String ID = "ID";
+    public static final String EPOCH = "EPOCH";
+    public static final String ELAPSED = "ELAPSED";
+    public static final String PID = "PID";
+    public static final String PROCESS_NAME = "PROCESS_NAME";
+    public static final String WINDOW_TITLE = "WINDOW_TITLE";
+    
     private long id;
     private long epoch;
     private long elapsed;
@@ -65,7 +72,5 @@ public class TimeLog {
     public void setWindowTitle(String windowTitle) {
         this.windowTitle = windowTitle;
     }
-    
-    
     
 }

@@ -50,7 +50,7 @@ public class TimeLogRepository implements TimeLogDao {
                 logger.log(Level.SEVERE, null, ex);
             }
         } catch (InterruptedException ex) {
-            Logger.getLogger(TimeLogRepository.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         } finally {
             semaphore.release();
         }
@@ -75,7 +75,7 @@ public class TimeLogRepository implements TimeLogDao {
                 logger.log(Level.SEVERE, null, ex);
             }
         } catch (InterruptedException ex) {
-            Logger.getLogger(TimeLogRepository.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         } finally {
             semaphore.release();
         }
@@ -98,7 +98,7 @@ public class TimeLogRepository implements TimeLogDao {
                 logger.log(Level.SEVERE, null ,ex);
             }
         } catch (InterruptedException ex) {
-            Logger.getLogger(TimeLogRepository.class.getName()).log(Level.SEVERE, null ,ex);
+            logger.log(Level.SEVERE, null ,ex);
         } finally {
             semaphore.release();
         }
@@ -106,31 +106,43 @@ public class TimeLogRepository implements TimeLogDao {
     }
 
     @Override
-    public ResultSet findById(long id) { // TODO semaphore
-        PreparedStatement stm;
-        ResultSet rs;
+    public ResultSet findById(long id) {
+        ResultSet rs = null;
         try {
-            stm = dbInstance.getConnection().prepareStatement("SELECT * FROM WATCHDOG_LOG WHERE ID=?");
-            stm.setLong(1, id);
-            rs = stm.executeQuery();
-        } catch (SQLException ex) {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement("SELECT * FROM WATCHDOG_LOG WHERE ID=?");
+                stm.setLong(1, id);
+                rs = stm.executeQuery();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
+        } catch (InterruptedException ex) {
             logger.log(Level.SEVERE, null, ex);
-            rs = null;
+        } finally {
+            semaphore.release();
         }
         return rs;
     }
 
     @Override
-    public long deleteById(long id) { // TODO semaphore
-        PreparedStatement stm;
-        long delQty;
+    public long deleteById(long id) {
+        long delQty = -1;
         try {
-            stm = dbInstance.getConnection().prepareStatement("DELETE FROM WATCHDOG_LOG WHERE ID=?");
-            stm.setLong(1, id);
-            delQty = stm.executeUpdate();
-        } catch (SQLException ex) {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement("DELETE FROM WATCHDOG_LOG WHERE ID=?");
+                stm.setLong(1, id);
+                delQty = stm.executeUpdate();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
+        } catch (InterruptedException ex) {
             logger.log(Level.SEVERE, null, ex);
-            delQty = -1;
+        } finally {
+            semaphore.release();
         }
         return delQty;
     }
