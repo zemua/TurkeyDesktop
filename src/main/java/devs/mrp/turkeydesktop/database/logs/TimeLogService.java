@@ -5,9 +5,12 @@
  */
 package devs.mrp.turkeydesktop.database.logs;
 
+import devs.mrp.turkeydesktop.common.Dupla;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,6 +41,36 @@ public class TimeLogService implements ITimeLogService {
 
     public List<TimeLog> findLast24H() {
         return listFromResultSet(repo.findAll());
+    }
+    
+    @Override
+    public List<Dupla<String, Long>> findProcessTimeFromTo(Date from, Date to) {
+        // Set from to hour 0 of the day
+        Calendar cfrom = Calendar.getInstance();
+        cfrom.setTime(from);
+        cfrom.set(Calendar.HOUR_OF_DAY, 0);
+        cfrom.set(Calendar.MINUTE, 0);
+        cfrom.set(Calendar.SECOND, 0);
+        // Set "to" to the last second of the day
+        Calendar cto = Calendar.getInstance();
+        cto.set(Calendar.HOUR_OF_DAY, 23);
+        cto.set(Calendar.MINUTE, 59);
+        cto.set(Calendar.SECOND, 59);
+        cto.setTime(to);
+        // use calendar objects to get milliseconds
+        List<Dupla<String,Long>> times = new ArrayList<>();
+        ResultSet set = repo.getTimeFrameGroupedByProcess(cfrom.getTimeInMillis(), cto.getTimeInMillis());
+        try {
+            while (set.next()) {
+                Dupla<String,Long> dupla = new Dupla<>();
+                dupla.setValue1(set.getString(TimeLog.PROCESS_NAME));
+                dupla.setValue2(set.getLong(2));
+                times.add(dupla);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return times;
     }
 
     public TimeLog findById(long id) {

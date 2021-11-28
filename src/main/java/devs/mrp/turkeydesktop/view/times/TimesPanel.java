@@ -11,6 +11,7 @@ import java.awt.AWTEvent;
 import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -36,10 +37,6 @@ public class TimesPanel extends FeedbackerPanelWithFetcher<TimesEnum, AWTEvent> 
     @Override
     public void giveFeedback(TimesEnum tipo, AWTEvent feedback) {
         listeners.forEach(l -> l.giveFeedback(tipo, feedback));
-    }
-
-    private void giveFeedback(TimesEnum tipo, PropertyChangeEvent evt) {
-
     }
 
     @Override
@@ -89,12 +86,14 @@ public class TimesPanel extends FeedbackerPanelWithFetcher<TimesEnum, AWTEvent> 
 
         toLabel.setText(bundle.getString("to")); // NOI18N
 
+        dateFrom.setDate(new Date());
         dateFrom.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
                 dateFromPropertyChange(evt);
             }
         });
 
+        dateTo.setDate(new Date());
         dateTo.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
                 dateToPropertyChange(evt);
@@ -144,27 +143,49 @@ public class TimesPanel extends FeedbackerPanelWithFetcher<TimesEnum, AWTEvent> 
 
     private void dateFromPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_dateFromPropertyChange
         setDateChooserErrorColor();
+        sendUpdate();
     }//GEN-LAST:event_dateFromPropertyChange
 
     private void dateToPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_dateToPropertyChange
         setDateChooserErrorColor();
+        sendUpdate();
     }//GEN-LAST:event_dateToPropertyChange
 
     private void setDateChooserErrorColor() {
-        if (dateFrom.getDate() != null && dateTo.getDate() != null && dateFrom.getDate().compareTo(dateTo.getDate()) > 0) {
-            toLabel.setForeground(Color.red);
-            fromLabel.setForeground(Color.red);
+        if (isFromCorrect()) {
+            fromLabel.setForeground(Color.BLACK);
         } else {
-            if (dateFrom.getDate() == null) {
-                fromLabel.setForeground(Color.red);
-            } else {
-                fromLabel.setForeground(Color.black);
-            }
-            if (dateTo.getDate() == null) {
-                toLabel.setForeground(Color.red);
-            } else {
-                toLabel.setForeground(Color.black);
-            }
+            fromLabel.setForeground(Color.RED);
+        }
+        
+        if (isToCorrect()) {
+            toLabel.setForeground(Color.BLACK);
+        } else {
+            toLabel.setForeground(Color.RED);
+        }
+    }
+    
+    private boolean isFromCorrect() {
+        if (dateFrom.getDate() != null && dateTo.getDate() != null && dateFrom.getDate().compareTo(dateTo.getDate()) <= 0) {
+            return true;
+        }
+        return dateFrom.getDate() != null;
+    }
+    
+    private boolean isToCorrect() {
+        if (dateFrom.getDate() != null && dateTo.getDate() != null && dateFrom.getDate().compareTo(dateTo.getDate()) <= 0) {
+            return true;
+        }
+        return dateTo.getDate() != null;
+    }
+    
+    private boolean isFromAndToCorrect() {
+        return isFromCorrect() && isToCorrect();
+    }
+    
+    private void sendUpdate() {
+        if (isFromAndToCorrect()) {
+            giveFeedback(TimesEnum.UPDATE, null);
         }
     }
 

@@ -10,5 +10,5 @@ package devs.mrp.turkeydesktop.view.times;
  * @author miguel
  */
 public enum TimesEnum {
-    BACK, FROM, TO, LOGGER;
+    BACK, FROM, TO, LOGGER, UPDATE;
 }
