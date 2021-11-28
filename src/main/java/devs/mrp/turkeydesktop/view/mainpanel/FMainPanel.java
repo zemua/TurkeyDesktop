@@ -5,14 +5,19 @@
  */
 package devs.mrp.turkeydesktop.view.mainpanel;
 
-import javax.swing.JPanel;
+import devs.mrp.turkeydesktop.view.PanelHandler;
+import javax.swing.JFrame;
 
 /**
  *
  * @author miguel
  */
 public class FMainPanel {
-    public static JPanel getMainPanel() {
+    public static AMainPanel getMainPanel() {
         return new MainPanel();
+    }
+    
+    public static PanelHandler getMainHandler(JFrame frame) {
+        return new MainHandler(frame, null);
     }
 }

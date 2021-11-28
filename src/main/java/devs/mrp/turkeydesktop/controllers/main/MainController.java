@@ -5,39 +5,34 @@
  */
 package devs.mrp.turkeydesktop.controllers.main;
 
+import devs.mrp.turkeydesktop.service.watchdog.FWatchDog;
+import devs.mrp.turkeydesktop.service.watchdog.IWatchDog;
+import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.container.FContainer;
 import devs.mrp.turkeydesktop.view.mainpanel.FMainPanel;
-import java.awt.Toolkit;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 /**
  *
  * @author miguel
  */
 public class MainController implements IStarter {
-    
-    private static final String MAIN_TITLE = "Time Turkey";
-    private static final String TURKEY_IMG = "resources/turkey.png";
 
     private JFrame mainFrame;
+    private IWatchDog watchDog;
+    private PanelHandler handler;
     
     @Override
     public void start() {
         initMainFrame();
+        watchDog = FWatchDog.getInstance();
+        watchDog.begin();
     }
     
     private void initMainFrame() {
         mainFrame = FContainer.getContainer();
-        mainFrame.setTitle(MAIN_TITLE);
-        mainFrame.setIconImage(Toolkit.getDefaultToolkit().getImage(TURKEY_IMG));
-        mainFrame.setContentPane(initMainPanel());
-        mainFrame.revalidate();
-    }
-    
-    private JPanel initMainPanel() {
-        JPanel panel = FMainPanel.getMainPanel();
-        return panel;
+        handler = FMainPanel.getMainHandler(mainFrame);
+        handler.show();
     }
     
 }
