@@ -6,6 +6,7 @@
 package devs.mrp.turkeydesktop.database.logs;
 
 import devs.mrp.turkeydesktop.common.Dupla;
+import devs.mrp.turkeydesktop.common.TimeConverter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -46,19 +47,9 @@ public class TimeLogService implements ITimeLogService {
     @Override
     public List<Dupla<String, Long>> findProcessTimeFromTo(Date from, Date to) {
         // Set from to hour 0 of the day
-        Calendar cfrom = Calendar.getInstance();
-        cfrom.setTime(from);
-        cfrom.set(Calendar.HOUR_OF_DAY, 0);
-        cfrom.set(Calendar.MINUTE, 0);
-        cfrom.set(Calendar.SECOND, 0);
-        long fromMilis = cfrom.getTimeInMillis();
+        long fromMilis = TimeConverter.millisToBeginningOfDay(from.getTime());
         // Set "to" to the last second of the day
-        Calendar cto = Calendar.getInstance();
-        cto.set(Calendar.HOUR_OF_DAY, 23);
-        cto.set(Calendar.MINUTE, 59);
-        cto.set(Calendar.SECOND, 59);
-        cto.setTime(to);
-        long toMilis = cto.getTimeInMillis();
+        long toMilis = TimeConverter.millisToEndOfDay(to.getTime());
         // use calendar objects to get milliseconds
         List<Dupla<String,Long>> times = new ArrayList<>();
         ResultSet set = repo.getTimeFrameGroupedByProcess(fromMilis, toMilis);
