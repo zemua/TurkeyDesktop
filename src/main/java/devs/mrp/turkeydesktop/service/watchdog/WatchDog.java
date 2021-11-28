@@ -70,8 +70,9 @@ public class WatchDog implements IWatchDog {
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
+        } finally {
+            semaphore.release();
         }
-        semaphore.release();
     }
 
     @Override

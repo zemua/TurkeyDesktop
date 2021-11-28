@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  */
 public class TimeLogService {
 
-    TimeLogDao repo = new TimeLogRepository();
+    TimeLogDao repo = TimeLogRepository.getInstance();
 
     public long add(TimeLog element) {
         if (element == null) {

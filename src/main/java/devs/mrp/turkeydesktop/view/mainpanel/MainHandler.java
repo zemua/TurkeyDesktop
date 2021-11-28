@@ -6,26 +6,29 @@
 package devs.mrp.turkeydesktop.view.mainpanel;
 
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
+import devs.mrp.turkeydesktop.view.FeedbackerPanel;
 import devs.mrp.turkeydesktop.view.PanelHandler;
+import devs.mrp.turkeydesktop.view.times.TimesHandler;
+import devs.mrp.turkeydesktop.view.times.TimesPanel;
+import java.awt.AWTEvent;
 import java.awt.Toolkit;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 /**
  *
  * @author miguel
  */
-public class MainHandler extends PanelHandler {
+public class MainHandler extends PanelHandler<MainPanel.Types, AWTEvent> {
     
     private static final String MAIN_TITLE = LocaleMessages.getInstance().getString("timeturkey");
     private static final String TURKEY_IMG = "turkey.png";
 
-    public MainHandler(JFrame frame, PanelHandler caller) {
+    public MainHandler(JFrame frame, PanelHandler<?,?> caller) {
         super(frame, caller);
     }
     
     @Override
-    protected JPanel initPanel() {
+    protected FeedbackerPanel<MainPanel.Types, AWTEvent> initPanel() {
         this.getFrame().setTitle(MAIN_TITLE);
         this.getFrame().setIconImage(Toolkit.getDefaultToolkit().getImage(TURKEY_IMG));
         this.setPanel(FMainPanel.getMainPanel());
@@ -33,8 +36,29 @@ public class MainHandler extends PanelHandler {
     }
 
     @Override
-    protected void initListeners(JPanel pan) {
-        // TODO
+    protected void initListeners(FeedbackerPanel<MainPanel.Types, AWTEvent> pan) {
+        pan.addFeedbackListener((tipo, feedback) -> {
+            switch (tipo) {
+                case CATEGORIZE:
+                    // TODO
+                    break;
+                case TIMES:
+                    initTimesHandler();
+                    break;
+                default:
+                    break;
+            }
+        });
+    }
+    
+    @Override
+    protected void doExtraBeforeShow() {
+        // Nothing to do here
+    }
+    
+    private void initTimesHandler() {
+        PanelHandler<TimesPanel.Types, AWTEvent> handler = new TimesHandler(this.getFrame(), this);
+        handler.show();
     }
     
 }

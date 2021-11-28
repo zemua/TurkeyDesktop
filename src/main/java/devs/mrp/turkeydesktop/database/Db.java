@@ -53,8 +53,8 @@ public class Db {
         setConnection();
         
         execute("CREATE TABLE IF NOT EXISTS WATCHDOG_LOG("
-                + "ID INT NOT NULL AUTO_INCREMENT, "
-                + "EPOCH INT NOT NULL, "
+                + "ID BIGINT NOT NULL AUTO_INCREMENT, "
+                + "EPOCH BIGINT NOT NULL, "
                 + "ELAPSED INT NOT NULL, "
                 + "PID VARCHAR(10), "
                 + "PROCESS_NAME VARCHAR(50), "

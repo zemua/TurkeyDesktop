@@ -3,20 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package devs.mrp.turkeydesktop.view.mainpanel;
+package devs.mrp.turkeydesktop.view;
 
 import devs.mrp.turkeydesktop.common.Feedbacker;
-import devs.mrp.turkeydesktop.view.FeedbackerPanel;
+import devs.mrp.turkeydesktop.view.mainpanel.MainPanel;
 import java.awt.AWTEvent;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 
 /**
  *
  * @author miguel
  */
-public abstract class AMainPanel extends FeedbackerPanel<MainPanel.Types, AWTEvent> {
-    
-    public abstract JTextArea getLogger();
+public abstract class FeedbackerPanel<T, E> extends JPanel implements Feedbacker<T, E> {
     
 }

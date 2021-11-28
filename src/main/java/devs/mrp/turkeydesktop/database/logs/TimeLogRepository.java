@@ -20,11 +20,22 @@ import java.util.logging.Logger;
  */
 public class TimeLogRepository implements TimeLogDao {
     
-    Db dbInstance = Db.getInstance();
-    Logger logger = Logger.getLogger(TimeLogRepository.class.getName());
-    Semaphore semaphore = new Semaphore(1);
+    private Db dbInstance = Db.getInstance();
+    private Logger logger = Logger.getLogger(TimeLogRepository.class.getName());
+    private Semaphore semaphore = new Semaphore(1);
     
-    // TODO make singleton
+    private static TimeLogRepository instance;
+    
+    private TimeLogRepository(){
+        
+    }
+    
+    public static TimeLogRepository getInstance() {
+        if (instance == null) {
+            instance = new TimeLogRepository();
+        }
+        return instance;
+    }
     
     @Override
     public long add(TimeLog element) {
