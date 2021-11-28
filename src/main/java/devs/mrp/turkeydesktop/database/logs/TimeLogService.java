@@ -51,15 +51,17 @@ public class TimeLogService implements ITimeLogService {
         cfrom.set(Calendar.HOUR_OF_DAY, 0);
         cfrom.set(Calendar.MINUTE, 0);
         cfrom.set(Calendar.SECOND, 0);
+        long fromMilis = cfrom.getTimeInMillis();
         // Set "to" to the last second of the day
         Calendar cto = Calendar.getInstance();
         cto.set(Calendar.HOUR_OF_DAY, 23);
         cto.set(Calendar.MINUTE, 59);
         cto.set(Calendar.SECOND, 59);
         cto.setTime(to);
+        long toMilis = cto.getTimeInMillis();
         // use calendar objects to get milliseconds
         List<Dupla<String,Long>> times = new ArrayList<>();
-        ResultSet set = repo.getTimeFrameGroupedByProcess(cfrom.getTimeInMillis(), cto.getTimeInMillis());
+        ResultSet set = repo.getTimeFrameGroupedByProcess(fromMilis, toMilis);
         try {
             while (set.next()) {
                 Dupla<String,Long> dupla = new Dupla<>();

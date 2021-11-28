@@ -22,6 +22,9 @@ public class TimesPanel extends FeedbackerPanelWithFetcher<TimesEnum, AWTEvent> 
 
     private List<FeedbackListener<TimesEnum, AWTEvent>> listeners = new ArrayList<>();
 
+    private int fromInitiated = 0;
+    private int toInitiated = 0;
+    
     /**
      * Creates new form TimesPanel
      */
@@ -70,6 +73,8 @@ public class TimesPanel extends FeedbackerPanelWithFetcher<TimesEnum, AWTEvent> 
         dateFrom = new com.toedter.calendar.JDateChooser();
         dateTo = new com.toedter.calendar.JDateChooser();
 
+        setMinimumSize(new java.awt.Dimension(550, 250));
+
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
         backButton.setText(bundle.getString("back")); // NOI18N
         backButton.addActionListener(new java.awt.event.ActionListener() {
@@ -113,12 +118,12 @@ public class TimesPanel extends FeedbackerPanelWithFetcher<TimesEnum, AWTEvent> 
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(fromLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(dateFrom, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(dateFrom, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(toLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(dateTo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 67, Short.MAX_VALUE)))
+                        .addComponent(dateTo, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 145, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -132,7 +137,7 @@ public class TimesPanel extends FeedbackerPanelWithFetcher<TimesEnum, AWTEvent> 
                     .addComponent(fromLabel)
                     .addComponent(toLabel))
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -143,12 +148,18 @@ public class TimesPanel extends FeedbackerPanelWithFetcher<TimesEnum, AWTEvent> 
 
     private void dateFromPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_dateFromPropertyChange
         setDateChooserErrorColor();
-        sendUpdate();
+        fromInitiated ++;
+        if (initiated()) {
+            sendUpdate();
+        }
     }//GEN-LAST:event_dateFromPropertyChange
 
     private void dateToPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_dateToPropertyChange
         setDateChooserErrorColor();
-        sendUpdate();
+        toInitiated ++;
+        if (initiated()) {
+            sendUpdate();
+        }
     }//GEN-LAST:event_dateToPropertyChange
 
     private void setDateChooserErrorColor() {
@@ -166,15 +177,15 @@ public class TimesPanel extends FeedbackerPanelWithFetcher<TimesEnum, AWTEvent> 
     }
     
     private boolean isFromCorrect() {
-        if (dateFrom.getDate() != null && dateTo.getDate() != null && dateFrom.getDate().compareTo(dateTo.getDate()) <= 0) {
-            return true;
+        if (dateFrom.getDate() != null && dateTo.getDate() != null) {
+            return dateFrom.getDate().compareTo(dateTo.getDate()) <= 0;
         }
         return dateFrom.getDate() != null;
     }
     
     private boolean isToCorrect() {
-        if (dateFrom.getDate() != null && dateTo.getDate() != null && dateFrom.getDate().compareTo(dateTo.getDate()) <= 0) {
-            return true;
+        if (dateFrom.getDate() != null && dateTo.getDate() != null) {
+            return dateFrom.getDate().compareTo(dateTo.getDate()) <= 0;
         }
         return dateTo.getDate() != null;
     }
@@ -187,6 +198,11 @@ public class TimesPanel extends FeedbackerPanelWithFetcher<TimesEnum, AWTEvent> 
         if (isFromAndToCorrect()) {
             giveFeedback(TimesEnum.UPDATE, null);
         }
+    }
+    
+    private boolean initiated() {
+        // When initiating the fields on load, datePropertyChange is called 2 times instead of 1
+        return fromInitiated > 1 && toInitiated > 1;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

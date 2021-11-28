@@ -6,6 +6,7 @@
 package devs.mrp.turkeydesktop.view.times;
 
 import devs.mrp.turkeydesktop.common.Dupla;
+import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.logs.FTimeLogService;
 import devs.mrp.turkeydesktop.database.logs.ITimeLogService;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
@@ -72,7 +73,7 @@ public class TimesHandler extends PanelHandler<TimesEnum, AWTEvent, FeedbackerPa
         JTextArea log = (JTextArea)this.getPanel().getProperty(TimesEnum.LOGGER);
         log.setText("");
         List<Dupla<String,Long>> times = logService.findProcessTimeFromTo(from, to);
-        times.forEach(t -> log.append(String.format(localeMessages.getString("processTimeLog"), t.getValue1(), String.valueOf(t.getValue2()))));
+        times.forEach(t -> log.append(String.format(localeMessages.getString("processTimeLog"), t.getValue1(), TimeConverter.millisToHMS(t.getValue2()))));
     }
     
     private Date getFrom() {
