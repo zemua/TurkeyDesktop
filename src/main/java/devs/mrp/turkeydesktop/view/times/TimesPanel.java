@@ -6,7 +6,6 @@
 package devs.mrp.turkeydesktop.view.times;
 
 import devs.mrp.turkeydesktop.common.FeedbackListener;
-import devs.mrp.turkeydesktop.view.FeedbackerPanel;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithLogger;
 import java.awt.AWTEvent;
 import java.util.ArrayList;

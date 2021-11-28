@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database;
 
+import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -19,6 +20,9 @@ import javax.swing.JOptionPane;
  * @author miguel
  */
 public class Db {
+    
+    public static final String WATCHDOG_TABLE = "WATCHDOG_LOG";
+    
     private static Db instance = null;
     private Connection con = null;
     
@@ -52,14 +56,15 @@ public class Db {
     private void inicializar(){
         setConnection();
         
-        execute("CREATE TABLE IF NOT EXISTS WATCHDOG_LOG("
-                + "ID BIGINT NOT NULL AUTO_INCREMENT, "
-                + "EPOCH BIGINT NOT NULL, "
-                + "ELAPSED INT NOT NULL, "
-                + "PID VARCHAR(10), "
-                + "PROCESS_NAME VARCHAR(50), "
-                + "WINDOW_TITLE VARCHAR(150), "
-                + "PRIMARY KEY (ID))");
+        execute(String.format("CREATE TABLE IF NOT EXISTS %s("
+                + "%s BIGINT NOT NULL AUTO_INCREMENT, "
+                + "%s BIGINT NOT NULL, "
+                + "%s INT NOT NULL, "
+                + "%s VARCHAR(10), "
+                + "%s VARCHAR(50), "
+                + "%s VARCHAR(150), "
+                + "PRIMARY KEY (%s))",
+                WATCHDOG_TABLE, TimeLog.ID, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE, TimeLog.ID));
         
         //close();
     }

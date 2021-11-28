@@ -5,6 +5,8 @@
  */
 package devs.mrp.turkeydesktop.database.logs;
 
+import devs.mrp.turkeydesktop.i18n.LocaleMessages;
+
 /**
  *
  * @author miguel
@@ -24,7 +26,9 @@ public class TimeLog {
     private String pid;
     private String processName;
     private String windowTitle;
-
+    
+    private LocaleMessages localeMessages = LocaleMessages.getInstance();
+    
     public long getId() {
         return id;
     }
@@ -71,6 +75,11 @@ public class TimeLog {
 
     public void setWindowTitle(String windowTitle) {
         this.windowTitle = windowTitle;
+    }
+    
+    @Override
+    public String toString() {
+        return String.format(String.format(localeMessages.getString("timeLogToString"), epoch, processName, windowTitle, elapsed));
     }
     
 }

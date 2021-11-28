@@ -6,11 +6,14 @@
 package devs.mrp.turkeydesktop.database.logs;
 
 import devs.mrp.turkeydesktop.database.GeneralDao;
+import java.sql.ResultSet;
 
 /**
  *
  * @author miguel
  */
 public interface TimeLogDao extends GeneralDao<TimeLog> {
+    
+    public ResultSet getTimeFrameGroupedByProcess(long from, long to);
     
 }
