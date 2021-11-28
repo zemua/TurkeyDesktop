@@ -16,9 +16,9 @@ import javax.swing.JTextArea;
  *
  * @author miguel
  */
-public class MainPanel extends AMainPanel {
+public class MainPanel extends FeedbackerPanelWithLogger<MainEnum, AWTEvent> {
 
-    private List<FeedbackListener<MainPanel.Types, AWTEvent>> listeners = new ArrayList<>();
+    private List<FeedbackListener<MainEnum, AWTEvent>> listeners = new ArrayList<>();
     
     /**
      * Creates new form MainPanel
@@ -28,17 +28,13 @@ public class MainPanel extends AMainPanel {
     }
 
     @Override
-    public void addFeedbackListener(FeedbackListener<Types, AWTEvent> listener) {
+    public void addFeedbackListener(FeedbackListener<MainEnum, AWTEvent> listener) {
         listeners.add(listener);
     }
 
     @Override
-    public void giveFeedback(Types tipo, AWTEvent feedback) {
+    public void giveFeedback(MainEnum tipo, AWTEvent feedback) {
         listeners.forEach(l -> l.giveFeedback(tipo, feedback));
-    }
-    
-    public enum Types {
-        CATEGORIZE, TIMES;
     }
 
     /**
@@ -120,11 +116,11 @@ public class MainPanel extends AMainPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void catProcButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_catProcButtonActionPerformed
-        giveFeedback(Types.CATEGORIZE, evt);
+        giveFeedback(MainEnum.CATEGORIZE, evt);
     }//GEN-LAST:event_catProcButtonActionPerformed
 
     private void timesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_timesButtonActionPerformed
-        giveFeedback(Types.TIMES, evt);
+        giveFeedback(MainEnum.TIMES, evt);
     }//GEN-LAST:event_timesButtonActionPerformed
 
 

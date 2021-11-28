@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  *
  * @author miguel
  */
-public class TimeLogService {
+public class TimeLogService implements ITimeLogService {
 
     TimeLogDao repo = TimeLogRepository.getInstance();
 

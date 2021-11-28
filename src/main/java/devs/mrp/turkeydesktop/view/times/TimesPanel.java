@@ -7,17 +7,19 @@ package devs.mrp.turkeydesktop.view.times;
 
 import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.view.FeedbackerPanel;
+import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithLogger;
 import java.awt.AWTEvent;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JTextArea;
 
 /**
  *
  * @author miguel
  */
-public class TimesPanel extends FeedbackerPanel<TimesPanel.Types, AWTEvent> {
+public class TimesPanel extends FeedbackerPanelWithLogger<TimesEnum, AWTEvent> {
 
-    private List<FeedbackListener<Types, AWTEvent>> listeners = new ArrayList<>();
+    private List<FeedbackListener<TimesEnum, AWTEvent>> listeners = new ArrayList<>();
     
     /**
      * Creates new form TimesPanel
@@ -27,17 +29,18 @@ public class TimesPanel extends FeedbackerPanel<TimesPanel.Types, AWTEvent> {
     }
 
     @Override
-    public void addFeedbackListener(FeedbackListener<Types, AWTEvent> listener) {
+    public void addFeedbackListener(FeedbackListener<TimesEnum, AWTEvent> listener) {
         listeners.add(listener);
     }
 
     @Override
-    public void giveFeedback(Types tipo, AWTEvent feedback) {
+    public void giveFeedback(TimesEnum tipo, AWTEvent feedback) {
         listeners.forEach(l -> l.giveFeedback(tipo, feedback));
     }
-    
-    public enum Types {
-        BACK;
+
+    @Override
+    public JTextArea getLogger() {
+        return this.textLogger;
     }
 
     /**
@@ -50,6 +53,8 @@ public class TimesPanel extends FeedbackerPanel<TimesPanel.Types, AWTEvent> {
     private void initComponents() {
 
         backButton = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        textLogger = new javax.swing.JTextArea();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
         backButton.setText(bundle.getString("back")); // NOI18N
@@ -59,30 +64,42 @@ public class TimesPanel extends FeedbackerPanel<TimesPanel.Types, AWTEvent> {
             }
         });
 
+        textLogger.setColumns(20);
+        textLogger.setRows(5);
+        jScrollPane1.setViewportView(textLogger);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(backButton)
-                .addContainerGap(344, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(backButton)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(backButton)
-                .addContainerGap(260, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void backButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backButtonActionPerformed
-        giveFeedback(Types.BACK, evt);
+        giveFeedback(TimesEnum.BACK, evt);
     }//GEN-LAST:event_backButtonActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton backButton;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea textLogger;
     // End of variables declaration//GEN-END:variables
 }

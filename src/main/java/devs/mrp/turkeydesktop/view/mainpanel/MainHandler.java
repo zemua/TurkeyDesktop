@@ -8,6 +8,8 @@ package devs.mrp.turkeydesktop.view.mainpanel;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.FeedbackerPanel;
 import devs.mrp.turkeydesktop.view.PanelHandler;
+import devs.mrp.turkeydesktop.view.times.FTimesPanel;
+import devs.mrp.turkeydesktop.view.times.TimesEnum;
 import devs.mrp.turkeydesktop.view.times.TimesHandler;
 import devs.mrp.turkeydesktop.view.times.TimesPanel;
 import java.awt.AWTEvent;
@@ -18,17 +20,17 @@ import javax.swing.JFrame;
  *
  * @author miguel
  */
-public class MainHandler extends PanelHandler<MainPanel.Types, AWTEvent> {
+public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPanelWithLogger<MainEnum, AWTEvent>> {
     
     private static final String MAIN_TITLE = LocaleMessages.getInstance().getString("timeturkey");
     private static final String TURKEY_IMG = "turkey.png";
 
-    public MainHandler(JFrame frame, PanelHandler<?,?> caller) {
+    public MainHandler(JFrame frame, PanelHandler<?,?, ?> caller) {
         super(frame, caller);
     }
     
     @Override
-    protected FeedbackerPanel<MainPanel.Types, AWTEvent> initPanel() {
+    protected FeedbackerPanelWithLogger<MainEnum, AWTEvent> initPanel() {
         this.getFrame().setTitle(MAIN_TITLE);
         this.getFrame().setIconImage(Toolkit.getDefaultToolkit().getImage(TURKEY_IMG));
         this.setPanel(FMainPanel.getMainPanel());
@@ -36,7 +38,7 @@ public class MainHandler extends PanelHandler<MainPanel.Types, AWTEvent> {
     }
 
     @Override
-    protected void initListeners(FeedbackerPanel<MainPanel.Types, AWTEvent> pan) {
+    protected void initListeners(FeedbackerPanelWithLogger<MainEnum, AWTEvent> pan) {
         pan.addFeedbackListener((tipo, feedback) -> {
             switch (tipo) {
                 case CATEGORIZE:
@@ -57,7 +59,7 @@ public class MainHandler extends PanelHandler<MainPanel.Types, AWTEvent> {
     }
     
     private void initTimesHandler() {
-        PanelHandler<TimesPanel.Types, AWTEvent> handler = new TimesHandler(this.getFrame(), this);
+        PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithLogger<TimesEnum, AWTEvent>> handler = FTimesPanel.getHandler(this.getFrame(), this);
         handler.show();
     }
     

@@ -15,7 +15,7 @@ import javax.swing.JTextArea;
  *
  * @author miguel
  */
-public abstract class AMainPanel extends FeedbackerPanel<MainPanel.Types, AWTEvent> {
+public abstract class FeedbackerPanelWithLogger<T, E> extends FeedbackerPanel<T, E> {
     
     public abstract JTextArea getLogger();
     
