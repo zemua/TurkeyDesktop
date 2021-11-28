@@ -5,9 +5,12 @@
  */
 package devs.mrp.turkeydesktop.view.times;
 
+import com.toedter.calendar.JDateChooser;
 import devs.mrp.turkeydesktop.common.FeedbackListener;
-import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithLogger;
+import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JTextArea;
@@ -16,10 +19,10 @@ import javax.swing.JTextArea;
  *
  * @author miguel
  */
-public class TimesPanel extends FeedbackerPanelWithLogger<TimesEnum, AWTEvent> {
+public class TimesPanel extends FeedbackerPanelWithFetcher<TimesEnum, AWTEvent> {
 
     private List<FeedbackListener<TimesEnum, AWTEvent>> listeners = new ArrayList<>();
-    
+
     /**
      * Creates new form TimesPanel
      */
@@ -37,9 +40,22 @@ public class TimesPanel extends FeedbackerPanelWithLogger<TimesEnum, AWTEvent> {
         listeners.forEach(l -> l.giveFeedback(tipo, feedback));
     }
 
+    private void giveFeedback(TimesEnum tipo, PropertyChangeEvent evt) {
+
+    }
+
     @Override
-    public JTextArea getLogger() {
-        return this.textLogger;
+    public Object getProperty(TimesEnum type) {
+        switch (type) {
+            case LOGGER:
+                return this.textLogger;
+            case FROM:
+            // TODO
+            case TO:
+            // TODO
+            default:
+                return null;
+        }
     }
 
     /**
@@ -54,6 +70,10 @@ public class TimesPanel extends FeedbackerPanelWithLogger<TimesEnum, AWTEvent> {
         backButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         textLogger = new javax.swing.JTextArea();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jDateChooser1 = new com.toedter.calendar.JDateChooser();
+        jDateChooser2 = new com.toedter.calendar.JDateChooser();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
         backButton.setText(bundle.getString("back")); // NOI18N
@@ -67,6 +87,10 @@ public class TimesPanel extends FeedbackerPanelWithLogger<TimesEnum, AWTEvent> {
         textLogger.setRows(5);
         jScrollPane1.setViewportView(textLogger);
 
+        jLabel1.setText(bundle.getString("from")); // NOI18N
+
+        jLabel2.setText(bundle.getString("to")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -74,19 +98,32 @@ public class TimesPanel extends FeedbackerPanelWithLogger<TimesEnum, AWTEvent> {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(backButton)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jDateChooser2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 67, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(backButton)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(backButton)
+                    .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jDateChooser2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2))
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -98,6 +135,10 @@ public class TimesPanel extends FeedbackerPanelWithLogger<TimesEnum, AWTEvent> {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton backButton;
+    private com.toedter.calendar.JDateChooser jDateChooser1;
+    private com.toedter.calendar.JDateChooser jDateChooser2;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea textLogger;
     // End of variables declaration//GEN-END:variables

@@ -9,7 +9,7 @@ import devs.mrp.turkeydesktop.database.logs.FTimeLogService;
 import devs.mrp.turkeydesktop.database.logs.ITimeLogService;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.view.PanelHandler;
-import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithLogger;
+import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.util.List;
 import javax.swing.JFrame;
@@ -19,7 +19,7 @@ import javax.swing.JTextArea;
  *
  * @author miguel
  */
-public class TimesHandler extends PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithLogger<TimesEnum, AWTEvent>> {
+public class TimesHandler extends PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>> {
 
     private ITimeLogService logService = FTimeLogService.getService();
     
@@ -28,13 +28,13 @@ public class TimesHandler extends PanelHandler<TimesEnum, AWTEvent, FeedbackerPa
     }
     
     @Override
-    protected FeedbackerPanelWithLogger<TimesEnum, AWTEvent> initPanel() {
+    protected FeedbackerPanelWithFetcher<TimesEnum, AWTEvent> initPanel() {
         this.setPanel(FTimesPanel.getPanel());
         return this.getPanel();
     }
 
     @Override
-    protected void initListeners(FeedbackerPanelWithLogger<TimesEnum, AWTEvent> pan) {
+    protected void initListeners(FeedbackerPanelWithFetcher<TimesEnum, AWTEvent> pan) {
         pan.addFeedbackListener((tipo, feedback) -> {
             switch (tipo) {
                 case BACK:
@@ -56,7 +56,7 @@ public class TimesHandler extends PanelHandler<TimesEnum, AWTEvent, FeedbackerPa
     }
     
     private void attachRecordsToLogger(List<TimeLog> list) {
-        JTextArea log = this.getPanel().getLogger();
+        JTextArea log = (JTextArea)this.getPanel().getProperty(TimesEnum.LOGGER);
         list.forEach(e -> log.append(String.format("%s \n", e.toString())));
     }
     

@@ -79,7 +79,7 @@ public class TimeLog {
     
     @Override
     public String toString() {
-        return String.format(String.format(localeMessages.getString("timeLogToString"), epoch, processName, windowTitle, elapsed));
+        return String.format(String.format(localeMessages.getString("timeLogToString"), epoch, elapsed, processName, windowTitle));
     }
     
 }

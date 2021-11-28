@@ -10,5 +10,5 @@ package devs.mrp.turkeydesktop.view.mainpanel;
  * @author miguel
  */
 public enum MainEnum {
-    CATEGORIZE, TIMES;
+    CATEGORIZE, TIMES, LOGGER;
 }

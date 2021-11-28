@@ -20,7 +20,7 @@ import javax.swing.JFrame;
  *
  * @author miguel
  */
-public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPanelWithLogger<MainEnum, AWTEvent>> {
+public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPanelWithFetcher<MainEnum, AWTEvent>> {
     
     private static final String MAIN_TITLE = LocaleMessages.getInstance().getString("timeturkey");
     private static final String TURKEY_IMG = "turkey.png";
@@ -30,7 +30,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     }
     
     @Override
-    protected FeedbackerPanelWithLogger<MainEnum, AWTEvent> initPanel() {
+    protected FeedbackerPanelWithFetcher<MainEnum, AWTEvent> initPanel() {
         this.getFrame().setTitle(MAIN_TITLE);
         this.getFrame().setIconImage(Toolkit.getDefaultToolkit().getImage(TURKEY_IMG));
         this.setPanel(FMainPanel.getMainPanel());
@@ -38,7 +38,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     }
 
     @Override
-    protected void initListeners(FeedbackerPanelWithLogger<MainEnum, AWTEvent> pan) {
+    protected void initListeners(FeedbackerPanelWithFetcher<MainEnum, AWTEvent> pan) {
         pan.addFeedbackListener((tipo, feedback) -> {
             switch (tipo) {
                 case CATEGORIZE:
@@ -59,7 +59,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     }
     
     private void initTimesHandler() {
-        PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithLogger<TimesEnum, AWTEvent>> handler = FTimesPanel.getHandler(this.getFrame(), this);
+        PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>> handler = FTimesPanel.getHandler(this.getFrame(), this);
         handler.show();
     }
     

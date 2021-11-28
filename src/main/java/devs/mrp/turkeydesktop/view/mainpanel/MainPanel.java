@@ -16,7 +16,7 @@ import javax.swing.JTextArea;
  *
  * @author miguel
  */
-public class MainPanel extends FeedbackerPanelWithLogger<MainEnum, AWTEvent> {
+public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
 
     private List<FeedbackListener<MainEnum, AWTEvent>> listeners = new ArrayList<>();
     
@@ -133,8 +133,13 @@ public class MainPanel extends FeedbackerPanelWithLogger<MainEnum, AWTEvent> {
     // End of variables declaration//GEN-END:variables
     
     @Override
-    public JTextArea getLogger() {
-        return logTextArea;
+    public Object getProperty(MainEnum type) {
+        switch (type) {
+            case LOGGER:
+                return logTextArea;
+            default:
+                return null;
+        }
     }
     
     

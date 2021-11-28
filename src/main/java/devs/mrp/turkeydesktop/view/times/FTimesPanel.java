@@ -6,7 +6,7 @@
 package devs.mrp.turkeydesktop.view.times;
 
 import devs.mrp.turkeydesktop.view.PanelHandler;
-import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithLogger;
+import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import javax.swing.JFrame;
 
@@ -16,11 +16,11 @@ import javax.swing.JFrame;
  */
 public class FTimesPanel {
     
-    public static FeedbackerPanelWithLogger<TimesEnum, AWTEvent> getPanel() {
+    public static FeedbackerPanelWithFetcher<TimesEnum, AWTEvent> getPanel() {
         return new TimesPanel();
     }
     
-    public static PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithLogger<TimesEnum, AWTEvent>> getHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
+    public static PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>> getHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
         return new TimesHandler(frame, caller);
     }
     
