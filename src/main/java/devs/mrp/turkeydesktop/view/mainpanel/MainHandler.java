@@ -6,12 +6,11 @@
 package devs.mrp.turkeydesktop.view.mainpanel;
 
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
-import devs.mrp.turkeydesktop.view.FeedbackerPanel;
 import devs.mrp.turkeydesktop.view.PanelHandler;
+import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessEnum;
+import devs.mrp.turkeydesktop.view.categorizeprocesspanel.FCatProcessPanel;
 import devs.mrp.turkeydesktop.view.times.FTimesPanel;
 import devs.mrp.turkeydesktop.view.times.TimesEnum;
-import devs.mrp.turkeydesktop.view.times.TimesHandler;
-import devs.mrp.turkeydesktop.view.times.TimesPanel;
 import java.awt.AWTEvent;
 import java.awt.Toolkit;
 import javax.swing.JFrame;
@@ -58,8 +57,13 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
         // Nothing to do here
     }
     
-    private void initTimesHandler() {
+    private void initTimesHandler() { // TODO prevent creating new if not null
         PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>> handler = FTimesPanel.getHandler(this.getFrame(), this);
+        handler.show();
+    }
+    
+    private void initCategorizeHandler() { // TODO prevent creating new if not null
+        PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>> handler = FCatProcessPanel.getHandler(this.getFrame(), this);
         handler.show();
     }
     

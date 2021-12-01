@@ -8,12 +8,16 @@ package devs.mrp.turkeydesktop.view.categorizeprocesspanel;
 import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author miguel
  */
 public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent> {
+    
+    private final List<FeedbackListener<CatProcessEnum, AWTEvent>> listeners = new ArrayList<>();
     
     /**
      * Creates new form CatProcessPanel
@@ -31,34 +35,58 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        backButton = new javax.swing.JButton();
+
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
+        backButton.setText(bundle.getString("back")); // NOI18N
+        backButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                backButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(backButton)
+                .addContainerGap(344, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(backButton)
+                .addContainerGap(260, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void backButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backButtonActionPerformed
+        giveFeedback(CatProcessEnum.BACK, null);
+    }//GEN-LAST:event_backButtonActionPerformed
+
     @Override
     public Object getProperty(CatProcessEnum property) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        switch (property) {
+            default:
+                return null;
+        }
     }
 
     @Override
     public void addFeedbackListener(FeedbackListener<CatProcessEnum, AWTEvent> listener) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        listeners.add(listener);
     }
 
     @Override
     public void giveFeedback(CatProcessEnum tipo, AWTEvent feedback) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        listeners.forEach(l -> l.giveFeedback(tipo, feedback));
     }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton backButton;
     // End of variables declaration//GEN-END:variables
 }

@@ -9,7 +9,6 @@ import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.awt.Color;
-import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -20,7 +19,7 @@ import java.util.List;
  */
 public class TimesPanel extends FeedbackerPanelWithFetcher<TimesEnum, AWTEvent> {
 
-    private List<FeedbackListener<TimesEnum, AWTEvent>> listeners = new ArrayList<>();
+    private final List<FeedbackListener<TimesEnum, AWTEvent>> listeners = new ArrayList<>();
 
     private int fromInitiated = 0;
     private int toInitiated = 0;
