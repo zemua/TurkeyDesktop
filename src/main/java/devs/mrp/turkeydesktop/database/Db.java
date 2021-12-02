@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database;
 
+import devs.mrp.turkeydesktop.database.category.Category;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -63,8 +64,9 @@ public class Db {
                 + "%s VARCHAR(10), "
                 + "%s VARCHAR(50), "
                 + "%s VARCHAR(150), "
+                + "%s VARCHAR(15), "
                 + "PRIMARY KEY (%s))",
-                WATCHDOG_TABLE, TimeLog.ID, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE, TimeLog.ID));
+                WATCHDOG_TABLE, TimeLog.ID, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE, Category.CATEGORY, TimeLog.ID));
         
         //close();
     }

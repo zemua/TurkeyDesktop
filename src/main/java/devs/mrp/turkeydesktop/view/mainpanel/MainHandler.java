@@ -23,6 +23,9 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     
     private static final String MAIN_TITLE = LocaleMessages.getInstance().getString("timeturkey");
     private static final String TURKEY_IMG = "turkey.png";
+    
+    PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>> timesHandler;
+    PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>> categoryProcessHandler;
 
     public MainHandler(JFrame frame, PanelHandler<?,?, ?> caller) {
         super(frame, caller);
@@ -41,7 +44,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
         pan.addFeedbackListener((tipo, feedback) -> {
             switch (tipo) {
                 case CATEGORIZE:
-                    // TODO
+                    initCategorizeHandler();
                     break;
                 case TIMES:
                     initTimesHandler();
@@ -58,13 +61,17 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     }
     
     private void initTimesHandler() { // TODO prevent creating new if not null
-        PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>> handler = FTimesPanel.getHandler(this.getFrame(), this);
-        handler.show();
+        if (timesHandler == null) {
+            timesHandler = FTimesPanel.getHandler(this.getFrame(), this);
+        }
+        timesHandler.show();
     }
     
     private void initCategorizeHandler() { // TODO prevent creating new if not null
-        PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>> handler = FCatProcessPanel.getHandler(this.getFrame(), this);
-        handler.show();
+        if(categoryProcessHandler == null) {
+            categoryProcessHandler = FCatProcessPanel.getHandler(this.getFrame(), this);
+        }
+        categoryProcessHandler.show();
     }
     
 }
