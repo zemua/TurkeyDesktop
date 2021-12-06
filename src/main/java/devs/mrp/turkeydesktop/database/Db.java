@@ -25,6 +25,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
     
     public static final String WATCHDOG_TABLE = "WATCHDOG_LOG";
     public static final String GROUPS_TABLE = "GROUPS_OF_APPS";
+    public static final String CATEGORIZED_TABLE = "TYPES_CATEGORIZATION";
     
     private static Db instance = null;
     private Connection con = null;
@@ -72,15 +73,15 @@ public class Db { // TODO create asynchronous listeners to update livedata
                 WATCHDOG_TABLE, TimeLog.ID, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE, Group.GROUP, Type.TYPE, TimeLog.ID));
         
         execute(String.format("CREATE TABLE IF NOT EXISTS %s("
-                + "%s BIGINT NOT NULL AUTO_INCREMENT, " // id
-                + "%s VARCHAR(50), " // type name
+                + "%s VARCHAR(50) NOT NULL, " // process name, unique in the table
+                + "%s VARCHAR(50), " // TYPE
                 + "PRIMARY KEY (%s))",
-                GROUPS_TABLE, Group.ID, Group.NAME, Group.TYPE, Group.ID));
+                CATEGORIZED_TABLE, Type.PROCESS_NAME, Type.TYPE, Type.PROCESS_NAME));
         
-        execute(String.format("CREATE TABLE IF NOT EXISTS %s("
-                + "%s BIGINT NOT NULL AUTO_INCREMENT, "
-                + "%s VARCHAR(50), "
-                + "%s VARCHAR(50), "
+        execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
+                + "%s BIGINT NOT NULL AUTO_INCREMENT, " // id
+                + "%s VARCHAR(50), " // group name
+                + "%s VARCHAR(50), " // type
                 + "PRIMARY KEY (%s))",
                 GROUPS_TABLE, Group.ID, Group.NAME, Group.TYPE, Group.ID));
         

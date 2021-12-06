@@ -11,6 +11,7 @@ package devs.mrp.turkeydesktop.database.type;
  */
 public class Type {
     
+    public static final String PROCESS_NAME = "PROCESS_NAME";
     public static final String TYPE = "TYPE";
     
     public enum Types {
