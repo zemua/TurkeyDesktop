@@ -5,8 +5,9 @@
  */
 package devs.mrp.turkeydesktop.database;
 
-import devs.mrp.turkeydesktop.database.category.Category;
+import devs.mrp.turkeydesktop.database.category.Group;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
+import devs.mrp.turkeydesktop.database.type.Type;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -20,9 +21,10 @@ import javax.swing.JOptionPane;
  *
  * @author miguel
  */
-public class Db {
+public class Db { // TODO create asynchronous listeners to update livedata
     
     public static final String WATCHDOG_TABLE = "WATCHDOG_LOG";
+    public static final String GROUPS_TABLE = "GROUPS_OF_APPS";
     
     private static Db instance = null;
     private Connection con = null;
@@ -58,15 +60,30 @@ public class Db {
         setConnection();
         
         execute(String.format("CREATE TABLE IF NOT EXISTS %s("
-                + "%s BIGINT NOT NULL AUTO_INCREMENT, "
-                + "%s BIGINT NOT NULL, "
-                + "%s INT NOT NULL, "
-                + "%s VARCHAR(10), "
-                + "%s VARCHAR(50), "
-                + "%s VARCHAR(150), "
-                + "%s VARCHAR(15), "
+                + "%s BIGINT NOT NULL AUTO_INCREMENT, " // id
+                + "%s BIGINT NOT NULL, " // epoch
+                + "%s INT NOT NULL, " // elapsed
+                + "%s VARCHAR(10), " // pid
+                + "%s VARCHAR(50), " // process name
+                + "%s VARCHAR(150), " // window title
+                + "%s INT, " // category id
+                + "%s INT, " // type id
                 + "PRIMARY KEY (%s))",
-                WATCHDOG_TABLE, TimeLog.ID, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE, Category.CATEGORY, TimeLog.ID));
+                WATCHDOG_TABLE, TimeLog.ID, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE, Group.GROUP, Type.TYPE, TimeLog.ID));
+        
+        execute(String.format("CREATE TABLE IF NOT EXISTS %s("
+                + "%s BIGINT NOT NULL AUTO_INCREMENT, " // id
+                + "%s VARCHAR(50), " // type name
+                + "PRIMARY KEY (%s))",
+                GROUPS_TABLE, Group.ID, Group.NAME, Group.TYPE, Group.ID));
+        
+        execute(String.format("CREATE TABLE IF NOT EXISTS %s("
+                + "%s BIGINT NOT NULL AUTO_INCREMENT, "
+                + "%s VARCHAR(50), "
+                + "%s VARCHAR(50), "
+                + "PRIMARY KEY (%s))",
+                GROUPS_TABLE, Group.ID, Group.NAME, Group.TYPE, Group.ID));
+        
         
         //close();
     }

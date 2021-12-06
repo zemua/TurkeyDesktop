@@ -3,14 +3,18 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package devs.mrp.turkeydesktop.database.category;
+package devs.mrp.turkeydesktop.database.type;
 
 /**
  *
  * @author miguel
  */
-public class Category {
+public class Type {
     
-    public static final String CATEGORY = "CATEGORY";
+    public static final String TYPE = "TYPE";
+    
+    public enum Types {
+        POSITIVE, NEGATIVE, NEUTRAL, DEPENDS;
+    }
     
 }
