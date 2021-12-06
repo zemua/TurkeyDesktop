@@ -15,7 +15,7 @@ public class Type {
     public static final String TYPE = "TYPE";
     
     public enum Types {
-        POSITIVE, NEGATIVE, NEUTRAL, DEPENDS;
+        UNDEFINED, POSITIVE, NEGATIVE, NEUTRAL, DEPENDS;
     }
     
 }

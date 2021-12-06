@@ -10,6 +10,7 @@ import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.DefaultListModel;
 
 /**
  *
@@ -18,6 +19,8 @@ import java.util.List;
 public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent> {
     
     private final List<FeedbackListener<CatProcessEnum, AWTEvent>> listeners = new ArrayList<>();
+    
+    DefaultListModel<String> listModel = new DefaultListModel<>();
     
     /**
      * Creates new form CatProcessPanel
@@ -36,6 +39,8 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
     private void initComponents() {
 
         backButton = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        processList = new javax.swing.JList<>();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
         backButton.setText(bundle.getString("back")); // NOI18N
@@ -45,21 +50,30 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
             }
         });
 
+        processList.setModel(listModel);
+        jScrollPane1.setViewportView(processList);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(backButton)
-                .addContainerGap(344, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(backButton)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(backButton)
-                .addContainerGap(260, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 242, Short.MAX_VALUE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -88,5 +102,7 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton backButton;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JList<String> processList;
     // End of variables declaration//GEN-END:variables
 }
