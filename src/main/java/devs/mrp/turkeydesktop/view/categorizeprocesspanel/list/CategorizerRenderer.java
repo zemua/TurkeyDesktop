@@ -7,10 +7,8 @@ package devs.mrp.turkeydesktop.view.categorizeprocesspanel.list;
 
 import devs.mrp.turkeydesktop.database.type.Type;
 import java.awt.Component;
-import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JList;
-import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 
 /**
@@ -19,11 +17,16 @@ import javax.swing.ListCellRenderer;
  */
 public class CategorizerRenderer extends CategorizerElement implements ListCellRenderer<Object> {
     
-    public static Map<String, CategorizerElement> processCategorizers = new HashMap<>();
-    
     @Override
     public Component getListCellRendererComponent(JList<? extends Object> jlist, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         // TODO
+        String s = value.toString();
+        try {
+            this.setLabelText(s);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
         return this;
     }
     

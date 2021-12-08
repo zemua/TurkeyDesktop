@@ -52,6 +52,7 @@ public class CategorizerElement extends JPanel {
         label = new JLabel();
         label.setText(txt);
         setListeners();
+        setSelected(txt);
     }
 
     private void initializeButtonsName() {
@@ -68,6 +69,15 @@ public class CategorizerElement extends JPanel {
         this.radioGroup.add(negativeRadio);
         this.radioGroup.add(neutralRadio);
         this.radioGroup.add(dependsRadio);
+    }
+    
+    private void setSelected(String processName) {
+        Type.Types t = CategorizerStaticData.getTypeOf(processName);
+        undefinedRadio.setSelected(t.equals(Type.Types.UNDEFINED));
+        positiveRadio.setSelected(t.equals(Type.Types.POSITIVE));
+        negativeRadio.setSelected(t.equals(Type.Types.NEGATIVE));
+        neutralRadio.setSelected(t.equals(Type.Types.NEUTRAL));
+        dependsRadio.setSelected(t.equals(Type.Types.DEPENDS));
     }
 
     private void setListeners() {

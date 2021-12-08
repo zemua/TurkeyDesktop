@@ -8,8 +8,9 @@ package devs.mrp.turkeydesktop.view.categorizeprocesspanel.list;
 import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.database.type.Type;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -17,11 +18,22 @@ import java.util.List;
  */
 public class CategorizerStaticData {
     
-    private static HashMap<String, Type.Types> types;
+    private static Map<String, Type.Types> types;
     private static List<FeedbackListener<Type.Types,String>> listeners = new ArrayList<>();
     
-    public static void setTypes(HashMap<String, Type.Types> types) {
+    public static void setTypes(Map<String, Type.Types> types) {
         CategorizerStaticData.types = types;
+    }
+    
+    public static Map<String, Type.Types> getTypes() {
+        return Collections.unmodifiableMap(types);
+    }
+    
+    public static Type.Types getTypeOf(String process) {
+        if (!types.containsKey(process)) {
+            return Type.Types.UNDEFINED;
+        }
+        return types.get(process);
     }
     
     public static void addListener(FeedbackListener<Type.Types,String> listener) {
