@@ -6,6 +6,7 @@
 package devs.mrp.turkeydesktop.view.categorizeprocesspanel;
 
 import devs.mrp.turkeydesktop.common.FeedbackListener;
+import devs.mrp.turkeydesktop.view.categorizeprocesspanel.list.CategorizerRenderer;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.util.ArrayList;
@@ -51,6 +52,7 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
         });
 
         processList.setModel(listModel);
+        processList.setCellRenderer(new CategorizerRenderer());
         jScrollPane1.setViewportView(processList);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
