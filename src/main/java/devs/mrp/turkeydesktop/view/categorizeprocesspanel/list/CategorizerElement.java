@@ -39,20 +39,18 @@ public class CategorizerElement extends JPanel {
         this.setLayout(new BoxLayout(CategorizerElement.this, BoxLayout.X_AXIS));
         initializeButtonsName();
         initializeRadioGroup();
+        setListeners();
         addElements();
     }
+    
+    public void init(String text, Type.Types type) {
+        setLabelText(text);
+        setSelected(type);
+    }
 
-    public void setLabelText(String txt) throws Exception {
-        if (txt.equals("")) {
-            throw new Exception("Cannot set process label with empty text");
-        }
-        if (label != null){
-            throw new Exception("Process label already has text");
-        }
+    private void setLabelText(String txt) {
         label = new JLabel();
         label.setText(txt);
-        setListeners();
-        setSelected(txt);
     }
 
     private void initializeButtonsName() {
@@ -71,8 +69,7 @@ public class CategorizerElement extends JPanel {
         this.radioGroup.add(dependsRadio);
     }
     
-    private void setSelected(String processName) {
-        Type.Types t = CategorizerStaticData.getTypeOf(processName);
+    private void setSelected(Type.Types t) {
         undefinedRadio.setSelected(t.equals(Type.Types.UNDEFINED));
         positiveRadio.setSelected(t.equals(Type.Types.POSITIVE));
         negativeRadio.setSelected(t.equals(Type.Types.NEGATIVE));

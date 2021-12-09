@@ -26,11 +26,14 @@ public class CategorizerStaticData {
     }
     
     public static Map<String, Type.Types> getTypes() {
+        if (types == null) {
+            return Collections.emptyMap();
+        }
         return Collections.unmodifiableMap(types);
     }
     
     public static Type.Types getTypeOf(String process) {
-        if (!types.containsKey(process)) {
+        if (types == null || !types.containsKey(process)) {
             return Type.Types.UNDEFINED;
         }
         return types.get(process);

@@ -6,6 +6,7 @@
 package devs.mrp.turkeydesktop.view.categorizeprocesspanel;
 
 import devs.mrp.turkeydesktop.common.FeedbackListener;
+import devs.mrp.turkeydesktop.view.categorizeprocesspanel.list.CategorizerElement;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.list.CategorizerRenderer;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
@@ -21,7 +22,9 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
     
     private final List<FeedbackListener<CatProcessEnum, AWTEvent>> listeners = new ArrayList<>();
     
-    DefaultListModel<String> listModel = new DefaultListModel<>();
+    // Netbeans UI builder enforces JList<String> and that prevents us from adding any other data except String to the model
+    // unless we leave the model not parameterized ¯\_(ツ)_/¯
+    DefaultListModel listModel = new DefaultListModel<CategorizerElement>();
     
     /**
      * Creates new form CatProcessPanel
@@ -86,6 +89,8 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
     @Override
     public Object getProperty(CatProcessEnum property) {
         switch (property) {
+            case LIST_MODEL:
+                return listModel;
             default:
                 return null;
         }

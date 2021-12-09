@@ -10,5 +10,5 @@ package devs.mrp.turkeydesktop.view.categorizeprocesspanel;
  * @author miguel
  */
 public enum CatProcessEnum {
-    BACK;
+    BACK, LIST_MODEL;
 }

@@ -16,18 +16,12 @@ import javax.swing.ListCellRenderer;
  * @author miguel
  */
 public class CategorizerRenderer extends CategorizerElement implements ListCellRenderer<Object> {
-    
+
     @Override
     public Component getListCellRendererComponent(JList<? extends Object> jlist, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-        // TODO
-        String s = value.toString();
-        try {
-            this.setLabelText(s);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        CategorizerElement element = (CategorizerElement)value;
         
-        return this;
+        return element;
     }
     
 }
