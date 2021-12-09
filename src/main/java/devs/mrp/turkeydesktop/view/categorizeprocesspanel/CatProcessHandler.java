@@ -40,7 +40,11 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
 
     @Override
     protected void doExtraBeforeShow() {
-        // nothing to do here
+        // TODO
+        // get from TimeLogService a list of TimeLog grouped by processName
+        // get from TypeService a list of the type for each process
+        // do a join and attach the type to each TimeLog
+        // maybe this can be done with a Facade object
     }
     
 }
