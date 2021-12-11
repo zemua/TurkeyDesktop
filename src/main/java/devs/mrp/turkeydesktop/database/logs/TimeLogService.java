@@ -73,6 +73,7 @@ public class TimeLogService implements ITimeLogService {
             if (set.next()) {
                 timeLog.setElapsed(set.getLong(TimeLog.ELAPSED));
                 timeLog.setEpoch(set.getLong(TimeLog.EPOCH));
+                timeLog.setCounted(set.getLong(TimeLog.COUNTED));
                 timeLog.setId(set.getLong(TimeLog.ID));
                 timeLog.setPid(set.getString(TimeLog.PID));
                 timeLog.setProcessName(set.getString(TimeLog.PROCESS_NAME));
@@ -95,6 +96,7 @@ public class TimeLogService implements ITimeLogService {
                 TimeLog timeLog = new TimeLog();
                 timeLog.setElapsed(set.getLong(TimeLog.ELAPSED));
                 timeLog.setEpoch(set.getLong(TimeLog.EPOCH));
+                timeLog.setCounted(set.getLong(TimeLog.COUNTED));
                 timeLog.setId(set.getLong(TimeLog.ID));
                 timeLog.setPid(set.getString(TimeLog.PID));
                 timeLog.setProcessName(set.getString(TimeLog.PROCESS_NAME));

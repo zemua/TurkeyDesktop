@@ -64,6 +64,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
                 + "%s BIGINT NOT NULL AUTO_INCREMENT, " // id
                 + "%s BIGINT NOT NULL, " // epoch
                 + "%s INT NOT NULL, " // elapsed
+                + "%s INT NOT NULL, " // counted
                 + "%s VARCHAR(10), " // pid
                 + "%s VARCHAR(50), " // process name
                 + "%s VARCHAR(150), " // window title

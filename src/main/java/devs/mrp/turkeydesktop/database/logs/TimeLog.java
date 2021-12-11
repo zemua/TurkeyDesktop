@@ -55,6 +55,14 @@ public class TimeLog {
         this.elapsed = elapsed;
     }
 
+    public long getCounted() {
+        return counted;
+    }
+
+    public void setCounted(long counted) {
+        this.counted = counted;
+    }
+
     public String getPid() {
         return pid;
     }

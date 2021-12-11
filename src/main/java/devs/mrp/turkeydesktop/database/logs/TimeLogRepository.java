@@ -44,15 +44,16 @@ public class TimeLogRepository implements TimeLogDao {
             semaphore.acquire();
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s, %s, %s, %s) ", 
-                        Db.WATCHDOG_TABLE, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE)
-                        + "VALUES (?,?,?,?,?)",
+                stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s, %s, %s, %s, %s) ", 
+                        Db.WATCHDOG_TABLE, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.COUNTED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE)
+                        + "VALUES (?,?,?,?,?,?)",
                         Statement.RETURN_GENERATED_KEYS);
                 stm.setLong(1, element.getEpoch());
                 stm.setLong(2, element.getElapsed());
-                stm.setString(3, element.getPid());
-                stm.setString(4, element.getProcessName());
-                stm.setString(5, element.getWindowTitle());
+                stm.setLong(3, element.getCounted());
+                stm.setString(4, element.getPid());
+                stm.setString(5, element.getProcessName());
+                stm.setString(6, element.getWindowTitle());
                 stm.executeUpdate();
                 ResultSet generatedId = stm.getGeneratedKeys();
                 if (generatedId.next()) {
@@ -76,14 +77,15 @@ public class TimeLogRepository implements TimeLogDao {
             semaphore.acquire();
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=?, %s=?, %s=?, %s=? WHERE %s=?",
-                        Db.WATCHDOG_TABLE, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE, TimeLog.ID));
+                stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=?, %s=?, %s=?, %s=?, %s=? WHERE %s=?",
+                        Db.WATCHDOG_TABLE, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.COUNTED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE, TimeLog.ID));
                 stm.setLong(1, element.getEpoch());
                 stm.setLong(2, element.getElapsed());
-                stm.setString(3, element.getPid());
-                stm.setString(4, element.getProcessName());
-                stm.setString(5, element.getWindowTitle());
-                stm.setLong(6, element.getId());
+                stm.setLong(3, element.getCounted());
+                stm.setString(4, element.getPid());
+                stm.setString(5, element.getProcessName());
+                stm.setString(6, element.getWindowTitle());
+                stm.setLong(7, element.getId());
                 entriesUpdated = stm.executeUpdate();
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
