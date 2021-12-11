@@ -5,10 +5,14 @@
  */
 package devs.mrp.turkeydesktop.database.logandtype;
 
+import java.sql.ResultSet;
+
 /**
  *
  * @author miguel
  */
 public interface LogAndTypeFacadeDao {
+    
+    public ResultSet getTypedLogGroupedByProcess(long from, long to);
     
 }
