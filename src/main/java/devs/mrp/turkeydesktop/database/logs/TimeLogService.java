@@ -22,7 +22,7 @@ import java.util.logging.Logger;
  */
 public class TimeLogService implements ITimeLogService {
 
-    TimeLogDao repo = TimeLogRepository.getInstance();
+    private final TimeLogDao repo = TimeLogRepository.getInstance();
 
     public long add(TimeLog element) {
         if (element == null) {

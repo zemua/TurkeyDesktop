@@ -5,10 +5,17 @@
  */
 package devs.mrp.turkeydesktop.database.logandtype;
 
+import devs.mrp.turkeydesktop.common.Tripla;
+import devs.mrp.turkeydesktop.database.type.Type;
+import java.util.Date;
+import java.util.List;
+
 /**
  *
  * @author miguel
  */
 public interface ILogAndTypeService {
+    
+    public List<Tripla<String, Long, Type.Types>> getTypedLogGroupedByProcess(Date from, Date to);
     
 }
