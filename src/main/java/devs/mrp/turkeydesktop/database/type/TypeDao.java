@@ -3,17 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package devs.mrp.turkeydesktop.database.logs;
+package devs.mrp.turkeydesktop.database.type;
 
 import devs.mrp.turkeydesktop.database.GeneralDao;
-import java.sql.ResultSet;
 
 /**
  *
  * @author miguel
  */
-public interface TimeLogDao extends GeneralDao<TimeLog, Long> {
-    
-    public ResultSet getTimeFrameGroupedByProcess(long from, long to);
+public interface TypeDao extends GeneralDao<Type, String> {
     
 }

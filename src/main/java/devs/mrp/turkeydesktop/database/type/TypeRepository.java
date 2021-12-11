@@ -3,9 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package devs.mrp.turkeydesktop.database.logs;
+package devs.mrp.turkeydesktop.database.type;
 
 import devs.mrp.turkeydesktop.database.Db;
+import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,45 +19,40 @@ import java.util.logging.Logger;
  *
  * @author miguel
  */
-public class TimeLogRepository implements TimeLogDao {
+public class TypeRepository implements TypeDao {
     
     private Db dbInstance = Db.getInstance();
-    private Logger logger = Logger.getLogger(TimeLogRepository.class.getName());
+    private Logger logger = Logger.getLogger(TypeRepository.class.getName());
     private Semaphore semaphore = new Semaphore(1);
     
-    private static TimeLogRepository instance;
+    private static TypeRepository instance;
     
-    private TimeLogRepository(){
-        
-    }
+    private TypeRepository(){}
     
-    public static TimeLogRepository getInstance() {
+    public static TypeRepository getInstance() {
         if (instance == null) {
-            instance = new TimeLogRepository();
+            instance = new TypeRepository();
         }
         return instance;
     }
     
     @Override
-    public long add(TimeLog element) {
+    public long add(Type element) {
         long result = -1;
         try {
             semaphore.acquire();
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s, %s, %s, %s) ", 
-                        Db.WATCHDOG_TABLE, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE)
-                        + "VALUES (?,?,?,?,?)",
-                        Statement.RETURN_GENERATED_KEYS);
-                stm.setLong(1, element.getEpoch());
-                stm.setLong(2, element.getElapsed());
-                stm.setString(3, element.getPid());
-                stm.setString(4, element.getProcessName());
-                stm.setString(5, element.getWindowTitle());
+                stm = dbInstance.getConnection().prepareStatement(String.format("INSERT OR REPLACE INTO %s (%s, %s) ",
+                        Db.CATEGORIZED_TABLE, Type.PROCESS_NAME, Type.TYPE)
+                        + "VALUES (?,?)");
+                        // we don't retrieve generated keys as no keys are generated, we provide them
+                stm.setString(1, element.getProcess());
+                stm.setString(2, element.getType().toString());
                 stm.executeUpdate();
                 ResultSet generatedId = stm.getGeneratedKeys();
                 if (generatedId.next()) {
-                    result = generatedId.getLong(1);
+                    result = 1;
                 }
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
@@ -70,20 +66,16 @@ public class TimeLogRepository implements TimeLogDao {
     }
 
     @Override
-    public long update(TimeLog element) {
+    public long update(Type element) {
         long entriesUpdated = -1;
         try {
             semaphore.acquire();
             PreparedStatement stm;
-            try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=?, %s=?, %s=?, %s=? WHERE %s=?",
-                        Db.WATCHDOG_TABLE, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE, TimeLog.ID));
-                stm.setLong(1, element.getEpoch());
-                stm.setLong(2, element.getElapsed());
-                stm.setString(3, element.getPid());
-                stm.setString(4, element.getProcessName());
-                stm.setString(5, element.getWindowTitle());
-                stm.setLong(6, element.getId());
+        try {
+                stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=? WHERE %s=?",
+                        Db.CATEGORIZED_TABLE, Type.TYPE, Type.PROCESS_NAME));
+                stm.setString(1, element.getType().toString());
+                stm.setString(2, element.getProcess());
                 entriesUpdated = stm.executeUpdate();
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
@@ -103,11 +95,8 @@ public class TimeLogRepository implements TimeLogDao {
             semaphore.acquire();
             PreparedStatement stm;
             try {
-                // get from last 24 hours only by default to not overload memory
-                long frame = System.currentTimeMillis() - (24*60*60*1000);
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s>?",
-                        Db.WATCHDOG_TABLE, TimeLog.EPOCH));
-                stm.setLong(1, frame);
+                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s",
+                        Db.CATEGORIZED_TABLE));
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null ,ex);
@@ -121,15 +110,15 @@ public class TimeLogRepository implements TimeLogDao {
     }
 
     @Override
-    public ResultSet findById(Long id) {
+    public ResultSet findById(String id) {
         ResultSet rs = null;
         try {
             semaphore.acquire();
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
-                        Db.WATCHDOG_TABLE, TimeLog.ID));
-                stm.setLong(1, id);
+                        Db.CATEGORIZED_TABLE, Type.PROCESS_NAME));
+                stm.setString(1, id);
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
@@ -143,15 +132,15 @@ public class TimeLogRepository implements TimeLogDao {
     }
 
     @Override
-    public long deleteById(Long id) {
+    public long deleteById(String id) {
         long delQty = -1;
         try {
             semaphore.acquire();
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
-                        Db.WATCHDOG_TABLE, TimeLog.ID));
-                stm.setLong(1, id);
+                        Db.CATEGORIZED_TABLE, Type.PROCESS_NAME));
+                stm.setString(1, id);
                 delQty = stm.executeUpdate();
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
@@ -162,29 +151,6 @@ public class TimeLogRepository implements TimeLogDao {
             semaphore.release();
         }
         return delQty;
-    }
-
-    @Override
-    public ResultSet getTimeFrameGroupedByProcess(long from, long to) {
-        ResultSet rs = null;
-        try {
-            semaphore.acquire();
-            PreparedStatement stm;
-            try {
-                stm = dbInstance.getConnection().prepareStatement(String.format(String.format("SELECT %s, SUM(%s) FROM %s WHERE %s>=? AND %s<=? GROUP BY %s",
-                        TimeLog.PROCESS_NAME, TimeLog.ELAPSED, Db.WATCHDOG_TABLE, TimeLog.EPOCH, TimeLog.EPOCH, TimeLog.PROCESS_NAME)));
-                stm.setLong(1, from);
-                stm.setLong(2, to);
-                rs = stm.executeQuery();
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null ,ex);
-            }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null ,ex);
-        } finally {
-            semaphore.release();
-        }
-        return rs;
     }
     
 }

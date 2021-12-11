@@ -11,7 +11,7 @@ import java.sql.ResultSet;
  *
  * @author miguel
  */
-public interface GeneralDao<T> {
+public interface GeneralDao<T, I> {
     
     public long add(T element);
     
@@ -19,8 +19,8 @@ public interface GeneralDao<T> {
     
     public ResultSet findAll();
     
-    public ResultSet findById(long id);
+    public ResultSet findById(I id);
     
-    public long deleteById(long id);
+    public long deleteById(I id);
     
 }
