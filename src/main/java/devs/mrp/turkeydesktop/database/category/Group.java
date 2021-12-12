@@ -11,7 +11,7 @@ package devs.mrp.turkeydesktop.database.category;
  */
 public class Group {
     
-    public static final String GROUP = "GROUP";
+    public static final String GROUP = "APP_GROUP";
     public static final String ID = "ID";
     public static final String NAME = "NAME";
     public static final String TYPE = "TYPE";

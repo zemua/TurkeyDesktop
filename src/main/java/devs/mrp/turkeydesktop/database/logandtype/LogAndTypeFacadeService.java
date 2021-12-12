@@ -38,7 +38,12 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
         ResultSet set = repo.getTypedLogGroupedByProcess(fromMilis, toMilis);
         try {
             while (set.next()) {
-                
+                Tripla<String, Long, Type.Types> tripla = new Tripla<>();
+                tripla.setValue1(set.getString(TimeLog.PROCESS_NAME));
+                tripla.setValue2(set.getLong(3));
+                String type = set.getString(Type.TYPE);
+                tripla.setValue3(type != null ? Type.Types.valueOf(type) : Type.Types.UNDEFINED);
+                typedTimes.add(tripla);
             }
         } catch (SQLException ex) {
             Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);

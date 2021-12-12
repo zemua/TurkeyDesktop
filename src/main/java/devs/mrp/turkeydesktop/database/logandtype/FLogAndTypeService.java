@@ -9,6 +9,10 @@ package devs.mrp.turkeydesktop.database.logandtype;
  *
  * @author miguel
  */
-public class FLogAndTimeService {
+public class FLogAndTypeService {
+    
+    public static ILogAndTypeService getService() {
+        return new LogAndTypeFacadeService();
+    }
     
 }

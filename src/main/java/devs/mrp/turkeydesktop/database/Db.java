@@ -71,7 +71,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
                 + "%s INT, " // category id
                 + "%s INT, " // type id
                 + "PRIMARY KEY (%s))",
-                WATCHDOG_TABLE, TimeLog.ID, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE, Group.GROUP, Type.TYPE, TimeLog.ID));
+                WATCHDOG_TABLE, TimeLog.ID, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.COUNTED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE, Group.GROUP, Type.TYPE, TimeLog.ID));
         
         execute(String.format("CREATE TABLE IF NOT EXISTS %s("
                 + "%s VARCHAR(50) NOT NULL, " // process name, unique in the table
