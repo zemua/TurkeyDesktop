@@ -53,7 +53,7 @@ public class LogAndTypeFacadeRepository implements LogAndTypeFacadeDao {
                         Db.WATCHDOG_TABLE + "." + TimeLog.PROCESS_NAME + "=" + Db.CATEGORIZED_TABLE + "." + Type.PROCESS_NAME,
                         TimeLog.EPOCH,
                         TimeLog.EPOCH, 
-                        TimeLog.PROCESS_NAME));
+                        Db.WATCHDOG_TABLE + "." + TimeLog.PROCESS_NAME));
                 stm.setLong(1, from);
                 stm.setLong(2, to);
                 rs = stm.executeQuery();

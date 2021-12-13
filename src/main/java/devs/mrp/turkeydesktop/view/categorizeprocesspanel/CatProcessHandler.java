@@ -50,11 +50,13 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
 
     @Override
     protected void doExtraBeforeShow() {
+        
         attachItemsToList(new Date(), new Date());
     }
     
     private void attachItemsToList(Date from, Date to) {
         DefaultListModel<CategorizerElement> listModel = (DefaultListModel)this.getPanel().getProperty(CatProcessEnum.LIST_MODEL);
+        listModel.clear(); // clear in case it has been filled before
         List<Tripla<String, Long, Type.Types>> triplas = typedService.getTypedLogGroupedByProcess(from, to);
         triplas.sort((c1,c2) -> c2.getValue2().compareTo(c1.getValue2()));
         triplas.forEach(t -> {

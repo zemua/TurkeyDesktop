@@ -18,6 +18,16 @@ import javax.swing.JRadioButton;
  * @author miguel
  */
 public class CategorizerElement extends JPanel {
+    
+    /**
+     * LEFT FOR REFERENCE
+     * this was an element of a JList with text label and radio buttons
+     * but the content of a jlist is just a render, it has no "physical" presence
+     * this means the radio buttons cannot be clicked / would not fire events.
+     * 
+     * BETTER to layout the JButtons vertically on a JPanel using a GridLayout(0,1) or something like that
+     * and then put the JPanel in a JScrollPane mocking a JList of JButtons
+     */
 
     private LocaleMessages locale = LocaleMessages.getInstance();
     private static final String UNDEFINED_TEXT = "undefined";
@@ -26,7 +36,7 @@ public class CategorizerElement extends JPanel {
     private static final String NEUTRAL_TEXT = "neutral";
     private static final String DEPENDS_TEXT = "depends";
 
-    private JLabel label;
+    private JLabel label = new JLabel();
 
     private JRadioButton undefinedRadio = new JRadioButton();
     private JRadioButton positiveRadio = new JRadioButton();
@@ -49,7 +59,6 @@ public class CategorizerElement extends JPanel {
     }
 
     private void setLabelText(String txt) {
-        label = new JLabel();
         label.setText(txt);
     }
 
