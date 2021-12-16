@@ -24,7 +24,7 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
     
     // Netbeans UI builder enforces JList<String> and that prevents us from adding any other data except String to the model
     // unless we leave the model not parameterized ¯\_(ツ)_/¯
-    DefaultListModel listModel = new DefaultListModel<CategorizerElement>();
+    //DefaultListModel listModel = new DefaultListModel<CategorizerElement>();
     
     /**
      * Creates new form CatProcessPanel
@@ -44,7 +44,7 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
 
         backButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        processList = new javax.swing.JList<>();
+        listPanel = new javax.swing.JPanel();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
         backButton.setText(bundle.getString("back")); // NOI18N
@@ -54,9 +54,8 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
             }
         });
 
-        processList.setModel(listModel);
-        processList.setCellRenderer(new CategorizerRenderer());
-        jScrollPane1.setViewportView(processList);
+        listPanel.setLayout(new java.awt.GridBagLayout());
+        jScrollPane1.setViewportView(listPanel);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -89,8 +88,10 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
     @Override
     public Object getProperty(CatProcessEnum property) {
         switch (property) {
-            case LIST_MODEL:
-                return listModel;
+            /*case LIST_MODEL:
+                return listModel;*/
+            case LIST_PANEL:
+                return listPanel;
             default:
                 return null;
         }
@@ -110,6 +111,6 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton backButton;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JList<String> processList;
+    private javax.swing.JPanel listPanel;
     // End of variables declaration//GEN-END:variables
 }
