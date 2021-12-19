@@ -54,7 +54,7 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
             }
         });
 
-        listPanel.setLayout(new java.awt.GridBagLayout());
+        listPanel.setLayout(new java.awt.GridLayout(1, 2));
         jScrollPane1.setViewportView(listPanel);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);

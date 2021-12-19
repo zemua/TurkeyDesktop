@@ -15,8 +15,8 @@ import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.util.Date;
 import java.util.List;
-import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 /**
  *
@@ -52,6 +52,7 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
     protected void doExtraBeforeShow() {
         
         //attachItemsToList(new Date(), new Date());
+        attachItemsToListPanel(new Date(), new Date());
     }
     
     /*private void attachItemsToList(Date from, Date to) {
@@ -68,6 +69,15 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
     
     private void attachItemsToListPanel(Date from, Date to) {
         // TODO
+        JPanel panel = (JPanel)this.getPanel().getProperty(CatProcessEnum.LIST_PANEL);
+        panel.removeAll(); // clear in case it has been filled before
+        List<Tripla<String, Long, Type.Types>> triplas = typedService.getTypedLogGroupedByProcess(from, to);
+        triplas.sort((c1,c2) -> c2.getValue2().compareTo(c1.getValue2()));
+        triplas.forEach(t -> {
+            CategorizerElement element = new CategorizerElement();
+            element.init(t.getValue1(), t.getValue3());
+            panel.add(element);
+        });
     }
     
 }

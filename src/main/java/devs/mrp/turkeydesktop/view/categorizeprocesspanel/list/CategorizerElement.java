@@ -47,6 +47,20 @@ public class CategorizerElement extends JPanel {
         setLabelText(text);
         setSelected(type);
     }
+    
+    public JLabel getLabel() {
+        return this.label;
+    }
+    
+    public JPanel getButtons() {
+        JPanel p = new JPanel();
+        p.add(undefinedRadio);
+        p.add(positiveRadio);
+        p.add(negativeRadio);
+        p.add(neutralRadio);
+        p.add(dependsRadio);
+        return p;
+    }
 
     private void setLabelText(String txt) {
         label.setText(txt);
