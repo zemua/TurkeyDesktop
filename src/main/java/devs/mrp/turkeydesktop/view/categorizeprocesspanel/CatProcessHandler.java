@@ -76,7 +76,8 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
         triplas.forEach(t -> {
             CategorizerElement element = new CategorizerElement();
             element.init(t.getValue1(), t.getValue3());
-            panel.add(element);
+            panel.add(element.getLabel());
+            panel.add(element.getButtons());
         });
     }
     
