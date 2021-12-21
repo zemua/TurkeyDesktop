@@ -15,6 +15,8 @@ import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -24,6 +26,15 @@ import javax.swing.JPanel;
  */
 public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>> {
 
+    private static final int FILTER_ALL = 0;
+    private static final int FILTER_NOT_CATEGORIZED = 1;
+    private static final int FILTER_POSITIVE = 2;
+    private static final int FILTER_NEGATIVE = 3;
+    private static final int FILTER_NEUTRAL = 4;
+    private static final int FILTER_DEPENDS = 5;
+    
+    private Logger logger = Logger.getLogger(CatProcessHandler.class.getName());
+    
     ILogAndTypeService typedService = FLogAndTypeService.getService();
     
     public CatProcessHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
@@ -42,6 +53,9 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
                 case BACK:
                     this.getCaller().show();
                     break;
+                case UPDATE:
+                    updateItemsInList();
+                    break;
                 default:
                     break;
             }
@@ -52,7 +66,7 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
     protected void doExtraBeforeShow() {
         
         //attachItemsToList(new Date(), new Date());
-        attachItemsToListPanel(new Date(), new Date());
+        attachItemsToListPanel(new Date(), new Date(), FILTER_ALL);
     }
     
     /*private void attachItemsToList(Date from, Date to) {
@@ -67,16 +81,39 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
         });
     }*/
     
-    private void attachItemsToListPanel(Date from, Date to) {
+    private void attachItemsToListPanel(Date from, Date to, int filter) {
         JPanel panel = (JPanel)this.getPanel().getProperty(CatProcessEnum.LIST_PANEL);
         panel.removeAll(); // clear in case it has been filled before
         List<Tripla<String, Long, Type.Types>> triplas = typedService.getTypedLogGroupedByProcess(from, to);
         triplas.sort((c1,c2) -> c2.getValue2().compareTo(c1.getValue2()));
         triplas.forEach(t -> {
-            CategorizerElement element = new CategorizerElement(panel.getWidth(), panel.getHeight());
-            element.init(t.getValue1(), t.getValue3());
-            panel.add(element);
+            if (ifPassFilter(t.getValue3(), filter)) {
+                CategorizerElement element = new CategorizerElement(panel.getWidth(), panel.getHeight());
+                element.init(t.getValue1(), t.getValue3());
+                panel.add(element);
+            }
         });
+        panel.revalidate();
+    }
+    
+    private void updateItemsInList() {
+        Date from = (Date)this.getPanel().getProperty(CatProcessEnum.FROM);
+        Date to = (Date)this.getPanel().getProperty(CatProcessEnum.TO);
+        int filter = (Integer)this.getPanel().getProperty(CatProcessEnum.FILTER);
+        attachItemsToListPanel(from, to, filter);
+    }
+    
+    private boolean ifPassFilter(Type.Types t, int filter) {
+        if (filter == FILTER_ALL) {
+            logger.log(Level.FINEST, "filter allows all");
+            return true;
+        }
+        if (t.equals(Type.Types.UNDEFINED) && filter == FILTER_NOT_CATEGORIZED) {return true;}
+        if (t.equals(Type.Types.POSITIVE) && filter == FILTER_POSITIVE) {return true;}
+        if (t.equals(Type.Types.NEGATIVE) && filter == FILTER_NEGATIVE) {return true;}
+        if (t.equals(Type.Types.NEUTRAL) && filter == FILTER_NEUTRAL) {return true;}
+        if (t.equals(Type.Types.DEPENDS) && filter == FILTER_DEPENDS) {return true;}
+        return false;
     }
     
 }

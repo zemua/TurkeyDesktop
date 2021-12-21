@@ -10,7 +10,9 @@ import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.list.CategorizerElement;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.list.CategorizerRenderer;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
+import devs.mrp.turkeydesktop.view.times.TimesEnum;
 import java.awt.AWTEvent;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -23,13 +25,15 @@ import javax.swing.DefaultListModel;
  * @author miguel
  */
 public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent> {
-    
+
     private final List<FeedbackListener<CatProcessEnum, AWTEvent>> listeners = new ArrayList<>();
     
+    private int fromInitiated = 0;
+    private int toInitiated = 0;
+
     // Netbeans UI builder enforces JList<String> and that prevents us from adding any other data except String to the model
     // unless we leave the model not parameterized ¯\_(ツ)_/¯
     //DefaultListModel listModel = new DefaultListModel<CategorizerElement>();
-    
     /**
      * Creates new form CatProcessPanel
      */
@@ -72,10 +76,30 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
         toLabel.setText(bundle.getString("to")); // NOI18N
 
         dateFrom.setDate(new Date());
+        dateFrom.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                dateFromPropertyChange(evt);
+            }
+        });
 
         dateTo.setDate(new Date());
+        dateTo.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                dateToPropertyChange(evt);
+            }
+        });
 
         selectShowType.setModel(getComboBoxModel());
+        selectShowType.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                selectShowTypeActionPerformed(evt);
+            }
+        });
+        selectShowType.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                selectShowTypePropertyChange(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -138,6 +162,75 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
         giveFeedback(CatProcessEnum.BACK, null);
     }//GEN-LAST:event_backButtonActionPerformed
 
+    private void dateFromPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_dateFromPropertyChange
+        setDateChooserErrorColor();
+        fromInitiated ++;
+        if (initiated()) {
+            sendUpdate();
+        }
+    }//GEN-LAST:event_dateFromPropertyChange
+
+    private void dateToPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_dateToPropertyChange
+        setDateChooserErrorColor();
+        toInitiated ++;
+        if (initiated()) {
+            sendUpdate();
+        }
+    }//GEN-LAST:event_dateToPropertyChange
+
+    private void selectShowTypePropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_selectShowTypePropertyChange
+
+    }//GEN-LAST:event_selectShowTypePropertyChange
+
+    private void selectShowTypeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectShowTypeActionPerformed
+        if (initiated()) {
+            sendUpdate();
+        }
+    }//GEN-LAST:event_selectShowTypeActionPerformed
+
+    private void setDateChooserErrorColor() {
+        if (isFromCorrect()) {
+            fromLabel.setForeground(Color.BLACK);
+        } else {
+            fromLabel.setForeground(Color.RED);
+        }
+
+        if (isToCorrect()) {
+            toLabel.setForeground(Color.BLACK);
+        } else {
+            toLabel.setForeground(Color.RED);
+        }
+    }
+
+    private boolean isFromCorrect() {
+        if (dateFrom.getDate() != null && dateTo.getDate() != null) {
+            return dateFrom.getDate().compareTo(dateTo.getDate()) <= 0;
+        }
+        return dateFrom.getDate() != null;
+    }
+
+    private boolean isToCorrect() {
+        if (dateFrom.getDate() != null && dateTo.getDate() != null) {
+            return dateFrom.getDate().compareTo(dateTo.getDate()) <= 0;
+        }
+        return dateTo.getDate() != null;
+    }
+
+    private boolean isFromAndToCorrect() {
+        return isFromCorrect() && isToCorrect();
+    }
+
+    private void sendUpdate() {
+        if (isFromAndToCorrect()) {
+            giveFeedback(CatProcessEnum.UPDATE, null);
+        }
+    }
+    
+    private boolean initiated() {
+        // When initiating the fields on load, datePropertyChange is called 2 times instead of 1
+        return fromInitiated > 1 && toInitiated > 1;
+    }
+
     @Override
     public Object getProperty(CatProcessEnum property) {
         switch (property) {
@@ -145,6 +238,12 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
                 return listModel;*/
             case LIST_PANEL:
                 return listScrollPanel;
+            case FROM:
+                return dateFrom.getDate();
+            case TO:
+                return dateTo.getDate();
+            case FILTER:
+                return selectShowType.getSelectedIndex();
             default:
                 return null;
         }
@@ -159,18 +258,18 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
     public void giveFeedback(CatProcessEnum tipo, AWTEvent feedback) {
         listeners.forEach(l -> l.giveFeedback(tipo, feedback));
     }
-    
+
     private ComboBoxModel getComboBoxModel() {
         DefaultComboBoxModel comboModel = new DefaultComboBoxModel();
         LocaleMessages m = LocaleMessages.getInstance();
-        
+
         comboModel.addElement(m.getString("all"));
         comboModel.addElement(m.getString("notCategorized"));
         comboModel.addElement(m.getString("positive"));
         comboModel.addElement(m.getString("negative"));
         comboModel.addElement(m.getString("neutral"));
         comboModel.addElement(m.getString("depends"));
-        
+
         return comboModel;
     }
 
