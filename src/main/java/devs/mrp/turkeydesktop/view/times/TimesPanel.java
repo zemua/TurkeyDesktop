@@ -105,7 +105,7 @@ public class TimesPanel extends FeedbackerPanelWithFetcher<TimesEnum, AWTEvent> 
             }
         });
 
-        refreshButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/refresh-small.png"))); // NOI18N
+        refreshButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/refresh-black.png"))); // NOI18N
         refreshButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 refreshButtonActionPerformed(evt);

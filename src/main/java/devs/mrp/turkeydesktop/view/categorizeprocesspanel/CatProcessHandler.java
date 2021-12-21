@@ -68,7 +68,6 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
     }*/
     
     private void attachItemsToListPanel(Date from, Date to) {
-        // TODO
         JPanel panel = (JPanel)this.getPanel().getProperty(CatProcessEnum.LIST_PANEL);
         panel.removeAll(); // clear in case it has been filled before
         List<Tripla<String, Long, Type.Types>> triplas = typedService.getTypedLogGroupedByProcess(from, to);
