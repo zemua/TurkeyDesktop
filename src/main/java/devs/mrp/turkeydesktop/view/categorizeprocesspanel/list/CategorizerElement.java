@@ -7,6 +7,9 @@ package devs.mrp.turkeydesktop.view.categorizeprocesspanel.list;
 
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
@@ -36,11 +39,23 @@ public class CategorizerElement extends JPanel {
     private ButtonGroup radioGroup = new ButtonGroup();
 
     public CategorizerElement() {
-        this.setLayout(new BoxLayout(CategorizerElement.this, BoxLayout.X_AXIS));
+        initialize();
+    }
+    
+    public CategorizerElement(int width, int height) {
+        this.setSize(width, height);
+        initialize();
+    }
+    
+    private void initialize() {
+        //this.setLayout(new BoxLayout(CategorizerElement.this, BoxLayout.X_AXIS));
+        this.setLayout(new GridLayout(1, 6));
+        //this.setLayout(new GridBagLayout());
         initializeButtonsName();
         initializeRadioGroup();
         setListeners();
         addElements();
+        //addElementsToGridBag();
     }
     
     public void init(String text, Type.Types type) {
@@ -105,6 +120,23 @@ public class CategorizerElement extends JPanel {
         this.add(negativeRadio);
         this.add(neutralRadio);
         this.add(dependsRadio);
+    }
+    
+    private void addElementsToGridBag() {
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridwidth = 6;
+        this.add(label, c);
+        c.gridx = 1;
+        this.add(undefinedRadio, c);
+        c.gridx = 2;
+        this.add(positiveRadio, c);
+        c.gridx = 3;
+        this.add(negativeRadio, c);
+        c.gridx = 4;
+        this.add(neutralRadio, c);
+        c.gridx = 5;
+        this.add(dependsRadio, c);
     }
 
 }

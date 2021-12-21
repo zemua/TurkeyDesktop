@@ -32,8 +32,8 @@ public class MainController implements IStarter {
     
     private void initMainFrame() {
         mainFrame = FContainer.getContainer();
-        mainFrame.setSize(500, 250);
-        mainFrame.setResizable(false);
+        //mainFrame.setSize(800, 250);
+        //mainFrame.setResizable(false);
         handler = FMainPanel.getMainHandler(mainFrame);
         handler.show();
     }

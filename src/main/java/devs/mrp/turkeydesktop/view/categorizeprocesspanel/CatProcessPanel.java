@@ -44,7 +44,7 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
 
         backButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        listPanel = new javax.swing.JPanel();
+        listScrollPanel = new javax.swing.JPanel();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
         backButton.setText(bundle.getString("back")); // NOI18N
@@ -54,8 +54,8 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
             }
         });
 
-        listPanel.setLayout(new java.awt.GridLayout(1, 2));
-        jScrollPane1.setViewportView(listPanel);
+        listScrollPanel.setLayout(new javax.swing.BoxLayout(listScrollPanel, javax.swing.BoxLayout.PAGE_AXIS));
+        jScrollPane1.setViewportView(listScrollPanel);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -67,7 +67,7 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(backButton)
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -76,7 +76,7 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
                 .addContainerGap()
                 .addComponent(backButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 242, Short.MAX_VALUE)
+                .addComponent(jScrollPane1)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -91,7 +91,7 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
             /*case LIST_MODEL:
                 return listModel;*/
             case LIST_PANEL:
-                return listPanel;
+                return listScrollPanel;
             default:
                 return null;
         }
@@ -111,6 +111,6 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton backButton;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JPanel listPanel;
+    private javax.swing.JPanel listScrollPanel;
     // End of variables declaration//GEN-END:variables
 }

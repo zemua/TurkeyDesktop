@@ -74,10 +74,9 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
         List<Tripla<String, Long, Type.Types>> triplas = typedService.getTypedLogGroupedByProcess(from, to);
         triplas.sort((c1,c2) -> c2.getValue2().compareTo(c1.getValue2()));
         triplas.forEach(t -> {
-            CategorizerElement element = new CategorizerElement();
+            CategorizerElement element = new CategorizerElement(panel.getWidth(), panel.getHeight());
             element.init(t.getValue1(), t.getValue3());
-            panel.add(element.getLabel());
-            panel.add(element.getButtons());
+            panel.add(element);
         });
     }
     
