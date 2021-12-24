@@ -105,14 +105,30 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
     
     private boolean ifPassFilter(Type.Types t, int filter) {
         if (filter == FILTER_ALL) {
-            logger.log(Level.FINEST, "filter allows all");
+            logger.log(Level.INFO, "filter allows all");
             return true;
         }
-        if (t.equals(Type.Types.UNDEFINED) && filter == FILTER_NOT_CATEGORIZED) {return true;}
-        if (t.equals(Type.Types.POSITIVE) && filter == FILTER_POSITIVE) {return true;}
-        if (t.equals(Type.Types.NEGATIVE) && filter == FILTER_NEGATIVE) {return true;}
-        if (t.equals(Type.Types.NEUTRAL) && filter == FILTER_NEUTRAL) {return true;}
-        if (t.equals(Type.Types.DEPENDS) && filter == FILTER_DEPENDS) {return true;}
+        if (t.equals(Type.Types.UNDEFINED) && filter == FILTER_NOT_CATEGORIZED) {
+            logger.log(Level.INFO, "filter allows not categorized");
+            return true;
+        }
+        if (t.equals(Type.Types.POSITIVE) && filter == FILTER_POSITIVE) {
+            logger.log(Level.INFO, "filter allows positive");
+            return true;
+        }
+        if (t.equals(Type.Types.NEGATIVE) && filter == FILTER_NEGATIVE) {
+            logger.log(Level.INFO, "filter allows negative");
+            return true;
+        }
+        if (t.equals(Type.Types.NEUTRAL) && filter == FILTER_NEUTRAL) {
+            logger.log(Level.INFO, "filter allows neutral");
+            return true;
+        }
+        if (t.equals(Type.Types.DEPENDS) && filter == FILTER_DEPENDS) {
+            logger.log(Level.INFO, "filter allows dependable");
+            return true;
+        }
+        logger.log(Level.INFO, "filter doesnt allow");
         return false;
     }
     
