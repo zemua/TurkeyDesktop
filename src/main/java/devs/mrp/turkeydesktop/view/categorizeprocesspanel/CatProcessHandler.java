@@ -5,12 +5,16 @@
  */
 package devs.mrp.turkeydesktop.view.categorizeprocesspanel;
 
+import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.common.Tripla;
 import devs.mrp.turkeydesktop.database.logandtype.FLogAndTypeService;
 import devs.mrp.turkeydesktop.database.logandtype.ILogAndTypeService;
+import devs.mrp.turkeydesktop.database.type.FTypeService;
+import devs.mrp.turkeydesktop.database.type.ITypeService;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.list.CategorizerElement;
+import devs.mrp.turkeydesktop.view.categorizeprocesspanel.list.CategorizerStaticData;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.util.Date;
@@ -34,11 +38,15 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
     private static final int FILTER_DEPENDS = 5;
     
     private Logger logger = Logger.getLogger(CatProcessHandler.class.getName());
+    private static FeedbackListener<Type.Types,String> mListener;
+    private ITypeService typeService;
     
     ILogAndTypeService typedService = FLogAndTypeService.getService();
     
     public CatProcessHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
         super(frame, caller);
+        typeService = FTypeService.getService();
+        setRadioListener();
     }
     
     @Override
@@ -113,6 +121,27 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
         if (t.equals(Type.Types.NEUTRAL) && filter == FILTER_NEUTRAL) {return true;}
         if (t.equals(Type.Types.DEPENDS) && filter == FILTER_DEPENDS) {return true;}
         return false;
+    }
+    
+    private void setRadioListener() {
+        if (mListener == null) {
+            mListener = new FeedbackListener<Type.Types, String>() {
+                @Override
+                public void giveFeedback(Type.Types tipo, String feedback) {
+                    addCategorization(feedback, tipo);
+                }
+            };
+        }
+        if (!CategorizerStaticData.hasListener(mListener)) {
+            CategorizerStaticData.addListener(mListener);
+        }
+    }
+    
+    private void addCategorization(String process, Type.Types type) {
+        Type t = new Type();
+        t.setProcess(process);
+        t.setType(type);
+        typeService.add(t);
     }
     
 }

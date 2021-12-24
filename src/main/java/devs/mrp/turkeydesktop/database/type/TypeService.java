@@ -26,6 +26,15 @@ public class TypeService implements ITypeService {
         if (element == null) {
             return -1;
         } else {
+            // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
+            ResultSet rs = repo.findById(element.getProcess());
+            try{
+                if (rs.next()){
+                return update(element);
+            }
+            } catch (SQLException ex) {
+                Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
+            }
             return repo.add(element);
         }
     }

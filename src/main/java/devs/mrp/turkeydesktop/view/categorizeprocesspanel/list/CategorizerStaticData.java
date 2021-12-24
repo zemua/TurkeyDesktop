@@ -47,6 +47,10 @@ public class CategorizerStaticData {
         listeners.remove(listener);
     }
     
+    public static boolean hasListener(FeedbackListener<Type.Types,String> listener) {
+        return listeners.contains(listener);
+    }
+    
     public static void giveFeedback(Type.Types type, String processName) {
         listeners.forEach(l -> l.giveFeedback(type, processName));
     }

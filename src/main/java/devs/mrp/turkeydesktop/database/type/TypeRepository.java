@@ -43,7 +43,7 @@ public class TypeRepository implements TypeDao {
             semaphore.acquire();
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("INSERT OR REPLACE INTO %s (%s, %s) ",
+                stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s) ",
                         Db.CATEGORIZED_TABLE, Type.PROCESS_NAME, Type.TYPE)
                         + "VALUES (?,?)");
                         // we don't retrieve generated keys as no keys are generated, we provide them
