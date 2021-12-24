@@ -5,12 +5,17 @@
  */
 package devs.mrp.turkeydesktop.database.logandtype;
 
-import devs.mrp.turkeydesktop.common.Dupla;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.Tripla;
+import devs.mrp.turkeydesktop.database.logs.FTimeLogService;
+import devs.mrp.turkeydesktop.database.logs.ITimeLogService;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
+import devs.mrp.turkeydesktop.database.logs.TimeLogRepository;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
+import devs.mrp.turkeydesktop.database.type.FTypeService;
+import devs.mrp.turkeydesktop.database.type.ITypeService;
 import devs.mrp.turkeydesktop.database.type.Type;
+import devs.mrp.turkeydesktop.database.type.TypeRepository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -24,8 +29,12 @@ import java.util.logging.Logger;
  * @author miguel
  */
 public class LogAndTypeFacadeService implements ILogAndTypeService {
-    
+
     private final LogAndTypeFacadeDao repo = LogAndTypeFacadeRepository.getInstance();
+    private final TimeLogRepository logRepo = TimeLogRepository.getInstance();
+    private final TypeRepository typeRepo = TypeRepository.getInstance();
+    private final ITimeLogService logService = FTimeLogService.getService();
+    private final ITypeService typeService = FTypeService.getService();
 
     @Override
     public List<Tripla<String, Long, Type.Types>> getTypedLogGroupedByProcess(Date from, Date to) {
@@ -50,5 +59,36 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
         }
         return typedTimes;
     }
+
+    @Override
+    public long addTimeLogAdjustingCounted(TimeLog element) {
+        return logService.add(adjustCounted(element));
+    }
     
+    private TimeLog adjustCounted(TimeLog element) {
+        Type type = typeService.findById(element.getProcessName());
+        if (type == null || type.getType() == null) {
+            return null;
+        }
+        switch (type.getType()){
+            case NEUTRAL:
+            case UNDEFINED:
+                element.setCounted(0);
+                break;
+            case DEPENDS:
+                // TODO adjust depending on categorized keywords for window title
+                element.setCounted(0);
+                break;
+            case POSITIVE:
+                element.setCounted(Math.abs(element.getElapsed()));
+                break;
+            case NEGATIVE:
+                element.setCounted(Math.abs(element.getElapsed()) * (-1));
+                break;
+            default:
+                break;
+        }
+        return element;
+    }
+
 }

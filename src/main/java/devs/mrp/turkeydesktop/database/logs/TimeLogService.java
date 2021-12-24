@@ -10,7 +10,6 @@ import devs.mrp.turkeydesktop.common.TimeConverter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -24,6 +23,12 @@ public class TimeLogService implements ITimeLogService {
 
     private final TimeLogDao repo = TimeLogRepository.getInstance();
 
+    /**
+     * @deprecated
+     * Use ILogAndTypeService.addTimeLogAdjustingCounted(TimeLog element) instead
+     */
+    @Deprecated
+    @Override
     public long add(TimeLog element) {
         if (element == null) {
             return -1;
@@ -32,6 +37,7 @@ public class TimeLogService implements ITimeLogService {
         }
     }
 
+    @Override
     public long update(TimeLog element) {
         if (element == null || element.getId() <= 0) {
             return -1;
