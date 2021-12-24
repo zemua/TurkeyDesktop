@@ -18,6 +18,10 @@ import java.util.Map;
  */
 public class CategorizerStaticData {
     
+    /**
+     * NOT used anymore as we are not using JList for the categorizer
+     */
+    
     private static Map<String, Type.Types> types;
     private static List<FeedbackListener<Type.Types,String>> listeners = new ArrayList<>();
     

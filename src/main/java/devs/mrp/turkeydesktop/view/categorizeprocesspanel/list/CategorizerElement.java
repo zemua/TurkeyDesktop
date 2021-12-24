@@ -5,11 +5,15 @@
  */
 package devs.mrp.turkeydesktop.view.categorizeprocesspanel.list;
 
+import devs.mrp.turkeydesktop.common.FeedbackListener;
+import devs.mrp.turkeydesktop.common.Feedbacker;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
@@ -20,7 +24,7 @@ import javax.swing.JRadioButton;
  *
  * @author miguel
  */
-public class CategorizerElement extends JPanel {
+public class CategorizerElement extends JPanel implements Feedbacker<Type.Types, String> {
 
     private LocaleMessages locale = LocaleMessages.getInstance();
     private static final String UNDEFINED_TEXT = "undefined";
@@ -30,6 +34,8 @@ public class CategorizerElement extends JPanel {
     private static final String DEPENDS_TEXT = "depends";
 
     private JLabel label = new JLabel();
+    
+    private List<FeedbackListener<Type.Types, String>> listeners = new ArrayList<>();
 
     private JRadioButton undefinedRadio = new JRadioButton();
     private JRadioButton positiveRadio = new JRadioButton();
@@ -106,11 +112,11 @@ public class CategorizerElement extends JPanel {
     }
 
     private void setListeners() {
-        undefinedRadio.addActionListener(ev -> CategorizerStaticData.giveFeedback(Type.Types.UNDEFINED, label.getText()));
-        positiveRadio.addActionListener(ev -> CategorizerStaticData.giveFeedback(Type.Types.POSITIVE, label.getText()));
-        negativeRadio.addActionListener(ev -> CategorizerStaticData.giveFeedback(Type.Types.NEGATIVE, label.getText()));
-        neutralRadio.addActionListener(ev -> CategorizerStaticData.giveFeedback(Type.Types.NEUTRAL, label.getText()));
-        dependsRadio.addActionListener(ev -> CategorizerStaticData.giveFeedback(Type.Types.DEPENDS, label.getText()));
+        undefinedRadio.addActionListener(ev -> giveFeedback(Type.Types.UNDEFINED, label.getText()));
+        positiveRadio.addActionListener(ev -> giveFeedback(Type.Types.POSITIVE, label.getText()));
+        negativeRadio.addActionListener(ev -> giveFeedback(Type.Types.NEGATIVE, label.getText()));
+        neutralRadio.addActionListener(ev -> giveFeedback(Type.Types.NEUTRAL, label.getText()));
+        dependsRadio.addActionListener(ev -> giveFeedback(Type.Types.DEPENDS, label.getText()));
     }
 
     private void addElements() {
@@ -137,6 +143,16 @@ public class CategorizerElement extends JPanel {
         this.add(neutralRadio, c);
         c.gridx = 5;
         this.add(dependsRadio, c);
+    }
+
+    @Override
+    public void addFeedbackListener(FeedbackListener<Type.Types, String> listener) {
+        listeners.add(listener);
+    }
+
+    @Override
+    public void giveFeedback(Type.Types tipo, String feedback) {
+        listeners.forEach(l -> l.giveFeedback(tipo, feedback));
     }
 
 }

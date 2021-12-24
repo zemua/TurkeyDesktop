@@ -38,7 +38,7 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
     private static final int FILTER_DEPENDS = 5;
     
     private Logger logger = Logger.getLogger(CatProcessHandler.class.getName());
-    private static FeedbackListener<Type.Types,String> mListener;
+    private FeedbackListener<Type.Types,String> mListener;
     private ITypeService typeService;
     
     ILogAndTypeService typedService = FLogAndTypeService.getService();
@@ -46,7 +46,6 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
     public CatProcessHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
         super(frame, caller);
         typeService = FTypeService.getService();
-        setRadioListener();
     }
     
     @Override
@@ -99,6 +98,7 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
                 CategorizerElement element = new CategorizerElement(panel.getWidth(), panel.getHeight());
                 element.init(t.getValue1(), t.getValue3());
                 panel.add(element);
+                setRadioListener(element);
             } else {
                 panel.updateUI();
             }
@@ -123,7 +123,7 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
         return false;
     }
     
-    private void setRadioListener() {
+    private void setRadioListener(CategorizerElement el) {
         if (mListener == null) {
             mListener = new FeedbackListener<Type.Types, String>() {
                 @Override
@@ -132,9 +132,7 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
                 }
             };
         }
-        if (!CategorizerStaticData.hasListener(mListener)) {
-            CategorizerStaticData.addListener(mListener);
-        }
+        el.addFeedbackListener(mListener);
     }
     
     private void addCategorization(String process, Type.Types type) {
