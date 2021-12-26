@@ -74,16 +74,10 @@ public class TimeLogService implements ITimeLogService {
 
     public TimeLog findById(long id) {
         ResultSet set = repo.findById(id);
-        TimeLog timeLog = new TimeLog();
+        TimeLog timeLog = null;
         try {
             if (set.next()) {
-                timeLog.setElapsed(set.getLong(TimeLog.ELAPSED));
-                timeLog.setEpoch(set.getLong(TimeLog.EPOCH));
-                timeLog.setCounted(set.getLong(TimeLog.COUNTED));
-                timeLog.setId(set.getLong(TimeLog.ID));
-                timeLog.setPid(set.getString(TimeLog.PID));
-                timeLog.setProcessName(set.getString(TimeLog.PROCESS_NAME));
-                timeLog.setWindowTitle(set.getString(TimeLog.WINDOW_TITLE));
+                timeLog = setTimeLogFromResultSetEntry(set);
             }
         } catch (SQLException ex) {
             Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
@@ -99,20 +93,44 @@ public class TimeLogService implements ITimeLogService {
         List<TimeLog> logList = new ArrayList<>();
         try {
             while (set.next()) {
-                TimeLog timeLog = new TimeLog();
-                timeLog.setElapsed(set.getLong(TimeLog.ELAPSED));
-                timeLog.setEpoch(set.getLong(TimeLog.EPOCH));
-                timeLog.setCounted(set.getLong(TimeLog.COUNTED));
-                timeLog.setId(set.getLong(TimeLog.ID));
-                timeLog.setPid(set.getString(TimeLog.PID));
-                timeLog.setProcessName(set.getString(TimeLog.PROCESS_NAME));
-                timeLog.setWindowTitle(set.getString(TimeLog.WINDOW_TITLE));
+                TimeLog timeLog = setTimeLogFromResultSetEntry(set);
                 logList.add(timeLog);
             }
         } catch (SQLException ex) {
             Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
         }
         return logList;
+    }
+
+    @Override
+    public TimeLog findMostRecent() {
+        TimeLog entry = null;
+        try {
+            ResultSet set = repo.getMostRecent();
+            if (set.next()) {
+                entry = setTimeLogFromResultSetEntry(set);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return entry;
+    }
+    
+    private TimeLog setTimeLogFromResultSetEntry(ResultSet set) {
+        TimeLog entry = new TimeLog();
+        try {
+            entry.setElapsed(set.getLong(TimeLog.ELAPSED));
+            entry.setEpoch(set.getLong(TimeLog.EPOCH));
+            entry.setCounted(set.getLong(TimeLog.COUNTED));
+            entry.setAccumulated(set.getLong(TimeLog.ACCUMULATED));
+            entry.setId(set.getLong(TimeLog.ID));
+            entry.setPid(set.getString(TimeLog.PID));
+            entry.setProcessName(set.getString(TimeLog.PROCESS_NAME));
+            entry.setWindowTitle(set.getString(TimeLog.WINDOW_TITLE));
+        } catch (SQLException ex) {
+            Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return entry;
     }
 
 }

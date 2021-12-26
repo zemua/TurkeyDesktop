@@ -62,7 +62,9 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
 
     @Override
     public long addTimeLogAdjustingCounted(TimeLog element) {
-        return logService.add(adjustCounted(element));
+        adjustCounted(element);
+        adjustAccumulated(element, element.getCounted());
+        return logService.add(element);
     }
     
     private TimeLog adjustCounted(TimeLog element) {
@@ -88,6 +90,13 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
             default:
                 break;
         }
+        return element;
+    }
+    
+    private TimeLog adjustAccumulated(TimeLog element, long counted) {
+        TimeLog last = logService.findMostRecent();
+        long accumulated = last.getAccumulated() + counted;
+        element.setAccumulated(accumulated);
         return element;
     }
 

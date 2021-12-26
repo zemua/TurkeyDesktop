@@ -16,7 +16,8 @@ public class TimeLog {
     public static final String ID = "ID";
     public static final String EPOCH = "EPOCH";
     public static final String ELAPSED = "ELAPSED";
-    public static final String COUNTED = "COUNTED"; // TODO add to db and use in repo/service
+    public static final String COUNTED = "COUNTED";
+    public static final String ACCUMULATED = "ACCUMULATED";
     public static final String PID = "PID";
     public static final String PROCESS_NAME = "PROCESS_NAME";
     public static final String WINDOW_TITLE = "WINDOW_TITLE";
@@ -25,6 +26,15 @@ public class TimeLog {
     private long epoch;
     private long elapsed;
     private long counted;
+    private long accumulated;
+
+    public long getAccumulated() {
+        return accumulated;
+    }
+
+    public void setAccumulated(long accumulated) {
+        this.accumulated = accumulated;
+    }
     private String pid;
     private String processName;
     private String windowTitle;

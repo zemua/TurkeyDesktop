@@ -188,5 +188,26 @@ public class TimeLogRepository implements TimeLogDao {
         }
         return rs;
     }
+
+    @Override
+    public ResultSet getMostRecent() {
+        ResultSet rs = null;
+        try {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s ORDER BY %s DESC LIMIT 1",
+                        Db.WATCHDOG_TABLE, TimeLog.EPOCH));
+                rs = stm.executeQuery();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null ,ex);
+            }
+        } catch (InterruptedException ex) {
+            logger.log(Level.SEVERE, null ,ex);
+        } finally {
+            semaphore.release();
+        }
+        return rs;
+    }
     
 }

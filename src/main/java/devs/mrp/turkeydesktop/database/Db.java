@@ -26,6 +26,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
     public static final String WATCHDOG_TABLE = "WATCHDOG_LOG";
     public static final String GROUPS_TABLE = "GROUPS_OF_APPS";
     public static final String CATEGORIZED_TABLE = "TYPES_CATEGORIZATION";
+    public static final String ACCUMULATED_TIME_TABLE = "ACCUMULATED_TIME";
     
     private static Db instance = null;
     private Connection con = null;
@@ -53,7 +54,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
             System.out.println("error intentando conseguir la conexión");
             Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
             con = null;
-            JOptionPane.showMessageDialog(null, "Error: Es posible que ya tengas otra ventana abierta?");
+            JOptionPane.showMessageDialog(null, "Error: Is it possible that the application is already opened?");
         }
     }
     
@@ -65,13 +66,14 @@ public class Db { // TODO create asynchronous listeners to update livedata
                 + "%s BIGINT NOT NULL, " // epoch
                 + "%s INT NOT NULL, " // elapsed
                 + "%s INT NOT NULL, " // counted
+                + "%s BIGINT NOT NULL, " // accumulated
                 + "%s VARCHAR(10), " // pid
                 + "%s VARCHAR(50), " // process name
                 + "%s VARCHAR(150), " // window title
                 + "%s INT, " // category id
                 + "%s INT, " // type id
                 + "PRIMARY KEY (%s))",
-                WATCHDOG_TABLE, TimeLog.ID, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.COUNTED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE, Group.GROUP, Type.TYPE, TimeLog.ID));
+                WATCHDOG_TABLE, TimeLog.ID, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.COUNTED, TimeLog.ACCUMULATED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE, Group.GROUP, Type.TYPE, TimeLog.ID));
         
         execute(String.format("CREATE TABLE IF NOT EXISTS %s("
                 + "%s VARCHAR(50) NOT NULL, " // process name, unique in the table
