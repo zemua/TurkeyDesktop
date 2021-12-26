@@ -25,6 +25,7 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
      */
     public MainPanel() {
         initComponents();
+        giveFeedback(MainEnum.READY, null);
     }
 
     @Override
@@ -49,8 +50,8 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
         jPanel1 = new javax.swing.JPanel();
         catProcButton = new javax.swing.JButton();
         timesButton = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        logTextArea = new javax.swing.JTextArea();
+        jPanel2 = new javax.swing.JPanel();
+        mainTimeLabel = new javax.swing.JLabel();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
         catProcButton.setText(bundle.getString("categorizeproc")); // NOI18N
@@ -76,7 +77,7 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(catProcButton)
                     .addComponent(timesButton))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(204, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -88,10 +89,27 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
                 .addContainerGap(26, Short.MAX_VALUE))
         );
 
-        logTextArea.setEditable(false);
-        logTextArea.setColumns(20);
-        logTextArea.setRows(5);
-        jScrollPane1.setViewportView(logTextArea);
+        mainTimeLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        mainTimeLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/turkey.png"))); // NOI18N
+        mainTimeLabel.setText("jLabel1");
+        mainTimeLabel.setAlignmentX(0.5F);
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(mainTimeLabel)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(mainTimeLabel)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -100,18 +118,18 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE))
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 158, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(150, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -127,8 +145,8 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton catProcButton;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextArea logTextArea;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JLabel mainTimeLabel;
     private javax.swing.JButton timesButton;
     // End of variables declaration//GEN-END:variables
     
@@ -136,7 +154,10 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
     public Object getProperty(MainEnum type) {
         switch (type) {
             case LOGGER:
-                return logTextArea;
+                // we don't have a log textArea now
+                return null;
+            case LABELIZER:
+                return mainTimeLabel;
             default:
                 return null;
         }
