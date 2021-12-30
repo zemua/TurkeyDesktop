@@ -68,14 +68,14 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
         setTimeOnHeaderLabel();
     }
     
-    private void initTimesHandler() { // TODO prevent creating new if not null
+    private void initTimesHandler() {
         if (timesHandler == null) {
             timesHandler = FTimesPanel.getHandler(this.getFrame(), this);
         }
         timesHandler.show();
     }
     
-    private void initCategorizeHandler() { // TODO prevent creating new if not null
+    private void initCategorizeHandler() {
         if(categoryProcessHandler == null) {
             categoryProcessHandler = FCatProcessPanel.getHandler(this.getFrame(), this);
         }

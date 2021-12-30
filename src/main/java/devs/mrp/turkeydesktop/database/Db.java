@@ -6,6 +6,7 @@
 package devs.mrp.turkeydesktop.database;
 
 import devs.mrp.turkeydesktop.database.category.Group;
+import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.type.Type;
 import java.sql.Connection;
@@ -27,6 +28,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
     public static final String GROUPS_TABLE = "GROUPS_OF_APPS";
     public static final String CATEGORIZED_TABLE = "TYPES_CATEGORIZATION";
     public static final String ACCUMULATED_TIME_TABLE = "ACCUMULATED_TIME";
+    public static final String CONFIG_TABLE = "CONFIG_TABLE";
     
     private static Db instance = null;
     private Connection con = null;
@@ -88,6 +90,11 @@ public class Db { // TODO create asynchronous listeners to update livedata
                 + "PRIMARY KEY (%s))",
                 GROUPS_TABLE, Group.ID, Group.NAME, Group.TYPE, Group.ID));
         
+        execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
+                + "%s VARCHAR(150) NOT NULL, " // key
+                + "%s VARCHAR(150) NOT NULL, " // value
+                + "PRIMARY KEY (%s))",
+                    CONFIG_TABLE, ConfigElement.KEY, ConfigElement.VALUE, ConfigElement.KEY));
         
         //close();
     }
