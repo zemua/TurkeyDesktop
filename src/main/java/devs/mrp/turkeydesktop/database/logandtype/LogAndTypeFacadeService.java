@@ -35,6 +35,8 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
     private final TypeRepository typeRepo = TypeRepository.getInstance();
     private final ITimeLogService logService = FTimeLogService.getService();
     private final ITypeService typeService = FTypeService.getService();
+    
+    private static final Logger LOGGER = Logger.getLogger(LogAndTypeFacadeService.class.getName());
 
     @Override
     public List<Tripla<String, Long, Type.Types>> getTypedLogGroupedByProcess(Date from, Date to) {
@@ -95,8 +97,13 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
     
     private TimeLog adjustAccumulated(TimeLog element, long counted) {
         TimeLog last = logService.findMostRecent();
-        long accumulated = last.getAccumulated() + counted;
+        long lastAccumulated = 0;
+        if (last != null) {
+            lastAccumulated = last.getAccumulated();
+        }
+        long accumulated = lastAccumulated + counted;
         element.setAccumulated(accumulated);
+        LOGGER.log(Level.INFO, "accumulated: " + accumulated);
         return element;
     }
 

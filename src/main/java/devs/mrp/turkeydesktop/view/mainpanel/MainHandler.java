@@ -5,6 +5,11 @@
  */
 package devs.mrp.turkeydesktop.view.mainpanel;
 
+import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.database.logs.FTimeLogService;
+import devs.mrp.turkeydesktop.database.logs.ITimeLogService;
+import devs.mrp.turkeydesktop.database.logs.TimeLog;
+import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessEnum;
@@ -14,6 +19,7 @@ import devs.mrp.turkeydesktop.view.times.TimesEnum;
 import java.awt.AWTEvent;
 import java.awt.Toolkit;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 
 /**
  *
@@ -26,6 +32,8 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     
     PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>> timesHandler;
     PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>> categoryProcessHandler;
+    
+    private ITimeLogService timeLogService = FTimeLogService.getService();
 
     public MainHandler(JFrame frame, PanelHandler<?,?, ?> caller) {
         super(frame, caller);
@@ -57,7 +65,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     
     @Override
     protected void doExtraBeforeShow() {
-        // Nothing to do here
+        setTimeOnHeaderLabel();
     }
     
     private void initTimesHandler() { // TODO prevent creating new if not null
@@ -72,6 +80,12 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
             categoryProcessHandler = FCatProcessPanel.getHandler(this.getFrame(), this);
         }
         categoryProcessHandler.show();
+    }
+    
+    private void setTimeOnHeaderLabel() {
+        TimeLog el = timeLogService.findMostRecent();
+        JLabel label = (JLabel)this.getPanel().getProperty(MainEnum.LABELIZER);
+        label.setText(TimeConverter.millisToHMS(el.getAccumulated()));
     }
     
 }

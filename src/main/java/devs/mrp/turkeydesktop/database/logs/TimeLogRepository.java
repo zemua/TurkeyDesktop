@@ -44,16 +44,17 @@ public class TimeLogRepository implements TimeLogDao {
             semaphore.acquire();
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s, %s, %s, %s, %s) ", 
-                        Db.WATCHDOG_TABLE, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.COUNTED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE)
-                        + "VALUES (?,?,?,?,?,?)",
+                stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s) ", 
+                        Db.WATCHDOG_TABLE, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.COUNTED, TimeLog.ACCUMULATED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE)
+                        + "VALUES (?,?,?,?,?,?,?)",
                         Statement.RETURN_GENERATED_KEYS);
                 stm.setLong(1, element.getEpoch());
                 stm.setLong(2, element.getElapsed());
                 stm.setLong(3, element.getCounted());
-                stm.setString(4, element.getPid());
-                stm.setString(5, element.getProcessName());
-                stm.setString(6, element.getWindowTitle());
+                stm.setLong(4, element.getAccumulated());
+                stm.setString(5, element.getPid());
+                stm.setString(6, element.getProcessName());
+                stm.setString(7, element.getWindowTitle());
                 stm.executeUpdate();
                 ResultSet generatedId = stm.getGeneratedKeys();
                 if (generatedId.next()) {
