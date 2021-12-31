@@ -14,6 +14,8 @@ import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessEnum;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.FCatProcessPanel;
+import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelEnum;
+import devs.mrp.turkeydesktop.view.configuration.FConfigurationPanel;
 import devs.mrp.turkeydesktop.view.times.FTimesPanel;
 import devs.mrp.turkeydesktop.view.times.TimesEnum;
 import java.awt.AWTEvent;
@@ -32,6 +34,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     
     PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>> timesHandler;
     PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>> categoryProcessHandler;
+    PanelHandler<ConfigurationPanelEnum, AWTEvent, FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent>> configHandler;
     
     private ITimeLogService timeLogService = FTimeLogService.getService();
 
@@ -57,6 +60,9 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
                 case TIMES:
                     initTimesHandler();
                     break;
+                case CONFIG:
+                    initConfigHandler();
+                    break;
                 default:
                     break;
             }
@@ -80,6 +86,13 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
             categoryProcessHandler = FCatProcessPanel.getHandler(this.getFrame(), this);
         }
         categoryProcessHandler.show();
+    }
+    
+    private void initConfigHandler() {
+        if (configHandler == null) {
+            configHandler = FConfigurationPanel.getHandler(this.getFrame(), this);
+        }
+        configHandler.show();
     }
     
     private void setTimeOnHeaderLabel() {

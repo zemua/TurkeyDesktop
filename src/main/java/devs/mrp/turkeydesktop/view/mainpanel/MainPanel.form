@@ -32,8 +32,8 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jPanel2" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="150" max="32767" attributes="0"/>
+              <Component id="jPanel1" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -48,9 +48,13 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="catProcButton" alignment="0" min="-2" max="-2" attributes="0"/>
-                      <Component id="timesButton" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Group type="102" alignment="0" attributes="0">
+                          <Component id="timesButton" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                          <Component id="configButton" min="-2" max="-2" attributes="0"/>
+                      </Group>
                   </Group>
-                  <EmptySpace pref="204" max="32767" attributes="0"/>
+                  <EmptySpace pref="683" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -60,8 +64,11 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="catProcButton" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="timesButton" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace pref="26" max="32767" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="timesButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="configButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace pref="164" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -87,6 +94,16 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="timesButtonActionPerformed"/>
           </Events>
         </Component>
+        <Component class="javax.swing.JButton" name="configButton">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="messages.properties" key="configuration" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+            </Property>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="configButtonActionPerformed"/>
+          </Events>
+        </Component>
       </SubComponents>
     </Container>
     <Container class="javax.swing.JPanel" name="jPanel2">
@@ -97,7 +114,7 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="mainTimeLabel" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace max="32767" attributes="0"/>
+                  <EmptySpace pref="737" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>

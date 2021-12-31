@@ -3,12 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package devs.mrp.turkeydesktop.view.mainpanel;
+package devs.mrp.turkeydesktop.database.config;
 
 /**
  *
  * @author miguel
  */
-public enum MainEnum {
-    CATEGORIZE, TIMES, LOGGER, LABELIZER, READY, CONFIG;
+public class FConfigElementService {
+    
+    public static IConfigElementService getService() {
+        return new ConfigElementService();
+    }
+    
 }

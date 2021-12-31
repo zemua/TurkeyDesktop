@@ -50,6 +50,7 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
         jPanel1 = new javax.swing.JPanel();
         catProcButton = new javax.swing.JButton();
         timesButton = new javax.swing.JButton();
+        configButton = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         mainTimeLabel = new javax.swing.JLabel();
 
@@ -68,6 +69,13 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
             }
         });
 
+        configButton.setText(bundle.getString("configuration")); // NOI18N
+        configButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                configButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -76,8 +84,11 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(catProcButton)
-                    .addComponent(timesButton))
-                .addContainerGap(204, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(timesButton)
+                        .addGap(18, 18, 18)
+                        .addComponent(configButton)))
+                .addContainerGap(683, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -85,8 +96,10 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
                 .addContainerGap()
                 .addComponent(catProcButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(timesButton)
-                .addContainerGap(26, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(timesButton)
+                    .addComponent(configButton))
+                .addContainerGap(164, Short.MAX_VALUE))
         );
 
         mainTimeLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -101,7 +114,7 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(mainTimeLabel)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(737, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -128,8 +141,8 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
                 .addContainerGap()
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(150, Short.MAX_VALUE))
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -141,9 +154,14 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
         giveFeedback(MainEnum.TIMES, evt);
     }//GEN-LAST:event_timesButtonActionPerformed
 
+    private void configButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_configButtonActionPerformed
+        giveFeedback(MainEnum.CONFIG, evt);
+    }//GEN-LAST:event_configButtonActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton catProcButton;
+    private javax.swing.JButton configButton;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JLabel mainTimeLabel;
