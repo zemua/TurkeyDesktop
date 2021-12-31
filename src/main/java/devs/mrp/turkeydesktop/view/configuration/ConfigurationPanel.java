@@ -43,7 +43,8 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
 
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
-        proportionLabel.setText("jLabel1");
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
+        proportionLabel.setText(bundle.getString("proportion")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -51,6 +52,14 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
         jPanel1.add(proportionLabel, gridBagConstraints);
+
+        jSlider1.setMaximum(10);
+        jSlider1.setValue(Integer.parseInt(ConfigurationEnum.PROPORTION.getDefault()));
+        jSlider1.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                jSlider1PropertyChange(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -62,7 +71,6 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
 
         jScrollPane1.setViewportView(jPanel1);
 
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
         jButton1.setText(bundle.getString("back")); // NOI18N
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -98,9 +106,15 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         giveFeedback(ConfigurationPanelEnum.BACK, evt);
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void jSlider1PropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jSlider1PropertyChange
+        giveFeedback(ConfigurationPanelEnum.PROPORTION, null);
+    }//GEN-LAST:event_jSlider1PropertyChange
+
     @Override
     public Object getProperty(ConfigurationPanelEnum property) {
         switch (property) {
+            case PROPORTION:
+                return jSlider1;
             default:
                 return null;
         }

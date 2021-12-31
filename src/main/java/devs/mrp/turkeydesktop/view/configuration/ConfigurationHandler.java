@@ -40,6 +40,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                 case BACK:
                     this.getCaller().show();
                     break;
+                case PROPORTION:
+                    handleNewProportion();
+                    break;
                 default:
                     break;
             }
@@ -48,7 +51,11 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
 
     @Override
     protected void doExtraBeforeShow() {
-        // nothing to do here
+        // TODO set values
+    }
+    
+    private void handleNewProportion() {
+        // TODO
     }
     
 }

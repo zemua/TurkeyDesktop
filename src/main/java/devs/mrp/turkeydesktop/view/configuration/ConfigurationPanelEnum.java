@@ -10,5 +10,5 @@ package devs.mrp.turkeydesktop.view.configuration;
  * @author miguel
  */
 public enum ConfigurationPanelEnum {
-    BACK;
+    BACK, PROPORTION;
 }
