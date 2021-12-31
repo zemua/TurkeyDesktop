@@ -19,4 +19,7 @@ public interface IConfigElementService {
     public ConfigElement findById(String key);
     public long deleteById(String key);
     
+    public List<ConfigElement> allConfigElements();
+    public ConfigElement configElement(String key);
+    
 }

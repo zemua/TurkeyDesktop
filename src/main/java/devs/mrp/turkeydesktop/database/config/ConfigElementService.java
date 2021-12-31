@@ -9,9 +9,12 @@ import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -21,11 +24,25 @@ public class ConfigElementService implements IConfigElementService {
     
     private final ConfigElementDao repo = ConfigElementRepository.getInstance();
     
+    private static Map<String,String> configMap;
+    
+    public ConfigElementService() {
+        initConfigMap();
+    }
+    
+    private void initConfigMap() {
+        if (configMap == null) {
+            configMap = new HashMap<>();
+            findAll(); // it assigns values to the hashmap inside the function
+        }
+    }
+    
     @Override
     public long add(ConfigElement element) {
         if (element == null) {
             return -1;
         } else {
+            configMap.put(element.getKey(), element.getValue());
             return repo.add(element);
         }
     }
@@ -35,6 +52,7 @@ public class ConfigElementService implements IConfigElementService {
         if (element == null || element.getKey() == null) {
             return -1;
         } else {
+            configMap.put(element.getKey(), element.getValue());
             return repo.update(element);
         }
     }
@@ -51,6 +69,8 @@ public class ConfigElementService implements IConfigElementService {
         } catch (SQLException ex) {
             Logger.getLogger(ConfigElementService.class.getName()).log(Level.SEVERE, null, ex);
         }
+        configMap.clear();
+        elements.forEach(e -> configMap.put(e.getKey(), e.getValue()));
         return elements;
     }
 
@@ -65,6 +85,7 @@ public class ConfigElementService implements IConfigElementService {
         } catch (SQLException ex) {
             Logger.getLogger(ConfigElement.class.getName()).log(Level.SEVERE, null, ex);
         }
+        configMap.put(element.getKey(), element.getValue());
         return element;
     }
 
@@ -73,6 +94,7 @@ public class ConfigElementService implements IConfigElementService {
         if (key == null) {
             return -1;
         }
+        configMap.remove(key);
         return repo.deleteById(key);
     }
     
@@ -84,6 +106,26 @@ public class ConfigElementService implements IConfigElementService {
         } catch (SQLException ex) {
             Logger.getLogger(ConfigElementService.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return el;
+    }
+
+    @Override
+    public List<ConfigElement> allConfigElements() {
+        return configMap.entrySet().stream()
+                .map(e -> {
+                    ConfigElement el = new ConfigElement();
+                    el.setKey(e.getKey());
+                    el.setValue(e.getValue());
+                    return el;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ConfigElement configElement(String key) {
+        ConfigElement el = new ConfigElement();
+        el.setKey(key);
+        el.setValue(configMap.get(key));
         return el;
     }
     
