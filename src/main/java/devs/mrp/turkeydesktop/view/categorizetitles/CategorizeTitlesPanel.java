@@ -6,9 +6,12 @@
 package devs.mrp.turkeydesktop.view.categorizetitles;
 
 import devs.mrp.turkeydesktop.common.FeedbackListener;
+import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessEnum;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
+import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -38,18 +41,132 @@ public class CategorizeTitlesPanel extends FeedbackerPanelWithFetcher<Categorize
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jButton1 = new javax.swing.JButton();
+        fromLabel = new javax.swing.JLabel();
+        dateFrom = new com.toedter.calendar.JDateChooser();
+        toLabel = new javax.swing.JLabel();
+        dateTo = new com.toedter.calendar.JDateChooser();
+
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
+        jButton1.setText(bundle.getString("back")); // NOI18N
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        fromLabel.setText(bundle.getString("from")); // NOI18N
+
+        dateFrom.setDate(new Date());
+        dateFrom.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                dateFromPropertyChange(evt);
+            }
+        });
+
+        toLabel.setText(bundle.getString("to")); // NOI18N
+
+        dateTo.setDate(new Date());
+        dateTo.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                dateToPropertyChange(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jButton1)
+                .addGap(18, 18, 18)
+                .addComponent(fromLabel)
+                .addGap(18, 18, 18)
+                .addComponent(dateFrom, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(toLabel)
+                .addGap(18, 18, 18)
+                .addComponent(dateTo, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(329, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(dateTo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(toLabel)
+                    .addComponent(dateFrom, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(fromLabel)
+                    .addComponent(jButton1))
+                .addContainerGap(253, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        giveFeedback(CategorizeTitlesEnum.BACK, evt);
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void dateFromPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_dateFromPropertyChange
+        setDateChooserErrorColor();
+        fromInitiated ++;
+        if (initiated()) {
+            sendUpdate();
+        }
+    }//GEN-LAST:event_dateFromPropertyChange
+
+    private void dateToPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_dateToPropertyChange
+        setDateChooserErrorColor();
+        toInitiated ++;
+        if (initiated()) {
+            sendUpdate();
+        }
+    }//GEN-LAST:event_dateToPropertyChange
+
+    private void setDateChooserErrorColor() {
+        if (isFromCorrect()) {
+            fromLabel.setForeground(Color.BLACK);
+        } else {
+            fromLabel.setForeground(Color.RED);
+        }
+
+        if (isToCorrect()) {
+            toLabel.setForeground(Color.BLACK);
+        } else {
+            toLabel.setForeground(Color.RED);
+        }
+    }
+
+    private boolean isFromCorrect() {
+        if (dateFrom.getDate() != null && dateTo.getDate() != null) {
+            return dateFrom.getDate().compareTo(dateTo.getDate()) <= 0;
+        }
+        return dateFrom.getDate() != null;
+    }
+
+    private boolean isToCorrect() {
+        if (dateFrom.getDate() != null && dateTo.getDate() != null) {
+            return dateFrom.getDate().compareTo(dateTo.getDate()) <= 0;
+        }
+        return dateTo.getDate() != null;
+    }
+
+    private boolean isFromAndToCorrect() {
+        return isFromCorrect() && isToCorrect();
+    }
+
+    private void sendUpdate() {
+        if (isFromAndToCorrect()) {
+            giveFeedback(CatProcessEnum.UPDATE, null);
+        }
+    }
+    
+    private boolean initiated() {
+        // When initiating the fields on load, datePropertyChange is called 2 times instead of 1
+        return fromInitiated > 1 && toInitiated > 1;
+    }
+    
     @Override
     public Object getProperty(CategorizeTitlesEnum property) {
         switch (property) {
@@ -70,5 +187,10 @@ public class CategorizeTitlesPanel extends FeedbackerPanelWithFetcher<Categorize
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.toedter.calendar.JDateChooser dateFrom;
+    private com.toedter.calendar.JDateChooser dateTo;
+    private javax.swing.JLabel fromLabel;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JLabel toLabel;
     // End of variables declaration//GEN-END:variables
 }

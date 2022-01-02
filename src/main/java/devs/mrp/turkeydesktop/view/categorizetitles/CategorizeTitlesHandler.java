@@ -29,6 +29,9 @@ public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, 
     protected void initListeners(FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent> pan) {
         pan.addFeedbackListener((tipo, feedback) -> {
             switch (tipo) {
+                case BACK:
+                    this.getCaller().show();
+                    break;
                 default:
                     break;
             }
