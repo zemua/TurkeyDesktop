@@ -76,12 +76,14 @@ public class ConfigElementService implements IConfigElementService {
     }
 
     @Override
-    public ConfigElement findById(String key) {
-        ResultSet set = repo.findById(key);
+    public ConfigElement findById(ConfigurationEnum key) {
+        ResultSet set = repo.findById(key.toString());
         ConfigElement element = null;
         try {
             if (set.next()) {
                 element = elementFromResultSetEntry(set);
+            } else {
+                element = configElement(key);
             }
         } catch (SQLException ex) {
             Logger.getLogger(ConfigElement.class.getName()).log(Level.SEVERE, null, ex);
@@ -91,12 +93,12 @@ public class ConfigElementService implements IConfigElementService {
     }
 
     @Override
-    public long deleteById(String key) {
+    public long deleteById(ConfigurationEnum key) {
         if (key == null) {
             return -1;
         }
         configMap.remove(key);
-        return repo.deleteById(key);
+        return repo.deleteById(key.toString());
     }
     
     private ConfigElement elementFromResultSetEntry(ResultSet set) {
@@ -126,7 +128,11 @@ public class ConfigElementService implements IConfigElementService {
     public ConfigElement configElement(ConfigurationEnum key) {
         ConfigElement el = new ConfigElement();
         el.setKey(key);
-        el.setValue(configMap.get(key));
+        if (configMap.containsKey(key)) {
+            el.setValue(configMap.get(key));
+        } else {
+            el.setValue(key.getDefault());
+        }
         return el;
     }
     

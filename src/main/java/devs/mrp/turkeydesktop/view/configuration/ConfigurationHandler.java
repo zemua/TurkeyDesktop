@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.view.configuration;
 
+import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.FConfigElementService;
 import devs.mrp.turkeydesktop.database.config.IConfigElementService;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
@@ -13,6 +14,7 @@ import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import javax.swing.JFrame;
+import javax.swing.JSlider;
 
 /**
  *
@@ -55,7 +57,12 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
     
     private void handleNewProportion() {
-        configService.configElement(ConfigurationEnum.PROPORTION);
+        JSlider slider = (JSlider) this.getPanel().getProperty(ConfigurationPanelEnum.PROPORTION);
+        int proportion = slider.getValue();
+        ConfigElement el = new ConfigElement();
+        el.setKey(ConfigurationEnum.PROPORTION);
+        el.setValue(String.valueOf(proportion));
+        configService.add(el);
     }
     
 }

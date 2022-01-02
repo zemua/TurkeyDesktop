@@ -17,8 +17,8 @@ public interface IConfigElementService {
     public long add(ConfigElement element);
     public long update(ConfigElement element);
     public List<ConfigElement> findAll();
-    public ConfigElement findById(String key);
-    public long deleteById(String key);
+    public ConfigElement findById(ConfigurationEnum key);
+    public long deleteById(ConfigurationEnum key);
     
     public List<ConfigElement> allConfigElements();
     public ConfigElement configElement(ConfigurationEnum key);
