@@ -53,7 +53,13 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
 
     @Override
     protected void doExtraBeforeShow() {
-        // TODO set values
+        setupProportion();
+    }
+    
+    private void setupProportion() {
+        int proportion = Integer.valueOf(configService.configElement(ConfigurationEnum.PROPORTION).getValue());
+        JSlider slider = (JSlider) this.getPanel().getProperty(ConfigurationPanelEnum.PROPORTION);
+        slider.setValue(proportion);
     }
     
     private void handleNewProportion() {
