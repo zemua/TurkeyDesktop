@@ -15,7 +15,7 @@ import java.util.List;
  *
  * @author miguel
  */
-public class CategorizeProcessPanel extends FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent> {
+public class CategorizeTitlesPanel extends FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent> {
 
     private final List<FeedbackListener<CategorizeTitlesEnum, AWTEvent>> listeners = new ArrayList<>();
     
@@ -25,7 +25,7 @@ public class CategorizeProcessPanel extends FeedbackerPanelWithFetcher<Categoriz
     /**
      * Creates new form CategorizeProcessPanel
      */
-    public CategorizeProcessPanel() {
+    public CategorizeTitlesPanel() {
         initComponents();
     }
 

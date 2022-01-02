@@ -16,6 +16,8 @@ import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessEnum;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.FCatProcessPanel;
+import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesEnum;
+import devs.mrp.turkeydesktop.view.categorizetitles.FCategorizeTitlesPanel;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelEnum;
 import devs.mrp.turkeydesktop.view.configuration.FConfigurationPanel;
@@ -37,6 +39,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     
     PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>> timesHandler;
     PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>> categoryProcessHandler;
+    PanelHandler<CategorizeTitlesEnum, AWTEvent, FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent>> categoryTitlesHandler;
     PanelHandler<ConfigurationPanelEnum, AWTEvent, FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent>> configHandler;
     
     private ITimeLogService timeLogService = FTimeLogService.getService();
@@ -98,7 +101,10 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     }
     
     private void initCategorizeTitlesHandler() {
-        // TODO
+        if (categoryTitlesHandler == null) {
+            categoryTitlesHandler = FCategorizeTitlesPanel.getHandler(this.getFrame(), this);
+        }
+        categoryTitlesHandler.show();
     }
     
     private void initConfigHandler() {
