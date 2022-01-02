@@ -6,6 +6,7 @@
 package devs.mrp.turkeydesktop.database.config;
 
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
+import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public class ConfigElementService implements IConfigElementService {
     
     private final ConfigElementDao repo = ConfigElementRepository.getInstance();
     
-    private static Map<String,String> configMap;
+    private static Map<ConfigurationEnum,String> configMap;
     
     public ConfigElementService() {
         initConfigMap();
@@ -101,7 +102,7 @@ public class ConfigElementService implements IConfigElementService {
     private ConfigElement elementFromResultSetEntry(ResultSet set) {
         ConfigElement el = new ConfigElement();
         try {
-            el.setKey(set.getString(ConfigElement.KEY));
+            el.setKey(ConfigurationEnum.valueOf(set.getString(ConfigElement.KEY.toString())));
             el.setValue(set.getString(ConfigElement.VALUE));
         } catch (SQLException ex) {
             Logger.getLogger(ConfigElementService.class.getName()).log(Level.SEVERE, null, ex);
@@ -122,7 +123,7 @@ public class ConfigElementService implements IConfigElementService {
     }
 
     @Override
-    public ConfigElement configElement(String key) {
+    public ConfigElement configElement(ConfigurationEnum key) {
         ConfigElement el = new ConfigElement();
         el.setKey(key);
         el.setValue(configMap.get(key));

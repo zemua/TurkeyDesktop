@@ -48,7 +48,7 @@ public class ConfigElementRepository implements ConfigElementDao {
                 stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s) ",
                         Db.CONFIG_TABLE, ConfigElement.KEY, ConfigElement.VALUE)
                         + "VALUES (?, ?)");
-                stm.setString(1, element.getKey());
+                stm.setString(1, element.getKey().toString());
                 stm.setString(2, element.getValue());
                 result = stm.executeUpdate();
             } catch (SQLException ex) {
@@ -73,7 +73,7 @@ public class ConfigElementRepository implements ConfigElementDao {
                         Db.CONFIG_TABLE, ConfigElement.VALUE, ConfigElement.KEY)
                         + "VALUES (?, ?)");
                 stm.setString(1, element.getValue());
-                stm.setString(2, element.getKey());
+                stm.setString(2, element.getKey().toString());
                 result = stm.executeUpdate();
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);

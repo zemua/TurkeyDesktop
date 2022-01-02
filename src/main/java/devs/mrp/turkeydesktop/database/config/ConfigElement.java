@@ -5,6 +5,8 @@
  */
 package devs.mrp.turkeydesktop.database.config;
 
+import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
+
 /**
  *
  * @author miguel
@@ -14,14 +16,14 @@ public class ConfigElement {
     public static final String KEY = "KEY";
     public static final String VALUE = "VALUE";
     
-    private String key;
+    private ConfigurationEnum key;
     private String value;
 
-    public String getKey() {
+    public ConfigurationEnum getKey() {
         return key;
     }
 
-    public void setKey(String key) {
+    public void setKey(ConfigurationEnum key) {
         this.key = key;
     }
 

@@ -55,7 +55,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
     
     private void handleNewProportion() {
-        // TODO
+        configService.configElement(ConfigurationEnum.PROPORTION);
     }
     
 }

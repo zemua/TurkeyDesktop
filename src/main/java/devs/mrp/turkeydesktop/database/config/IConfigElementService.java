@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.config;
 
+import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.util.List;
 
 /**
@@ -20,6 +21,6 @@ public interface IConfigElementService {
     public long deleteById(String key);
     
     public List<ConfigElement> allConfigElements();
-    public ConfigElement configElement(String key);
+    public ConfigElement configElement(ConfigurationEnum key);
     
 }
