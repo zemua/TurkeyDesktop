@@ -12,7 +12,6 @@ import devs.mrp.turkeydesktop.database.config.IConfigElementService;
 import devs.mrp.turkeydesktop.database.logs.FTimeLogService;
 import devs.mrp.turkeydesktop.database.logs.ITimeLogService;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
-import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessEnum;
@@ -59,8 +58,11 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     protected void initListeners(FeedbackerPanelWithFetcher<MainEnum, AWTEvent> pan) {
         pan.addFeedbackListener((tipo, feedback) -> {
             switch (tipo) {
-                case CATEGORIZE:
+                case CATEGORIZEPROCESS:
                     initCategorizeHandler();
+                    break;
+                case CATEGORIZETITLES:
+                    initCategorizeTitlesHandler();
                     break;
                 case TIMES:
                     initTimesHandler();
@@ -93,6 +95,10 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
             categoryProcessHandler = FCatProcessPanel.getHandler(this.getFrame(), this);
         }
         categoryProcessHandler.show();
+    }
+    
+    private void initCategorizeTitlesHandler() {
+        // TODO
     }
     
     private void initConfigHandler() {

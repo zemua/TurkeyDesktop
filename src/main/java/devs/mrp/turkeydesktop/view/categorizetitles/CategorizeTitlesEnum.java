@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package devs.mrp.turkeydesktop.view.mainpanel;
+package devs.mrp.turkeydesktop.view.categorizetitles;
 
 /**
  *
  * @author miguel
  */
-public enum MainEnum {
-    CATEGORIZEPROCESS, CATEGORIZETITLES, TIMES, LOGGER, LABELIZER, READY, CONFIG;
+public enum CategorizeTitlesEnum {
+    BACK;
 }

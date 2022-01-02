@@ -51,6 +51,7 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
         catProcButton = new javax.swing.JButton();
         timesButton = new javax.swing.JButton();
         configButton = new javax.swing.JButton();
+        categorizeTitlesButton = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         mainTimeLabel = new javax.swing.JLabel();
 
@@ -76,6 +77,13 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
             }
         });
 
+        categorizeTitlesButton.setText(bundle.getString("categorizetitles")); // NOI18N
+        categorizeTitlesButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                categorizeTitlesButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -83,18 +91,23 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(catProcButton)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(catProcButton)
+                        .addGap(18, 18, 18)
+                        .addComponent(categorizeTitlesButton))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(timesButton)
                         .addGap(18, 18, 18)
                         .addComponent(configButton)))
-                .addContainerGap(683, Short.MAX_VALUE))
+                .addContainerGap(615, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(catProcButton)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(catProcButton)
+                    .addComponent(categorizeTitlesButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(timesButton)
@@ -147,7 +160,7 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
     }// </editor-fold>//GEN-END:initComponents
 
     private void catProcButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_catProcButtonActionPerformed
-        giveFeedback(MainEnum.CATEGORIZE, evt);
+        giveFeedback(MainEnum.CATEGORIZEPROCESS, evt);
     }//GEN-LAST:event_catProcButtonActionPerformed
 
     private void timesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_timesButtonActionPerformed
@@ -158,9 +171,14 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
         giveFeedback(MainEnum.CONFIG, evt);
     }//GEN-LAST:event_configButtonActionPerformed
 
+    private void categorizeTitlesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_categorizeTitlesButtonActionPerformed
+        giveFeedback(MainEnum.CATEGORIZETITLES, evt);
+    }//GEN-LAST:event_categorizeTitlesButtonActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton catProcButton;
+    private javax.swing.JButton categorizeTitlesButton;
     private javax.swing.JButton configButton;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
