@@ -6,6 +6,9 @@
 package devs.mrp.turkeydesktop.view.mainpanel;
 
 import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.database.config.ConfigElement;
+import devs.mrp.turkeydesktop.database.config.FConfigElementService;
+import devs.mrp.turkeydesktop.database.config.IConfigElementService;
 import devs.mrp.turkeydesktop.database.logs.FTimeLogService;
 import devs.mrp.turkeydesktop.database.logs.ITimeLogService;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
@@ -14,6 +17,7 @@ import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessEnum;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.FCatProcessPanel;
+import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelEnum;
 import devs.mrp.turkeydesktop.view.configuration.FConfigurationPanel;
 import devs.mrp.turkeydesktop.view.times.FTimesPanel;
@@ -37,6 +41,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     PanelHandler<ConfigurationPanelEnum, AWTEvent, FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent>> configHandler;
     
     private ITimeLogService timeLogService = FTimeLogService.getService();
+    private IConfigElementService configService = FConfigElementService.getService();
 
     public MainHandler(JFrame frame, PanelHandler<?,?, ?> caller) {
         super(frame, caller);
@@ -72,6 +77,8 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     @Override
     protected void doExtraBeforeShow() {
         setTimeOnHeaderLabel();
+        this.getPanel().revalidate();
+        this.getPanel().updateUI();
     }
     
     private void initTimesHandler() {
@@ -97,8 +104,11 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     
     private void setTimeOnHeaderLabel() {
         TimeLog el = timeLogService.findMostRecent();
+        ConfigElement cel = configService.configElement(ConfigurationEnum.PROPORTION);
         JLabel label = (JLabel)this.getPanel().getProperty(MainEnum.LABELIZER);
-        label.setText(TimeConverter.millisToHMS(el.getAccumulated()));
+        long proportion = Integer.valueOf(cel.getValue());
+        long accumulated = el.getAccumulated();
+        label.setText(TimeConverter.millisToHMS(accumulated/proportion));
     }
     
 }

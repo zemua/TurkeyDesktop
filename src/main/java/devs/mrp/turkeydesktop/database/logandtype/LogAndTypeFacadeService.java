@@ -7,6 +7,8 @@ package devs.mrp.turkeydesktop.database.logandtype;
 
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.Tripla;
+import devs.mrp.turkeydesktop.database.config.FConfigElementService;
+import devs.mrp.turkeydesktop.database.config.IConfigElementService;
 import devs.mrp.turkeydesktop.database.logs.FTimeLogService;
 import devs.mrp.turkeydesktop.database.logs.ITimeLogService;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
@@ -16,6 +18,7 @@ import devs.mrp.turkeydesktop.database.type.FTypeService;
 import devs.mrp.turkeydesktop.database.type.ITypeService;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.database.type.TypeRepository;
+import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -35,6 +38,7 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
     private final TypeRepository typeRepo = TypeRepository.getInstance();
     private final ITimeLogService logService = FTimeLogService.getService();
     private final ITypeService typeService = FTypeService.getService();
+    private final IConfigElementService configService = FConfigElementService.getService();
     
     private static final Logger LOGGER = Logger.getLogger(LogAndTypeFacadeService.class.getName());
 
@@ -87,7 +91,8 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
                 element.setCounted(Math.abs(element.getElapsed()));
                 break;
             case NEGATIVE:
-                element.setCounted(Math.abs(element.getElapsed()) * (-1));
+                int proportion = Integer.valueOf(configService.configElement(ConfigurationEnum.PROPORTION).getValue());
+                element.setCounted(Math.abs(element.getElapsed()) * proportion * (-1));
                 break;
             default:
                 break;

@@ -47,8 +47,12 @@ public class ConfigElementService implements IConfigElementService {
             ResultSet rs = repo.findById(element.getKey().toString());
             try {
                 if (rs.next()) {
-                    configMap.put(element.getKey(), element.getValue());
-                    return update(element);
+                    if (configMap.containsKey(element.getKey()) && configMap.get(element.getKey()) != element.getValue()) {
+                        configMap.put(element.getKey(), element.getValue());
+                        return update(element);
+                    }
+                    // else the value is the same as the one stored
+                    return 0;
                 }
             } catch (SQLException ex) {
                 Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);

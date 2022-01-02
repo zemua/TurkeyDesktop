@@ -53,11 +53,19 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
         jPanel1.add(proportionLabel, gridBagConstraints);
 
+        jSlider1.setMajorTickSpacing(1);
         jSlider1.setMaximum(10);
+        jSlider1.setMinimum(1);
+        jSlider1.setMinorTickSpacing(1);
         jSlider1.setPaintLabels(true);
         jSlider1.setPaintTicks(true);
         jSlider1.setSnapToTicks(true);
         jSlider1.setValue(Integer.parseInt(ConfigurationEnum.PROPORTION.getDefault()));
+        jSlider1.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jSlider1StateChanged(evt);
+            }
+        });
         jSlider1.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
                 jSlider1PropertyChange(evt);
@@ -110,8 +118,12 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jSlider1PropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jSlider1PropertyChange
-        giveFeedback(ConfigurationPanelEnum.PROPORTION, null);
+        //giveFeedback(ConfigurationPanelEnum.PROPORTION, null);
     }//GEN-LAST:event_jSlider1PropertyChange
+
+    private void jSlider1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider1StateChanged
+        giveFeedback(ConfigurationPanelEnum.PROPORTION, null);
+    }//GEN-LAST:event_jSlider1StateChanged
 
     @Override
     public Object getProperty(ConfigurationPanelEnum property) {
