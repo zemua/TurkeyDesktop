@@ -43,6 +43,16 @@ public class ConfigElementService implements IConfigElementService {
         if (element == null) {
             return -1;
         } else {
+            // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
+            ResultSet rs = repo.findById(element.getKey().toString());
+            try {
+                if (rs.next()) {
+                    configMap.put(element.getKey(), element.getValue());
+                    return update(element);
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
+            }
             configMap.put(element.getKey(), element.getValue());
             return repo.add(element);
         }

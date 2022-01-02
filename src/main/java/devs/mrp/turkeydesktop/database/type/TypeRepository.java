@@ -71,7 +71,7 @@ public class TypeRepository implements TypeDao {
         try {
             semaphore.acquire();
             PreparedStatement stm;
-        try {
+            try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=? WHERE %s=?",
                         Db.CATEGORIZED_TABLE, Type.TYPE, Type.PROCESS_NAME));
                 stm.setString(1, element.getType().toString());

@@ -54,6 +54,9 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         jPanel1.add(proportionLabel, gridBagConstraints);
 
         jSlider1.setMaximum(10);
+        jSlider1.setPaintLabels(true);
+        jSlider1.setPaintTicks(true);
+        jSlider1.setSnapToTicks(true);
         jSlider1.setValue(Integer.parseInt(ConfigurationEnum.PROPORTION.getDefault()));
         jSlider1.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {

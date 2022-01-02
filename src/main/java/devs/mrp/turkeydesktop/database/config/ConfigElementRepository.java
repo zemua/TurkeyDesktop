@@ -70,8 +70,7 @@ public class ConfigElementRepository implements ConfigElementDao {
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=? WHERE %s=? ",
-                        Db.CONFIG_TABLE, ConfigElement.VALUE, ConfigElement.KEY)
-                        + "VALUES (?, ?)");
+                        Db.CONFIG_TABLE, ConfigElement.VALUE, ConfigElement.KEY));
                 stm.setString(1, element.getValue());
                 stm.setString(2, element.getKey().toString());
                 result = stm.executeUpdate();
