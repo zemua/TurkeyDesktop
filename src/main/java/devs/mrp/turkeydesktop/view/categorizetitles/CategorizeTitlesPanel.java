@@ -6,7 +6,6 @@
 package devs.mrp.turkeydesktop.view.categorizetitles;
 
 import devs.mrp.turkeydesktop.common.FeedbackListener;
-import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessEnum;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.awt.Color;
@@ -46,6 +45,8 @@ public class CategorizeTitlesPanel extends FeedbackerPanelWithFetcher<Categorize
         dateFrom = new com.toedter.calendar.JDateChooser();
         toLabel = new javax.swing.JLabel();
         dateTo = new com.toedter.calendar.JDateChooser();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        listPanel = new javax.swing.JPanel();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
         jButton1.setText(bundle.getString("back")); // NOI18N
@@ -73,22 +74,29 @@ public class CategorizeTitlesPanel extends FeedbackerPanelWithFetcher<Categorize
             }
         });
 
+        listPanel.setLayout(new javax.swing.BoxLayout(listPanel, javax.swing.BoxLayout.PAGE_AXIS));
+        jScrollPane1.setViewportView(listPanel);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton1)
-                .addGap(18, 18, 18)
-                .addComponent(fromLabel)
-                .addGap(18, 18, 18)
-                .addComponent(dateFrom, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(toLabel)
-                .addGap(18, 18, 18)
-                .addComponent(dateTo, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(329, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jButton1)
+                        .addGap(18, 18, 18)
+                        .addComponent(fromLabel)
+                        .addGap(18, 18, 18)
+                        .addComponent(dateFrom, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(toLabel)
+                        .addGap(18, 18, 18)
+                        .addComponent(dateTo, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 317, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -100,7 +108,9 @@ public class CategorizeTitlesPanel extends FeedbackerPanelWithFetcher<Categorize
                     .addComponent(dateFrom, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(fromLabel)
                     .addComponent(jButton1))
-                .addContainerGap(253, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -158,7 +168,7 @@ public class CategorizeTitlesPanel extends FeedbackerPanelWithFetcher<Categorize
 
     private void sendUpdate() {
         if (isFromAndToCorrect()) {
-            giveFeedback(CatProcessEnum.UPDATE, null);
+            giveFeedback(CategorizeTitlesEnum.UPDATE, null);
         }
     }
     
@@ -170,6 +180,8 @@ public class CategorizeTitlesPanel extends FeedbackerPanelWithFetcher<Categorize
     @Override
     public Object getProperty(CategorizeTitlesEnum property) {
         switch (property) {
+            case LIST_PANEL:
+                return listPanel;
             default:
                 return null;
         }
@@ -191,6 +203,8 @@ public class CategorizeTitlesPanel extends FeedbackerPanelWithFetcher<Categorize
     private com.toedter.calendar.JDateChooser dateTo;
     private javax.swing.JLabel fromLabel;
     private javax.swing.JButton jButton1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JPanel listPanel;
     private javax.swing.JLabel toLabel;
     // End of variables declaration//GEN-END:variables
 }

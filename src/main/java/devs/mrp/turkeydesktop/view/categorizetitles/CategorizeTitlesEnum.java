@@ -10,5 +10,5 @@ package devs.mrp.turkeydesktop.view.categorizetitles;
  * @author miguel
  */
 public enum CategorizeTitlesEnum {
-    BACK;
+    BACK, UPDATE, LIST_PANEL;
 }

@@ -7,10 +7,7 @@ package devs.mrp.turkeydesktop.view.categorizeprocesspanel;
 
 import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
-import devs.mrp.turkeydesktop.view.categorizeprocesspanel.list.CategorizerElement;
-import devs.mrp.turkeydesktop.view.categorizeprocesspanel.list.CategorizerRenderer;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
-import devs.mrp.turkeydesktop.view.times.TimesEnum;
 import java.awt.AWTEvent;
 import java.awt.Color;
 import java.util.ArrayList;
@@ -18,7 +15,6 @@ import java.util.Date;
 import java.util.List;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListModel;
 
 /**
  *
