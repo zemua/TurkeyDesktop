@@ -27,6 +27,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
     public static final String WATCHDOG_TABLE = "WATCHDOG_LOG";
     public static final String GROUPS_TABLE = "GROUPS_OF_APPS";
     public static final String CATEGORIZED_TABLE = "TYPES_CATEGORIZATION";
+    public static final String TITLES_TABLE = "TITLES_TABLE";
     public static final String ACCUMULATED_TIME_TABLE = "ACCUMULATED_TIME";
     public static final String CONFIG_TABLE = "CONFIG_TABLE";
     
@@ -95,6 +96,11 @@ public class Db { // TODO create asynchronous listeners to update livedata
                 + "%s VARCHAR(150) NOT NULL, " // value
                 + "PRIMARY KEY (%s))",
                     CONFIG_TABLE, ConfigElement.KEY, ConfigElement.VALUE, ConfigElement.KEY));
+        
+        execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
+                + "%s VARCHAR(300) NOT NULL" // 
+                + ""
+        ));
         
         //close();
     }
