@@ -14,4 +14,11 @@ public class Title {
     public static final String SUB_STR = "SUB_STR";
     public static final String TYPE = "TYPE";
     
+    private String subStr;
+    private Title.Type type;
+    
+    public enum Type {
+        POSITIVE, NEGATIVE;
+    }
+    
 }

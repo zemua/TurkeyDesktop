@@ -102,7 +102,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
                 + "%s VARCHAR(300) NOT NULL" // the string to match, unique
                 + "%s VARCHAR(15) NOT NULL" // whether it is positive or negative
                 + "PRIMARY KEY (%s))",
-                TITLES_TABLE, Title.SUB_STR, Title.TYPE));
+                TITLES_TABLE, Title.SUB_STR, Title.TYPE, Title.SUB_STR));
         
         //close();
     }
