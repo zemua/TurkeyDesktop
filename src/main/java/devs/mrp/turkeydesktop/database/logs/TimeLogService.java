@@ -133,4 +133,10 @@ public class TimeLogService implements ITimeLogService {
         return entry;
     }
 
+    @Override
+    public List<Dupla<String, Long>> logsGroupedByTitle(Date from, Date to) {
+        // Set from to hour 0 of the day
+        long fromMilis = TimeConverter.millisToBeginningOfDay(from.getTime());
+    }
+
 }
