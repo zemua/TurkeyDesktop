@@ -127,5 +127,21 @@ public class TitleService implements ITitleService {
         }
         return el;
     }
+
+    @Override
+    public List<Title> findContainedBy(String title) {
+        return conditionsMap.entrySet().stream()
+                .filter(e -> title.contains(e.getKey()))
+                .map(e -> e.getValue())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public long countTypesOf(Title.Type type, String title) {
+        return conditionsMap.entrySet().stream()
+                .filter(e -> title.contains(e.getKey()))
+                .filter(e -> e.getValue().getType().equals(type))
+                .count();
+    }
     
 }

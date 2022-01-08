@@ -9,16 +9,21 @@ import devs.mrp.turkeydesktop.database.logs.FTimeLogService;
 import devs.mrp.turkeydesktop.database.logs.ITimeLogService;
 import devs.mrp.turkeydesktop.database.titles.FTitleService;
 import devs.mrp.turkeydesktop.database.titles.ITitleService;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
  * @author miguel
  */
-public class TitledLogServiceFacade {
+public class TitledLogServiceFacade implements ITitledLogServiceFacade {
     
     private ITitleService titleService = FTitleService.getService();
     private ITimeLogService logService = FTimeLogService.getService();
-    
-    
+
+    @Override
+    public List<TitledLog> getLogsWithTitleConditions(Date from, Date to) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     
 }

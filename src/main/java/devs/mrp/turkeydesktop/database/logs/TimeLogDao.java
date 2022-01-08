@@ -18,4 +18,6 @@ public interface TimeLogDao extends GeneralDao<TimeLog, Long> {
     
     public ResultSet getMostRecent();
     
+    public ResultSet getGroupedByTitle(long from, long to);
+    
 }

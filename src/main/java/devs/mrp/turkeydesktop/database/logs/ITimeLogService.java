@@ -21,6 +21,7 @@ public interface ITimeLogService {
     public TimeLog findById(long id);
     public long deleteById(long id);
     public List<Dupla<String, Long>> findProcessTimeFromTo(Date from, Date to);
+    public List<Dupla<String, Long>> logsGroupedByTitle(Date from, Date to);
     public TimeLog findMostRecent();
     
 }

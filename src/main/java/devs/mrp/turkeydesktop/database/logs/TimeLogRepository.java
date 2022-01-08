@@ -210,5 +210,33 @@ public class TimeLogRepository implements TimeLogDao {
         }
         return rs;
     }
+
+    @Override
+    public ResultSet getGroupedByTitle(long from, long to) {
+        ResultSet rs = null;
+        try {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT %s, SUM(%s) FROM %s WHERE %s>=? AND %s<=? GROUP BY %s",
+                        TimeLog.WINDOW_TITLE,
+                        TimeLog.ELAPSED,
+                        Db.WATCHDOG_TABLE,
+                        TimeLog.EPOCH,
+                        TimeLog.EPOCH, 
+                        TimeLog.WINDOW_TITLE));
+                stm.setLong(1, from);
+                stm.setLong(2, to);
+                rs = stm.executeQuery();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null ,ex);
+            }
+        } catch (InterruptedException ex) {
+            logger.log(Level.SEVERE, null ,ex);
+        } finally {
+            semaphore.release();
+        }
+        return rs;
+    }
     
 }

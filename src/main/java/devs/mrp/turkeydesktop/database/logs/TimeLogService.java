@@ -137,6 +137,22 @@ public class TimeLogService implements ITimeLogService {
     public List<Dupla<String, Long>> logsGroupedByTitle(Date from, Date to) {
         // Set from to hour 0 of the day
         long fromMilis = TimeConverter.millisToBeginningOfDay(from.getTime());
+        // Set 'to' to the last second of the day
+        long toMilis = TimeConverter.millisToEndOfDay(to.getTime());
+        // use calendar objects to get milliseconds
+        List<Dupla<String, Long>> groupedTimes = new ArrayList<>();
+        ResultSet set = repo.getGroupedByTitle(fromMilis, toMilis);
+        try {
+            while (set.next()) {
+                Dupla<String, Long> dupla = new Dupla<>();
+                dupla.setValue1(set.getString(TimeLog.WINDOW_TITLE));
+                dupla.setValue2(set.getLong(2));
+                groupedTimes.add(dupla);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return groupedTimes;
     }
 
 }

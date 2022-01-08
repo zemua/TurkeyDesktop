@@ -5,15 +5,14 @@
  */
 package devs.mrp.turkeydesktop.database.titledlog;
 
-import java.util.Date;
-import java.util.List;
-
 /**
  *
  * @author miguel
  */
-public interface ITitledLogServiceFacade {
+public class FTitledLogServiceFacade {
     
-    public List<TitledLog> getLogsWithTitleConditions(Date from, Date to);
+    public static ITitledLogServiceFacade getService() {
+        return new TitledLogServiceFacade();
+    }
     
 }
