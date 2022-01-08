@@ -11,4 +11,8 @@ package devs.mrp.turkeydesktop.database.titles;
  */
 public class FTitleService {
     
+    public static ITitleService getService() {
+        return new TitleService();
+    }
+    
 }

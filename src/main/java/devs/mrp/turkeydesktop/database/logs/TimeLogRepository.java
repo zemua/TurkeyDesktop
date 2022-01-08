@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  */
 public class TimeLogRepository implements TimeLogDao {
     
-    private Db dbInstance = Db.getInstance();
+    private final Db dbInstance = Db.getInstance();
     private Logger logger = Logger.getLogger(TimeLogRepository.class.getName());
     private Semaphore semaphore = new Semaphore(1);
     

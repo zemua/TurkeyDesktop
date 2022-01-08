@@ -20,5 +20,21 @@ public class Title {
     public enum Type {
         POSITIVE, NEGATIVE;
     }
+
+    public String getSubStr() {
+        return subStr;
+    }
+
+    public void setSubStr(String subStr) {
+        this.subStr = subStr;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
     
 }

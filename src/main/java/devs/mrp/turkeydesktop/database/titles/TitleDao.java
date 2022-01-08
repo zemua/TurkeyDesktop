@@ -5,10 +5,12 @@
  */
 package devs.mrp.turkeydesktop.database.titles;
 
+import devs.mrp.turkeydesktop.database.GeneralDao;
+
 /**
  *
  * @author miguel
  */
-public interface TitleDao {
+public interface TitleDao extends GeneralDao<Title, String> {
     
 }
