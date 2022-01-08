@@ -40,7 +40,7 @@ public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, 
 
     @Override
     protected void doExtraBeforeShow() {
-        // TODO attach items to panel and refresh data
+        // TODO attach items to panel
     }
     
 }

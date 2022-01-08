@@ -30,10 +30,10 @@ public abstract class PanelHandler<T, E, P extends FeedbackerPanel<T,E>> {
     
     public void show() {
         doExtraBeforeShow();
-        panel.revalidate();
-        panel.updateUI();
         frame.setContentPane(panel);
         frame.revalidate();
+        //panel.revalidate();
+        panel.updateUI();
     }
     
     protected abstract P initPanel();

@@ -5,13 +5,11 @@
  */
 package devs.mrp.turkeydesktop.database.titledlog;
 
-import devs.mrp.turkeydesktop.common.Dupla;
 import devs.mrp.turkeydesktop.database.logs.FTimeLogService;
 import devs.mrp.turkeydesktop.database.logs.ITimeLogService;
 import devs.mrp.turkeydesktop.database.titles.FTitleService;
 import devs.mrp.turkeydesktop.database.titles.ITitleService;
 import devs.mrp.turkeydesktop.database.titles.Title;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
