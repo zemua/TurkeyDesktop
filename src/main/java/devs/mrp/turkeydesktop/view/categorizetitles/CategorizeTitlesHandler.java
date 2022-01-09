@@ -5,17 +5,31 @@
  */
 package devs.mrp.turkeydesktop.view.categorizetitles;
 
+import devs.mrp.turkeydesktop.common.FeedbackListener;
+import devs.mrp.turkeydesktop.common.Feedbacker;
+import devs.mrp.turkeydesktop.database.titledlog.FTitledLogServiceFacade;
+import devs.mrp.turkeydesktop.database.titledlog.ITitledLogServiceFacade;
+import devs.mrp.turkeydesktop.database.titledlog.TitledLog;
 import devs.mrp.turkeydesktop.view.PanelHandler;
+import devs.mrp.turkeydesktop.view.categorizetitles.element.CategorizeTitlesElement;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.Date;
+import java.util.List;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 /**
  *
  * @author miguel
  */
 public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, AWTEvent, FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent>> {
-
+    
+    ITitledLogServiceFacade facadeService = FTitledLogServiceFacade.getService();
+    
     public CategorizeTitlesHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
         super(frame, caller);
     }
@@ -40,7 +54,27 @@ public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, 
 
     @Override
     protected void doExtraBeforeShow() {
-        // TODO attach items to panel
+        attachItemsToListPanel(new Date(), new Date());
+    }
+    
+    private void attachItemsToListPanel(Date from, Date to) {
+        JPanel panel = (JPanel)this.getPanel().getProperty(CategorizeTitlesEnum.LIST_PANEL);
+        if (panel == null) {return;}
+        panel.removeAll(); // clear in case it has been filled before
+        List<TitledLog> titledLogs = facadeService.getLogsWithTitleConditions(from, to);
+        titledLogs.sort((c1,c2) -> Long.valueOf(c2.getElapsed()).compareTo(c1.getElapsed()));
+        titledLogs.forEach(t -> {
+            CategorizeTitlesElement element = new CategorizeTitlesElement(t.getTitle(), t.getQtyPositives(), t.getQtyNegatives());
+            element.setTitledLog(t);
+            panel.add(element);
+            setTagClickListener(element, t);
+        });
+    }
+    
+    private void setTagClickListener(Feedbacker<JLabel, String> label, TitledLog titledLog) {
+        label.addFeedbackListener((tipo, feedback) -> {
+            // TODO call handler to manage conditions for titledLog
+        });
     }
     
 }

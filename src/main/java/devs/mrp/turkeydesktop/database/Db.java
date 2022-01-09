@@ -99,8 +99,8 @@ public class Db { // TODO create asynchronous listeners to update livedata
                     CONFIG_TABLE, ConfigElement.KEY, ConfigElement.VALUE, ConfigElement.KEY));
         
         execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
-                + "%s VARCHAR(300) NOT NULL" // the string to match, unique
-                + "%s VARCHAR(15) NOT NULL" // whether it is positive or negative
+                + "%s VARCHAR(300) NOT NULL, " // the string to match, unique
+                + "%s VARCHAR(15) NOT NULL, " // whether it is positive or negative
                 + "PRIMARY KEY (%s))",
                 TITLES_TABLE, Title.SUB_STR, Title.TYPE, Title.SUB_STR));
         

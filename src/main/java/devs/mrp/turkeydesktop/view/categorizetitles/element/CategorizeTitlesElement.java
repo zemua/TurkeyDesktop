@@ -7,6 +7,7 @@ package devs.mrp.turkeydesktop.view.categorizetitles.element;
 
 import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.common.Feedbacker;
+import devs.mrp.turkeydesktop.database.titledlog.TitledLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -24,10 +25,12 @@ public class CategorizeTitlesElement extends JLabel implements Feedbacker<JLabel
     private List<FeedbackListener<JLabel, String>> listeners = new ArrayList<>();
     
     private String title;
-    private int positiveMatches;
-    private int negativeMatches;
+    private long positiveMatches;
+    private long negativeMatches;
     
-    public CategorizeTitlesElement(String title, int positiveMatches, int negativeMatches) {
+    private TitledLog titledLog;
+    
+    public CategorizeTitlesElement(String title, long positiveMatches, long negativeMatches) {
         this.title = title;
         this.positiveMatches = positiveMatches;
         this.negativeMatches = negativeMatches;
@@ -45,14 +48,22 @@ public class CategorizeTitlesElement extends JLabel implements Feedbacker<JLabel
     }
     
     private void initializeLabel() {
-        this.setText(String.format("%s [+%d] [-%d]",
-                title, positiveMatches, negativeMatches));
+        this.setText(String.format("[+%d] [-%d] %s",
+                positiveMatches, negativeMatches, title));
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 giveFeedback(CategorizeTitlesElement.this, title);
             }
         });
+    }
+
+    public TitledLog getTitledLog() {
+        return titledLog;
+    }
+
+    public void setTitledLog(TitledLog titledLog) {
+        this.titledLog = titledLog;
     }
     
 }

@@ -88,6 +88,7 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
     
     private void attachItemsToListPanel(Date from, Date to, int filter) {
         JPanel panel = (JPanel)this.getPanel().getProperty(CatProcessEnum.LIST_PANEL);
+        if (panel == null) {return;}
         panel.removeAll(); // clear in case it has been filled before
         List<Tripla<String, Long, Type.Types>> triplas = typedService.getTypedLogGroupedByProcess(from, to);
         triplas.sort((c1,c2) -> c2.getValue2().compareTo(c1.getValue2()));
@@ -101,7 +102,7 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
                 panel.updateUI();
             }
         });
-        panel.revalidate();
+        //panel.revalidate();
     }
     
     private void updateItemsInList() {
