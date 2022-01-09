@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.view.categorizetitles.element.conditions;
 
+import devs.mrp.turkeydesktop.database.titledlog.TitledLog;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
@@ -16,23 +17,43 @@ import javax.swing.JFrame;
  */
 public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AWTEvent, FeedbackerPanelWithFetcher<TitleConditionsEnum, AWTEvent>> {
 
-    public TitleConditionsHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
+    private TitledLog mTitledLog;
+    
+    public TitleConditionsHandler(JFrame frame, PanelHandler<?, ?, ?> caller, TitledLog titledLog) {
         super(frame, caller);
+        mTitledLog = titledLog;
     }
     
     @Override
     protected FeedbackerPanelWithFetcher<TitleConditionsEnum, AWTEvent> initPanel() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return FTitleConditionsPanel.getPanel();
     }
 
     @Override
     protected void initListeners(FeedbackerPanelWithFetcher<TitleConditionsEnum, AWTEvent> pan) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        pan.addFeedbackListener((tipo, feedback) -> {
+            switch (tipo) {
+                case BACK:
+                    this.getCaller().show();
+                    break;
+                default:
+                    break;
+            }
+        });
     }
 
     @Override
     protected void doExtraBeforeShow() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        fillFields();
+        fillConditions();
+    }
+    
+    private void fillFields() {
+        // TODO
+    }
+    
+    private void fillConditions() {
+        // TODO
     }
     
 }
