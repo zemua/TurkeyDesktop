@@ -5,7 +5,6 @@
  */
 package devs.mrp.turkeydesktop.view.categorizetitles;
 
-import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.common.Feedbacker;
 import devs.mrp.turkeydesktop.database.titledlog.FTitledLogServiceFacade;
 import devs.mrp.turkeydesktop.database.titledlog.ITitledLogServiceFacade;
@@ -14,8 +13,6 @@ import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.categorizetitles.element.CategorizeTitlesElement;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.Date;
 import java.util.List;
 import javax.swing.JFrame;
