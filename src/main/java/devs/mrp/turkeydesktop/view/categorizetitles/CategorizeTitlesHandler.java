@@ -11,6 +11,7 @@ import devs.mrp.turkeydesktop.database.titledlog.ITitledLogServiceFacade;
 import devs.mrp.turkeydesktop.database.titledlog.TitledLog;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.categorizetitles.element.CategorizeTitlesElement;
+import devs.mrp.turkeydesktop.view.categorizetitles.element.conditions.FTitleConditionsPanel;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.util.Date;
@@ -70,7 +71,8 @@ public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, 
     
     private void setTagClickListener(Feedbacker<JLabel, String> label, TitledLog titledLog) {
         label.addFeedbackListener((tipo, feedback) -> {
-            // TODO call handler to manage conditions for titledLog
+            var handler = FTitleConditionsPanel.getHandler(getFrame(), CategorizeTitlesHandler.this, titledLog);
+            handler.show();
         });
     }
     

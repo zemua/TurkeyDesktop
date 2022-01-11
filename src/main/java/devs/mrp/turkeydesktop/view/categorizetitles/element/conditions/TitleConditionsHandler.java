@@ -10,6 +10,7 @@ import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import javax.swing.JFrame;
+import javax.swing.JTextField;
 
 /**
  *
@@ -49,7 +50,8 @@ public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AW
     }
     
     private void fillFields() {
-        // TODO
+        JTextField title = (JTextField)getPanel().getProperty(TitleConditionsEnum.TITLE);
+        title.setText(mTitledLog.getTitle());
     }
     
     private void fillConditions() {

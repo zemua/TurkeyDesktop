@@ -35,21 +35,109 @@ public class TitleConditionsPanel extends FeedbackerPanelWithFetcher<TitleCondit
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        backButton = new javax.swing.JButton();
+        titleText = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
+        negativeButton = new javax.swing.JButton();
+        positiveButton = new javax.swing.JButton();
+        newConditionText = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        conditionsPanel = new javax.swing.JPanel();
+
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
+        backButton.setText(bundle.getString("back")); // NOI18N
+        backButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                backButtonActionPerformed(evt);
+            }
+        });
+
+        titleText.setEditable(false);
+        titleText.setText("jTextField1");
+
+        jLabel1.setText(bundle.getString("selecttexttoaddcondition")); // NOI18N
+
+        negativeButton.setText(bundle.getString("negative")); // NOI18N
+        negativeButton.setEnabled(false);
+
+        positiveButton.setText(bundle.getString("positive")); // NOI18N
+        positiveButton.setEnabled(false);
+
+        newConditionText.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        newConditionText.setText("jLabel2");
+
+        javax.swing.GroupLayout conditionsPanelLayout = new javax.swing.GroupLayout(conditionsPanel);
+        conditionsPanel.setLayout(conditionsPanelLayout);
+        conditionsPanelLayout.setHorizontalGroup(
+            conditionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 783, Short.MAX_VALUE)
+        );
+        conditionsPanelLayout.setVerticalGroup(
+            conditionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 129, Short.MAX_VALUE)
+        );
+
+        jScrollPane1.setViewportView(conditionsPanel);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
+                    .addComponent(titleText)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(newConditionText, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)
+                        .addComponent(positiveButton)
+                        .addGap(18, 18, 18)
+                        .addComponent(negativeButton))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(backButton)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel1)
+                        .addGap(0, 446, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(backButton)
+                    .addComponent(jLabel1))
+                .addGap(18, 18, 18)
+                .addComponent(titleText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(negativeButton)
+                    .addComponent(positiveButton)
+                    .addComponent(newConditionText))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void backButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backButtonActionPerformed
+        giveFeedback(TitleConditionsEnum.BACK, evt);
+    }//GEN-LAST:event_backButtonActionPerformed
 
     @Override
     public Object getProperty(TitleConditionsEnum property) {
         switch (property) {
+            case TITLE:
+                return titleText;
+            case CONDITIONS_PANEL:
+                return conditionsPanel;
+            case NEGATIVE_BUTTON:
+                return negativeButton;
+            case POSITIVE_BUTTON:
+                return positiveButton;
+            case NEW_CONDITION_TEXT:
+                return newConditionText;
             default:
                 return null;
         }
@@ -67,5 +155,13 @@ public class TitleConditionsPanel extends FeedbackerPanelWithFetcher<TitleCondit
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton backButton;
+    private javax.swing.JPanel conditionsPanel;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JButton negativeButton;
+    private javax.swing.JLabel newConditionText;
+    private javax.swing.JButton positiveButton;
+    private javax.swing.JTextField titleText;
     // End of variables declaration//GEN-END:variables
 }
