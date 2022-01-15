@@ -37,4 +37,10 @@ public class Title {
         this.type = type;
     }
     
+    @Override
+    public String toString() {
+        String sign = type.equals(Title.Type.POSITIVE) ? "+" : "-";
+        return "[" + sign + "] " + subStr;
+    }
+    
 }
