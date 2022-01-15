@@ -13,6 +13,8 @@ import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -27,6 +29,7 @@ public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AW
 
     private TitledLog mTitledLog;
     private ITitleService titleService = FTitleService.getService();
+    private static final Logger logger = Logger.getLogger(TitleConditionsHandler.class.getName());
     
     public TitleConditionsHandler(JFrame frame, PanelHandler<?, ?, ?> caller, TitledLog titledLog) {
         super(frame, caller);
@@ -46,10 +49,10 @@ public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AW
                     this.getCaller().show();
                     break;
                 case POSITIVE_BUTTON:
-                    // TODO
+                    addCondition(((JLabel)getPanel().getProperty(TitleConditionsEnum.NEW_CONDITION_TEXT)).getText(), Title.Type.POSITIVE);
                     break;
                 case NEGATIVE_BUTTON:
-                    // TODO
+                    addCondition(((JLabel)getPanel().getProperty(TitleConditionsEnum.NEW_CONDITION_TEXT)).getText(), Title.Type.NEGATIVE);
                     break;
                 default:
                     break;
@@ -72,7 +75,19 @@ public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AW
         JPanel conditionsPanel = (JPanel)getPanel().getProperty(TitleConditionsEnum.CONDITIONS_PANEL);
         String title = ((JTextComponent)getPanel().getProperty(TitleConditionsEnum.TITLE)).getText();
         List<Title> titles = titleService.findContainedBy(title);
-        titles.stream().forEach(t -> conditionsPanel.add(new JLabel(t.toString())));
+        titles.stream().forEach(t -> {
+                    JLabel label = new JLabel();
+                    label.setText(t.toString());
+                    conditionsPanel.add(label);
+                });
+    }
+    
+    private void addCondition(String substr, Title.Type type) {
+        Title title = new Title();
+        title.setSubStr(substr);
+        title.setType(type);
+        titleService.save(title);
+        fillFields();
     }
     
 }

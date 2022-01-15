@@ -105,17 +105,7 @@ public class TitleConditionsPanel extends FeedbackerPanelWithFetcher<TitleCondit
             }
         });
 
-        javax.swing.GroupLayout conditionsPanelLayout = new javax.swing.GroupLayout(conditionsPanel);
-        conditionsPanel.setLayout(conditionsPanelLayout);
-        conditionsPanelLayout.setHorizontalGroup(
-            conditionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 783, Short.MAX_VALUE)
-        );
-        conditionsPanelLayout.setVerticalGroup(
-            conditionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 129, Short.MAX_VALUE)
-        );
-
+        conditionsPanel.setLayout(new javax.swing.BoxLayout(conditionsPanel, javax.swing.BoxLayout.PAGE_AXIS));
         jScrollPane1.setViewportView(conditionsPanel);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
