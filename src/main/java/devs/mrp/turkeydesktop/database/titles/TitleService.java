@@ -20,46 +20,43 @@ import java.util.stream.Collectors;
  * @author miguel
  */
 public class TitleService implements ITitleService {
-    
+
     private final TitleDao repo = TitleRepository.getInstance();
-    
+
     private static Map<String, Title> conditionsMap;
-    
+
     public TitleService() {
         initConditionsMap();
     }
-    
+
     private void initConditionsMap() {
         if (conditionsMap == null) {
             conditionsMap = new HashMap<>();
             retrieveAll(); // it assigns values to the hashmap inside the function
         }
     }
-    
+
     @Override
     public long save(Title element) {
         if (element == null) {
             return -1;
         } else {
-            // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            ResultSet rs = repo.findById(element.getSubStr());
-            try {
-                if (rs.next()) {
-                    if (conditionsMap.containsKey(element.getSubStr()) && conditionsMap.get(element.getSubStr()).getType() != element.getType()) {
-                        conditionsMap.put(element.getSubStr(), element);
-                        return update(element);
-                    }
+            if (conditionsMap.containsKey(element.getSubStr())) {
+                if (conditionsMap.get(element.getSubStr()).getType() != element.getType()) {
+                    // we have this value but is different, so we update
+                    conditionsMap.put(element.getSubStr(), element);
+                    return update(element);
+                } else {
                     // else the value is the same as the one stored
                     return 0;
                 }
-            } catch (SQLException ex) {
-                Logger.getLogger(TitleService.class.getName()).log(Level.SEVERE, null, ex);
             }
+            // we don't have this value so we add new
             conditionsMap.put(element.getSubStr(), element);
             return repo.add(element);
         }
     }
-    
+
     private long update(Title element) {
         if (element == null || element.getSubStr() == null) {
             return -1;
@@ -68,7 +65,7 @@ public class TitleService implements ITitleService {
             return repo.update(element);
         }
     }
-    
+
     private List<Title> retrieveAll() {
         List<Title> elements = new ArrayList<>();
         ResultSet set = repo.findAll();
@@ -116,7 +113,7 @@ public class TitleService implements ITitleService {
         conditionsMap.remove(subStr);
         return repo.deleteById(subStr);
     }
-    
+
     private Title elementFromResultSetEntry(ResultSet set) {
         Title el = new Title();
         try {
@@ -143,5 +140,5 @@ public class TitleService implements ITitleService {
                 .filter(e -> e.getValue().getType().equals(type))
                 .count();
     }
-    
+
 }

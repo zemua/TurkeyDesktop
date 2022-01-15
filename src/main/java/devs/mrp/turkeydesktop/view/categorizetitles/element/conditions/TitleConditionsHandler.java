@@ -13,7 +13,6 @@ import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -73,6 +72,7 @@ public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AW
     
     private void fillConditions() {
         JPanel conditionsPanel = (JPanel)getPanel().getProperty(TitleConditionsEnum.CONDITIONS_PANEL);
+        conditionsPanel.removeAll();
         String title = ((JTextComponent)getPanel().getProperty(TitleConditionsEnum.TITLE)).getText();
         List<Title> titles = titleService.findContainedBy(title);
         titles.stream().forEach(t -> {
@@ -87,7 +87,7 @@ public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AW
         title.setSubStr(substr);
         title.setType(type);
         titleService.save(title);
-        fillFields();
+        fillConditions();
     }
     
 }
