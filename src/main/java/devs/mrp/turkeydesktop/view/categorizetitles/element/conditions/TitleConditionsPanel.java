@@ -10,6 +10,9 @@ import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.h2.util.StringUtils;
 
 /**
  *
@@ -18,6 +21,7 @@ import java.util.List;
 public class TitleConditionsPanel extends FeedbackerPanelWithFetcher<TitleConditionsEnum, AWTEvent> {
     
     private final List<FeedbackListener<TitleConditionsEnum, AWTEvent>> listeners = new ArrayList<>();
+    private static final Logger logger = Logger.getLogger(TitleConditionsPanel.class.getName());
 
     /**
      * Creates new form TitleConditionsPanel
@@ -54,17 +58,52 @@ public class TitleConditionsPanel extends FeedbackerPanelWithFetcher<TitleCondit
 
         titleText.setEditable(false);
         titleText.setText("jTextField1");
+        titleText.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseDragged(java.awt.event.MouseEvent evt) {
+                titleTextMouseDragged(evt);
+            }
+        });
+        titleText.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                titleTextMouseClicked(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                titleTextMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                titleTextMouseReleased(evt);
+            }
+        });
+        titleText.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                titleTextPropertyChange(evt);
+            }
+        });
 
         jLabel1.setText(bundle.getString("selecttexttoaddcondition")); // NOI18N
 
         negativeButton.setText(bundle.getString("negative")); // NOI18N
         negativeButton.setEnabled(false);
+        negativeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                negativeButtonActionPerformed(evt);
+            }
+        });
 
         positiveButton.setText(bundle.getString("positive")); // NOI18N
         positiveButton.setEnabled(false);
+        positiveButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                positiveButtonActionPerformed(evt);
+            }
+        });
 
         newConditionText.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        newConditionText.setText("jLabel2");
+        newConditionText.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                newConditionTextPropertyChange(evt);
+            }
+        });
 
         javax.swing.GroupLayout conditionsPanelLayout = new javax.swing.GroupLayout(conditionsPanel);
         conditionsPanel.setLayout(conditionsPanelLayout);
@@ -98,7 +137,7 @@ public class TitleConditionsPanel extends FeedbackerPanelWithFetcher<TitleCondit
                         .addComponent(backButton)
                         .addGap(18, 18, 18)
                         .addComponent(jLabel1)
-                        .addGap(0, 446, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -116,7 +155,7 @@ public class TitleConditionsPanel extends FeedbackerPanelWithFetcher<TitleCondit
                     .addComponent(positiveButton)
                     .addComponent(newConditionText))
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
+                .addComponent(jScrollPane1)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -125,6 +164,55 @@ public class TitleConditionsPanel extends FeedbackerPanelWithFetcher<TitleCondit
         giveFeedback(TitleConditionsEnum.BACK, evt);
     }//GEN-LAST:event_backButtonActionPerformed
 
+    private void titleTextMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_titleTextMouseDragged
+        setConditionText();
+    }//GEN-LAST:event_titleTextMouseDragged
+
+    private void newConditionTextPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_newConditionTextPropertyChange
+        boolean empty = newConditionText.getText().isEmpty();
+        negativeButton.setEnabled(!empty);
+        positiveButton.setEnabled(!empty);
+    }//GEN-LAST:event_newConditionTextPropertyChange
+
+    private void titleTextPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_titleTextPropertyChange
+        
+    }//GEN-LAST:event_titleTextPropertyChange
+
+    private void titleTextMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_titleTextMouseClicked
+        setConditionText();
+    }//GEN-LAST:event_titleTextMouseClicked
+
+    private void titleTextMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_titleTextMousePressed
+        setConditionText();
+    }//GEN-LAST:event_titleTextMousePressed
+
+    private void titleTextMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_titleTextMouseReleased
+        setConditionText();
+    }//GEN-LAST:event_titleTextMouseReleased
+
+    private void positiveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_positiveButtonActionPerformed
+        giveFeedback(TitleConditionsEnum.POSITIVE_BUTTON, evt);
+        // the following will be executed AFTER the listener has handled the feedback and read the label text
+        // but this is not thread safe
+        newConditionText.setText("");
+    }//GEN-LAST:event_positiveButtonActionPerformed
+
+    private void negativeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_negativeButtonActionPerformed
+        giveFeedback(TitleConditionsEnum.NEGATIVE_BUTTON, evt);
+        // the following will be executed AFTER the listener has handled the feedback and read the label text
+        // but this is not thread safe
+        newConditionText.setText("");
+    }//GEN-LAST:event_negativeButtonActionPerformed
+
+    private void setConditionText() {
+        String text = titleText.getSelectedText();
+        if (text == null) {
+            newConditionText.setText("");
+        } else {
+            newConditionText.setText(text.trim());
+        }
+    }
+    
     @Override
     public Object getProperty(TitleConditionsEnum property) {
         switch (property) {
