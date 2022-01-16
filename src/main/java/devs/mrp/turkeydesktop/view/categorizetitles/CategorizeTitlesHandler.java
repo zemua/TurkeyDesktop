@@ -59,7 +59,7 @@ public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, 
         JPanel panel = (JPanel)this.getPanel().getProperty(CategorizeTitlesEnum.LIST_PANEL);
         if (panel == null) {return;}
         panel.removeAll(); // clear in case it has been filled before
-        List<TitledLog> titledLogs = facadeService.getLogsWithTitleConditions(from, to);
+        List<TitledLog> titledLogs = facadeService.getLogsWithTitleConditions(from, to); // TODO change to only 'depend' process logs
         titledLogs.sort((c1,c2) -> Long.valueOf(c2.getElapsed()).compareTo(c1.getElapsed()));
         titledLogs.forEach(t -> {
             CategorizeTitlesElement element = new CategorizeTitlesElement(t.getTitle(), t.getQtyPositives(), t.getQtyNegatives());
