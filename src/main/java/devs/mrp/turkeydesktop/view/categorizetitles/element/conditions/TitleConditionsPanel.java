@@ -127,7 +127,7 @@ public class TitleConditionsPanel extends FeedbackerPanelWithFetcher<TitleCondit
                         .addComponent(backButton)
                         .addGap(18, 18, 18)
                         .addComponent(jLabel1)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(0, 358, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -145,7 +145,7 @@ public class TitleConditionsPanel extends FeedbackerPanelWithFetcher<TitleCondit
                     .addComponent(positiveButton)
                     .addComponent(newConditionText))
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents

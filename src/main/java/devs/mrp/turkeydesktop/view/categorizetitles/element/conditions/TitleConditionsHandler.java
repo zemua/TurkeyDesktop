@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.view.categorizetitles.element.conditions;
 
+import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.database.titledlog.TitledLog;
 import devs.mrp.turkeydesktop.database.titles.FTitleService;
 import devs.mrp.turkeydesktop.database.titles.ITitleService;
@@ -76,10 +77,20 @@ public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AW
         String title = ((JTextComponent)getPanel().getProperty(TitleConditionsEnum.TITLE)).getText();
         List<Title> titles = titleService.findContainedBy(title);
         titles.stream().forEach(t -> {
-                    JLabel label = new JLabel();
-                    label.setText(t.toString());
+                    TitleCondition label = new TitleCondition(t);
                     conditionsPanel.add(label);
+                    label.addFeedbackListener((tipo,feedback) -> {
+                        switch (feedback) {
+                            case DELETE:
+                                removeCondition(tipo.getSubStr());
+                                break;
+                            default:
+                                break;
+                        }
+                    });
                 });
+        conditionsPanel.revalidate();
+        conditionsPanel.updateUI();
     }
     
     private void addCondition(String substr, Title.Type type) {
@@ -88,6 +99,12 @@ public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AW
         title.setType(type);
         titleService.save(title);
         fillConditions();
+    }
+    
+    private void removeCondition(String substr) {
+        titleService.deleteBySubString(substr);
+        fillConditions();
+        
     }
     
 }

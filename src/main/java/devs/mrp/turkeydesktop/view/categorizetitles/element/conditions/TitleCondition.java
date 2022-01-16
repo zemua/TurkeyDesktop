@@ -9,6 +9,7 @@ import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.common.Feedbacker;
 import devs.mrp.turkeydesktop.database.titles.Title;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -64,6 +65,7 @@ public class TitleCondition extends JPanel implements Feedbacker<Title, TitleCon
     
     private void initializePanel() {
         this.setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.LINE_AXIS));
+        this.setAlignmentX(Component.LEFT_ALIGNMENT);
         this.add(label);
         this.add(button);
     }
