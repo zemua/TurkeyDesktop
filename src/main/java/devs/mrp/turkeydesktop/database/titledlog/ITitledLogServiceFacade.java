@@ -15,5 +15,5 @@ import java.util.List;
 public interface ITitledLogServiceFacade {
     
     public List<TitledLog> getLogsWithTitleConditions(Date from, Date to);
-    
+    public List<TitledLog> getLogsDependablesWithTitleConditions(Date from, Date to);
 }
