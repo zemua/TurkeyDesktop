@@ -98,7 +98,7 @@ public class WatchDog implements IWatchDog {
             protected Object doInBackground() throws Exception {
                 while (WatchDog.this.on) {
                     Thread.sleep(SLEEP_MILIS);
-                    // publish calls to process method of SwingWorker
+                    // publish calls to process() method of SwingWorker
                     publish();
                 }
                 return null;

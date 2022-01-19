@@ -17,6 +17,11 @@ import javax.swing.JTextArea;
  * @author miguel
  */
 public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
+    
+    // TODO add categories for positives
+    // TODO add conditions for positive categories
+    // TODO add categories for negatives
+    // TODO add conditions for negative categories
 
     private List<FeedbackListener<MainEnum, AWTEvent>> listeners = new ArrayList<>();
     

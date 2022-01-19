@@ -84,8 +84,7 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
                 element.setCounted(0);
                 break;
             case DEPENDS:
-                // TODO adjust depending on categorized keywords for window title
-                element.setCounted(0);
+                setCountedDependingOnTitle(element, element.getElapsed());
                 break;
             case POSITIVE:
                 element.setCounted(Math.abs(element.getElapsed()));
@@ -98,6 +97,12 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
                 break;
         }
         return element;
+    }
+    
+    private TimeLog setCountedDependingOnTitle(TimeLog element, long elapsed) {
+        // TODO
+        
+        return null;
     }
     
     private TimeLog adjustAccumulated(TimeLog element, long counted) {
