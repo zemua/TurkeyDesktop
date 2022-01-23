@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package devs.mrp.turkeydesktop.view.mainpanel;
+package devs.mrp.turkeydesktop.view.groups;
 
 /**
  *
  * @author miguel
  */
-public enum MainEnum {
-    CATEGORIZEPROCESS, CATEGORIZETITLES, POSITIVE_GROUPS, NEGATIVE_GROUPS, TIMES, LOGGER, LABELIZER, READY, CONFIG;
+public enum GroupType {
+    POSITIVE, NEGATIVE;
 }

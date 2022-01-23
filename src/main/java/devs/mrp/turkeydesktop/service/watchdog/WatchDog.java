@@ -124,6 +124,7 @@ public class WatchDog implements IWatchDog {
         
         // insert entry to db
         dbLogger.logEntry(elapsed, processChecker.currentProcessPid(), processChecker.currentProcessName(), processChecker.currentWindowTitle());
+        // TODO in case of negative process/title and no remaining time, kill process
     }
 
 }

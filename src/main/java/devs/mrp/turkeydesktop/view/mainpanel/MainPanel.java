@@ -6,11 +6,9 @@
 package devs.mrp.turkeydesktop.view.mainpanel;
 
 import devs.mrp.turkeydesktop.common.FeedbackListener;
-import devs.mrp.turkeydesktop.common.Feedbacker;
 import java.awt.AWTEvent;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JTextArea;
 
 /**
  *
@@ -18,10 +16,10 @@ import javax.swing.JTextArea;
  */
 public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
     
-    // TODO add categories for positives
-    // TODO add conditions for positive categories
-    // TODO add categories for negatives
-    // TODO add conditions for negative categories
+    // TODO add groups for positives
+    // TODO add conditions for positive groups
+    // TODO add groups for negatives
+    // TODO add conditions for negative groups
 
     private List<FeedbackListener<MainEnum, AWTEvent>> listeners = new ArrayList<>();
     
@@ -57,6 +55,8 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
         timesButton = new javax.swing.JButton();
         configButton = new javax.swing.JButton();
         categorizeTitlesButton = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         mainTimeLabel = new javax.swing.JLabel();
 
@@ -89,6 +89,20 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
             }
         });
 
+        jButton1.setText(bundle.getString("positiveGroups")); // NOI18N
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jButton2.setText(bundle.getString("negativeGroups")); // NOI18N
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -99,12 +113,16 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(catProcButton)
                         .addGap(18, 18, 18)
-                        .addComponent(categorizeTitlesButton))
+                        .addComponent(categorizeTitlesButton)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton1)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton2))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(timesButton)
                         .addGap(18, 18, 18)
                         .addComponent(configButton)))
-                .addContainerGap(615, Short.MAX_VALUE))
+                .addContainerGap(340, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -112,7 +130,9 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(catProcButton)
-                    .addComponent(categorizeTitlesButton))
+                    .addComponent(categorizeTitlesButton)
+                    .addComponent(jButton1)
+                    .addComponent(jButton2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(timesButton)
@@ -180,11 +200,21 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
         giveFeedback(MainEnum.CATEGORIZETITLES, evt);
     }//GEN-LAST:event_categorizeTitlesButtonActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        giveFeedback(MainEnum.POSITIVE_GROUPS, evt);
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        giveFeedback(MainEnum.NEGATIVE_GROUPS, evt);
+    }//GEN-LAST:event_jButton2ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton catProcButton;
     private javax.swing.JButton categorizeTitlesButton;
     private javax.swing.JButton configButton;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JLabel mainTimeLabel;

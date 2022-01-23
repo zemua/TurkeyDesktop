@@ -21,6 +21,9 @@ import devs.mrp.turkeydesktop.view.categorizetitles.FCategorizeTitlesPanel;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelEnum;
 import devs.mrp.turkeydesktop.view.configuration.FConfigurationPanel;
+import devs.mrp.turkeydesktop.view.groups.FGroupsPanel;
+import devs.mrp.turkeydesktop.view.groups.GroupType;
+import devs.mrp.turkeydesktop.view.groups.GroupsEnum;
 import devs.mrp.turkeydesktop.view.times.FTimesPanel;
 import devs.mrp.turkeydesktop.view.times.TimesEnum;
 import java.awt.AWTEvent;
@@ -40,6 +43,8 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>> timesHandler;
     PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>> categoryProcessHandler;
     PanelHandler<CategorizeTitlesEnum, AWTEvent, FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent>> categoryTitlesHandler;
+    PanelHandler<GroupsEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>> positiveGroupsHandler;
+    PanelHandler<GroupsEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>> negativeGroupsHandler;
     PanelHandler<ConfigurationPanelEnum, AWTEvent, FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent>> configHandler;
     
     private ITimeLogService timeLogService = FTimeLogService.getService();
@@ -66,6 +71,12 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
                     break;
                 case CATEGORIZETITLES:
                     initCategorizeTitlesHandler();
+                    break;
+                case POSITIVE_GROUPS:
+                    initPositiveGroupsHandler();
+                    break;
+                case NEGATIVE_GROUPS:
+                    initNegativeGroupsHandler();
                     break;
                 case TIMES:
                     initTimesHandler();
@@ -105,6 +116,20 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
             categoryTitlesHandler = FCategorizeTitlesPanel.getHandler(this.getFrame(), this);
         }
         categoryTitlesHandler.show();
+    }
+    
+    private void initPositiveGroupsHandler() {
+        if (positiveGroupsHandler == null) {
+            positiveGroupsHandler = FGroupsPanel.getHandler(this.getFrame(), this, GroupType.POSITIVE);
+        }
+        positiveGroupsHandler.show();
+    }
+    
+    private void initNegativeGroupsHandler() {
+        if (negativeGroupsHandler == null) {
+            negativeGroupsHandler = FGroupsPanel.getHandler(this.getFrame(), this, GroupType.NEGATIVE);
+        }
+        negativeGroupsHandler.show();
     }
     
     private void initConfigHandler() {
