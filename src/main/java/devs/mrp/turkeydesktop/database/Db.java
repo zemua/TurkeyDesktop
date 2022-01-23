@@ -5,7 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database;
 
-import devs.mrp.turkeydesktop.database.category.Group;
+import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.titles.Title;
