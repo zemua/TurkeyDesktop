@@ -126,10 +126,11 @@ public class TitleService implements ITitleService {
     }
 
     @Override
-    public List<Title> findContainedBy(String title) {
+    public List<Title> findContainedByAndNegativeFirst(String title) {
         return conditionsMap.entrySet().stream()
                 .filter(e -> title.contains(e.getKey()))
                 .map(e -> e.getValue())
+                .sorted((e1, e2) -> e2.getType().compareTo(e1.getType())) // "NEGATIVE" before "POSITIVE" in natural order
                 .collect(Collectors.toList());
     }
 

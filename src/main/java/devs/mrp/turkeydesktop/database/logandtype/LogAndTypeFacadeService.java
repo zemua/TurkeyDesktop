@@ -14,6 +14,9 @@ import devs.mrp.turkeydesktop.database.logs.ITimeLogService;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.logs.TimeLogRepository;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
+import devs.mrp.turkeydesktop.database.titles.FTitleService;
+import devs.mrp.turkeydesktop.database.titles.ITitleService;
+import devs.mrp.turkeydesktop.database.titles.Title;
 import devs.mrp.turkeydesktop.database.type.FTypeService;
 import devs.mrp.turkeydesktop.database.type.ITypeService;
 import devs.mrp.turkeydesktop.database.type.Type;
@@ -39,6 +42,7 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
     private final ITimeLogService logService = FTimeLogService.getService();
     private final ITypeService typeService = FTypeService.getService();
     private final IConfigElementService configService = FConfigElementService.getService();
+    private final ITitleService titleService = FTitleService.getService();
     
     private static final Logger LOGGER = Logger.getLogger(LogAndTypeFacadeService.class.getName());
 
@@ -100,9 +104,20 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
     }
     
     private TimeLog setCountedDependingOnTitle(TimeLog element, long elapsed) {
-        // TODO
-        
-        return null;
+        var list = titleService.findContainedByAndNegativeFirst(element.getWindowTitle());
+        Title.Type type;
+        if (list.size() > 0) {
+            type = list.get(0).getType();
+        } else {
+            element.setCounted(0);
+            return element;
+        }
+        if (type.equals(Title.Type.POSITIVE)) {
+            element.setCounted(Math.abs(elapsed));
+        } else {
+            element.setCounted(- Math.abs(elapsed));
+        }
+        return element;
     }
     
     private TimeLog adjustAccumulated(TimeLog element, long counted) {

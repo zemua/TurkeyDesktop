@@ -75,7 +75,7 @@ public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AW
         JPanel conditionsPanel = (JPanel)getPanel().getProperty(TitleConditionsEnum.CONDITIONS_PANEL);
         conditionsPanel.removeAll();
         String title = ((JTextComponent)getPanel().getProperty(TitleConditionsEnum.TITLE)).getText();
-        List<Title> titles = titleService.findContainedBy(title);
+        List<Title> titles = titleService.findContainedByAndNegativeFirst(title);
         titles.stream().forEach(t -> {
                     TitleCondition label = new TitleCondition(t);
                     conditionsPanel.add(label);

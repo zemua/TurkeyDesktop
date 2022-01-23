@@ -39,7 +39,7 @@ public class TitledLogServiceFacade implements ITitledLogServiceFacade {
                     TitledLog tl = new TitledLog();
                     tl.setTitle(e.getValue1());
                     tl.setElapsed(e.getValue2());
-                    tl.setConditions(titleService.findContainedBy(e.getValue1()));
+                    tl.setConditions(titleService.findContainedByAndNegativeFirst(e.getValue1()));
                     tl.setQtyPositives(titleService.countTypesOf(Title.Type.POSITIVE, e.getValue1()));
                     tl.setQtyNegatives(titleService.countTypesOf(Title.Type.NEGATIVE, e.getValue1()));
                     return tl;
@@ -70,7 +70,7 @@ public class TitledLogServiceFacade implements ITitledLogServiceFacade {
             String title = entry.getString(TimeLog.WINDOW_TITLE);
             log.setTitle(title);
             log.setElapsed(entry.getLong(2));
-            log.setConditions(titleService.findContainedBy(title));
+            log.setConditions(titleService.findContainedByAndNegativeFirst(title));
             log.setQtyPositives(titleService.countTypesOf(Title.Type.POSITIVE, title));
             log.setQtyNegatives(titleService.countTypesOf(Title.Type.NEGATIVE, title));
         } catch (SQLException ex) {
