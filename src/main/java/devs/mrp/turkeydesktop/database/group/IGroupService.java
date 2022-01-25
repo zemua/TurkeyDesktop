@@ -5,10 +5,19 @@
  */
 package devs.mrp.turkeydesktop.database.group;
 
+import java.util.List;
+
 /**
  *
  * @author miguel
  */
 public interface IGroupService {
+    public long add(Group element);
+    public long update(Group element);
+    public List<Group> findAll();
+    public Group findById(long id);
+    public long deleteById(long id);
     
+    public List<Group> findAllPositive();
+    public List<Group> findAllNegative();
 }

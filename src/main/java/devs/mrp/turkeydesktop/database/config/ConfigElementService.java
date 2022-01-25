@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  */
 public class ConfigElementService implements IConfigElementService {
     
-    private final ConfigElementDao repo = ConfigElementRepository.getInstance();
+    private static final ConfigElementDao repo = ConfigElementRepository.getInstance();
     
     private static Map<ConfigurationEnum,String> configMap;
     
