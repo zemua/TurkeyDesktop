@@ -6,7 +6,6 @@
 package devs.mrp.turkeydesktop.database.group;
 
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -63,22 +62,91 @@ public class GroupRepository implements GroupDao {
 
     @Override
     public long update(Group element) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        long result = -1;
+        try {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=? WHERE %s=? ",
+                        Db.GROUPS_TABLE, Group.NAME, Group.TYPE, Group.ID));
+                stm.setString(1, element.getName());
+                stm.setString(2, element.getType().toString());
+                stm.setLong(3, element.getId());
+                result = stm.executeUpdate();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
+        } catch (InterruptedException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        } finally {
+            semaphore.release();
+        }
+        return result;
     }
 
     @Override
     public ResultSet findAll() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ResultSet rs = null;
+        try {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s",
+                        Db.GROUPS_TABLE));
+                rs = stm.executeQuery();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null ,ex);
+            }
+        } catch (InterruptedException ex) {
+            logger.log(Level.SEVERE, null ,ex);
+        } finally {
+            semaphore.release();
+        }
+        return rs;
     }
 
     @Override
     public ResultSet findById(Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ResultSet rs = null;
+        try {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+                        Db.GROUPS_TABLE, Group.ID));
+                stm.setLong(1, id);
+                rs = stm.executeQuery();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
+        } catch (InterruptedException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        } finally {
+            semaphore.release();
+        }
+        return rs;
     }
 
     @Override
     public long deleteById(Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        long delQty = -1;
+        try {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
+                        Db.GROUPS_TABLE, Group.ID));
+                stm.setLong(1, id);
+                delQty = stm.executeUpdate();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
+        } catch (InterruptedException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        } finally {
+            semaphore.release();
+        }
+        return delQty;
     }
     
 }

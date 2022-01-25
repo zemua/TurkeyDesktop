@@ -24,6 +24,7 @@ import javax.swing.JOptionPane;
  * @author miguel
  */
 public class Db { // TODO create asynchronous listeners to update livedata
+    // TODO create a static semaphore common for all repositories
     
     public static final String WATCHDOG_TABLE = "WATCHDOG_LOG";
     public static final String GROUPS_TABLE = "GROUPS_OF_APPS";
