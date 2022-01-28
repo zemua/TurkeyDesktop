@@ -49,5 +49,11 @@ public class Group {
     public void setType(GroupType type) {
         this.type = type;
     }
+    
+    public boolean equals(Group group) {
+        return group != null
+                && ((this.getName() == null && group.getName() == null) || this.getName().equals(group.getName()))
+                && ((this.getType() == null && group.getType() == null) || this.getType().equals(group.getType()));
+    }
 
 }

@@ -5,6 +5,8 @@
  */
 package devs.mrp.turkeydesktop.database.group;
 
+import devs.mrp.turkeydesktop.database.config.ConfigElement;
+import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,7 +33,7 @@ public class GroupService implements IGroupService {
                 if (rs.next()) {
                     Group group = elementFromResultSetEntry(rs);
                     // if the value stored differs from the one received
-                    if (!group.getName().equals(element.getName()) || !group.getType().equals(element.getType())) {
+                    if (!group.equals(element)) {
                         return update(element);
                     }
                     // else the value is the same as the one stored
@@ -47,12 +49,27 @@ public class GroupService implements IGroupService {
 
     @Override
     public long update(Group element) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (element == null || element.getId() == 0) {
+            return -1;
+        }
+        return repo.update(element);
     }
 
     @Override
     public List<Group> findAll() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        // TODO
+        ResultSet set = repo.findAll();
+        try {
+            while (set.next()) {
+                Group el = elementFromResultSetEntry(set);
+                elements.add(el);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ConfigElementService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        configMap.clear();
+        elements.forEach(e -> configMap.put(e.getKey(), e.getValue()));
+        return elements;
     }
 
     @Override

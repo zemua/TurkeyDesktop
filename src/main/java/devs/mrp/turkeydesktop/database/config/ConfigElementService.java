@@ -22,22 +22,22 @@ import java.util.stream.Collectors;
  * @author miguel
  */
 public class ConfigElementService implements IConfigElementService {
-    
+
     private static final ConfigElementDao repo = ConfigElementRepository.getInstance();
-    
-    private static Map<ConfigurationEnum,String> configMap;
-    
+
+    private static Map<ConfigurationEnum, String> configMap;
+
     public ConfigElementService() {
         initConfigMap();
     }
-    
+
     private void initConfigMap() {
         if (configMap == null) {
             configMap = new HashMap<>();
             findAll(); // it assigns values to the hashmap inside the function
         }
     }
-    
+
     @Override
     public long add(ConfigElement element) {
         if (element == null) {
@@ -66,10 +66,9 @@ public class ConfigElementService implements IConfigElementService {
     public long update(ConfigElement element) {
         if (element == null || element.getKey() == null) {
             return -1;
-        } else {
-            configMap.put(element.getKey(), element.getValue());
-            return repo.update(element);
         }
+        configMap.put(element.getKey(), element.getValue());
+        return repo.update(element);
     }
 
     @Override
@@ -114,7 +113,7 @@ public class ConfigElementService implements IConfigElementService {
         configMap.remove(key);
         return repo.deleteById(key.toString());
     }
-    
+
     private ConfigElement elementFromResultSetEntry(ResultSet set) {
         ConfigElement el = new ConfigElement();
         try {
@@ -149,5 +148,5 @@ public class ConfigElementService implements IConfigElementService {
         }
         return el;
     }
-    
+
 }
