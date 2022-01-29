@@ -5,10 +5,17 @@
  */
 package devs.mrp.turkeydesktop.view.groups;
 
+import devs.mrp.turkeydesktop.database.group.FGroupService;
+import devs.mrp.turkeydesktop.database.group.Group;
+import devs.mrp.turkeydesktop.database.group.IGroupService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
+import java.util.List;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 /**
  *
@@ -16,9 +23,10 @@ import javax.swing.JFrame;
  */
 public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>> {
 
-    private GroupType type;
+    private Group.GroupType type;
+    private IGroupService groupService = FGroupService.getService();
     
-    public GroupsHandler(JFrame frame, PanelHandler<?, ?, ?> caller, GroupType type) {
+    public GroupsHandler(JFrame frame, PanelHandler<?, ?, ?> caller, Group.GroupType type) {
         super(frame, caller);
         this.type = type;
     }
@@ -35,6 +43,9 @@ public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, Feedbacker
                 case BACK:
                     this.getCaller().show();
                     break;
+                case ADD:
+                    addGroup();
+                    break;
                 default:
                     break;
             }
@@ -43,7 +54,33 @@ public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, Feedbacker
 
     @Override
     protected void doExtraBeforeShow() {
-        // TODO fill data
+        refreshPanelList();
+    }
+    
+    private void refreshPanelList() {
+        JPanel panel = (JPanel)this.getPanel().getProperty(GroupsEnum.PANEL_LIST);
+        if (panel == null || !(panel instanceof JPanel)) {return;}
+        panel.removeAll();
+        List<Group> list = type == Group.GroupType.POSITIVE ? groupService.findAllPositive() : groupService.findAllNegative();
+        list.forEach(g -> {
+            JLabel label = new JLabel();
+            label.setText(g.getName());
+            panel.add(label);
+        });
+        panel.revalidate();
+        panel.updateUI();
+    }
+    
+    private void addGroup() {
+        JTextField field = (JTextField)this.getPanel().getProperty(GroupsEnum.TEXT);
+        if (field == null || !(field instanceof JTextField) || field.getText().isBlank()){return;}
+        String name = field.getText();
+        Group group = new Group();
+        group.setName(name);
+        group.setType(this.type);
+        groupService.add(group);
+        field.setText("");
+        refreshPanelList();
     }
     
 }

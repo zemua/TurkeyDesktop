@@ -10,5 +10,5 @@ package devs.mrp.turkeydesktop.view.groups;
  * @author miguel
  */
 public enum GroupsEnum {
-    BACK;
+    BACK, ADD, TEXT, PANEL_LIST;
 }

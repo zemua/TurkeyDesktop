@@ -9,6 +9,7 @@ import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.FConfigElementService;
 import devs.mrp.turkeydesktop.database.config.IConfigElementService;
+import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.logs.FTimeLogService;
 import devs.mrp.turkeydesktop.database.logs.ITimeLogService;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
@@ -22,7 +23,6 @@ import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelEnum;
 import devs.mrp.turkeydesktop.view.configuration.FConfigurationPanel;
 import devs.mrp.turkeydesktop.view.groups.FGroupsPanel;
-import devs.mrp.turkeydesktop.view.groups.GroupType;
 import devs.mrp.turkeydesktop.view.groups.GroupsEnum;
 import devs.mrp.turkeydesktop.view.times.FTimesPanel;
 import devs.mrp.turkeydesktop.view.times.TimesEnum;
@@ -120,14 +120,14 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     
     private void initPositiveGroupsHandler() {
         if (positiveGroupsHandler == null) {
-            positiveGroupsHandler = FGroupsPanel.getHandler(this.getFrame(), this, GroupType.POSITIVE);
+            positiveGroupsHandler = FGroupsPanel.getHandler(this.getFrame(), this, Group.GroupType.POSITIVE);
         }
         positiveGroupsHandler.show();
     }
     
     private void initNegativeGroupsHandler() {
         if (negativeGroupsHandler == null) {
-            negativeGroupsHandler = FGroupsPanel.getHandler(this.getFrame(), this, GroupType.NEGATIVE);
+            negativeGroupsHandler = FGroupsPanel.getHandler(this.getFrame(), this, Group.GroupType.NEGATIVE);
         }
         negativeGroupsHandler.show();
     }

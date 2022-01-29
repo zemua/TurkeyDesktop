@@ -36,6 +36,10 @@ public class GroupsPanel extends FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent
     private void initComponents() {
 
         jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        groupsScrollPane = new javax.swing.JScrollPane();
+        groupsPanel = new javax.swing.JPanel();
+        addGroupText = new javax.swing.JTextField();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
         jButton1.setText(bundle.getString("back")); // NOI18N
@@ -45,21 +49,44 @@ public class GroupsPanel extends FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent
             }
         });
 
+        jButton2.setText(bundle.getString("add")); // NOI18N
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        groupsPanel.setLayout(new javax.swing.BoxLayout(groupsPanel, javax.swing.BoxLayout.PAGE_AXIS));
+        groupsScrollPane.setViewportView(groupsPanel);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton1)
-                .addContainerGap(344, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(groupsScrollPane)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jButton1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 103, Short.MAX_VALUE)
+                        .addComponent(addGroupText, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton2)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton1)
-                .addContainerGap(260, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton1)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jButton2)
+                        .addComponent(addGroupText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(groupsScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -67,9 +94,17 @@ public class GroupsPanel extends FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent
         giveFeedback(GroupsEnum.BACK, evt);
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        giveFeedback(GroupsEnum.ADD, evt);
+    }//GEN-LAST:event_jButton2ActionPerformed
+
     @Override
     public Object getProperty(GroupsEnum property) {
         switch (property) {
+            case TEXT:
+                return addGroupText;
+            case PANEL_LIST:
+                return groupsPanel;
             default:
                 return null;
         }
@@ -87,6 +122,10 @@ public class GroupsPanel extends FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField addGroupText;
+    private javax.swing.JPanel groupsPanel;
+    private javax.swing.JScrollPane groupsScrollPane;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     // End of variables declaration//GEN-END:variables
 }

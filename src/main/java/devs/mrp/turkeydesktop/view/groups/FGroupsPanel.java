@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.view.groups;
 
+import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
@@ -20,7 +21,7 @@ public class FGroupsPanel {
         return new GroupsPanel();
     }
     
-    public static PanelHandler<GroupsEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>> getHandler(JFrame frame, PanelHandler<?, ?, ?> caller, GroupType type) {
+    public static PanelHandler<GroupsEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>> getHandler(JFrame frame, PanelHandler<?, ?, ?> caller, Group.GroupType type) {
         return new GroupsHandler(frame, caller, type);
     }
     
