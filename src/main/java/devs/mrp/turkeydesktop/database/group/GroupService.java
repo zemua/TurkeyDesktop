@@ -10,6 +10,7 @@ import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -57,7 +58,7 @@ public class GroupService implements IGroupService {
 
     @Override
     public List<Group> findAll() {
-        // TODO
+        List<Group> elements = new ArrayList<>();
         ResultSet set = repo.findAll();
         try {
             while (set.next()) {
@@ -67,8 +68,6 @@ public class GroupService implements IGroupService {
         } catch (SQLException ex) {
             Logger.getLogger(ConfigElementService.class.getName()).log(Level.SEVERE, null, ex);
         }
-        configMap.clear();
-        elements.forEach(e -> configMap.put(e.getKey(), e.getValue()));
         return elements;
     }
 
