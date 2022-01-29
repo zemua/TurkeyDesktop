@@ -11,4 +11,8 @@ package devs.mrp.turkeydesktop.database.group;
  */
 public class FGroupService {
     
+    public static IGroupService getService() {
+        return new GroupService();
+    }
+    
 }

@@ -6,11 +6,14 @@
 package devs.mrp.turkeydesktop.database.group;
 
 import devs.mrp.turkeydesktop.database.GeneralDao;
+import java.sql.ResultSet;
 
 /**
  *
  * @author miguel
  */
 public interface GroupDao extends GeneralDao<Group, Long> {
+    
+    public ResultSet findAllOfType(Group.GroupType type);
     
 }

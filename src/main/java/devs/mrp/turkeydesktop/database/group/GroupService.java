@@ -50,7 +50,7 @@ public class GroupService implements IGroupService {
 
     @Override
     public long update(Group element) {
-        if (element == null || element.getId() == 0) {
+        if (element == null) {
             return -1;
         }
         return repo.update(element);
@@ -58,27 +58,26 @@ public class GroupService implements IGroupService {
 
     @Override
     public List<Group> findAll() {
-        List<Group> elements = new ArrayList<>();
-        ResultSet set = repo.findAll();
-        try {
-            while (set.next()) {
-                Group el = elementFromResultSetEntry(set);
-                elements.add(el);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(ConfigElementService.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return elements;
+        return elementsFromResultSet(repo.findAll());
     }
 
     @Override
     public Group findById(long id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ResultSet set = repo.findById(id);
+        Group element = null;
+        try {
+            if (set.next()) {
+                element = elementFromResultSetEntry(set);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ConfigElement.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return element;
     }
 
     @Override
     public long deleteById(long id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return repo.deleteById(id);
     }
 
     @Override
@@ -89,6 +88,19 @@ public class GroupService implements IGroupService {
     @Override
     public List<Group> findAllNegative() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    private List<Group> elementsFromResultSet(ResultSet set) {
+        List<Group> elements = new ArrayList<>();
+        try {
+            while (set.next()) {
+                Group el = elementFromResultSetEntry(set);
+                elements.add(el);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ConfigElementService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return elements;
     }
     
     private Group elementFromResultSetEntry(ResultSet set) {

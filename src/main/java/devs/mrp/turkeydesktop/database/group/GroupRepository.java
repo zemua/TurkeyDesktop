@@ -148,5 +148,27 @@ public class GroupRepository implements GroupDao {
         }
         return delQty;
     }
+
+    @Override
+    public ResultSet findAllOfType(Group.GroupType type) {
+        ResultSet rs = null;
+        try {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+                        Db.GROUPS_TABLE, Group.TYPE));
+                stm.setString(1, type.toString());
+                rs = stm.executeQuery();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null ,ex);
+            }
+        } catch (InterruptedException ex) {
+            logger.log(Level.SEVERE, null ,ex);
+        } finally {
+            semaphore.release();
+        }
+        return rs;
+    }
     
 }
