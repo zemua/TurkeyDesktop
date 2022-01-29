@@ -11,6 +11,8 @@ import devs.mrp.turkeydesktop.database.group.IGroupService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -65,6 +67,7 @@ public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, Feedbacker
         list.forEach(g -> {
             JLabel label = new JLabel();
             label.setText(g.getName());
+            setClickListener(label, g);
             panel.add(label);
         });
         panel.revalidate();
@@ -81,6 +84,19 @@ public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, Feedbacker
         groupService.add(group);
         field.setText("");
         refreshPanelList();
+    }
+    
+    private void setClickListener(JLabel label, Group group){
+        label.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                launchReviewGroupHandler(group);
+            }
+        });
+    }
+    
+    private void launchReviewGroupHandler(Group group){
+        // TODO
     }
     
 }
