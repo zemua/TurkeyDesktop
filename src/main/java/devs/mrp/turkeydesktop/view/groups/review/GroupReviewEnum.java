@@ -10,5 +10,5 @@ package devs.mrp.turkeydesktop.view.groups.review;
  * @author miguel
  */
 public enum GroupReviewEnum {
-    BACK;
+    BACK, GROUP_LABEL;
 }

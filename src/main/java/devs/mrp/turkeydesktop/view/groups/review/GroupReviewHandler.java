@@ -10,6 +10,7 @@ import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 
 /**
  *
@@ -44,7 +45,16 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
 
     @Override
     protected void doExtraBeforeShow() {
-        // TODO populate fields
+        setGroupLabelName();
+    }
+    
+    private void setGroupLabelName() {
+        Object object = this.getPanel().getProperty(GroupReviewEnum.GROUP_LABEL);
+        if (object == null || !(object instanceof JLabel)) {
+            return;
+        }
+        JLabel label = (JLabel) object;
+        label.setText(group.getName());
     }
     
 }
