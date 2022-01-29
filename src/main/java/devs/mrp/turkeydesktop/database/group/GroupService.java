@@ -82,12 +82,12 @@ public class GroupService implements IGroupService {
 
     @Override
     public List<Group> findAllPositive() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return elementsFromResultSet(repo.findAllOfType(Group.GroupType.POSITIVE));
     }
 
     @Override
     public List<Group> findAllNegative() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return elementsFromResultSet(repo.findAllOfType(Group.GroupType.NEGATIVE));
     }
     
     private List<Group> elementsFromResultSet(ResultSet set) {
