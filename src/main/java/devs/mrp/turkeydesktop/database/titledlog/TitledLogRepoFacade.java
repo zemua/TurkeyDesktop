@@ -23,7 +23,7 @@ public class TitledLogRepoFacade implements ITitledLogDaoFacade {
     
     private final Db dbInstance = Db.getInstance();
     private Logger logger = Logger.getLogger(TitledLogRepoFacade.class.getName());
-    private Semaphore semaphore = new Semaphore(1);
+    private Semaphore semaphore = Db.getSemaphore();
     
     private static TitledLogRepoFacade instance;
     

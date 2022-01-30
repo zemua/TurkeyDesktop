@@ -23,7 +23,7 @@ public class ConfigElementRepository implements ConfigElementDao {
     
     private Db dbInstance = Db.getInstance();
     private Logger logger = Logger.getLogger(ConfigElementRepository.class.getName());
-    private Semaphore semaphore = new Semaphore(1);
+    private Semaphore semaphore = Db.getSemaphore();
     
     private static ConfigElementRepository instance;
     

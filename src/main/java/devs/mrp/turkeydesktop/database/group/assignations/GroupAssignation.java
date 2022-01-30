@@ -11,7 +11,6 @@ package devs.mrp.turkeydesktop.database.group.assignations;
  */
 public class GroupAssignation {
     
-    public static final String GROUP_ASSIGNATION = "GROUP_ASSIGNATION";
     public static final String ID = "ID";
     public static final String TYPE = "TYPE";
     public static final String ELEMENT_ID = "ELEMENT_ID";

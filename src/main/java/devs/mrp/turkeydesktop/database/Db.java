@@ -7,6 +7,7 @@ package devs.mrp.turkeydesktop.database;
 
 import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.titles.Title;
 import devs.mrp.turkeydesktop.database.type.Type;
@@ -15,6 +16,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -28,10 +30,12 @@ public class Db { // TODO create asynchronous listeners to update livedata
     
     public static final String WATCHDOG_TABLE = "WATCHDOG_LOG";
     public static final String GROUPS_TABLE = "GROUPS_OF_APPS";
+    public static final String GROUP_ASSIGNATION_TABLE = "GROUP_ASSIGNATION_TABLE";
     public static final String CATEGORIZED_TABLE = "TYPES_CATEGORIZATION";
     public static final String TITLES_TABLE = "TITLES_TABLE";
     public static final String ACCUMULATED_TIME_TABLE = "ACCUMULATED_TIME";
     public static final String CONFIG_TABLE = "CONFIG_TABLE";
+    private static final Semaphore semaphore = new Semaphore(1);
     
     private static Db instance = null;
     private Connection con = null;
@@ -49,6 +53,10 @@ public class Db { // TODO create asynchronous listeners to update livedata
         else{
             return instance;
         }
+    }
+    
+    public static Semaphore getSemaphore() {
+        return semaphore;
     }
     
     private void setConnection(){
@@ -104,6 +112,14 @@ public class Db { // TODO create asynchronous listeners to update livedata
                 + "%s VARCHAR(15) NOT NULL, " // whether it is positive or negative
                 + "PRIMARY KEY (%s))",
                 TITLES_TABLE, Title.SUB_STR, Title.TYPE, Title.SUB_STR));
+        
+        execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
+                + "%s BIGINT NOT NULL AUTO_INCREMENT, " // id"
+                + "%s VARCHAR(15) NOT NULL, " // the element type process or title
+                + "%s BIGINT NOT NULL, " // the id of the element
+                + "%s BIGINT NOT NULL, " // the id of the group
+                + "PRIMARY KEY (%s))",
+                GROUP_ASSIGNATION_TABLE, GroupAssignation.ID, GroupAssignation.TYPE, GroupAssignation.ELEMENT_ID, GroupAssignation.GROUP_ID, GroupAssignation.ID));
         
         //close();
     }

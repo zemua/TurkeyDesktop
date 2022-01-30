@@ -22,7 +22,7 @@ public class TimeLogRepository implements TimeLogDao {
     
     private final Db dbInstance = Db.getInstance();
     private Logger logger = Logger.getLogger(TimeLogRepository.class.getName());
-    private Semaphore semaphore = new Semaphore(1);
+    private Semaphore semaphore = Db.getSemaphore();
     
     private static TimeLogRepository instance;
     

@@ -21,7 +21,7 @@ public class TitleRepository implements TitleDao {
     
     private final Db dbInstance = Db.getInstance();
     private Logger logger = Logger.getLogger(TitleRepository.class.getName());
-    private Semaphore semaphore = new Semaphore(1);
+    private Semaphore semaphore = Db.getSemaphore();
     
     private static TitleRepository instance;
     

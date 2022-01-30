@@ -23,7 +23,7 @@ public class TypeRepository implements TypeDao {
     
     private Db dbInstance = Db.getInstance();
     private Logger logger = Logger.getLogger(TypeRepository.class.getName());
-    private Semaphore semaphore = new Semaphore(1);
+    private Semaphore semaphore = Db.getSemaphore();
     
     private static TypeRepository instance;
     
