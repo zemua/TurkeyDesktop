@@ -5,10 +5,21 @@
  */
 package devs.mrp.turkeydesktop.database.group.assignations;
 
+import java.util.List;
+
 /**
  *
  * @author miguel
  */
 public interface IGroupAssignationService {
+    public long add(GroupAssignation element);
+    public long update(GroupAssignation element);
+    public List<GroupAssignation> findAll();
+    public GroupAssignation findById(long id);
+    public long deleteById(long id);
     
+    public GroupAssignation findByProcessId(String processId);
+    public GroupAssignation findByTitleId(String titleId);
+    public List<GroupAssignation> findProcessesOfGroup(Long groupId);
+    public List<GroupAssignation> findTitlesOfGroup(Long groupId);
 }

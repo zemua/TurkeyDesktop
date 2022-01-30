@@ -116,7 +116,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
         execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
                 + "%s BIGINT NOT NULL AUTO_INCREMENT, " // id"
                 + "%s VARCHAR(15) NOT NULL, " // the element type process or title
-                + "%s BIGINT NOT NULL, " // the id of the element
+                + "%s VARCHAR(300) NOT NULL, " // the id of the element be it process name or title
                 + "%s BIGINT NOT NULL, " // the id of the group
                 + "PRIMARY KEY (%s))",
                 GROUP_ASSIGNATION_TABLE, GroupAssignation.ID, GroupAssignation.TYPE, GroupAssignation.ELEMENT_ID, GroupAssignation.GROUP_ID, GroupAssignation.ID));

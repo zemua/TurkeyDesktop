@@ -14,7 +14,7 @@ import java.sql.ResultSet;
  */
 public interface GroupAssignationDao extends GeneralDao<GroupAssignation, Long> {
     
-    public ResultSet findByElementId(GroupAssignation.ElementType elementType, Long elementId);
+    public ResultSet findByElementId(GroupAssignation.ElementType elementType, String elementId);
     public ResultSet findAllElementTypeOfGroup(GroupAssignation.ElementType elementType, Long groupId);
     
 }

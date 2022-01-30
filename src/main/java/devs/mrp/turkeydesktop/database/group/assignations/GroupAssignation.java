@@ -18,7 +18,7 @@ public class GroupAssignation {
     
     private long id;
     private ElementType type;
-    private long elementId;
+    private String elementId;
     private long groupId;
     
     public enum ElementType {
@@ -41,11 +41,11 @@ public class GroupAssignation {
         this.type = type;
     }
 
-    public long getElementId() {
+    public String getElementId() {
         return elementId;
     }
 
-    public void setElementId(long elementId) {
+    public void setElementId(String elementId) {
         this.elementId = elementId;
     }
 

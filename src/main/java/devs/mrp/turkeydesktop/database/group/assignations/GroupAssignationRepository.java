@@ -38,13 +38,49 @@ public class GroupAssignationRepository implements GroupAssignationDao {
     }
     
     @Override
-    public ResultSet findByElementId(GroupAssignation.ElementType elementType, Long elementId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public ResultSet findByElementId(GroupAssignation.ElementType elementType, String elementId) {
+        ResultSet rs = null;
+        try {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=? AND %s=?",
+                        Db.GROUP_ASSIGNATION_TABLE, GroupAssignation.TYPE, GroupAssignation.ELEMENT_ID));
+                stm.setString(1, elementType.toString());
+                stm.setString(2, elementId);
+                rs = stm.executeQuery();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
+        } catch (InterruptedException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        } finally {
+            semaphore.release();
+        }
+        return rs;
     }
 
     @Override
     public ResultSet findAllElementTypeOfGroup(GroupAssignation.ElementType elementType, Long groupId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ResultSet rs = null;
+        try {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=? AND %s=?",
+                        Db.GROUP_ASSIGNATION_TABLE, GroupAssignation.TYPE, GroupAssignation.GROUP_ID));
+                stm.setString(1, elementType.toString());
+                stm.setLong(2, groupId);
+                rs = stm.executeQuery();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
+        } catch (InterruptedException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        } finally {
+            semaphore.release();
+        }
+        return rs;
     }
 
     @Override
@@ -58,7 +94,7 @@ public class GroupAssignationRepository implements GroupAssignationDao {
                         Db.GROUP_ASSIGNATION_TABLE, GroupAssignation.TYPE, GroupAssignation.ELEMENT_ID, GroupAssignation.GROUP_ID)
                         + "VALUES (?, ?, ?)");
                 stm.setString(1, element.getType().toString());
-                stm.setLong(2, element.getElementId());
+                stm.setString(2, element.getElementId());
                 stm.setLong(3, element.getGroupId());
                 result = stm.executeUpdate();
             } catch (SQLException ex) {
@@ -80,9 +116,9 @@ public class GroupAssignationRepository implements GroupAssignationDao {
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=?, %s=? WHERE %s=? ",
-                        Db.GROUP_ASSIGNATION_TABLE, GroupAssignation.TYPE, GroupAssignation.ELEMENT_ID, GroupAssignation.GROUP_ID));
+                        Db.GROUP_ASSIGNATION_TABLE, GroupAssignation.TYPE, GroupAssignation.ELEMENT_ID, GroupAssignation.GROUP_ID, GroupAssignation.ID));
                 stm.setString(1, element.getType().toString());
-                stm.setLong(2, element.getElementId());
+                stm.setString(2, element.getElementId());
                 stm.setLong(3, element.getGroupId());
                 stm.setLong(4, element.getId());
                 result = stm.executeUpdate();
