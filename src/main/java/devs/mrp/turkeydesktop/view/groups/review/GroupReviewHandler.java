@@ -74,6 +74,9 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     }
     
     private void setProcesses() {
+        List<AssignableElement> assignables = group.getType().equals(Group.GroupType.POSITIVE) ?
+                assignableElementService.positiveProcessesWithAssignation() :
+                assignableElementService.negativeProcessesWithAssignation();
         Object object = this.getPanel().getProperty(GroupReviewEnum.PROCESS_PANEL);
         if (object == null || !(object instanceof JPanel)) {
             return;
@@ -81,21 +84,17 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         JPanel panel = (JPanel) object;
         panel.removeAll();
         
-        List<AssignableElement> assignables = group.getType().equals(Group.GroupType.POSITIVE) ?
-                assignableElementService.positiveProcessesWithAssignation() :
-                assignableElementService.negativeProcessesWithAssignation();
-        
         assignables.forEach(a -> {
             Switchable switchable = new Switchable(a.getGroupAssignationId(), 
                     a.getElementName(), 
                     a.getGroupId() != null && a.getGroupId().equals(group.getId()), // checked if it belongs to this group
                     a.getGroupId() == null || a.getGroupId().equals(group.getId())); // enabled if belongs to no group, or to this group
-            setProcessSwitchableListener(switchable, a.getElementName());
+            setProcessSwitchableListener(switchable, a.getElementName(), GroupAssignation.ElementType.PROCESS);
             panel.add(switchable);
         });
     }
     
-    private void setProcessSwitchableListener(Switchable switchable, String name) {
+    private void setProcessSwitchableListener(Switchable switchable, String name, GroupAssignation.ElementType processOrTitle) {
         switchable.addFeedbackListener((tipo, feedback) -> {
             if (!feedback) {
                 groupAssignationService.deleteById(tipo);

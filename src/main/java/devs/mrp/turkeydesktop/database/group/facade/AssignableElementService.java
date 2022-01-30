@@ -27,32 +27,16 @@ public class AssignableElementService implements IAssignableElementService {
     @Override
     public List<AssignableElement> positiveProcessesWithAssignation() {
         return elementsWithAssignation(getAssignationsMap(GroupAssignation.ElementType.PROCESS),
-                Type.Types.POSITIVE,
-                GroupAssignation.ElementType.PROCESS);
+                Type.Types.POSITIVE);
     }
 
     @Override
     public List<AssignableElement> negativeProcessesWithAssignation() {
         return elementsWithAssignation(getAssignationsMap(GroupAssignation.ElementType.PROCESS),
-                Type.Types.NEGATIVE,
-                GroupAssignation.ElementType.PROCESS);
-    }
-
-    @Override
-    public List<AssignableElement> positiveTitlesWithAssignation() {
-        return elementsWithAssignation(getAssignationsMap(GroupAssignation.ElementType.TITLE),
-                Type.Types.POSITIVE,
-                GroupAssignation.ElementType.TITLE);
-    }
-
-    @Override
-    public List<AssignableElement> negativeTitlesWithAssignation() {
-        return elementsWithAssignation(getAssignationsMap(GroupAssignation.ElementType.TITLE),
-                Type.Types.NEGATIVE,
-                GroupAssignation.ElementType.TITLE);
+                Type.Types.NEGATIVE);
     }
     
-    private List<AssignableElement> elementsWithAssignation(Map<String, GroupAssignation> assignables, Type.Types positiveOrNegative, GroupAssignation.ElementType processOrTitle) {
+    private List<AssignableElement> elementsWithAssignation(Map<String, GroupAssignation> assignables, Type.Types positiveOrNegative) {
         return typeService.findAll()
                 .stream()
                 .filter(t -> t.getType().equals(positiveOrNegative))
@@ -67,7 +51,7 @@ public class AssignableElementService implements IAssignableElementService {
                         element.setGroupId(null);
                     }
                     element.setPositiveOrNegative(positiveOrNegative);
-                    element.setProcessOrTitle(processOrTitle);
+                    element.setProcessOrTitle(GroupAssignation.ElementType.PROCESS);
                     return element;
                 })
                 .collect(Collectors.toList());
