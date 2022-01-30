@@ -29,8 +29,9 @@ import javax.swing.JPanel;
 public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent>> {
 
     private Group group;
-    private IGroupAssignationService groupAssignationService = FGroupAssignationService.getService();
-    private IAssignableElementService assignableElementService = FAssignableElementService.getService();
+    private final IGroupAssignationService groupAssignationService = FGroupAssignationService.getService();
+    private final IAssignableElementService assignableProcessService = FAssignableElementService.getProcessesService();
+    private final IAssignableElementService assignableTitlesService = FAssignableElementService.getTitlesService();
     
     public GroupReviewHandler(JFrame frame, PanelHandler<?, ?, ?> caller, Group group) {
         super(frame, caller);
@@ -75,8 +76,8 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     
     private void setProcesses() {
         List<AssignableElement> assignables = group.getType().equals(Group.GroupType.POSITIVE) ?
-                assignableElementService.positiveProcessesWithAssignation() :
-                assignableElementService.negativeProcessesWithAssignation();
+                assignableProcessService.positiveElementsWithAssignation() :
+                assignableProcessService.negativeElementsWithAssignation();
         Object object = this.getPanel().getProperty(GroupReviewEnum.PROCESS_PANEL);
         if (object == null || !(object instanceof JPanel)) {
             return;

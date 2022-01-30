@@ -19,19 +19,19 @@ import java.util.stream.Collectors;
  *
  * @author miguel
  */
-public class AssignableElementService implements IAssignableElementService {
+public class AssignableProcessService implements IAssignableElementService {
     
     private ITypeService typeService = FTypeService.getService();
     private IGroupAssignationService assignationService = FGroupAssignationService.getService();
     
     @Override
-    public List<AssignableElement> positiveProcessesWithAssignation() {
+    public List<AssignableElement> positiveElementsWithAssignation() {
         return elementsWithAssignation(getAssignationsMap(GroupAssignation.ElementType.PROCESS),
                 Type.Types.POSITIVE);
     }
 
     @Override
-    public List<AssignableElement> negativeProcessesWithAssignation() {
+    public List<AssignableElement> negativeElementsWithAssignation() {
         return elementsWithAssignation(getAssignationsMap(GroupAssignation.ElementType.PROCESS),
                 Type.Types.NEGATIVE);
     }

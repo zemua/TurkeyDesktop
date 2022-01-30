@@ -12,6 +12,6 @@ import java.util.List;
  * @author miguel
  */
 public interface IAssignableElementService {
-    public List<AssignableElement> positiveProcessesWithAssignation();
-    public List<AssignableElement> negativeProcessesWithAssignation();
+    public List<AssignableElement> positiveElementsWithAssignation();
+    public List<AssignableElement> negativeElementsWithAssignation();
 }

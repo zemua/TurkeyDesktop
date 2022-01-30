@@ -11,8 +11,12 @@ package devs.mrp.turkeydesktop.database.group.facade;
  */
 public class FAssignableElementService {
     
-    public static IAssignableElementService getService() {
-        return new AssignableElementService();
+    public static IAssignableElementService getProcessesService() {
+        return new AssignableProcessService();
+    }
+    
+    public static IAssignableElementService getTitlesService() {
+        return new AssignableTitleService();
     }
     
 }
