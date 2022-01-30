@@ -46,6 +46,10 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     @Override
     protected void doExtraBeforeShow() {
         setGroupLabelName();
+        setProcesses();
+        setTitles();
+        setConditions();
+        setConfiguration();
     }
     
     private void setGroupLabelName() {
@@ -55,6 +59,22 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         }
         JLabel label = (JLabel) object;
         label.setText(group.getName());
+    }
+    
+    private void setProcesses() {
+        // TODO
+    }
+    
+    private void setTitles() {
+        // TODO
+    }
+    
+    private void setConditions() {
+        // TODO
+    }
+    
+    private void setConfiguration() {
+        // TODO
     }
     
 }

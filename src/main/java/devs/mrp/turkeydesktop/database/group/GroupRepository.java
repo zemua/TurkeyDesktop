@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 public class GroupRepository implements GroupDao {
     
     private Db dbInstance = Db.getInstance();
-    private Logger logger = Logger.getLogger(FGroupService.class.getName());
+    private Logger logger = Logger.getLogger(GroupRepository.class.getName());
     private Semaphore semaphore = new Semaphore(1);
     
     private static GroupRepository instance;

@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package devs.mrp.turkeydesktop.view.groups.review;
+package devs.mrp.turkeydesktop.database.group.assignations;
 
 /**
  *
  * @author miguel
  */
-public enum GroupReviewEnum {
-    BACK, GROUP_LABEL, PROCESS_PANEL, TITLE_PANEL, CONDITIONS_PANEL, CONFIGURATION_PANEL;
+public class GroupAssignationService {
+    
 }
