@@ -41,7 +41,7 @@ public class GroupService implements IGroupService {
                     return 0;
                 }
             } catch (SQLException ex) {
-                Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(GroupService.class.getName()).log(Level.SEVERE, null, ex);
             }
             // else there is no element stored with this id
             return repo.add(element);
@@ -70,7 +70,7 @@ public class GroupService implements IGroupService {
                 element = elementFromResultSetEntry(set);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(ConfigElement.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(GroupService.class.getName()).log(Level.SEVERE, null, ex);
         }
         return element;
     }

@@ -11,4 +11,8 @@ package devs.mrp.turkeydesktop.database.group.assignations;
  */
 public class FGroupAssignationService {
     
+    public static IGroupAssignationService getService() {
+        return new GroupAssignationService();
+    }
+    
 }

@@ -57,4 +57,11 @@ public class GroupAssignation {
         this.groupId = groupId;
     }
     
+    public boolean equals(GroupAssignation element) {
+        return element != null && (
+                (this.getElementId() == null && element.getElementId() == null) || (this.getElementId().equals(element.getElementId())) &&
+                (this.getGroupId() == element.getGroupId()) && 
+                (this.getType() == null && element.getType() == null) || (this.getType().equals(element.getType())));
+    }
+    
 }
