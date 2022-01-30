@@ -6,9 +6,7 @@
 package devs.mrp.turkeydesktop.database.group.assignations;
 
 import devs.mrp.turkeydesktop.database.config.ConfigElementService;
-import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.group.GroupService;
-import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;

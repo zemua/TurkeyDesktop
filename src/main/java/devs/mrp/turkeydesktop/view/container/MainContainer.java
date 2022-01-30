@@ -5,19 +5,35 @@
  */
 package devs.mrp.turkeydesktop.view.container;
 
+import devs.mrp.turkeydesktop.service.watchdog.FWatchDog;
+import devs.mrp.turkeydesktop.service.watchdog.IWatchDog;
+import devs.mrp.turkeydesktop.view.PanelHandler;
+import devs.mrp.turkeydesktop.view.mainpanel.FMainPanel;
+
 /**
  *
  * @author miguel
  */
 public class MainContainer extends javax.swing.JFrame {
 
+    private static IWatchDog watchDog;
+    private static PanelHandler handler;
+    
     /**
      * Creates new form MainContainer
      */
     public MainContainer() {
         super();
         initComponents();
-        setVisible(true);
+        //setVisible(true);
+        initHandler();
+    }
+    
+    private void initHandler() {
+        watchDog = FWatchDog.getInstance();
+        watchDog.begin();
+        handler = FMainPanel.getMainHandler(this);
+        handler.show();
     }
 
     /**
