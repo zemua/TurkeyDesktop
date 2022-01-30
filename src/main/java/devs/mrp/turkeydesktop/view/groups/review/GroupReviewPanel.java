@@ -8,6 +8,7 @@ package devs.mrp.turkeydesktop.view.groups.review;
 import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 

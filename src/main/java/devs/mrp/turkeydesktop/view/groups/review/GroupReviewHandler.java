@@ -5,8 +5,10 @@
  */
 package devs.mrp.turkeydesktop.view.groups.review;
 
+import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElement;
 import devs.mrp.turkeydesktop.database.group.facade.FAssignableElementService;
@@ -77,6 +79,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             return;
         }
         JPanel panel = (JPanel) object;
+        panel.removeAll();
         
         List<AssignableElement> assignables = group.getType().equals(Group.GroupType.POSITIVE) ?
                 assignableElementService.positiveProcessesWithAssignation() :
@@ -87,7 +90,22 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                     a.getElementName(), 
                     a.getGroupId() != null && a.getGroupId().equals(group.getId()), // checked if it belongs to this group
                     a.getGroupId() == null || a.getGroupId().equals(group.getId())); // enabled if belongs to no group, or to this group
+            setProcessSwitchableListener(switchable, a.getElementName());
             panel.add(switchable);
+        });
+    }
+    
+    private void setProcessSwitchableListener(Switchable switchable, String name) {
+        switchable.addFeedbackListener((tipo, feedback) -> {
+            if (!feedback) {
+                groupAssignationService.deleteById(tipo);
+            } else {
+                GroupAssignation ga = new GroupAssignation();
+                ga.setElementId(name);
+                ga.setGroupId(group.getId());
+                ga.setType(GroupAssignation.ElementType.PROCESS);
+                groupAssignationService.add(ga);
+            }
         });
     }
     

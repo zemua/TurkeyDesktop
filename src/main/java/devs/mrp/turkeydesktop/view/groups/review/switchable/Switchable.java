@@ -8,6 +8,7 @@ package devs.mrp.turkeydesktop.view.groups.review.switchable;
 import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.common.Feedbacker;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BoxLayout;
@@ -52,15 +53,14 @@ public class Switchable extends JPanel implements Feedbacker<Long, Boolean> {
     
     private void initializeLayout() {
         this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+        this.setAlignmentX(Component.LEFT_ALIGNMENT);
         this.add(label);
         this.add(check);
     }
     
     private void initializeListener() {
         check.addActionListener((event) -> {
-            if (check.isEnabled()) {
-                giveFeedback(id, check.isSelected());
-            }
+            giveFeedback(id, check.isSelected());
         });
     }
     
