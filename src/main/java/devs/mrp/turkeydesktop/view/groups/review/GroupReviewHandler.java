@@ -6,11 +6,19 @@
 package devs.mrp.turkeydesktop.view.groups.review;
 
 import devs.mrp.turkeydesktop.database.group.Group;
+import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
+import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
+import devs.mrp.turkeydesktop.database.group.facade.AssignableElement;
+import devs.mrp.turkeydesktop.database.group.facade.FAssignableElementService;
+import devs.mrp.turkeydesktop.database.group.facade.IAssignableElementService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
+import devs.mrp.turkeydesktop.view.groups.review.switchable.Switchable;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
+import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 /**
  *
@@ -19,6 +27,8 @@ import javax.swing.JLabel;
 public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent>> {
 
     private Group group;
+    private IGroupAssignationService groupAssignationService = FGroupAssignationService.getService();
+    private IAssignableElementService assignableElementService = FAssignableElementService.getService();
     
     public GroupReviewHandler(JFrame frame, PanelHandler<?, ?, ?> caller, Group group) {
         super(frame, caller);
@@ -62,7 +72,23 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     }
     
     private void setProcesses() {
-        // TODO
+        Object object = this.getPanel().getProperty(GroupReviewEnum.PROCESS_PANEL);
+        if (object == null || !(object instanceof JPanel)) {
+            return;
+        }
+        JPanel panel = (JPanel) object;
+        
+        List<AssignableElement> assignables = group.getType().equals(Group.GroupType.POSITIVE) ?
+                assignableElementService.positiveProcessesWithAssignation() :
+                assignableElementService.negativeProcessesWithAssignation();
+        
+        assignables.forEach(a -> {
+            Switchable switchable = new Switchable(a.getGroupAssignationId(), 
+                    a.getElementName(), 
+                    a.getGroupId() != null && a.getGroupId().equals(group.getId()), // checked if it belongs to this group
+                    a.getGroupId() == null || a.getGroupId().equals(group.getId())); // enabled if belongs to no group, or to this group
+            panel.add(switchable);
+        });
     }
     
     private void setTitles() {

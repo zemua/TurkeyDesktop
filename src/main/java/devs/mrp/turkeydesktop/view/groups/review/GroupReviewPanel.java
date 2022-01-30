@@ -53,30 +53,10 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
 
         groupLabel.setText("jLabel1");
 
-        javax.swing.GroupLayout processPanelLayout = new javax.swing.GroupLayout(processPanel);
-        processPanel.setLayout(processPanelLayout);
-        processPanelLayout.setHorizontalGroup(
-            processPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 356, Short.MAX_VALUE)
-        );
-        processPanelLayout.setVerticalGroup(
-            processPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 204, Short.MAX_VALUE)
-        );
-
+        processPanel.setLayout(new javax.swing.BoxLayout(processPanel, javax.swing.BoxLayout.PAGE_AXIS));
         jTabbedPane1.addTab(bundle.getString("process"), processPanel); // NOI18N
 
-        javax.swing.GroupLayout titlePanelLayout = new javax.swing.GroupLayout(titlePanel);
-        titlePanel.setLayout(titlePanelLayout);
-        titlePanelLayout.setHorizontalGroup(
-            titlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 356, Short.MAX_VALUE)
-        );
-        titlePanelLayout.setVerticalGroup(
-            titlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 204, Short.MAX_VALUE)
-        );
-
+        titlePanel.setLayout(new javax.swing.BoxLayout(titlePanel, javax.swing.BoxLayout.PAGE_AXIS));
         jTabbedPane1.addTab(bundle.getString("title"), titlePanel); // NOI18N
 
         javax.swing.GroupLayout conditionsPanelLayout = new javax.swing.GroupLayout(conditionsPanel);

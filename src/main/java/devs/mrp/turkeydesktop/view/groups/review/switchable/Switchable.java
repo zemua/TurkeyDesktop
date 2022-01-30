@@ -31,8 +31,8 @@ public class Switchable extends JPanel implements Feedbacker<Long, Boolean> {
     private JLabel label = new JLabel();
     private JCheckBox check = new JCheckBox();
     
-    public Switchable(Long id, String text, boolean checked, boolean enabled) {
-        this.id = id;
+    public Switchable(Long assignableId, String text, boolean checked, boolean enabled) {
+        this.id = assignableId;
         label.setText(text);
         check.setSelected(checked);
         check.setEnabled(enabled);
