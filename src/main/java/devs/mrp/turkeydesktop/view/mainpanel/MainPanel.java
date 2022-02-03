@@ -6,39 +6,39 @@
 package devs.mrp.turkeydesktop.view.mainpanel;
 
 import devs.mrp.turkeydesktop.common.FeedbackListener;
-import devs.mrp.turkeydesktop.common.Feedbacker;
 import java.awt.AWTEvent;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JTextArea;
 
 /**
  *
  * @author miguel
  */
-public class MainPanel extends AMainPanel {
+public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
+    
+    // TODO add groups for positives
+    // TODO add conditions for positive groups
+    // TODO add groups for negatives
+    // TODO add conditions for negative groups
 
-    private List<FeedbackListener<MainPanel.Types, AWTEvent>> listeners = new ArrayList<>();
+    private List<FeedbackListener<MainEnum, AWTEvent>> listeners = new ArrayList<>();
     
     /**
      * Creates new form MainPanel
      */
     public MainPanel() {
         initComponents();
+        giveFeedback(MainEnum.READY, null);
     }
 
     @Override
-    public void addFeedbackListener(FeedbackListener<Types, AWTEvent> listener) {
+    public void addFeedbackListener(FeedbackListener<MainEnum, AWTEvent> listener) {
         listeners.add(listener);
     }
 
     @Override
-    public void giveFeedback(Types tipo, AWTEvent feedback) {
+    public void giveFeedback(MainEnum tipo, AWTEvent feedback) {
         listeners.forEach(l -> l.giveFeedback(tipo, feedback));
-    }
-    
-    public enum Types {
-        CATEGORIZE, TIMES;
     }
 
     /**
@@ -53,8 +53,12 @@ public class MainPanel extends AMainPanel {
         jPanel1 = new javax.swing.JPanel();
         catProcButton = new javax.swing.JButton();
         timesButton = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        logTextArea = new javax.swing.JTextArea();
+        configButton = new javax.swing.JButton();
+        categorizeTitlesButton = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
+        mainTimeLabel = new javax.swing.JLabel();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
         catProcButton.setText(bundle.getString("categorizeproc")); // NOI18N
@@ -71,6 +75,34 @@ public class MainPanel extends AMainPanel {
             }
         });
 
+        configButton.setText(bundle.getString("configuration")); // NOI18N
+        configButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                configButtonActionPerformed(evt);
+            }
+        });
+
+        categorizeTitlesButton.setText(bundle.getString("categorizetitles")); // NOI18N
+        categorizeTitlesButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                categorizeTitlesButtonActionPerformed(evt);
+            }
+        });
+
+        jButton1.setText(bundle.getString("positiveGroups")); // NOI18N
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jButton2.setText(bundle.getString("negativeGroups")); // NOI18N
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -78,24 +110,57 @@ public class MainPanel extends AMainPanel {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(catProcButton)
-                    .addComponent(timesButton))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(catProcButton)
+                        .addGap(18, 18, 18)
+                        .addComponent(categorizeTitlesButton)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton1)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton2))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(timesButton)
+                        .addGap(18, 18, 18)
+                        .addComponent(configButton)))
+                .addContainerGap(340, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(catProcButton)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(catProcButton)
+                    .addComponent(categorizeTitlesButton)
+                    .addComponent(jButton1)
+                    .addComponent(jButton2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(timesButton)
-                .addContainerGap(26, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(timesButton)
+                    .addComponent(configButton))
+                .addContainerGap(164, Short.MAX_VALUE))
         );
 
-        logTextArea.setEditable(false);
-        logTextArea.setColumns(20);
-        logTextArea.setRows(5);
-        jScrollPane1.setViewportView(logTextArea);
+        mainTimeLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        mainTimeLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/turkey.png"))); // NOI18N
+        mainTimeLabel.setText("jLabel1");
+        mainTimeLabel.setAlignmentX(0.5F);
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(mainTimeLabel)
+                .addContainerGap(737, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(mainTimeLabel)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -104,41 +169,69 @@ public class MainPanel extends AMainPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE))
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 158, Short.MAX_VALUE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void catProcButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_catProcButtonActionPerformed
-        giveFeedback(Types.CATEGORIZE, evt);
+        giveFeedback(MainEnum.CATEGORIZEPROCESS, evt);
     }//GEN-LAST:event_catProcButtonActionPerformed
 
     private void timesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_timesButtonActionPerformed
-        giveFeedback(Types.TIMES, evt);
+        giveFeedback(MainEnum.TIMES, evt);
     }//GEN-LAST:event_timesButtonActionPerformed
+
+    private void configButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_configButtonActionPerformed
+        giveFeedback(MainEnum.CONFIG, evt);
+    }//GEN-LAST:event_configButtonActionPerformed
+
+    private void categorizeTitlesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_categorizeTitlesButtonActionPerformed
+        giveFeedback(MainEnum.CATEGORIZETITLES, evt);
+    }//GEN-LAST:event_categorizeTitlesButtonActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        giveFeedback(MainEnum.POSITIVE_GROUPS, evt);
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        giveFeedback(MainEnum.NEGATIVE_GROUPS, evt);
+    }//GEN-LAST:event_jButton2ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton catProcButton;
+    private javax.swing.JButton categorizeTitlesButton;
+    private javax.swing.JButton configButton;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextArea logTextArea;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JLabel mainTimeLabel;
     private javax.swing.JButton timesButton;
     // End of variables declaration//GEN-END:variables
     
     @Override
-    public JTextArea getLogger() {
-        return logTextArea;
+    public Object getProperty(MainEnum type) {
+        switch (type) {
+            case LOGGER:
+                // we don't have a log textArea now
+                return null;
+            case LABELIZER:
+                return mainTimeLabel;
+            default:
+                return null;
+        }
     }
     
     

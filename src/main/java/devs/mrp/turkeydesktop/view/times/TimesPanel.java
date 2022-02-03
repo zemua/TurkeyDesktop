@@ -6,18 +6,23 @@
 package devs.mrp.turkeydesktop.view.times;
 
 import devs.mrp.turkeydesktop.common.FeedbackListener;
-import devs.mrp.turkeydesktop.view.FeedbackerPanel;
+import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
+import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
  *
  * @author miguel
  */
-public class TimesPanel extends FeedbackerPanel<TimesPanel.Types, AWTEvent> {
+public class TimesPanel extends FeedbackerPanelWithFetcher<TimesEnum, AWTEvent> {
 
-    private List<FeedbackListener<Types, AWTEvent>> listeners = new ArrayList<>();
+    private final List<FeedbackListener<TimesEnum, AWTEvent>> listeners = new ArrayList<>();
+
+    private int fromInitiated = 0;
+    private int toInitiated = 0;
     
     /**
      * Creates new form TimesPanel
@@ -27,17 +32,27 @@ public class TimesPanel extends FeedbackerPanel<TimesPanel.Types, AWTEvent> {
     }
 
     @Override
-    public void addFeedbackListener(FeedbackListener<Types, AWTEvent> listener) {
+    public void addFeedbackListener(FeedbackListener<TimesEnum, AWTEvent> listener) {
         listeners.add(listener);
     }
 
     @Override
-    public void giveFeedback(Types tipo, AWTEvent feedback) {
+    public void giveFeedback(TimesEnum tipo, AWTEvent feedback) {
         listeners.forEach(l -> l.giveFeedback(tipo, feedback));
     }
-    
-    public enum Types {
-        BACK;
+
+    @Override
+    public Object getProperty(TimesEnum type) {
+        switch (type) {
+            case LOGGER:
+                return this.textLogger;
+            case FROM:
+                return dateFrom.getDate();
+            case TO:
+                return dateTo.getDate();
+            default:
+                return null;
+        }
     }
 
     /**
@@ -50,6 +65,15 @@ public class TimesPanel extends FeedbackerPanel<TimesPanel.Types, AWTEvent> {
     private void initComponents() {
 
         backButton = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        textLogger = new javax.swing.JTextArea();
+        fromLabel = new javax.swing.JLabel();
+        toLabel = new javax.swing.JLabel();
+        dateFrom = new com.toedter.calendar.JDateChooser();
+        dateTo = new com.toedter.calendar.JDateChooser();
+        refreshButton = new javax.swing.JButton();
+
+        setMinimumSize(new java.awt.Dimension(550, 250));
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
         backButton.setText(bundle.getString("back")); // NOI18N
@@ -59,30 +83,150 @@ public class TimesPanel extends FeedbackerPanel<TimesPanel.Types, AWTEvent> {
             }
         });
 
+        textLogger.setColumns(20);
+        textLogger.setRows(5);
+        jScrollPane1.setViewportView(textLogger);
+
+        fromLabel.setText(bundle.getString("from")); // NOI18N
+
+        toLabel.setText(bundle.getString("to")); // NOI18N
+
+        dateFrom.setDate(new Date());
+        dateFrom.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                dateFromPropertyChange(evt);
+            }
+        });
+
+        dateTo.setDate(new Date());
+        dateTo.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                dateToPropertyChange(evt);
+            }
+        });
+
+        refreshButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/refresh-black.png"))); // NOI18N
+        refreshButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                refreshButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(backButton)
-                .addContainerGap(344, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(backButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(fromLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(dateFrom, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(toLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(dateTo, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(refreshButton)
+                        .addGap(0, 105, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(backButton)
-                .addContainerGap(260, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(backButton)
+                    .addComponent(dateFrom, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(dateTo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(fromLabel)
+                    .addComponent(toLabel)
+                    .addComponent(refreshButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(41, 41, 41)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void backButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backButtonActionPerformed
-        giveFeedback(Types.BACK, evt);
+        giveFeedback(TimesEnum.BACK, evt);
     }//GEN-LAST:event_backButtonActionPerformed
 
+    private void dateFromPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_dateFromPropertyChange
+        setDateChooserErrorColor();
+        fromInitiated ++;
+        if (initiated()) {
+            sendUpdate();
+        }
+    }//GEN-LAST:event_dateFromPropertyChange
+
+    private void dateToPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_dateToPropertyChange
+        setDateChooserErrorColor();
+        toInitiated ++;
+        if (initiated()) {
+            sendUpdate();
+        }
+    }//GEN-LAST:event_dateToPropertyChange
+
+    private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshButtonActionPerformed
+        sendUpdate();
+    }//GEN-LAST:event_refreshButtonActionPerformed
+
+    private void setDateChooserErrorColor() {
+        if (isFromCorrect()) {
+            fromLabel.setForeground(Color.BLACK);
+        } else {
+            fromLabel.setForeground(Color.RED);
+        }
+        
+        if (isToCorrect()) {
+            toLabel.setForeground(Color.BLACK);
+        } else {
+            toLabel.setForeground(Color.RED);
+        }
+    }
+    
+    private boolean isFromCorrect() {
+        if (dateFrom.getDate() != null && dateTo.getDate() != null) {
+            return dateFrom.getDate().compareTo(dateTo.getDate()) <= 0;
+        }
+        return dateFrom.getDate() != null;
+    }
+    
+    private boolean isToCorrect() {
+        if (dateFrom.getDate() != null && dateTo.getDate() != null) {
+            return dateFrom.getDate().compareTo(dateTo.getDate()) <= 0;
+        }
+        return dateTo.getDate() != null;
+    }
+    
+    private boolean isFromAndToCorrect() {
+        return isFromCorrect() && isToCorrect();
+    }
+    
+    private void sendUpdate() {
+        if (isFromAndToCorrect()) {
+            giveFeedback(TimesEnum.UPDATE, null);
+        }
+    }
+    
+    private boolean initiated() {
+        // When initiating the fields on load, datePropertyChange is called 2 times instead of 1
+        return fromInitiated > 1 && toInitiated > 1;
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton backButton;
+    private com.toedter.calendar.JDateChooser dateFrom;
+    private com.toedter.calendar.JDateChooser dateTo;
+    private javax.swing.JLabel fromLabel;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JButton refreshButton;
+    private javax.swing.JTextArea textLogger;
+    private javax.swing.JLabel toLabel;
     // End of variables declaration//GEN-END:variables
 }

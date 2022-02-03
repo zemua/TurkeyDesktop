@@ -20,9 +20,9 @@ import java.util.logging.Logger;
  */
 public class TimeLogRepository implements TimeLogDao {
     
-    private Db dbInstance = Db.getInstance();
+    private final Db dbInstance = Db.getInstance();
     private Logger logger = Logger.getLogger(TimeLogRepository.class.getName());
-    private Semaphore semaphore = new Semaphore(1);
+    private Semaphore semaphore = Db.getSemaphore();
     
     private static TimeLogRepository instance;
     
@@ -44,14 +44,17 @@ public class TimeLogRepository implements TimeLogDao {
             semaphore.acquire();
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement("INSERT INTO WATCHDOG_LOG (EPOCH, ELAPSED, PID, PROCESS_NAME, WINDOW_TITLE) "
-                        + "VALUES (?,?,?,?,?)",
+                stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s) ", 
+                        Db.WATCHDOG_TABLE, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.COUNTED, TimeLog.ACCUMULATED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE)
+                        + "VALUES (?,?,?,?,?,?,?)",
                         Statement.RETURN_GENERATED_KEYS);
                 stm.setLong(1, element.getEpoch());
                 stm.setLong(2, element.getElapsed());
-                stm.setString(3, element.getPid());
-                stm.setString(4, element.getProcessName());
-                stm.setString(5, element.getWindowTitle());
+                stm.setLong(3, element.getCounted());
+                stm.setLong(4, element.getAccumulated());
+                stm.setString(5, element.getPid());
+                stm.setString(6, element.getProcessName());
+                stm.setString(7, element.getWindowTitle());
                 stm.executeUpdate();
                 ResultSet generatedId = stm.getGeneratedKeys();
                 if (generatedId.next()) {
@@ -75,12 +78,15 @@ public class TimeLogRepository implements TimeLogDao {
             semaphore.acquire();
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement("UPDATE WATCHDOG_LOG SET EPOCH=?, ELAPSED=?, PID=?, PROCESS_NAME=?, WINDOW_TITLE=? WHERE ID=?");
+                stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=?, %s=?, %s=?, %s=?, %s=? WHERE %s=?",
+                        Db.WATCHDOG_TABLE, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.COUNTED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE, TimeLog.ID));
                 stm.setLong(1, element.getEpoch());
                 stm.setLong(2, element.getElapsed());
-                stm.setString(3, element.getPid());
-                stm.setString(4, element.getProcessName());
-                stm.setString(5, element.getWindowTitle());
+                stm.setLong(3, element.getCounted());
+                stm.setString(4, element.getPid());
+                stm.setString(5, element.getProcessName());
+                stm.setString(6, element.getWindowTitle());
+                stm.setLong(7, element.getId());
                 entriesUpdated = stm.executeUpdate();
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
@@ -102,7 +108,8 @@ public class TimeLogRepository implements TimeLogDao {
             try {
                 // get from last 24 hours only by default to not overload memory
                 long frame = System.currentTimeMillis() - (24*60*60*1000);
-                stm = dbInstance.getConnection().prepareStatement("SELECT * FROM WATCHDOG_LOG WHERE EPOCH>?");
+                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s>?",
+                        Db.WATCHDOG_TABLE, TimeLog.EPOCH));
                 stm.setLong(1, frame);
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
@@ -117,13 +124,14 @@ public class TimeLogRepository implements TimeLogDao {
     }
 
     @Override
-    public ResultSet findById(long id) {
+    public ResultSet findById(Long id) {
         ResultSet rs = null;
         try {
             semaphore.acquire();
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement("SELECT * FROM WATCHDOG_LOG WHERE ID=?");
+                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+                        Db.WATCHDOG_TABLE, TimeLog.ID));
                 stm.setLong(1, id);
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
@@ -138,13 +146,14 @@ public class TimeLogRepository implements TimeLogDao {
     }
 
     @Override
-    public long deleteById(long id) {
+    public long deleteById(Long id) {
         long delQty = -1;
         try {
             semaphore.acquire();
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement("DELETE FROM WATCHDOG_LOG WHERE ID=?");
+                stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
+                        Db.WATCHDOG_TABLE, TimeLog.ID));
                 stm.setLong(1, id);
                 delQty = stm.executeUpdate();
             } catch (SQLException ex) {
@@ -156,6 +165,78 @@ public class TimeLogRepository implements TimeLogDao {
             semaphore.release();
         }
         return delQty;
+    }
+
+    @Override
+    public ResultSet getTimeFrameGroupedByProcess(long from, long to) {
+        ResultSet rs = null;
+        try {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT %s, SUM(%s) FROM %s WHERE %s>=? AND %s<=? GROUP BY %s",
+                        TimeLog.PROCESS_NAME, TimeLog.ELAPSED, Db.WATCHDOG_TABLE, TimeLog.EPOCH, TimeLog.EPOCH, TimeLog.PROCESS_NAME));
+                stm.setLong(1, from);
+                stm.setLong(2, to);
+                rs = stm.executeQuery();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null ,ex);
+            }
+        } catch (InterruptedException ex) {
+            logger.log(Level.SEVERE, null ,ex);
+        } finally {
+            semaphore.release();
+        }
+        return rs;
+    }
+
+    @Override
+    public ResultSet getMostRecent() {
+        ResultSet rs = null;
+        try {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s ORDER BY %s DESC LIMIT 1",
+                        Db.WATCHDOG_TABLE, TimeLog.EPOCH));
+                rs = stm.executeQuery();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null ,ex);
+            }
+        } catch (InterruptedException ex) {
+            logger.log(Level.SEVERE, null ,ex);
+        } finally {
+            semaphore.release();
+        }
+        return rs;
+    }
+
+    @Override
+    public ResultSet getGroupedByTitle(long from, long to) {
+        ResultSet rs = null;
+        try {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT %s, SUM(%s) FROM %s WHERE %s>=? AND %s<=? GROUP BY %s",
+                        TimeLog.WINDOW_TITLE,
+                        TimeLog.ELAPSED,
+                        Db.WATCHDOG_TABLE,
+                        TimeLog.EPOCH,
+                        TimeLog.EPOCH, 
+                        TimeLog.WINDOW_TITLE));
+                stm.setLong(1, from);
+                stm.setLong(2, to);
+                rs = stm.executeQuery();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null ,ex);
+            }
+        } catch (InterruptedException ex) {
+            logger.log(Level.SEVERE, null ,ex);
+        } finally {
+            semaphore.release();
+        }
+        return rs;
     }
     
 }

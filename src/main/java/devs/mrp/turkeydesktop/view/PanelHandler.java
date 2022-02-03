@@ -6,6 +6,7 @@
 package devs.mrp.turkeydesktop.view;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 /**
  *
@@ -14,13 +15,13 @@ import javax.swing.JFrame;
  * @T type of the feedback, could be an enum usually
  * @E event, for swing usually AWTEvent
  */
-public abstract class PanelHandler<T, E> {
+public abstract class PanelHandler<T, E, P extends FeedbackerPanel<T,E>> {
     
-    private PanelHandler<?, ?> caller;
-    private FeedbackerPanel<T, E> panel;
+    private PanelHandler<?, ?, ?> caller;
+    private P panel;
     private JFrame frame;
     
-    public PanelHandler(JFrame frame, PanelHandler<?,?> caller) {
+    public PanelHandler(JFrame frame, PanelHandler<?,?,?> caller) {
         this.caller = caller;
         this.frame = frame;
         panel = initPanel();
@@ -31,19 +32,21 @@ public abstract class PanelHandler<T, E> {
         doExtraBeforeShow();
         frame.setContentPane(panel);
         frame.revalidate();
+        //panel.revalidate();
+        panel.updateUI();
     }
     
-    protected abstract FeedbackerPanel<T, E> initPanel();
+    protected abstract P initPanel();
     
-    protected abstract void initListeners(FeedbackerPanel<T, E> pan);
+    protected abstract void initListeners(P pan);
     
     protected abstract void doExtraBeforeShow();
 
-    public PanelHandler<?,?> getCaller() {
+    public PanelHandler<?,?,?> getCaller() {
         return caller;
     }
 
-    public FeedbackerPanel<T, E> getPanel() {
+    public P getPanel() {
         return panel;
     }
 
@@ -51,7 +54,7 @@ public abstract class PanelHandler<T, E> {
         return frame;
     }
 
-    public void setPanel(FeedbackerPanel<T, E> panel) {
+    public void setPanel(P panel) {
         this.panel = panel;
     }
     

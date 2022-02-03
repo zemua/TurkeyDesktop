@@ -5,11 +5,18 @@
  */
 package devs.mrp.turkeydesktop.database;
 
+import devs.mrp.turkeydesktop.database.group.Group;
+import devs.mrp.turkeydesktop.database.config.ConfigElement;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
+import devs.mrp.turkeydesktop.database.logs.TimeLog;
+import devs.mrp.turkeydesktop.database.titles.Title;
+import devs.mrp.turkeydesktop.database.type.Type;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -18,7 +25,18 @@ import javax.swing.JOptionPane;
  *
  * @author miguel
  */
-public class Db {
+public class Db { // TODO create asynchronous listeners to update livedata
+    // TODO create a static semaphore common for all repositories
+    
+    public static final String WATCHDOG_TABLE = "WATCHDOG_LOG";
+    public static final String GROUPS_TABLE = "GROUPS_OF_APPS";
+    public static final String GROUP_ASSIGNATION_TABLE = "GROUP_ASSIGNATION_TABLE";
+    public static final String CATEGORIZED_TABLE = "TYPES_CATEGORIZATION";
+    public static final String TITLES_TABLE = "TITLES_TABLE";
+    public static final String ACCUMULATED_TIME_TABLE = "ACCUMULATED_TIME";
+    public static final String CONFIG_TABLE = "CONFIG_TABLE";
+    private static final Semaphore semaphore = new Semaphore(1);
+    
     private static Db instance = null;
     private Connection con = null;
     
@@ -37,6 +55,10 @@ public class Db {
         }
     }
     
+    public static Semaphore getSemaphore() {
+        return semaphore;
+    }
+    
     private void setConnection(){
         try {
             if (con != null && !con.isClosed()) return;
@@ -45,21 +67,59 @@ public class Db {
             System.out.println("error intentando conseguir la conexión");
             Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
             con = null;
-            JOptionPane.showMessageDialog(null, "Error: Es posible que ya tengas otra ventana abierta?");
+            JOptionPane.showMessageDialog(null, "Error: Is it possible that the application is already opened?");
         }
     }
     
     private void inicializar(){
         setConnection();
         
-        execute("CREATE TABLE IF NOT EXISTS WATCHDOG_LOG("
-                + "ID BIGINT NOT NULL AUTO_INCREMENT, "
-                + "EPOCH BIGINT NOT NULL, "
-                + "ELAPSED INT NOT NULL, "
-                + "PID VARCHAR(10), "
-                + "PROCESS_NAME VARCHAR(50), "
-                + "WINDOW_TITLE VARCHAR(150), "
-                + "PRIMARY KEY (ID))");
+        execute(String.format("CREATE TABLE IF NOT EXISTS %s("
+                + "%s BIGINT NOT NULL AUTO_INCREMENT, " // id
+                + "%s BIGINT NOT NULL, " // epoch
+                + "%s INT NOT NULL, " // elapsed
+                + "%s INT NOT NULL, " // counted
+                + "%s BIGINT NOT NULL, " // accumulated
+                + "%s VARCHAR(10), " // pid
+                + "%s VARCHAR(50), " // process name
+                + "%s VARCHAR(150), " // window title
+                + "%s INT, " // category id
+                + "%s INT, " // type id
+                + "PRIMARY KEY (%s))",
+                WATCHDOG_TABLE, TimeLog.ID, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.COUNTED, TimeLog.ACCUMULATED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE, Group.GROUP, Type.TYPE, TimeLog.ID));
+        
+        execute(String.format("CREATE TABLE IF NOT EXISTS %s("
+                + "%s VARCHAR(50) NOT NULL, " // process name, unique in the table
+                + "%s VARCHAR(50), " // TYPE
+                + "PRIMARY KEY (%s))",
+                CATEGORIZED_TABLE, Type.PROCESS_NAME, Type.TYPE, Type.PROCESS_NAME));
+        
+        execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
+                + "%s BIGINT NOT NULL AUTO_INCREMENT, " // id
+                + "%s VARCHAR(50), " // group name
+                + "%s VARCHAR(50), " // type
+                + "PRIMARY KEY (%s))",
+                GROUPS_TABLE, Group.ID, Group.NAME, Group.TYPE, Group.ID));
+        
+        execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
+                + "%s VARCHAR(150) NOT NULL, " // key
+                + "%s VARCHAR(150) NOT NULL, " // value
+                + "PRIMARY KEY (%s))",
+                    CONFIG_TABLE, ConfigElement.KEY, ConfigElement.VALUE, ConfigElement.KEY));
+        
+        execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
+                + "%s VARCHAR(300) NOT NULL, " // the string to match, unique
+                + "%s VARCHAR(15) NOT NULL, " // whether it is positive or negative
+                + "PRIMARY KEY (%s))",
+                TITLES_TABLE, Title.SUB_STR, Title.TYPE, Title.SUB_STR));
+        
+        execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
+                + "%s BIGINT NOT NULL AUTO_INCREMENT, " // id"
+                + "%s VARCHAR(15) NOT NULL, " // the element type process or title
+                + "%s VARCHAR(300) NOT NULL, " // the id of the element be it process name or title
+                + "%s BIGINT NOT NULL, " // the id of the group
+                + "PRIMARY KEY (%s))",
+                GROUP_ASSIGNATION_TABLE, GroupAssignation.ID, GroupAssignation.TYPE, GroupAssignation.ELEMENT_ID, GroupAssignation.GROUP_ID, GroupAssignation.ID));
         
         //close();
     }

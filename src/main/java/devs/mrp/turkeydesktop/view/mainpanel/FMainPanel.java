@@ -13,7 +13,7 @@ import javax.swing.JFrame;
  * @author miguel
  */
 public class FMainPanel {
-    public static AMainPanel getMainPanel() {
+    public static FeedbackerPanelWithFetcher getMainPanel() {
         return new MainPanel();
     }
     
