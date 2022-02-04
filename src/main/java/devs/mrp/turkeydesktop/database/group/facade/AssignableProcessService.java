@@ -19,29 +19,29 @@ import java.util.stream.Collectors;
  *
  * @author miguel
  */
-public class AssignableProcessService implements IAssignableElementService {
+public class AssignableProcessService implements IAssignableElementService<Type.Types> {
     
     private ITypeService typeService = FTypeService.getService();
     private IGroupAssignationService assignationService = FGroupAssignationService.getService();
     
     @Override
-    public List<AssignableElement> positiveElementsWithAssignation() {
+    public List<AssignableElement<Type.Types>> positiveElementsWithAssignation() {
         return elementsWithAssignation(getAssignationsMap(GroupAssignation.ElementType.PROCESS),
                 Type.Types.POSITIVE);
     }
 
     @Override
-    public List<AssignableElement> negativeElementsWithAssignation() {
+    public List<AssignableElement<Type.Types>> negativeElementsWithAssignation() {
         return elementsWithAssignation(getAssignationsMap(GroupAssignation.ElementType.PROCESS),
                 Type.Types.NEGATIVE);
     }
     
-    private List<AssignableElement> elementsWithAssignation(Map<String, GroupAssignation> assignables, Type.Types positiveOrNegative) {
+    private List<AssignableElement<Type.Types>> elementsWithAssignation(Map<String, GroupAssignation> assignables, Type.Types positiveOrNegative) {
         return typeService.findAll()
                 .stream()
                 .filter(t -> t.getType().equals(positiveOrNegative))
                 .map(t -> {
-                    AssignableElement element = new AssignableElement();
+                    AssignableElement<Type.Types> element = new AssignableElement<>();
                     element.setElementName(t.getProcess());
                     if (assignables.get(t.getProcess()) != null) {
                         element.setGroupAssignationId(assignables.get(t.getProcess()).getId());
