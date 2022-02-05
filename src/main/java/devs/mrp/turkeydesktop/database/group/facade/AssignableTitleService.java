@@ -19,22 +19,23 @@ import java.util.stream.Collectors;
  *
  * @author miguel
  */
-public class AssignableTitleService implements IAssignableElementService<Title.Type> {
+public class AssignableTitleService extends AssignableAbstractService implements IAssignableElementService<Title.Type> {
     
-    private ITitleService titleService = FTitleService.getService();
-    private IGroupAssignationService assignationService = FGroupAssignationService.getService();
+    private final ITitleService titleService = FTitleService.getService();
     
     @Override
     public List<AssignableElement<Title.Type>> positiveElementsWithAssignation() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return elementsWithAssignation(getAssignationsMap(GroupAssignation.ElementType.TITLE),
+                Title.Type.POSITIVE);
     }
 
     @Override
     public List<AssignableElement<Title.Type>> negativeElementsWithAssignation() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return elementsWithAssignation(getAssignationsMap(GroupAssignation.ElementType.TITLE),
+                Title.Type.POSITIVE);
     }
     
-    private List<AssignableElement<Title.Type>> elementWithAssignation(Map<String, GroupAssignation> assignables, Title.Type positiveOrNegative) {
+    private List<AssignableElement<Title.Type>> elementsWithAssignation(Map<String, GroupAssignation> assignables, Title.Type positiveOrNegative) {
         return titleService.findAll()
                 .stream()
                 .filter(t -> t.getType().equals(positiveOrNegative))

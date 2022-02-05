@@ -75,9 +75,6 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     }
     
     private void setProcesses() {
-        List<AssignableElement> assignables = group.getType().equals(Group.GroupType.POSITIVE) ?
-                assignableProcessService.positiveElementsWithAssignation() :
-                assignableProcessService.negativeElementsWithAssignation();
         Object object = this.getPanel().getProperty(GroupReviewEnum.PROCESS_PANEL);
         if (object == null || !(object instanceof JPanel)) {
             return;
@@ -85,12 +82,35 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         JPanel panel = (JPanel) object;
         panel.removeAll();
         
+        List<AssignableElement> assignables = group.getType().equals(Group.GroupType.POSITIVE) ?
+                assignableProcessService.positiveElementsWithAssignation() :
+                assignableProcessService.negativeElementsWithAssignation();
+        
+        setSwitchablesFromAssignables(assignables, panel, GroupAssignation.ElementType.PROCESS);
+    }
+    
+    private void setTitles() {
+        Object object = this.getPanel().getProperty(GroupReviewEnum.TITLE_PANEL);
+        if (object == null || !(object instanceof JPanel)) {
+            return;
+        }
+        JPanel panel = (JPanel) object;
+        panel.removeAll();
+        
+        List<AssignableElement> assignables = group.getType().equals(Group.GroupType.POSITIVE) ?
+                assignableTitlesService.positiveElementsWithAssignation() :
+                assignableTitlesService.negativeElementsWithAssignation();
+        
+        setSwitchablesFromAssignables(assignables, panel, GroupAssignation.ElementType.TITLE);
+    }
+    
+    private void setSwitchablesFromAssignables(List<AssignableElement> assignables, JPanel panel, GroupAssignation.ElementType type) {
         assignables.forEach(a -> {
             Switchable switchable = new Switchable(a.getGroupAssignationId(), 
                     a.getElementName(), 
                     a.getGroupId() != null && a.getGroupId().equals(group.getId()), // checked if it belongs to this group
                     a.getGroupId() == null || a.getGroupId().equals(group.getId())); // enabled if belongs to no group, or to this group
-            setProcessSwitchableListener(switchable, a.getElementName(), GroupAssignation.ElementType.PROCESS);
+            setProcessSwitchableListener(switchable, a.getElementName(), type);
             panel.add(switchable);
         });
     }
@@ -107,10 +127,6 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                 groupAssignationService.add(ga);
             }
         });
-    }
-    
-    private void setTitles() {
-        // TODO
     }
     
     private void setConditions() {

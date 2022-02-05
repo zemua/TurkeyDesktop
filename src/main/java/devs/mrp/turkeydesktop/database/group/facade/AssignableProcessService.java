@@ -19,10 +19,9 @@ import java.util.stream.Collectors;
  *
  * @author miguel
  */
-public class AssignableProcessService implements IAssignableElementService<Type.Types> {
+public class AssignableProcessService extends AssignableAbstractService implements IAssignableElementService<Type.Types> {
     
-    private ITypeService typeService = FTypeService.getService();
-    private IGroupAssignationService assignationService = FGroupAssignationService.getService();
+    private final ITypeService typeService = FTypeService.getService();
     
     @Override
     public List<AssignableElement<Type.Types>> positiveElementsWithAssignation() {
@@ -55,14 +54,6 @@ public class AssignableProcessService implements IAssignableElementService<Type.
                     return element;
                 })
                 .collect(Collectors.toList());
-    }
-    
-    private Map<String, GroupAssignation> getAssignationsMap(GroupAssignation.ElementType type) {
-        return assignationService
-                .findAll()
-                .stream()
-                .filter(a -> a.getType().equals(type))
-                .collect(Collectors.toMap((a -> a.getElementId()),(a -> a)));
     }
     
 }
