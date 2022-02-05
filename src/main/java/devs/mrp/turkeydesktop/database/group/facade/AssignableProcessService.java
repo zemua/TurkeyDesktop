@@ -43,10 +43,10 @@ public class AssignableProcessService extends AssignableAbstractService implemen
                     AssignableElement<Type.Types> element = new AssignableElement<>();
                     element.setElementName(t.getProcess());
                     if (assignables.get(t.getProcess()) != null) {
-                        element.setGroupAssignationId(assignables.get(t.getProcess()).getId());
+                        //element.setGroupAssignationId(assignables.get(t.getProcess()).getId());
                         element.setGroupId(assignables.get(t.getProcess()).getGroupId());
                     } else {
-                        element.setGroupAssignationId(null);
+                        //element.setGroupAssignationId(null);
                         element.setGroupId(null);
                     }
                     element.setPositiveOrNegative(positiveOrNegative);

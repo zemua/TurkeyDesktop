@@ -23,17 +23,15 @@ import javax.swing.JPanel;
  * Long is the id of the element for recognition on feedback
  * Boolean indicates wether the checkbox has been activated or deactivated
  */
-public class Switchable extends JPanel implements Feedbacker<Long, Boolean> {
+public class Switchable extends JPanel implements Feedbacker<String, Boolean> {
     
     private LocaleMessages locale = LocaleMessages.getInstance();
-    private List<FeedbackListener<Long, Boolean>> listeners = new ArrayList<>();
+    private List<FeedbackListener<String, Boolean>> listeners = new ArrayList<>();
     
-    private Long id;
     private JLabel label = new JLabel();
     private JCheckBox check = new JCheckBox();
     
-    public Switchable(Long assignableId, String text, boolean checked, boolean enabled) {
-        this.id = assignableId;
+    public Switchable(String text, boolean checked, boolean enabled) {
         label.setText(text);
         check.setSelected(checked);
         check.setEnabled(enabled);
@@ -42,12 +40,12 @@ public class Switchable extends JPanel implements Feedbacker<Long, Boolean> {
     }
     
     @Override
-    public void addFeedbackListener(FeedbackListener<Long, Boolean> listener) {
+    public void addFeedbackListener(FeedbackListener<String, Boolean> listener) {
         listeners.add(listener);
     }
 
     @Override
-    public void giveFeedback(Long id, Boolean activated) {
+    public void giveFeedback(String id, Boolean activated) {
         listeners.forEach(l -> l.giveFeedback(id, activated));
     }
     
@@ -60,7 +58,7 @@ public class Switchable extends JPanel implements Feedbacker<Long, Boolean> {
     
     private void initializeListener() {
         check.addActionListener((event) -> {
-            giveFeedback(id, check.isSelected());
+            giveFeedback(label.getText(), check.isSelected());
         });
     }
     

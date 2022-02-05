@@ -18,7 +18,6 @@ public class AssignableElement<TYPE> {
     private GroupAssignation.ElementType processOrTitle;
     private TYPE positiveOrNegative;
     private Long groupId;
-    private Long groupAssignationId;
 
     public String getElementName() {
         return elementName;
@@ -50,14 +49,6 @@ public class AssignableElement<TYPE> {
 
     public void setGroupId(Long groupId) {
         this.groupId = groupId;
-    }
-
-    public Long getGroupAssignationId() {
-        return groupAssignationId;
-    }
-
-    public void setGroupAssignationId(Long groupAssignationId) {
-        this.groupAssignationId = groupAssignationId;
     }
     
 }

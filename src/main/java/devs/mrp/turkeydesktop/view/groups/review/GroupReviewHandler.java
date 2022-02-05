@@ -106,8 +106,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     
     private void setSwitchablesFromAssignables(List<AssignableElement> assignables, JPanel panel, GroupAssignation.ElementType type) {
         assignables.forEach(a -> {
-            Switchable switchable = new Switchable(a.getGroupAssignationId(), 
-                    a.getElementName(), 
+            Switchable switchable = new Switchable(a.getElementName(), 
                     a.getGroupId() != null && a.getGroupId().equals(group.getId()), // checked if it belongs to this group
                     a.getGroupId() == null || a.getGroupId().equals(group.getId())); // enabled if belongs to no group, or to this group
             setProcessSwitchableListener(switchable, a.getElementName(), type);

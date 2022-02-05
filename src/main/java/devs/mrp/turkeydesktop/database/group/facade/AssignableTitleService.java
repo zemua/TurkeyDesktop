@@ -43,10 +43,10 @@ public class AssignableTitleService extends AssignableAbstractService implements
                     AssignableElement<Title.Type> element = new AssignableElement<>();
                     element.setElementName(t.getSubStr());
                     if (assignables.get(t.getSubStr()) != null) {
-                        element.setGroupAssignationId(assignables.get(t.getSubStr()).getId());
+                        //element.setGroupAssignationId(assignables.get(t.getSubStr()).getId());
                         element.setGroupId(assignables.get(t.getSubStr()).getGroupId());
                     } else {
-                        element.setGroupAssignationId(null);
+                        //element.setGroupAssignationId(null);
                         element.setGroupId(null);
                     }
                     element.setPositiveOrNegative(positiveOrNegative);

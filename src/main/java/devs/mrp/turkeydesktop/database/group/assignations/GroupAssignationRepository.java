@@ -116,11 +116,10 @@ public class GroupAssignationRepository implements GroupAssignationDao {
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=?, %s=? WHERE %s=? ",
-                        Db.GROUP_ASSIGNATION_TABLE, GroupAssignation.TYPE, GroupAssignation.ELEMENT_ID, GroupAssignation.GROUP_ID, GroupAssignation.ID));
+                        Db.GROUP_ASSIGNATION_TABLE, GroupAssignation.TYPE, GroupAssignation.ELEMENT_ID, GroupAssignation.GROUP_ID));
                 stm.setString(1, element.getType().toString());
                 stm.setString(2, element.getElementId());
                 stm.setLong(3, element.getGroupId());
-                stm.setLong(4, element.getId());
                 result = stm.executeUpdate();
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
@@ -154,9 +153,11 @@ public class GroupAssignationRepository implements GroupAssignationDao {
         return rs;
     }
 
+    @Deprecated
     @Override
     public ResultSet findById(Long id) {
-        ResultSet rs = null;
+        return null;
+        /*ResultSet rs = null;
         try {
             semaphore.acquire();
             PreparedStatement stm;
@@ -173,11 +174,14 @@ public class GroupAssignationRepository implements GroupAssignationDao {
         } finally {
             semaphore.release();
         }
-        return rs;
+        return rs;*/
     }
 
+    @Deprecated
     @Override
     public long deleteById(Long id) {
+        return 0;
+        /*
         long delQty = -1;
         try {
             semaphore.acquire();
@@ -195,7 +199,12 @@ public class GroupAssignationRepository implements GroupAssignationDao {
         } finally {
             semaphore.release();
         }
-        return delQty;
+        return delQty;*/
+    }
+    
+    @Override
+    public long deleteByElementId(GroupAssignation.ElementType elementType, String elementId) {
+        
     }
     
 }
