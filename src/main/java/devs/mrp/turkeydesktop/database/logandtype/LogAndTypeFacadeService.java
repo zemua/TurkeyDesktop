@@ -65,7 +65,7 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
                 typedTimes.add(tripla);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
         }
         return typedTimes;
     }

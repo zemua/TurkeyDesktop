@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 public class GroupAssignationService implements IGroupAssignationService {
     
     private static final GroupAssignationDao repo = GroupAssignationRepository.getInstance();
+    private static final Logger logger = Logger.getLogger(GroupAssignationService.class.getName());
     
     @Override
     public long add(GroupAssignation element) {
@@ -40,7 +41,7 @@ public class GroupAssignationService implements IGroupAssignationService {
                     return 0;
                 }
             } catch (SQLException ex) {
-                Logger.getLogger(GroupAssignationService.class.getName()).log(Level.SEVERE, null, ex);
+                logger.log(Level.SEVERE, null, ex);
             }
             // else there is no element stored with this id
             return repo.add(element);
@@ -70,7 +71,7 @@ public class GroupAssignationService implements IGroupAssignationService {
                 element = elementFromResultSetEntry(set);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(GroupAssignationService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return element;
     }
@@ -119,7 +120,7 @@ public class GroupAssignationService implements IGroupAssignationService {
                 elements.add(el);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(ConfigElementService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return elements;
     }
@@ -131,7 +132,7 @@ public class GroupAssignationService implements IGroupAssignationService {
             el.setElementId(set.getString(GroupAssignation.ELEMENT_ID));
             el.setGroupId(set.getLong(GroupAssignation.GROUP_ID));
         } catch (SQLException ex) {
-            Logger.getLogger(GroupService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return el;
     }

@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 public class TimeLogService implements ITimeLogService {
 
     private final TimeLogDao repo = TimeLogRepository.getInstance();
+    private static final Logger logger = Logger.getLogger(TimeLogService.class.getName());
 
     /**
      * @deprecated
@@ -67,7 +68,7 @@ public class TimeLogService implements ITimeLogService {
                 times.add(dupla);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return times;
     }
@@ -80,7 +81,7 @@ public class TimeLogService implements ITimeLogService {
                 timeLog = setTimeLogFromResultSetEntry(set);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return timeLog;
     }
@@ -97,7 +98,7 @@ public class TimeLogService implements ITimeLogService {
                 logList.add(timeLog);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return logList;
     }
@@ -111,7 +112,7 @@ public class TimeLogService implements ITimeLogService {
                 entry = setTimeLogFromResultSetEntry(set);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return entry;
     }
@@ -128,7 +129,7 @@ public class TimeLogService implements ITimeLogService {
             entry.setProcessName(set.getString(TimeLog.PROCESS_NAME));
             entry.setWindowTitle(set.getString(TimeLog.WINDOW_TITLE));
         } catch (SQLException ex) {
-            Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return entry;
     }
@@ -150,7 +151,7 @@ public class TimeLogService implements ITimeLogService {
                 groupedTimes.add(dupla);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return groupedTimes;
     }

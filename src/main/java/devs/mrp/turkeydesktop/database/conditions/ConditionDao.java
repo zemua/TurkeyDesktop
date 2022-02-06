@@ -5,10 +5,12 @@
  */
 package devs.mrp.turkeydesktop.database.conditions;
 
+import devs.mrp.turkeydesktop.database.GeneralDao;
+
 /**
  *
  * @author miguel
  */
-public interface ConditionDao {
+public interface ConditionDao extends GeneralDao<Condition, Long> {
     
 }

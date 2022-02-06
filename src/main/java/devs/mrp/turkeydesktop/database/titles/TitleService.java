@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 public class TitleService implements ITitleService {
 
     private final TitleDao repo = TitleRepository.getInstance();
+    private static final Logger logger = Logger.getLogger(TitleService.class.getName());
 
     private static Map<String, Title> conditionsMap;
 
@@ -75,7 +76,7 @@ public class TitleService implements ITitleService {
                 elements.add(el);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(TitleService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         conditionsMap.clear();
         elements.forEach(e -> conditionsMap.put(e.getSubStr(), e));
@@ -120,7 +121,7 @@ public class TitleService implements ITitleService {
             el.setSubStr(set.getString(Title.SUB_STR));
             el.setType(Title.Type.valueOf(set.getString(Title.TYPE)));
         } catch (SQLException ex) {
-            Logger.getLogger(TitleService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return el;
     }
