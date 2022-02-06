@@ -16,18 +16,25 @@ import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationServi
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElement;
 import devs.mrp.turkeydesktop.database.group.facade.FAssignableElementService;
 import devs.mrp.turkeydesktop.database.group.facade.IAssignableElementService;
+import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.groups.review.switchable.Switchable;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.event.ListDataListener;
 
 /**
  *
@@ -36,6 +43,9 @@ import javax.swing.JSpinner;
 public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent>> {
 
     private static final Logger logger = Logger.getLogger(GroupReviewHandler.class.getName());
+    
+    private final LocaleMessages locale = LocaleMessages.getInstance();
+    private Map<String, Condition.ConditionType> mapToTypes;
     
     private Group group;
     private final IGroupAssignationService groupAssignationService = FGroupAssignationService.getService();
@@ -56,7 +66,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     
     @Override
     protected FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent> initPanel() {
-        return FGroupReviewPanel.getPanel();
+        return FGroupReviewPanel.getPanel(comboTypes());
     }
 
     @Override
@@ -200,7 +210,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     }
     
     private void setNewConditionFields() {
-        
+        // TODO
     }
     
     private void addCondition() throws Exception {
@@ -219,6 +229,12 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     
     private void setConfiguration() {
         // TODO
+    }
+    
+    private String[] comboTypes() {
+        List<Condition.ConditionType> types = Arrays.asList(Condition.ConditionType.values());
+        mapToTypes = types.stream().collect(Collectors.toMap(t -> t.getName(), t -> t));
+        return types.stream().map(t -> t.getName()).collect(Collectors.toList()).toArray(new String[types.size()]);
     }
     
 }

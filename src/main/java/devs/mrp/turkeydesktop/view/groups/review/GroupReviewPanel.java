@@ -6,11 +6,17 @@
 package devs.mrp.turkeydesktop.view.groups.review;
 
 import devs.mrp.turkeydesktop.common.FeedbackListener;
+import devs.mrp.turkeydesktop.database.conditions.Condition;
+import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.awt.Component;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -19,11 +25,13 @@ import java.util.List;
 public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent> {
     
     private List<FeedbackListener<GroupReviewEnum, AWTEvent>> listeners = new ArrayList<>();
+    private final String[] comboTypes;
 
     /**
      * Creates new form GroupReviewPanel
      */
-    public GroupReviewPanel() {
+    public GroupReviewPanel(String[] comboTypes) {
+        this.comboTypes = comboTypes;
         initComponents();
         enableAddConditionButton();
     }
@@ -76,7 +84,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
 
         jLabel1.setText(bundle.getString("conditionType")); // NOI18N
 
-        conditionTypeComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        conditionTypeComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(getComboTypes()));
         conditionTypeComboBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 conditionTypeComboBoxItemStateChanged(evt);
@@ -186,7 +194,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                 .addComponent(jLabel5)
                 .addGap(18, 18, 18)
                 .addComponent(addConditionButton)
-                .addContainerGap(112, Short.MAX_VALUE))
+                .addContainerGap(151, Short.MAX_VALUE))
         );
         conditionsPanelLayout.setVerticalGroup(
             conditionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -354,6 +362,10 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
             return;
         }
         addConditionButton.setEnabled(true);
+    }
+    
+    private String[] getComboTypes() {
+        return this.comboTypes;
     }
 
 
