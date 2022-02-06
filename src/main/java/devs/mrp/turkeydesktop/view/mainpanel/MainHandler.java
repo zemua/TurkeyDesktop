@@ -144,7 +144,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
         ConfigElement cel = configService.configElement(ConfigurationEnum.PROPORTION);
         JLabel label = (JLabel)this.getPanel().getProperty(MainEnum.LABELIZER);
         long proportion = Integer.valueOf(cel.getValue());
-        long accumulated = el.getAccumulated();
+        long accumulated = el != null ? el.getAccumulated() : 0;
         label.setText(TimeConverter.millisToHMS(accumulated/proportion));
     }
     

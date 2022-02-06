@@ -204,7 +204,25 @@ public class GroupAssignationRepository implements GroupAssignationDao {
     
     @Override
     public long deleteByElementId(GroupAssignation.ElementType elementType, String elementId) {
-        
+        long delQty = -1;
+        try {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=? AND %s=?",
+                        Db.GROUP_ASSIGNATION_TABLE, GroupAssignation.TYPE, GroupAssignation.ELEMENT_ID));
+                stm.setString(1, elementType.toString());
+                stm.setString(2, elementId);
+                delQty = stm.executeUpdate();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
+        } catch (InterruptedException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        } finally {
+            semaphore.release();
+        }
+        return delQty;
     }
     
 }

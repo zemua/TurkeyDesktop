@@ -28,7 +28,7 @@ public class GroupAssignationService implements IGroupAssignationService {
             return -1;
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            ResultSet rs = repo.findById(element.getId());
+            ResultSet rs = repo.findByElementId(element.getType(), element.getElementId());
             try {
                 if (rs.next()) {
                     GroupAssignation group = elementFromResultSetEntry(rs);
@@ -60,6 +60,7 @@ public class GroupAssignationService implements IGroupAssignationService {
         return elementsFromResultSet(repo.findAll());
     }
 
+    @Deprecated
     @Override
     public GroupAssignation findById(long id) {
         ResultSet set = repo.findById(id);
@@ -74,6 +75,7 @@ public class GroupAssignationService implements IGroupAssignationService {
         return element;
     }
 
+    @Deprecated
     @Override
     public long deleteById(long id) {
         return repo.deleteById(id);
@@ -83,10 +85,20 @@ public class GroupAssignationService implements IGroupAssignationService {
     public GroupAssignation findByProcessId(String processId) {
         return elementFromResultSetEntry(repo.findByElementId(GroupAssignation.ElementType.PROCESS, processId));
     }
+    
+    @Override
+    public long deleteByProcessId(String processId) {
+        return repo.deleteByElementId(GroupAssignation.ElementType.PROCESS, processId);
+    }
 
     @Override
     public GroupAssignation findByTitleId(String titleId) {
         return elementFromResultSetEntry(repo.findByElementId(GroupAssignation.ElementType.TITLE, titleId));
+    }
+    
+    @Override
+    public long deleteByTitleId(String titleId) {
+        return repo.deleteByElementId(GroupAssignation.ElementType.TITLE, titleId);
     }
 
     @Override
@@ -115,7 +127,6 @@ public class GroupAssignationService implements IGroupAssignationService {
     private GroupAssignation elementFromResultSetEntry(ResultSet set) {
         GroupAssignation el = new GroupAssignation();
         try {
-            el.setId(set.getLong(GroupAssignation.ID));
             el.setType(GroupAssignation.ElementType.valueOf(set.getString(GroupAssignation.TYPE)));
             el.setElementId(set.getString(GroupAssignation.ELEMENT_ID));
             el.setGroupId(set.getLong(GroupAssignation.GROUP_ID));
