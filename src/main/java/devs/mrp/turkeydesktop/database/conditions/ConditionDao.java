@@ -6,11 +6,14 @@
 package devs.mrp.turkeydesktop.database.conditions;
 
 import devs.mrp.turkeydesktop.database.GeneralDao;
+import java.sql.ResultSet;
 
 /**
  *
  * @author miguel
  */
 public interface ConditionDao extends GeneralDao<Condition, Long> {
+    
+    public ResultSet findByGroupId(long groupId);
     
 }

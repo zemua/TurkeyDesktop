@@ -6,7 +6,6 @@
 package devs.mrp.turkeydesktop.database.conditions;
 
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -44,13 +43,14 @@ public class ConditionRepository implements ConditionDao {
             semaphore.acquire();
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s, %s, %s) ",
-                        Db.CONDITIONS_TABLE, Condition.CONDITION_TYPE, Condition.TARGET_ID, Condition.USAGE_TIME_CONDITION, Condition.LAST_DAYS_CONDITION)
-                        + "VALUES (?, ?, ?, ?)");
+                stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s, %s, %s, %s) ",
+                        Db.CONDITIONS_TABLE, Condition.CONDITION_TYPE, Condition.GROUP_ID, Condition.TARGET_ID, Condition.USAGE_TIME_CONDITION, Condition.LAST_DAYS_CONDITION)
+                        + "VALUES (?, ?, ?, ?, ?)");
                 stm.setString(1, element.getConditionType().toString());
-                stm.setLong(2, element.getTargetId());
-                stm.setLong(3, element.getUsageTimeCondition());
-                stm.setLong(4, element.getLastDaysCondition());
+                stm.setLong(2, element.getGroupId());
+                stm.setLong(3, element.getTargetId());
+                stm.setLong(4, element.getUsageTimeCondition());
+                stm.setLong(5, element.getLastDaysCondition());
                 result = stm.executeUpdate();
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
@@ -120,6 +120,27 @@ public class ConditionRepository implements ConditionDao {
                 stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
                         Db.CONDITIONS_TABLE, Condition.ID));
                 stm.setLong(1, id);
+                rs = stm.executeQuery();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
+        } catch (InterruptedException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        } finally {
+            semaphore.release();
+        }
+        return rs;
+    }
+    
+    public ResultSet findByGroupId(long groupId) {
+        ResultSet rs = null;
+        try {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+                        Db.CONDITIONS_TABLE, Condition.GROUP_ID));
+                stm.setLong(1, groupId);
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);

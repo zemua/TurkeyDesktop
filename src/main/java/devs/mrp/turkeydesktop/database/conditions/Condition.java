@@ -5,6 +5,8 @@
  */
 package devs.mrp.turkeydesktop.database.conditions;
 
+import devs.mrp.turkeydesktop.i18n.LocaleMessages;
+
 /**
  *
  * @author miguel
@@ -12,16 +14,29 @@ package devs.mrp.turkeydesktop.database.conditions;
 public class Condition {
     
     public static final String ID = "ID";
+    public static final String GROUP_ID = "GROUP_ID";
     public static final String CONDITION_TYPE = "CONDITION_TYPE";
     public static final String TARGET_ID = "TARGET_ID";
     public static final String USAGE_TIME_CONDITION = "USAGE_TIME_CONDITION";
     public static final String LAST_DAYS_CONDITION = "LAST_DAYS_CONDITION";
     
     public enum ConditionType {
-        ANOTHER_GROUP, EXT_FILE, RAND_CHECK;
+        ANOTHER_GROUP("anotherGroup"), EXT_FILE("externalFile"), RAND_CHECK("randomCheck");
+        
+        String localeName;
+        LocaleMessages locale = LocaleMessages.getInstance();
+        
+        ConditionType(String name) {
+            localeName = name;
+        }
+        
+        public String getName() {
+            return locale.getString(localeName);
+        }
     }
     
     private long id;
+    private long groupId;
     private ConditionType conditionType;
     private long targetId;
     private long usageTimeCondition;
@@ -65,6 +80,14 @@ public class Condition {
 
     public void setLastDaysCondition(long lastDaysCondition) {
         this.lastDaysCondition = lastDaysCondition;
+    }
+
+    public long getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(long groupId) {
+        this.groupId = groupId;
     }
     
     public boolean equals(Condition condition) {

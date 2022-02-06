@@ -15,6 +15,7 @@ public interface IConditionService {
     public long add(Condition element);
     public long update(Condition element);
     public List<Condition> findAll();
+    public List<Condition> findByGroupId(Long groupId);
     public Condition findById(Long id);
     public long deleteById(Long id);
 }

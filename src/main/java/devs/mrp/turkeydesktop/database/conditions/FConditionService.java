@@ -11,4 +11,8 @@ package devs.mrp.turkeydesktop.database.conditions;
  */
 public class FConditionService {
     
+    public static IConditionService getService() {
+        return new ConditionService();
+    }
+    
 }

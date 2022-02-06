@@ -72,6 +72,11 @@ public class ConditionService implements IConditionService {
         }
         return element;
     }
+    
+    @Override
+    public List<Condition> findByGroupId(Long groupId) {
+        return elementsFromResultSet(repo.findByGroupId(groupId));
+    }
 
     @Override
     public long deleteById(Long id) {
@@ -96,6 +101,7 @@ public class ConditionService implements IConditionService {
         try {
             el.setId(set.getLong(Condition.ID));
             el.setConditionType(Condition.ConditionType.valueOf(set.getString(Condition.CONDITION_TYPE)));
+            el.setGroupId(set.getLong(Condition.GROUP_ID));
             el.setTargetId(set.getLong(Condition.TARGET_ID));
             el.setUsageTimeCondition(set.getLong(Condition.USAGE_TIME_CONDITION));
             el.setLastDaysCondition(set.getLong(Condition.LAST_DAYS_CONDITION));
