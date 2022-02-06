@@ -71,16 +71,30 @@ public class Condition {
         if (condition == null) {
             return false;
         }
+        // check condition type
         if (this.conditionType == null) {
             if (condition.getConditionType() != null) {
                 return false;
             }
         } else {
-            if (!this.conditionType.equals(condition.getConditionType())) {
+            if (condition.getConditionType() == null || !this.conditionType.equals(condition.getConditionType())) {
                 return false;
             }
         }
-        
+        // check target id
+        if (this.getTargetId() != condition.getTargetId()) {
+            return false;
+        }
+        // check usage time
+        if (this.getUsageTimeCondition() != condition.getUsageTimeCondition()) {
+            return false;
+        }
+        // check last days condition
+        if (this.getLastDaysCondition() != condition.getLastDaysCondition()) {
+            return false;
+        }
+        // otherwise all are equal
+        return true;
     }
     
 }

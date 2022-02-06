@@ -5,8 +5,6 @@
  */
 package devs.mrp.turkeydesktop.database.conditions;
 
-import devs.mrp.turkeydesktop.database.group.Group;
-import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -50,22 +48,34 @@ public class ConditionService implements IConditionService {
 
     @Override
     public long update(Condition element) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (element == null) {
+            return -1;
+        }
+        return repo.update(element);
     }
 
     @Override
     public List<Condition> findAll() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return elementsFromResultSet(repo.findAll());
     }
 
     @Override
     public Condition findById(Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ResultSet set = repo.findById(id);
+        Condition element = null;
+        try {
+            if (set.next()) {
+                element = elementFromResultSetEntry(set);
+            }
+        } catch (SQLException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        }
+        return element;
     }
 
     @Override
     public long deleteById(Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return repo.deleteById(id);
     }
     
     private List<Condition> elementsFromResultSet(ResultSet set) {
