@@ -126,7 +126,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                 GroupAssignation ga = new GroupAssignation();
                 ga.setElementId(name);
                 ga.setGroupId(group.getId());
-                ga.setType(GroupAssignation.ElementType.PROCESS);
+                ga.setType(processOrTitle);
                 groupAssignationService.add(ga);
             }
         });
