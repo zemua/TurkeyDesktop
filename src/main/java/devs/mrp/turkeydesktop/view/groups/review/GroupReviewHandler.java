@@ -6,6 +6,9 @@
 package devs.mrp.turkeydesktop.view.groups.review;
 
 import devs.mrp.turkeydesktop.common.FeedbackListener;
+import devs.mrp.turkeydesktop.database.conditions.Condition;
+import devs.mrp.turkeydesktop.database.conditions.FConditionService;
+import devs.mrp.turkeydesktop.database.conditions.IConditionService;
 import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
@@ -18,9 +21,11 @@ import devs.mrp.turkeydesktop.view.groups.review.switchable.Switchable;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.util.List;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
 
 /**
  *
@@ -32,6 +37,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private final IGroupAssignationService groupAssignationService = FGroupAssignationService.getService();
     private final IAssignableElementService assignableProcessService = FAssignableElementService.getProcessesService();
     private final IAssignableElementService assignableTitlesService = FAssignableElementService.getTitlesService();
+    private final IConditionService conditionService = FConditionService.getService();
     
     public GroupReviewHandler(JFrame frame, PanelHandler<?, ?, ?> caller, Group group) {
         super(frame, caller);
@@ -49,6 +55,9 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             switch (tipo) {
                 case BACK:
                     this.getCaller().show();
+                    break;
+                case ADD_CONDITION_BUTTON:
+                    this.addCondition();
                     break;
                 default:
                     break;
@@ -134,6 +143,50 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     
     private void setConditions() {
         // TODO
+    }
+    
+    private void addCondition() {
+        Object typeObject = this.getPanel().getProperty(GroupReviewEnum.CONDITION_TYPE_COMBO_BOX);
+        if (typeObject == null || !(typeObject instanceof JComboBox) || !(((JComboBox)typeObject).getSelectedItem() instanceof String)){
+            return;
+        }
+        @SuppressWarnings("unchecked")
+        JComboBox<String> typeComboBox = (JComboBox)typeObject;
+        
+        Object targetObject = this.getPanel().getProperty(GroupReviewEnum.TARGET_NAME_COMBO_BOX);
+        if (targetObject == null || !(targetObject instanceof JComboBox) || !(((JComboBox)targetObject).getSelectedItem() instanceof String)) {
+            return;
+        }
+        @SuppressWarnings("unchecked")
+        JComboBox<String> targetComboBox = (JComboBox)targetObject;
+        
+        Object hourObject = this.getPanel().getProperty(GroupReviewEnum.HOUR_SPINNER);
+        if (hourObject == null || !(hourObject instanceof JSpinner)) {
+            return;
+        }
+        JSpinner hourSpinner = (JSpinner)hourObject;
+        
+        Object minuteObject = this.getPanel().getProperty(GroupReviewEnum.MINUTE_SPINNER);
+        if (minuteObject == null || !(minuteObject instanceof JSpinner)) {
+            return;
+        }
+        JSpinner minuteSpinner = (JSpinner)minuteObject;
+        
+        Object dayObject = this.getPanel().getProperty(GroupReviewEnum.DAY_SPINNER);
+        if (dayObject == null || !(dayObject instanceof JSpinner)) {
+            return;
+        }
+        JSpinner daySpinner = (JSpinner)dayObject;
+        
+        // build the condition
+        Condition condition = new Condition();
+        condition.setGroupId(this.group.getId());
+        condition.setConditionType(Condition.ConditionType.valueOf(typeComboBox.getItemAt(typeComboBox.getSelectedIndex())));
+        condition.setTargetId(Long.valueOf(targetComboBox.getItemAt(targetComboBox.getSelectedIndex())));
+        condition.setUsageTimeCondition((long)hourSpinner.getValue()*60 + (long)minuteSpinner.getValue());
+        condition.setLastDaysCondition((long)daySpinner.getValue());
+        
+        conditionService.add(condition);
     }
     
     private void setConfiguration() {
