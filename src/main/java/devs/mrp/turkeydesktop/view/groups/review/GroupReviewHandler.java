@@ -21,6 +21,8 @@ import devs.mrp.turkeydesktop.view.groups.review.switchable.Switchable;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -33,11 +35,19 @@ import javax.swing.JSpinner;
  */
 public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent>> {
 
+    private static final Logger logger = Logger.getLogger(GroupReviewHandler.class.getName());
+    
     private Group group;
     private final IGroupAssignationService groupAssignationService = FGroupAssignationService.getService();
     private final IAssignableElementService assignableProcessService = FAssignableElementService.getProcessesService();
     private final IAssignableElementService assignableTitlesService = FAssignableElementService.getTitlesService();
     private final IConditionService conditionService = FConditionService.getService();
+    
+    private JComboBox<String> typeComboBox;
+    private JComboBox<String> targetComboBox;
+    private JSpinner hourSpinner;
+    private JSpinner minuteSpinner;
+    private JSpinner daySpinner;
     
     public GroupReviewHandler(JFrame frame, PanelHandler<?, ?, ?> caller, Group group) {
         super(frame, caller);
@@ -57,7 +67,13 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                     this.getCaller().show();
                     break;
                 case ADD_CONDITION_BUTTON:
-                    this.addCondition();
+                    try {
+                        this.addCondition();
+                    } catch (Exception e) {
+                        // print error and go back
+                        logger.log(Level.SEVERE, "error adding condition");
+                        this.getCaller().show();
+                    }
                     break;
                 default:
                     break;
@@ -70,7 +86,13 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         setGroupLabelName();
         setProcesses();
         setTitles();
-        setConditions();
+        try {
+            setConditions();
+        } catch (Exception e) {
+            // print error and go back
+            logger.log(Level.SEVERE, "error setting conditions");
+            this.getCaller().show();
+        }
         setConfiguration();
     }
     
@@ -141,44 +163,50 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         });
     }
     
-    private void setConditions() {
-        // TODO
-    }
-    
-    private void addCondition() {
+    @SuppressWarnings("unchecked")
+    private void setConditions() throws Exception {
+        // Setup the fields
         Object typeObject = this.getPanel().getProperty(GroupReviewEnum.CONDITION_TYPE_COMBO_BOX);
         if (typeObject == null || !(typeObject instanceof JComboBox) || !(((JComboBox)typeObject).getSelectedItem() instanceof String)){
-            return;
+            throw new Exception("wrong object type for Type Combo Box");
         }
-        @SuppressWarnings("unchecked")
-        JComboBox<String> typeComboBox = (JComboBox)typeObject;
+        typeComboBox = (JComboBox)typeObject;
         
         Object targetObject = this.getPanel().getProperty(GroupReviewEnum.TARGET_NAME_COMBO_BOX);
         if (targetObject == null || !(targetObject instanceof JComboBox) || !(((JComboBox)targetObject).getSelectedItem() instanceof String)) {
-            return;
+            throw new Exception("wrong object type for Target Name Combo Box");
         }
-        @SuppressWarnings("unchecked")
-        JComboBox<String> targetComboBox = (JComboBox)targetObject;
+        targetComboBox = (JComboBox)targetObject;
         
         Object hourObject = this.getPanel().getProperty(GroupReviewEnum.HOUR_SPINNER);
         if (hourObject == null || !(hourObject instanceof JSpinner)) {
-            return;
+            throw new Exception("wrong object type for Hour Spinner");
         }
-        JSpinner hourSpinner = (JSpinner)hourObject;
+        hourSpinner = (JSpinner)hourObject;
         
         Object minuteObject = this.getPanel().getProperty(GroupReviewEnum.MINUTE_SPINNER);
         if (minuteObject == null || !(minuteObject instanceof JSpinner)) {
-            return;
+            throw new Exception("wrong object type for Minute Spinner");
         }
-        JSpinner minuteSpinner = (JSpinner)minuteObject;
+        minuteSpinner = (JSpinner)minuteObject;
         
         Object dayObject = this.getPanel().getProperty(GroupReviewEnum.DAY_SPINNER);
         if (dayObject == null || !(dayObject instanceof JSpinner)) {
-            return;
+            throw new Exception("wrong object type for Day Spinner");
         }
-        JSpinner daySpinner = (JSpinner)dayObject;
+        daySpinner = (JSpinner)dayObject;
         
-        // build the condition
+        setNewConditionFields();
+    }
+    
+    private void setNewConditionFields() {
+        
+    }
+    
+    private void addCondition() throws Exception {
+        if (typeComboBox == null || targetComboBox == null || hourSpinner == null || minuteSpinner == null || daySpinner == null) {
+            throw new Exception("error getting some fields for condition");
+        }
         Condition condition = new Condition();
         condition.setGroupId(this.group.getId());
         condition.setConditionType(Condition.ConditionType.valueOf(typeComboBox.getItemAt(typeComboBox.getSelectedIndex())));
