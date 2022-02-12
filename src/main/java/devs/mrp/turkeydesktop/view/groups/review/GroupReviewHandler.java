@@ -5,7 +5,6 @@
  */
 package devs.mrp.turkeydesktop.view.groups.review;
 
-import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.FConditionService;
 import devs.mrp.turkeydesktop.database.conditions.IConditionService;
@@ -22,19 +21,16 @@ import devs.mrp.turkeydesktop.view.groups.review.switchable.Switchable;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import javax.swing.event.ListDataListener;
 
 /**
  *
@@ -219,7 +215,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         }
         Condition condition = new Condition();
         condition.setGroupId(this.group.getId());
-        condition.setConditionType(Condition.ConditionType.valueOf(typeComboBox.getItemAt(typeComboBox.getSelectedIndex())));
+        //condition.setConditionType(Condition.ConditionType.valueOf(typeComboBox.getItemAt(typeComboBox.getSelectedIndex())));
         condition.setTargetId(Long.valueOf(targetComboBox.getItemAt(targetComboBox.getSelectedIndex())));
         condition.setUsageTimeCondition((long)hourSpinner.getValue()*60 + (long)minuteSpinner.getValue());
         condition.setLastDaysCondition((long)daySpinner.getValue());

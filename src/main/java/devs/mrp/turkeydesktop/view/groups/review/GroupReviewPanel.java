@@ -5,18 +5,12 @@
  */
 package devs.mrp.turkeydesktop.view.groups.review;
 
+import devs.mrp.turkeydesktop.common.Dupla;
 import devs.mrp.turkeydesktop.common.FeedbackListener;
-import devs.mrp.turkeydesktop.database.conditions.Condition;
-import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
-import java.awt.Component;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -25,13 +19,13 @@ import java.util.stream.Collectors;
 public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent> {
     
     private List<FeedbackListener<GroupReviewEnum, AWTEvent>> listeners = new ArrayList<>();
-    private final String[] comboTypes;
+    private final Dupla<Long,String>[] comboItems;
 
     /**
      * Creates new form GroupReviewPanel
      */
-    public GroupReviewPanel(String[] comboTypes) {
-        this.comboTypes = comboTypes;
+    public GroupReviewPanel(Dupla<Long,String>[] comboItems) {
+        this.comboItems = comboItems;
         initComponents();
         enableAddConditionButton();
     }
@@ -51,8 +45,6 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         processPanel = new javax.swing.JPanel();
         titlePanel = new javax.swing.JPanel();
         conditionsPanel = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        conditionTypeComboBox = new javax.swing.JComboBox<>();
         jLabel2 = new javax.swing.JLabel();
         targetNameComboBox = new javax.swing.JComboBox<>();
         jLabel3 = new javax.swing.JLabel();
@@ -82,23 +74,9 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         titlePanel.setLayout(new javax.swing.BoxLayout(titlePanel, javax.swing.BoxLayout.PAGE_AXIS));
         jTabbedPane1.addTab(bundle.getString("title"), titlePanel); // NOI18N
 
-        jLabel1.setText(bundle.getString("conditionType")); // NOI18N
-
-        conditionTypeComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(getComboTypes()));
-        conditionTypeComboBox.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                conditionTypeComboBoxItemStateChanged(evt);
-            }
-        });
-        conditionTypeComboBox.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-            public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                conditionTypeComboBoxPropertyChange(evt);
-            }
-        });
-
         jLabel2.setText(bundle.getString("if")); // NOI18N
 
-        targetNameComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        targetNameComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(getComboItems()));
         targetNameComboBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 targetNameComboBoxItemStateChanged(evt);
@@ -169,10 +147,6 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
             conditionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(conditionsPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1)
-                .addGap(18, 18, 18)
-                .addComponent(conditionTypeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(targetNameComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -192,17 +166,15 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                 .addComponent(daySpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel5)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(addConditionButton)
-                .addContainerGap(151, Short.MAX_VALUE))
+                .addContainerGap(393, Short.MAX_VALUE))
         );
         conditionsPanelLayout.setVerticalGroup(
             conditionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(conditionsPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(conditionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(conditionTypeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
                     .addComponent(targetNameComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3)
@@ -270,10 +242,6 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         giveFeedback(GroupReviewEnum.ADD_CONDITION_BUTTON, evt);
     }//GEN-LAST:event_addConditionButtonActionPerformed
 
-    private void conditionTypeComboBoxPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_conditionTypeComboBoxPropertyChange
-        
-    }//GEN-LAST:event_conditionTypeComboBoxPropertyChange
-
     private void targetNameComboBoxPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_targetNameComboBoxPropertyChange
         
     }//GEN-LAST:event_targetNameComboBoxPropertyChange
@@ -289,10 +257,6 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
     private void daySpinnerPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_daySpinnerPropertyChange
         
     }//GEN-LAST:event_daySpinnerPropertyChange
-
-    private void conditionTypeComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_conditionTypeComboBoxItemStateChanged
-        enableAddConditionButton();
-    }//GEN-LAST:event_conditionTypeComboBoxItemStateChanged
 
     private void targetNameComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_targetNameComboBoxItemStateChanged
         enableAddConditionButton();
@@ -323,8 +287,6 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                 return conditionsPanel;
             case CONFIGURATION_PANEL:
                 return configurationPanel;
-            case CONDITION_TYPE_COMBO_BOX:
-                return conditionTypeComboBox;
             case TARGET_NAME_COMBO_BOX:
                 return targetNameComboBox;
             case HOUR_SPINNER:
@@ -349,10 +311,6 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
     }
     
     private void enableAddConditionButton() {
-        if (conditionTypeComboBox.getSelectedItem() == null) {
-            addConditionButton.setEnabled(false);
-            return;
-        }
         if (targetNameComboBox.getSelectedItem() == null) {
             addConditionButton.setEnabled(false);
             return;
@@ -364,21 +322,19 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         addConditionButton.setEnabled(true);
     }
     
-    private String[] getComboTypes() {
-        return this.comboTypes;
+    private Dupla<Long,String>[] getComboItems() {
+        return this.comboItems;
     }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addConditionButton;
-    private javax.swing.JComboBox<String> conditionTypeComboBox;
     private javax.swing.JPanel conditionsPanel;
     private javax.swing.JPanel configurationPanel;
     private javax.swing.JSpinner daySpinner;
     private javax.swing.JLabel groupLabel;
     private javax.swing.JSpinner hourSpinner;
     private javax.swing.JButton jButton1;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -388,7 +344,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JSpinner minuteSpinner;
     private javax.swing.JPanel processPanel;
-    private javax.swing.JComboBox<String> targetNameComboBox;
+    private javax.swing.JComboBox<Dupla<Long,String>> targetNameComboBox;
     private javax.swing.JPanel titlePanel;
     // End of variables declaration//GEN-END:variables
 }
