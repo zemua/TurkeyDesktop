@@ -100,7 +100,6 @@ public class ConditionService implements IConditionService {
         Condition el = new Condition();
         try {
             el.setId(set.getLong(Condition.ID));
-            el.setConditionType(Condition.ConditionType.valueOf(set.getString(Condition.CONDITION_TYPE)));
             el.setGroupId(set.getLong(Condition.GROUP_ID));
             el.setTargetId(set.getLong(Condition.TARGET_ID));
             el.setUsageTimeCondition(set.getLong(Condition.USAGE_TIME_CONDITION));

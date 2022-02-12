@@ -43,14 +43,13 @@ public class ConditionRepository implements ConditionDao {
             semaphore.acquire();
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s, %s, %s, %s) ",
-                        Db.CONDITIONS_TABLE, Condition.CONDITION_TYPE, Condition.GROUP_ID, Condition.TARGET_ID, Condition.USAGE_TIME_CONDITION, Condition.LAST_DAYS_CONDITION)
-                        + "VALUES (?, ?, ?, ?, ?)");
-                stm.setString(1, element.getConditionType().toString());
-                stm.setLong(2, element.getGroupId());
-                stm.setLong(3, element.getTargetId());
-                stm.setLong(4, element.getUsageTimeCondition());
-                stm.setLong(5, element.getLastDaysCondition());
+                stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s, %s, %s) ",
+                        Db.CONDITIONS_TABLE, Condition.GROUP_ID, Condition.TARGET_ID, Condition.USAGE_TIME_CONDITION, Condition.LAST_DAYS_CONDITION)
+                        + "VALUES (?, ?, ?, ?)");
+                stm.setLong(1, element.getGroupId());
+                stm.setLong(2, element.getTargetId());
+                stm.setLong(3, element.getUsageTimeCondition());
+                stm.setLong(4, element.getLastDaysCondition());
                 result = stm.executeUpdate();
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
@@ -70,13 +69,12 @@ public class ConditionRepository implements ConditionDao {
             semaphore.acquire();
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=?, %s=?, %s=? WHERE %s=? ",
-                        Db.CONDITIONS_TABLE, Condition.CONDITION_TYPE, Condition.TARGET_ID, Condition.USAGE_TIME_CONDITION, Condition.LAST_DAYS_CONDITION, Condition.ID));
-                stm.setString(1, element.getConditionType().toString());
-                stm.setLong(2, element.getTargetId());
-                stm.setLong(3, element.getUsageTimeCondition());
-                stm.setLong(4, element.getLastDaysCondition());
-                stm.setLong(5, element.getId());
+                stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=?, %s=? WHERE %s=? ",
+                        Db.CONDITIONS_TABLE, Condition.TARGET_ID, Condition.USAGE_TIME_CONDITION, Condition.LAST_DAYS_CONDITION, Condition.ID));
+                stm.setLong(1, element.getTargetId());
+                stm.setLong(2, element.getUsageTimeCondition());
+                stm.setLong(3, element.getLastDaysCondition());
+                stm.setLong(4, element.getId());
                 result = stm.executeUpdate();
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);

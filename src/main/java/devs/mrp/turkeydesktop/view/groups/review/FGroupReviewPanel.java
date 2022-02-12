@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.view.groups.review;
 
+import devs.mrp.turkeydesktop.common.Dupla;
 import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
@@ -17,8 +18,8 @@ import javax.swing.JFrame;
  */
 public class FGroupReviewPanel {
     
-    public static FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent> getPanel(String[] comboTypes) {
-        return new GroupReviewPanel(comboTypes);
+    public static FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent> getPanel(Dupla<Long,String>[] comboItems) {
+        return new GroupReviewPanel(comboItems);
     }
     
     public static PanelHandler<GroupReviewEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent>> getHandler(JFrame frame, PanelHandler<?, ?, ?> caller, Group group) {

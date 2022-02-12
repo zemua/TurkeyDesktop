@@ -5,10 +5,13 @@
  */
 package devs.mrp.turkeydesktop.view.groups.review;
 
+import devs.mrp.turkeydesktop.common.Dupla;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.FConditionService;
 import devs.mrp.turkeydesktop.database.conditions.IConditionService;
+import devs.mrp.turkeydesktop.database.group.FGroupService;
 import devs.mrp.turkeydesktop.database.group.Group;
+import devs.mrp.turkeydesktop.database.group.IGroupService;
 import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
@@ -20,9 +23,9 @@ import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.groups.review.switchable.Switchable;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -41,9 +44,9 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private static final Logger logger = Logger.getLogger(GroupReviewHandler.class.getName());
     
     private final LocaleMessages locale = LocaleMessages.getInstance();
-    private Map<String, Condition.ConditionType> mapToTypes;
     
     private Group group;
+    private final IGroupService groupService = FGroupService.getService();
     private final IGroupAssignationService groupAssignationService = FGroupAssignationService.getService();
     private final IAssignableElementService assignableProcessService = FAssignableElementService.getProcessesService();
     private final IAssignableElementService assignableTitlesService = FAssignableElementService.getTitlesService();
@@ -62,7 +65,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     
     @Override
     protected FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent> initPanel() {
-        return FGroupReviewPanel.getPanel(comboTypes());
+        return FGroupReviewPanel.getPanel(comboItems());
     }
 
     @Override
@@ -227,10 +230,17 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         // TODO
     }
     
-    private String[] comboTypes() {
-        List<Condition.ConditionType> types = Arrays.asList(Condition.ConditionType.values());
-        mapToTypes = types.stream().collect(Collectors.toMap(t -> t.getName(), t -> t));
-        return types.stream().map(t -> t.getName()).collect(Collectors.toList()).toArray(new String[types.size()]);
+    @SuppressWarnings("unchecked")
+    private Dupla<Long,String>[] comboItems() {
+        var duplas = groupService.findAllPositive()
+                .stream()
+                .filter(g -> g.getId() != group.getId())
+                .map(g -> {
+                    Dupla<Long,String> dupla = new Dupla<>();
+                    return dupla;
+                })
+                .collect(Collectors.toList());
+        return duplas.toArray((Dupla<Long,String>[])Array.newInstance(Dupla.class.getClass(), duplas.size()));
     }
     
 }

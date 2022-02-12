@@ -121,13 +121,12 @@ public class Db { // TODO create asynchronous listeners to update livedata
         
         execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
                 + "%s BIGINT NOT NULL AUTO_INCREMENT, " // id
-                + "%s VARCHAR(15) NOT NULL, " // the condition type, like another group, a random check, time from a file...
                 + "%s BIGINT NOT NULL, " // the group id to which this condition belongs
                 + "%s BIGINT NOT NULL, " // target id, like the other group's id, the randome check id, etc.
                 + "%s BIGINT NOT NULL, " // usage time from the target that has to be met
                 + "%s INT NOT NULL, " // timeframe in days for the usage time to be met
                 + "PRIMARY KEY (%s))",
-                CONDITIONS_TABLE, Condition.ID, Condition.CONDITION_TYPE, Condition.GROUP_ID, Condition.TARGET_ID, Condition.USAGE_TIME_CONDITION, Condition.LAST_DAYS_CONDITION, Condition.ID));
+                CONDITIONS_TABLE, Condition.ID, Condition.GROUP_ID, Condition.TARGET_ID, Condition.USAGE_TIME_CONDITION, Condition.LAST_DAYS_CONDITION, Condition.ID));
         
         //close();
     }
