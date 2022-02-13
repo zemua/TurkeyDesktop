@@ -278,7 +278,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     }
     
     private void setConfiguration() {
-        // TODO
+        // TODO name change and group deletion
     }
     
 }
