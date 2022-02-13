@@ -5,7 +5,6 @@
  */
 package devs.mrp.turkeydesktop.view.groups.review;
 
-import devs.mrp.turkeydesktop.common.Dupla;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.FConditionService;
@@ -19,14 +18,13 @@ import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationServi
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElement;
 import devs.mrp.turkeydesktop.database.group.facade.FAssignableElementService;
 import devs.mrp.turkeydesktop.database.group.facade.IAssignableElementService;
+import devs.mrp.turkeydesktop.database.groupcondition.FGroupConditionFacadeService;
+import devs.mrp.turkeydesktop.database.groupcondition.IGroupConditionFacadeService;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.groups.review.switchable.Switchable;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
-import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -53,6 +51,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private final IAssignableElementService assignableProcessService = FAssignableElementService.getProcessesService();
     private final IAssignableElementService assignableTitlesService = FAssignableElementService.getTitlesService();
     private final IConditionService conditionService = FConditionService.getService();
+    private final IGroupConditionFacadeService groupConditionFacadeService = FGroupConditionFacadeService.getService();
     
     private JComboBox<Group> targetComboBox;
     private JSpinner hourSpinner;
@@ -235,7 +234,15 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     }
     
     private void fillConditionsInPanel(JPanel panel) {
-        
+        panel.removeAll();
+        groupConditionFacadeService.findByGroupId(group.getId())
+                .forEach(cond -> {
+                    JLabel label = new JLabel();
+                    label.setText(cond.toString());
+                    panel.add(label);
+                });
+        panel.revalidate();
+        panel.updateUI();
     }
     
     private void addCondition() throws Exception {

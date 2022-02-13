@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
  */
 public class GroupConditionFacadeService implements IGroupConditionFacadeService {
     
-    private IConditionService conditionService = FConditionService.getService();
-    private IGroupService groupService = FGroupService.getService();
+    private final IConditionService conditionService = FConditionService.getService();
+    private final IGroupService groupService = FGroupService.getService();
     
     @Override
     public GroupConditionFacade findByConditionId(long conditionId) {
