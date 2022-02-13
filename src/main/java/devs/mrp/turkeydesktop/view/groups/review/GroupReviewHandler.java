@@ -35,6 +35,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import org.h2.util.StringUtils;
 
 /**
  *
@@ -84,6 +86,20 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                         this.getCaller().show();
                     }
                     break;
+                case SAVE_GROUP_NAME:
+                    try {
+                        saveGroupName();
+                    } catch (Exception ex) {
+                        logger.log(Level.SEVERE, "error saving group name");
+                    }
+                    break;
+                case DELETE_GROUP:
+                    try {
+                        deleteGroup();
+                    } catch (Exception ex) {
+                        logger.log(Level.SEVERE, "error deleting group");
+                    }
+                    break;
                 default:
                     break;
             }
@@ -106,12 +122,16 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     }
     
     private void setGroupLabelName() {
+        setGroupLabelName(group.getName());
+    }
+    
+    private void setGroupLabelName(String name) {
         Object object = this.getPanel().getProperty(GroupReviewEnum.GROUP_LABEL);
         if (object == null || !(object instanceof JLabel)) {
             return;
         }
         JLabel label = (JLabel) object;
-        label.setText(group.getName());
+        label.setText(name);
     }
     
     private void setProcesses() {
@@ -278,7 +298,35 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     }
     
     private void setConfiguration() {
-        // TODO name change and group deletion
+        // nothing here yet
+    }
+    
+    private void saveGroupName() throws Exception {
+        Object nameObject = this.getPanel().getProperty(GroupReviewEnum.GROUP_NAME_TEXT);
+        if (nameObject == null || !(nameObject instanceof JTextField)) {
+            throw new Exception("wrong object type for Group Name Text");
+        }
+        JTextField field = (JTextField)nameObject;
+        if (field.getText().isBlank()) {
+            return;
+        }
+        group.setName(field.getText());
+        groupService.update(group);
+        setGroupLabelName(group.getName());
+    }
+    
+    private void deleteGroup() throws Exception {
+        Object deleteObject = this.getPanel().getProperty(GroupReviewEnum.DELETE_TEXT);
+        if (deleteObject == null || !(deleteObject instanceof JTextField)) {
+            throw new Exception("wrong object type for Delete Text");
+        }
+        JTextField field = (JTextField)deleteObject;
+        if (!field.getText().equals("delete")) {
+            return;
+        }
+        groupService.deleteById(group.getId());
+        // TODO delete condition that have as origin or target this groupId
+        this.getCaller().show();
     }
     
 }

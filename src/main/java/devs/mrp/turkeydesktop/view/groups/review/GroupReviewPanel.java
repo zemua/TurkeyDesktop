@@ -57,6 +57,11 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         jScrollPane1 = new javax.swing.JScrollPane();
         conditionsPanelList = new javax.swing.JPanel();
         configurationPanel = new javax.swing.JPanel();
+        groupNameText = new javax.swing.JTextField();
+        jButton2 = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        deleteText = new javax.swing.JTextField();
+        jToggleButton1 = new javax.swing.JToggleButton();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
         jButton1.setText(bundle.getString("back")); // NOI18N
@@ -204,15 +209,54 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
 
         jTabbedPane1.addTab(bundle.getString("conditions"), conditionsPanel); // NOI18N
 
+        jButton2.setText(bundle.getString("saveGroupName")); // NOI18N
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setText(bundle.getString("writeDeleteClickConfirm")); // NOI18N
+
+        jToggleButton1.setText(bundle.getString("confirm")); // NOI18N
+        jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout configurationPanelLayout = new javax.swing.GroupLayout(configurationPanel);
         configurationPanel.setLayout(configurationPanelLayout);
         configurationPanelLayout.setHorizontalGroup(
             configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1075, Short.MAX_VALUE)
+            .addGroup(configurationPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(configurationPanelLayout.createSequentialGroup()
+                        .addComponent(groupNameText, javax.swing.GroupLayout.PREFERRED_SIZE, 330, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton2))
+                    .addComponent(jLabel1)
+                    .addGroup(configurationPanelLayout.createSequentialGroup()
+                        .addComponent(deleteText, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jToggleButton1)))
+                .addContainerGap(598, Short.MAX_VALUE))
         );
         configurationPanelLayout.setVerticalGroup(
             configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 204, Short.MAX_VALUE)
+            .addGroup(configurationPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(groupNameText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton2))
+                .addGap(18, 18, 18)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(deleteText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jToggleButton1))
+                .addContainerGap(80, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab(bundle.getString("configuration"), configurationPanel); // NOI18N
@@ -291,6 +335,14 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         
     }//GEN-LAST:event_targetNameComboBoxActionPerformed
 
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        giveFeedback(GroupReviewEnum.SAVE_GROUP_NAME, evt);
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
+        giveFeedback(GroupReviewEnum.DELETE_GROUP, evt);
+    }//GEN-LAST:event_jToggleButton1ActionPerformed
+
     @Override
     public Object getProperty(GroupReviewEnum property) {
         switch (property) {
@@ -314,6 +366,10 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                 return minuteSpinner;
             case DAY_SPINNER:
                 return daySpinner;
+            case GROUP_NAME_TEXT:
+                return groupNameText;
+            case DELETE_TEXT:
+                return deleteText;
             default:
                 return null;
         }
@@ -348,9 +404,13 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
     private javax.swing.JPanel conditionsPanelList;
     private javax.swing.JPanel configurationPanel;
     private javax.swing.JSpinner daySpinner;
+    private javax.swing.JTextField deleteText;
     private javax.swing.JLabel groupLabel;
+    private javax.swing.JTextField groupNameText;
     private javax.swing.JSpinner hourSpinner;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -359,6 +419,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
     private javax.swing.JLabel jLabel7;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JSpinner minuteSpinner;
     private javax.swing.JPanel processPanel;
     private javax.swing.JComboBox<Group> targetNameComboBox;

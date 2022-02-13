@@ -117,10 +117,10 @@ public class WatchDog implements IWatchDog {
         Long elapsed = current - timestamp.getAndSet(current);
         
         // log some stuff
-        log(String.format(localeMessages.getString("elapsedmillis"), elapsed));
-        log(String.format(localeMessages.getString("windowname"), processChecker.currentWindowTitle()));
-        log(String.format(localeMessages.getString("currentpid"), processChecker.currentProcessPid()));
-        log(String.format(localeMessages.getString("currentprocess"), processChecker.currentProcessName()));
+        //log(String.format(localeMessages.getString("elapsedmillis"), elapsed));
+        //log(String.format(localeMessages.getString("windowname"), processChecker.currentWindowTitle()));
+        //log(String.format(localeMessages.getString("currentpid"), processChecker.currentProcessPid()));
+        //log(String.format(localeMessages.getString("currentprocess"), processChecker.currentProcessName()));
         
         // insert entry to db
         dbLogger.logEntry(elapsed, processChecker.currentProcessPid(), processChecker.currentProcessName(), processChecker.currentWindowTitle());

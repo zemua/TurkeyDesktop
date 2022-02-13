@@ -128,7 +128,7 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
         }
         long accumulated = lastAccumulated + counted;
         element.setAccumulated(accumulated);
-        LOGGER.log(Level.INFO, "accumulated: " + accumulated);
+        //LOGGER.log(Level.INFO, "accumulated: " + accumulated);
         return element;
     }
 
