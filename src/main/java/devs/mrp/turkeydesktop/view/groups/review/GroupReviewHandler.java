@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -42,8 +43,6 @@ import javax.swing.JSpinner;
 public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent>> {
 
     private static final Logger logger = Logger.getLogger(GroupReviewHandler.class.getName());
-    
-    private final LocaleMessages locale = LocaleMessages.getInstance();
     
     private Group group;
     private final IGroupService groupService = FGroupService.getService();
@@ -237,13 +236,23 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         panel.removeAll();
         groupConditionFacadeService.findByGroupId(group.getId())
                 .forEach(cond -> {
-                    JLabel label = new JLabel();
-                    label.setText(cond.toString());
-                    panel.add(label);
+                    ConditionElement element = new ConditionElement(cond);
+                    panel.add(element);
+                    element.addFeedbackListener((tipo, feedback) -> {
+                        switch (feedback) {
+                            case DELETE:
+                                removeCondition(tipo.getConditionId());
+                                break;
+                            default:
+                                break;
+                        }
+                    });
                 });
         panel.revalidate();
         panel.updateUI();
     }
+    
+    
     
     private void addCondition() throws Exception {
         if (targetComboBox == null || hourSpinner == null || minuteSpinner == null || daySpinner == null) {
@@ -257,6 +266,15 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         
         conditionService.add(condition);
         fillConditionFields();
+    }
+    
+    private void removeCondition(long id) {
+        conditionService.deleteById(id);
+        try {
+            fillConditionFields();
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "failed refreshing conditions fields after condition deletion");
+        }
     }
     
     private void setConfiguration() {

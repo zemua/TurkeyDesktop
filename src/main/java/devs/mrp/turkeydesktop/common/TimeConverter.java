@@ -5,7 +5,6 @@
  */
 package devs.mrp.turkeydesktop.common;
 
-import java.util.Calendar;
 import java.util.Formatter;
 import java.util.concurrent.TimeUnit;
 
