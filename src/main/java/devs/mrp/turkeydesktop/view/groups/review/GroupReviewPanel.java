@@ -5,7 +5,6 @@
  */
 package devs.mrp.turkeydesktop.view.groups.review;
 
-import devs.mrp.turkeydesktop.common.Dupla;
 import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
@@ -78,6 +77,11 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         targetNameComboBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 targetNameComboBoxItemStateChanged(evt);
+            }
+        });
+        targetNameComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                targetNameComboBoxActionPerformed(evt);
             }
         });
         targetNameComboBox.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
@@ -271,6 +275,10 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
     private void daySpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_daySpinnerStateChanged
         enableAddConditionButton();
     }//GEN-LAST:event_daySpinnerStateChanged
+
+    private void targetNameComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_targetNameComboBoxActionPerformed
+        
+    }//GEN-LAST:event_targetNameComboBoxActionPerformed
 
     @Override
     public Object getProperty(GroupReviewEnum property) {

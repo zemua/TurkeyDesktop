@@ -25,6 +25,7 @@ import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -207,7 +208,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         if (targetComboBox == null || hourSpinner == null || minuteSpinner == null || daySpinner == null) {
             throw new Exception("error getting some fields for condition");
         }
-        targetComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(comboItems()));
+        comboItems().forEach(item -> targetComboBox.addItem(item));
     }
     
     private void setNewConditionFields() {
@@ -232,11 +233,11 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     }
     
     @SuppressWarnings("unchecked")
-    private Group[] comboItems() {
+    private List<Group> comboItems() {
         return groupService.findAllPositive()
                 .stream()
                 .filter(g -> g.getId() != group.getId())
-                .toArray(Group[]::new);
+                .collect(Collectors.toList());
     }
     
 }
