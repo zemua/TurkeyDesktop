@@ -6,6 +6,7 @@
 package devs.mrp.turkeydesktop.view.groups.review;
 
 import devs.mrp.turkeydesktop.common.Dupla;
+import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.FConditionService;
 import devs.mrp.turkeydesktop.database.conditions.IConditionService;
@@ -222,7 +223,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         Condition condition = new Condition();
         condition.setGroupId(this.group.getId());
         condition.setTargetId(targetComboBox.getItemAt(targetComboBox.getSelectedIndex()).getId());
-        condition.setUsageTimeCondition((long)hourSpinner.getValue()*60 + (long)minuteSpinner.getValue());
+        condition.setUsageTimeCondition(TimeConverter.hoursToMilis((Long)hourSpinner.getValue()) + TimeConverter.minutesToMilis((Long)minuteSpinner.getValue()));
         condition.setLastDaysCondition((long)daySpinner.getValue());
         
         conditionService.add(condition);
