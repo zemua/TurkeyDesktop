@@ -207,10 +207,10 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         }
         conditionsListPanel = (JPanel)conditionsListObject;
         
-        setNewConditionFields();
+        fillConditionFields();
     }
     
-    private void setNewConditionFields() throws Exception {
+    private void fillConditionFields() throws Exception {
         setTargetNameComboBoxValues();
         hourSpinner.setValue(0L);
         minuteSpinner.setValue(15L);
@@ -256,6 +256,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         condition.setLastDaysCondition((long)daySpinner.getValue());
         
         conditionService.add(condition);
+        fillConditionFields();
     }
     
     private void setConfiguration() {

@@ -20,6 +20,11 @@ public class TimeConverter {
                 TimeUnit.MILLISECONDS.toMinutes(millis) % TimeUnit.HOURS.toMinutes(1),
                 TimeUnit.MILLISECONDS.toSeconds(millis) % TimeUnit.MINUTES.toSeconds(1));
     }
+    
+    public static String millisToHM(long millis) {
+        return String.format("%02d:%02d", TimeUnit.MILLISECONDS.toHours(millis),
+                TimeUnit.MILLISECONDS.toMinutes(millis) % TimeUnit.HOURS.toMinutes(1));
+    }
 
     public static long getHours(long millis) {
         return millis/(1000*60/60);
