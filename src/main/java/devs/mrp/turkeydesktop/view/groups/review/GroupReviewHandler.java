@@ -58,6 +58,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private JSpinner hourSpinner;
     private JSpinner minuteSpinner;
     private JSpinner daySpinner;
+    private JPanel conditionsListPanel;
     
     public GroupReviewHandler(JFrame frame, PanelHandler<?, ?, ?> caller, Group group) {
         super(frame, caller);
@@ -98,7 +99,6 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         setTitles();
         try {
             setConditions();
-            setTargetNameComboBoxValues();
         } catch (Exception e) {
             // print error and go back
             logger.log(Level.SEVERE, "error setting conditions");
@@ -202,7 +202,21 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         }
         daySpinner = (JSpinner)dayObject;
         
+        Object conditionsListObject = this.getPanel().getProperty(GroupReviewEnum.CONDITIONS_PANEL_LIST);
+        if (conditionsListObject == null || !(conditionsListObject instanceof JPanel)) {
+            throw new Exception("wrong object type for conditions list panel");
+        }
+        conditionsListPanel = (JPanel)conditionsListObject;
+        
         setNewConditionFields();
+    }
+    
+    private void setNewConditionFields() throws Exception {
+        setTargetNameComboBoxValues();
+        hourSpinner.setValue(0L);
+        minuteSpinner.setValue(15L);
+        daySpinner.setValue(0L);
+        fillConditionsInPanel(conditionsListPanel);
     }
     
     private void setTargetNameComboBoxValues() throws Exception {
@@ -212,8 +226,16 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         comboItems().forEach(item -> targetComboBox.addItem(item));
     }
     
-    private void setNewConditionFields() {
-        // TODO
+    @SuppressWarnings("unchecked")
+    private List<Group> comboItems() {
+        return groupService.findAllPositive()
+                .stream()
+                .filter(g -> g.getId() != group.getId())
+                .collect(Collectors.toList());
+    }
+    
+    private void fillConditionsInPanel(JPanel panel) {
+        
     }
     
     private void addCondition() throws Exception {
@@ -231,14 +253,6 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     
     private void setConfiguration() {
         // TODO
-    }
-    
-    @SuppressWarnings("unchecked")
-    private List<Group> comboItems() {
-        return groupService.findAllPositive()
-                .stream()
-                .filter(g -> g.getId() != group.getId())
-                .collect(Collectors.toList());
     }
     
 }
