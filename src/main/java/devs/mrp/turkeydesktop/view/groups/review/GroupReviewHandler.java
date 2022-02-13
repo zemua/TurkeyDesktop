@@ -52,8 +52,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private final IAssignableElementService assignableTitlesService = FAssignableElementService.getTitlesService();
     private final IConditionService conditionService = FConditionService.getService();
     
-    private JComboBox<String> typeComboBox;
-    private JComboBox<String> targetComboBox;
+    private JComboBox<Group> targetComboBox;
     private JSpinner hourSpinner;
     private JSpinner minuteSpinner;
     private JSpinner daySpinner;
@@ -65,7 +64,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     
     @Override
     protected FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent> initPanel() {
-        return FGroupReviewPanel.getPanel(comboItems());
+        return FGroupReviewPanel.getPanel();
     }
 
     @Override
@@ -97,6 +96,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         setTitles();
         try {
             setConditions();
+            setTargetNameComboBoxValues();
         } catch (Exception e) {
             // print error and go back
             logger.log(Level.SEVERE, "error setting conditions");
@@ -175,14 +175,9 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     @SuppressWarnings("unchecked")
     private void setConditions() throws Exception {
         // Setup the fields
-        Object typeObject = this.getPanel().getProperty(GroupReviewEnum.CONDITION_TYPE_COMBO_BOX);
-        if (typeObject == null || !(typeObject instanceof JComboBox) || !(((JComboBox)typeObject).getSelectedItem() instanceof String)){
-            throw new Exception("wrong object type for Type Combo Box");
-        }
-        typeComboBox = (JComboBox)typeObject;
         
         Object targetObject = this.getPanel().getProperty(GroupReviewEnum.TARGET_NAME_COMBO_BOX);
-        if (targetObject == null || !(targetObject instanceof JComboBox) || !(((JComboBox)targetObject).getSelectedItem() instanceof String)) {
+        if (targetObject == null || !(targetObject instanceof JComboBox)) {
             throw new Exception("wrong object type for Target Name Combo Box");
         }
         targetComboBox = (JComboBox)targetObject;
@@ -208,18 +203,24 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         setNewConditionFields();
     }
     
+    private void setTargetNameComboBoxValues() throws Exception {
+        if (targetComboBox == null || hourSpinner == null || minuteSpinner == null || daySpinner == null) {
+            throw new Exception("error getting some fields for condition");
+        }
+        targetComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(comboItems()));
+    }
+    
     private void setNewConditionFields() {
         // TODO
     }
     
     private void addCondition() throws Exception {
-        if (typeComboBox == null || targetComboBox == null || hourSpinner == null || minuteSpinner == null || daySpinner == null) {
+        if (targetComboBox == null || hourSpinner == null || minuteSpinner == null || daySpinner == null) {
             throw new Exception("error getting some fields for condition");
         }
         Condition condition = new Condition();
         condition.setGroupId(this.group.getId());
-        //condition.setConditionType(Condition.ConditionType.valueOf(typeComboBox.getItemAt(typeComboBox.getSelectedIndex())));
-        condition.setTargetId(Long.valueOf(targetComboBox.getItemAt(targetComboBox.getSelectedIndex())));
+        condition.setTargetId(targetComboBox.getItemAt(targetComboBox.getSelectedIndex()).getId());
         condition.setUsageTimeCondition((long)hourSpinner.getValue()*60 + (long)minuteSpinner.getValue());
         condition.setLastDaysCondition((long)daySpinner.getValue());
         
@@ -231,16 +232,11 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     }
     
     @SuppressWarnings("unchecked")
-    private Dupla<Long,String>[] comboItems() {
-        var duplas = groupService.findAllPositive()
+    private Group[] comboItems() {
+        return groupService.findAllPositive()
                 .stream()
                 .filter(g -> g.getId() != group.getId())
-                .map(g -> {
-                    Dupla<Long,String> dupla = new Dupla<>();
-                    return dupla;
-                })
-                .collect(Collectors.toList());
-        return duplas.toArray((Dupla<Long,String>[])Array.newInstance(Dupla.class.getClass(), duplas.size()));
+                .toArray(Group[]::new);
     }
     
 }

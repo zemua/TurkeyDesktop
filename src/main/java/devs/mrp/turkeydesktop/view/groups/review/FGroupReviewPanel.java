@@ -18,8 +18,8 @@ import javax.swing.JFrame;
  */
 public class FGroupReviewPanel {
     
-    public static FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent> getPanel(Dupla<Long,String>[] comboItems) {
-        return new GroupReviewPanel(comboItems);
+    public static FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent> getPanel() {
+        return new GroupReviewPanel();
     }
     
     public static PanelHandler<GroupReviewEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent>> getHandler(JFrame frame, PanelHandler<?, ?, ?> caller, Group group) {

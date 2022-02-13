@@ -7,6 +7,7 @@ package devs.mrp.turkeydesktop.view.groups.review;
 
 import devs.mrp.turkeydesktop.common.Dupla;
 import devs.mrp.turkeydesktop.common.FeedbackListener;
+import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.util.ArrayList;
@@ -19,13 +20,11 @@ import java.util.List;
 public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent> {
     
     private List<FeedbackListener<GroupReviewEnum, AWTEvent>> listeners = new ArrayList<>();
-    private final Dupla<Long,String>[] comboItems;
 
     /**
      * Creates new form GroupReviewPanel
      */
-    public GroupReviewPanel(Dupla<Long,String>[] comboItems) {
-        this.comboItems = comboItems;
+    public GroupReviewPanel() {
         initComponents();
         enableAddConditionButton();
     }
@@ -76,7 +75,6 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
 
         jLabel2.setText(bundle.getString("if")); // NOI18N
 
-        targetNameComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(getComboItems()));
         targetNameComboBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 targetNameComboBoxItemStateChanged(evt);
@@ -321,10 +319,6 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         }
         addConditionButton.setEnabled(true);
     }
-    
-    private Dupla<Long,String>[] getComboItems() {
-        return this.comboItems;
-    }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -344,7 +338,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JSpinner minuteSpinner;
     private javax.swing.JPanel processPanel;
-    private javax.swing.JComboBox<Dupla<Long,String>> targetNameComboBox;
+    private javax.swing.JComboBox<Group> targetNameComboBox;
     private javax.swing.JPanel titlePanel;
     // End of variables declaration//GEN-END:variables
 }
