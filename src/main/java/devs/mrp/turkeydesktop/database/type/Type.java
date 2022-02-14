@@ -37,6 +37,4 @@ public class Type {
         this.type = type;
     }
     
-    
-    
 }

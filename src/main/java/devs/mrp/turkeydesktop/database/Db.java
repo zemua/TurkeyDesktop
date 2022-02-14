@@ -82,8 +82,8 @@ public class Db { // TODO create asynchronous listeners to update livedata
                 + "%s VARCHAR(10), " // pid
                 + "%s VARCHAR(50), " // process name
                 + "%s VARCHAR(150), " // window title
-                + "%s INT, " // category id
-                + "%s INT, " // type id
+                + "%s INT, " // group id
+                + "%s VARCHAR(15), " // type id
                 + "PRIMARY KEY (%s))",
                 WATCHDOG_TABLE, TimeLog.ID, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.COUNTED, TimeLog.ACCUMULATED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE, Group.GROUP, Type.TYPE, TimeLog.ID));
         

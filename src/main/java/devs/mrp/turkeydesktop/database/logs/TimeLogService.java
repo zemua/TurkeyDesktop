@@ -7,6 +7,8 @@ package devs.mrp.turkeydesktop.database.logs;
 
 import devs.mrp.turkeydesktop.common.Dupla;
 import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.database.group.Group;
+import devs.mrp.turkeydesktop.database.type.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -128,6 +130,8 @@ public class TimeLogService implements ITimeLogService {
             entry.setPid(set.getString(TimeLog.PID));
             entry.setProcessName(set.getString(TimeLog.PROCESS_NAME));
             entry.setWindowTitle(set.getString(TimeLog.WINDOW_TITLE));
+            entry.setGroupId(set.getLong(Group.GROUP));
+            entry.setType(Type.Types.valueOf(set.getString(Type.TYPE)));
         } catch (SQLException ex) {
             logger.log(Level.SEVERE, null, ex);
         }
@@ -154,6 +158,20 @@ public class TimeLogService implements ITimeLogService {
             logger.log(Level.SEVERE, null, ex);
         }
         return groupedTimes;
+    }
+    
+    @Override
+    public long timeSpentOnGroupForFrame(long groupId, long from, long to) {
+        ResultSet set = repo.getTimeFrameOfGroup(groupId, from, to);
+        long spent = 0;
+        try {
+            if (set.next()) {
+                spent = set.getLong(2);
+            }
+        } catch (SQLException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        }
+        return spent;
     }
 
 }

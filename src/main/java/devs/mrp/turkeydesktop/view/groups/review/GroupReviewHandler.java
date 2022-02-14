@@ -298,7 +298,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     }
     
     private void setConfiguration() {
-        // nothing here yet
+        // nothing here
     }
     
     private void saveGroupName() throws Exception {

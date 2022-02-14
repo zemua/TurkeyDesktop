@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.logs;
 
+import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 
 /**
@@ -27,6 +28,29 @@ public class TimeLog {
     private long elapsed;
     private long counted;
     private long accumulated;
+    private String pid;
+    private String processName;
+    private String windowTitle;
+    private long groupId;
+    private Type.Types type;
+
+    public Type.Types getType() {
+        return type;
+    }
+
+    public void setType(Type.Types type) {
+        this.type = type;
+    }
+
+    public long getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(long groupId) {
+        this.groupId = groupId;
+    }
+    
+    private LocaleMessages localeMessages = LocaleMessages.getInstance();
 
     public long getAccumulated() {
         return accumulated;
@@ -35,11 +59,6 @@ public class TimeLog {
     public void setAccumulated(long accumulated) {
         this.accumulated = accumulated;
     }
-    private String pid;
-    private String processName;
-    private String windowTitle;
-    
-    private LocaleMessages localeMessages = LocaleMessages.getInstance();
     
     public long getId() {
         return id;
