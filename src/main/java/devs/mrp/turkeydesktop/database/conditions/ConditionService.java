@@ -83,6 +83,16 @@ public class ConditionService implements IConditionService {
         return repo.deleteById(id);
     }
     
+    @Override
+    public long deleteByGroupId(long id) {
+        return repo.deleteByGroupId(id);
+    }
+    
+    @Override
+    public long deleteByTargetId(long id) {
+        return repo.deleteByTargetId(id);
+    }
+    
     private List<Condition> elementsFromResultSet(ResultSet set) {
         List<Condition> elements = new ArrayList<>();
         try {

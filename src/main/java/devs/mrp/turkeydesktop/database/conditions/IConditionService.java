@@ -18,4 +18,6 @@ public interface IConditionService {
     public List<Condition> findByGroupId(Long groupId);
     public Condition findById(Long id);
     public long deleteById(Long id);
+    public long deleteByGroupId(long id);
+    public long deleteByTargetId(long id);
 }

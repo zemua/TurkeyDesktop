@@ -325,7 +325,8 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             return;
         }
         groupService.deleteById(group.getId());
-        // TODO delete condition that have as origin or target this groupId
+        conditionService.deleteByGroupId(group.getId());
+        conditionService.deleteByTargetId(group.getId());
         this.getCaller().show();
     }
     
