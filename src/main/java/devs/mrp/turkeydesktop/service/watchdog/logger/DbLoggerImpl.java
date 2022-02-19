@@ -22,14 +22,14 @@ public class DbLoggerImpl implements DbLogger {
     }
     
     @Override
-    public void logEntry(long elapsed, String processPid, String processName, String windowTitle) {
+    public TimeLog logEntry(long elapsed, String processPid, String processName, String windowTitle) {
         TimeLog entry = new TimeLog();
         entry.setElapsed(elapsed);
         entry.setEpoch(System.currentTimeMillis());
         entry.setPid(processPid);
         entry.setProcessName(processName);
         entry.setWindowTitle(windowTitle);
-        logService.addTimeLogAdjustingCounted(entry);
+        return logService.addTimeLogAdjustingCounted(entry);
     }
     
 }

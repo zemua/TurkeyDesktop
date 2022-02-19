@@ -19,5 +19,5 @@ public interface ILogAndTypeService {
     
     public List<Tripla<String, Long, Type.Types>> getTypedLogGroupedByProcess(Date from, Date to);
     
-    public long addTimeLogAdjustingCounted(TimeLog element);
+    public TimeLog addTimeLogAdjustingCounted(TimeLog element);
 }

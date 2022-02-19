@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.service.watchdog;
 
+import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.processchecker.FProcessChecker;
 import devs.mrp.turkeydesktop.service.processchecker.IProcessChecker;
@@ -123,7 +124,8 @@ public class WatchDog implements IWatchDog {
         //log(String.format(localeMessages.getString("currentprocess"), processChecker.currentProcessName()));
         
         // insert entry to db
-        dbLogger.logEntry(elapsed, processChecker.currentProcessPid(), processChecker.currentProcessName(), processChecker.currentWindowTitle());
+        TimeLog entry = dbLogger.logEntry(elapsed, processChecker.currentProcessPid(), processChecker.currentProcessName(), processChecker.currentWindowTitle());
+        
         // TODO in case of negative process/title and no remaining time, kill process
     }
 

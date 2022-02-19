@@ -17,6 +17,6 @@ public interface IConditionChecker {
     
     public boolean isConditionMet(Condition condition);
     public boolean areConditionsMet(List<Condition> conditions);
-    public boolean areConditionsMet(Group group);
+    public boolean areConditionsMet(long groupId);
     
 }

@@ -42,8 +42,8 @@ public class ConditionChecker implements IConditionChecker {
     }
 
     @Override
-    public boolean areConditionsMet(Group group) {
-        List<Condition> conditions = conditionService.findByGroupId(group.getId());
+    public boolean areConditionsMet(long groupId) {
+        List<Condition> conditions = conditionService.findByGroupId(groupId);
         return areConditionsMet(conditions);
     }
     

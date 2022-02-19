@@ -134,6 +134,15 @@ public class TitleService implements ITitleService {
                 .sorted((e1, e2) -> e2.getType().compareTo(e1.getType())) // "NEGATIVE" before "POSITIVE" in natural order
                 .collect(Collectors.toList());
     }
+    
+    @Override
+    public Title findLongestContainedBy(String title) {
+        return conditionsMap.entrySet().stream()
+                .filter(e -> title.contains(e.getKey()))
+                .max((e1, e2) -> Long.compare(e1.getKey().length(), e2.getKey().length()))
+                .map(e -> e.getValue())
+                .orElse(null);
+    }
 
     @Override
     public long countTypesOf(Title.Type type, String title) {
