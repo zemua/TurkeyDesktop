@@ -9,11 +9,14 @@ import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.Tripla;
 import devs.mrp.turkeydesktop.database.config.FConfigElementService;
 import devs.mrp.turkeydesktop.database.config.IConfigElementService;
+import devs.mrp.turkeydesktop.database.group.FGroupService;
+import devs.mrp.turkeydesktop.database.group.IGroupService;
+import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
+import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
 import devs.mrp.turkeydesktop.database.logs.FTimeLogService;
 import devs.mrp.turkeydesktop.database.logs.ITimeLogService;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.logs.TimeLogRepository;
-import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.database.titles.FTitleService;
 import devs.mrp.turkeydesktop.database.titles.ITitleService;
 import devs.mrp.turkeydesktop.database.titles.Title;
@@ -43,6 +46,7 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
     private final ITypeService typeService = FTypeService.getService();
     private final IConfigElementService configService = FConfigElementService.getService();
     private final ITitleService titleService = FTitleService.getService();
+    private final IGroupAssignationService groupAssignationService = FGroupAssignationService.getService();
     
     private static final Logger LOGGER = Logger.getLogger(LogAndTypeFacadeService.class.getName());
 
@@ -72,13 +76,12 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
 
     @Override
     public long addTimeLogAdjustingCounted(TimeLog element) {
-        adjustCounted(element);
+        adjustDependingOnType(element);
         adjustAccumulated(element, element.getCounted());
-        adjustGroup(element);
         return logService.add(element);
     }
     
-    private TimeLog adjustCounted(TimeLog element) {
+    private TimeLog adjustDependingOnType(TimeLog element) {
         Type type = typeService.findById(element.getProcessName());
         if (type == null || type.getType() == null) {
             type = new Type();
@@ -88,32 +91,34 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
             case NEUTRAL:
                 element.setCounted(0);
                 element.setType(Type.Types.NEUTRAL);
+                element.setGroupId(-1);
                 break;
             case UNDEFINED:
                 element.setCounted(0);
                 element.setType(Type.Types.UNDEFINED);
+                element.setGroupId(-1);
                 break;
             case DEPENDS:
                 setCountedDependingOnTitle(element, element.getElapsed());
                 element.setType(Type.Types.DEPENDS);
+                // If title is "hello to you" and we have records "hello" in group1 and "hello to" in group2 the group2 will be chosen
+                element.setGroupId(groupAssignationService.findLongestTitleIdContainedIn(element.getWindowTitle()).getGroupId());
                 break;
             case POSITIVE:
                 element.setCounted(Math.abs(element.getElapsed()));
                 element.setType(Type.Types.POSITIVE);
+                element.setGroupId(groupAssignationService.findByProcessId(element.getProcessName()).getGroupId());
                 break;
             case NEGATIVE:
                 int proportion = Integer.valueOf(configService.configElement(ConfigurationEnum.PROPORTION).getValue());
                 element.setCounted(Math.abs(element.getElapsed()) * proportion * (-1));
                 element.setType(Type.Types.NEGATIVE);
+                element.setGroupId(groupAssignationService.findByProcessId(element.getProcessName()).getGroupId());
                 break;
             default:
                 break;
         }
         return element;
-    }
-    
-    private void adjustGroup(TimeLog element) {
-        // TODO set the group before saving the entry in the log
     }
     
     private TimeLog setCountedDependingOnTitle(TimeLog element, long elapsed) {

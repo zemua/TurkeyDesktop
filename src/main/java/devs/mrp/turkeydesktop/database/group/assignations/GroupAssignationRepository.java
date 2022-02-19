@@ -225,4 +225,26 @@ public class GroupAssignationRepository implements GroupAssignationDao {
         return delQty;
     }
     
+    @Override
+    public ResultSet findAllOfType(GroupAssignation.ElementType elementType) {
+        ResultSet rs = null;
+        try {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+                        Db.GROUP_ASSIGNATION_TABLE, GroupAssignation.TYPE));
+                stm.setString(1, elementType.toString());
+                rs = stm.executeQuery();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
+        } catch (InterruptedException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        } finally {
+            semaphore.release();
+        }
+        return rs;
+    }
+    
 }

@@ -23,6 +23,7 @@ public interface IGroupAssignationService {
     public GroupAssignation findByProcessId(String processId);
     public long deleteByProcessId(String processId);
     public GroupAssignation findByTitleId(String titleId);
+    public GroupAssignation findLongestTitleIdContainedIn(String titleId);
     public long deleteByTitleId(String titleId);
     public List<GroupAssignation> findProcessesOfGroup(Long groupId);
     public List<GroupAssignation> findTitlesOfGroup(Long groupId);

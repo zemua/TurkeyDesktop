@@ -20,7 +20,6 @@ import devs.mrp.turkeydesktop.database.group.facade.FAssignableElementService;
 import devs.mrp.turkeydesktop.database.group.facade.IAssignableElementService;
 import devs.mrp.turkeydesktop.database.groupcondition.FGroupConditionFacadeService;
 import devs.mrp.turkeydesktop.database.groupcondition.IGroupConditionFacadeService;
-import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.groups.review.switchable.Switchable;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
@@ -29,14 +28,12 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
-import org.h2.util.StringUtils;
 
 /**
  *

@@ -98,6 +98,15 @@ public class GroupAssignationService implements IGroupAssignationService {
     }
     
     @Override
+    public GroupAssignation findLongestTitleIdContainedIn(String titleId) {
+        List<GroupAssignation> titleAssignations = elementsFromResultSet(repo.findAllOfType(GroupAssignation.ElementType.TITLE));
+        return titleAssignations.stream()
+                .filter(ga -> titleId.contains(ga.getElementId()))
+                .max((ga1, ga2) -> Integer.compare(ga1.getElementId().length(), ga2.getElementId().length()))
+                .orElse(null);
+    }
+    
+    @Override
     public long deleteByTitleId(String titleId) {
         return repo.deleteByElementId(GroupAssignation.ElementType.TITLE, titleId);
     }
