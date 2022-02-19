@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package devs.mrp.turkeydesktop.service.processchecker;
+package devs.mrp.turkeydesktop.service.processkiller;
 
 import devs.mrp.turkeydesktop.common.ChainCommander;
 import devs.mrp.turkeydesktop.common.ChainHandler;
@@ -12,15 +12,13 @@ import devs.mrp.turkeydesktop.common.ChainHandler;
  *
  * @author miguel
  */
-public class CheckerChainCommander implements ChainCommander {
-
-    private ChainHandler linuxHandler;
+public class KillerChainCommander implements ChainCommander {
+    
+    private ChainHandler<String> linuxHandler;
     
     @Override
-    public ChainHandler getHandlerChain() {
-        //linuxHandler = new CheckerChainHandlerLinux();
-        //linuxHandler = new CheckerChainHandlerLinuxXdotool();
-        linuxHandler = new CheckerChainHandlerLinuxBash();
+    public ChainHandler<String> getHandlerChain() {
+        linuxHandler = new KillerChainHandlerLinuxBash();
         
         return linuxHandler;
     }

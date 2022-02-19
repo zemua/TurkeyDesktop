@@ -5,12 +5,14 @@
  */
 package devs.mrp.turkeydesktop.service.watchdog;
 
+import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.conditionchecker.FConditionChecker;
 import devs.mrp.turkeydesktop.service.conditionchecker.IConditionChecker;
 import devs.mrp.turkeydesktop.service.processchecker.FProcessChecker;
 import devs.mrp.turkeydesktop.service.processchecker.IProcessChecker;
+import devs.mrp.turkeydesktop.service.processkiller.KillerChainCommander;
 import devs.mrp.turkeydesktop.service.watchdog.logger.DbLogger;
 import devs.mrp.turkeydesktop.service.watchdog.logger.DbLoggerF;
 import java.util.List;
@@ -43,6 +45,7 @@ public class WatchDog implements IWatchDog {
     private IProcessChecker processChecker;
     private LocaleMessages localeMessages;
     private final IConditionChecker conditionChecker = FConditionChecker.getConditionChecker();
+    private ChainHandler<String> killerHandler = new KillerChainCommander().getHandlerChain();
 
     private WatchDog() {
         timestamp = new AtomicLong();
@@ -124,7 +127,7 @@ public class WatchDog implements IWatchDog {
         TimeLog entry = dbLogger.logEntry(elapsed, processChecker.currentProcessPid(), processChecker.currentProcessName(), processChecker.currentWindowTitle());
         
         if (entry.getCounted() < 0 && (entry.getAccumulated() <= 0 || !conditionChecker.areConditionsMet(entry.getGroupId()))) {
-            // TODO kill process
+            killerHandler.receiveRequest("kill", processChecker.currentProcessPid());
         }
     }
 
