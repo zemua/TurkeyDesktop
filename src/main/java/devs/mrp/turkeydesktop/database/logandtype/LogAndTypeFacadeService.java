@@ -15,6 +15,7 @@ import devs.mrp.turkeydesktop.database.config.IConfigElementService;
 import devs.mrp.turkeydesktop.database.group.FGroupService;
 import devs.mrp.turkeydesktop.database.group.IGroupService;
 import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
 import devs.mrp.turkeydesktop.database.logs.FTimeLogService;
 import devs.mrp.turkeydesktop.database.logs.ITimeLogService;
@@ -110,7 +111,8 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
             case DEPENDS:
                 element.setType(Type.Types.DEPENDS);
                 // If title is "hello to you" and we have records "hello" in group1 and "hello to" in group2 the group2 will be chosen
-                element.setGroupId(groupAssignationService.findLongestTitleIdContainedIn(element.getWindowTitle()).getGroupId());
+                GroupAssignation assignation = groupAssignationService.findLongestTitleIdContainedIn(element.getWindowTitle());
+                element.setGroupId(assignation != null ? assignation.getGroupId() : -1);
                 setCountedDependingOnTitle(element, element.getElapsed());
                 break;
             case POSITIVE:
