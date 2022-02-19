@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.service.conditionchecker;
 
+import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.FConditionService;
 import devs.mrp.turkeydesktop.database.conditions.IConditionService;
@@ -27,18 +28,23 @@ public class ConditionChecker implements IConditionChecker {
 
     @Override
     public boolean isConditionMet(Condition condition) {
-        // TODO
-        return false;
+        long timeSpent = timeLogService.timeSpentOnGroupForFrame(condition.getTargetId(),
+                TimeConverter.beginningOfOffsetDays(condition.getLastDaysCondition()),
+                TimeConverter.endOfToday());
+        return timeSpent >= condition.getUsageTimeCondition();
     }
 
     @Override
     public boolean areConditionsMet(List<Condition> conditions) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return conditions.stream()
+                .map(c -> isConditionMet(c))
+                .allMatch(b -> b.equals(true));
     }
 
     @Override
     public boolean areConditionsMet(Group group) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        List<Condition> conditions = conditionService.findByGroupId(group.getId());
+        return areConditionsMet(conditions);
     }
     
 }

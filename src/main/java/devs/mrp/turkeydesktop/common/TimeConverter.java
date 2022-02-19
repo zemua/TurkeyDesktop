@@ -85,4 +85,12 @@ public class TimeConverter {
         return millisFromDays(days) + millisFromDays(1);
     }
     
+    public static long endOfToday() {
+        return millisToEndOfDay(System.currentTimeMillis());
+    }
+    
+    public static long beginningOfOffsetDays(long offsetDays) {
+        return millisToBeginningOfDay(System.currentTimeMillis() - millisFromDays(offsetDays));
+    }
+    
 }
