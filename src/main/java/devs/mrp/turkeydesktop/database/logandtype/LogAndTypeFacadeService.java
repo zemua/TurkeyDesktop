@@ -74,13 +74,15 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
     public long addTimeLogAdjustingCounted(TimeLog element) {
         adjustCounted(element);
         adjustAccumulated(element, element.getCounted());
+        adjustGroup(element);
         return logService.add(element);
     }
     
     private TimeLog adjustCounted(TimeLog element) {
         Type type = typeService.findById(element.getProcessName());
         if (type == null || type.getType() == null) {
-            return null;
+            type = new Type();
+            type.setType(Type.Types.UNDEFINED);
         }
         switch (type.getType()){
             case NEUTRAL:
@@ -108,6 +110,10 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
                 break;
         }
         return element;
+    }
+    
+    private void adjustGroup(TimeLog element) {
+        // TODO set the group before saving the entry in the log
     }
     
     private TimeLog setCountedDependingOnTitle(TimeLog element, long elapsed) {

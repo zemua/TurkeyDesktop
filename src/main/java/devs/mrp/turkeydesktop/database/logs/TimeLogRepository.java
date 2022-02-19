@@ -47,7 +47,16 @@ public class TimeLogRepository implements TimeLogDao {
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s, %s) ", 
-                        Db.WATCHDOG_TABLE, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.COUNTED, TimeLog.ACCUMULATED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE, Group.GROUP, Type.TYPE)
+                        Db.WATCHDOG_TABLE,
+                        TimeLog.EPOCH, // 1
+                        TimeLog.ELAPSED, // 2
+                        TimeLog.COUNTED, // 3
+                        TimeLog.ACCUMULATED, // 4
+                        TimeLog.PID, // 5
+                        TimeLog.PROCESS_NAME, // 6
+                        TimeLog.WINDOW_TITLE, // 7
+                        Group.GROUP, // 8
+                        Type.TYPE) // 9
                         + "VALUES (?,?,?,?,?,?,?,?,?)",
                         Statement.RETURN_GENERATED_KEYS);
                 stm.setLong(1, element.getEpoch());
@@ -58,7 +67,9 @@ public class TimeLogRepository implements TimeLogDao {
                 stm.setString(6, element.getProcessName());
                 stm.setString(7, element.getWindowTitle());
                 stm.setLong(8, element.getGroupId());
-                stm.setString(9, element.getType().toString());
+                if (element.getType() != null) {
+                    stm.setString(9, element.getType().toString());
+                }
                 stm.executeUpdate();
                 ResultSet generatedId = stm.getGeneratedKeys();
                 if (generatedId.next()) {
