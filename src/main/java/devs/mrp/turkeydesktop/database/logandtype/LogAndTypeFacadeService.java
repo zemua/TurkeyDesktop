@@ -74,7 +74,6 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
     public long addTimeLogAdjustingCounted(TimeLog element) {
         adjustCounted(element);
         adjustAccumulated(element, element.getCounted());
-        // TODO adjust type
         return logService.add(element);
     }
     
@@ -85,18 +84,25 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
         }
         switch (type.getType()){
             case NEUTRAL:
+                element.setCounted(0);
+                element.setType(Type.Types.NEUTRAL);
+                break;
             case UNDEFINED:
                 element.setCounted(0);
+                element.setType(Type.Types.UNDEFINED);
                 break;
             case DEPENDS:
                 setCountedDependingOnTitle(element, element.getElapsed());
+                element.setType(Type.Types.DEPENDS);
                 break;
             case POSITIVE:
                 element.setCounted(Math.abs(element.getElapsed()));
+                element.setType(Type.Types.POSITIVE);
                 break;
             case NEGATIVE:
                 int proportion = Integer.valueOf(configService.configElement(ConfigurationEnum.PROPORTION).getValue());
                 element.setCounted(Math.abs(element.getElapsed()) * proportion * (-1));
+                element.setType(Type.Types.NEGATIVE);
                 break;
             default:
                 break;
