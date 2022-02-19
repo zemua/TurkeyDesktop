@@ -131,7 +131,9 @@ public class TimeLogService implements ITimeLogService {
             entry.setProcessName(set.getString(TimeLog.PROCESS_NAME));
             entry.setWindowTitle(set.getString(TimeLog.WINDOW_TITLE));
             entry.setGroupId(set.getLong(Group.GROUP));
-            entry.setType(Type.Types.valueOf(set.getString(Type.TYPE)));
+            if (set.getString(Type.TYPE) != null) {
+                entry.setType(Type.Types.valueOf(set.getString(Type.TYPE)));
+            }
         } catch (SQLException ex) {
             logger.log(Level.SEVERE, null, ex);
         }

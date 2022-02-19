@@ -74,6 +74,7 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
     public long addTimeLogAdjustingCounted(TimeLog element) {
         adjustCounted(element);
         adjustAccumulated(element, element.getCounted());
+        // TODO adjust type
         return logService.add(element);
     }
     
