@@ -23,7 +23,7 @@ public abstract class AssignableAbstractService {
         return assignationService
                 .findAll()
                 .stream()
-                .filter(a -> a.getType().equals(type))
+                .filter(a -> type.equals(a.getType()))
                 .collect(Collectors.toMap((a -> a.getElementId()),(a -> a)));
     }
 }

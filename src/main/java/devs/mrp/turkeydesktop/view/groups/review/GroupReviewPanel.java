@@ -110,7 +110,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
             }
         });
 
-        hourSpinner.setModel(new javax.swing.SpinnerNumberModel(0, 0, 99, 1));
+        hourSpinner.setModel(new javax.swing.SpinnerNumberModel(Long.valueOf(0L), Long.valueOf(0L), Long.valueOf(99L), Long.valueOf(1L)));
         hourSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 hourSpinnerStateChanged(evt);

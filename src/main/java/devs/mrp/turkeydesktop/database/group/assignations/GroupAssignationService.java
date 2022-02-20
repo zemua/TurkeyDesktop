@@ -137,7 +137,7 @@ public class GroupAssignationService implements IGroupAssignationService {
     private GroupAssignation elementFromResultSetEntry(ResultSet set) {
         GroupAssignation el = new GroupAssignation();
         try {
-            if (!set.first()) {
+            if (set.getRow() == 0) {
                 return null;
             }
             el.setType(set.getString(GroupAssignation.TYPE) != null ? GroupAssignation.ElementType.valueOf(set.getString(GroupAssignation.TYPE)) : null);

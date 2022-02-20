@@ -222,7 +222,7 @@
             <Component class="javax.swing.JSpinner" name="hourSpinner">
               <Properties>
                 <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-                  <SpinnerModel initial="0" maximum="99" minimum="0" numberType="java.lang.Integer" stepSize="1" type="number"/>
+                  <SpinnerModel initial="0" maximum="99" minimum="0" numberType="java.lang.Long" stepSize="1" type="number"/>
                 </Property>
               </Properties>
               <Events>
