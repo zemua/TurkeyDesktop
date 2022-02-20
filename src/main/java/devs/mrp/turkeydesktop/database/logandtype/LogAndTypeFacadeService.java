@@ -117,13 +117,15 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
                 break;
             case POSITIVE:
                 element.setType(Type.Types.POSITIVE);
-                element.setGroupId(groupAssignationService.findByProcessId(element.getProcessName()).getGroupId());
+                GroupAssignation positiveAssignation = groupAssignationService.findByProcessId(element.getProcessName());
+                element.setGroupId(positiveAssignation != null ? positiveAssignation.getGroupId() : -1);
                 element.setCounted(conditionChecker.areConditionsMet(element.getGroupId()) ? Math.abs(element.getElapsed()) : 0);
                 break;
             case NEGATIVE:
                 int proportion = Integer.valueOf(configService.configElement(ConfigurationEnum.PROPORTION).getValue());
                 element.setType(Type.Types.NEGATIVE);
-                element.setGroupId(groupAssignationService.findByProcessId(element.getProcessName()).getGroupId());
+                GroupAssignation negativeAssignation = groupAssignationService.findByProcessId(element.getProcessName());
+                element.setGroupId(negativeAssignation != null ? negativeAssignation.getGroupId() : -1);
                 element.setCounted(Math.abs(element.getElapsed()) * proportion * (-1));
                 break;
             default:
