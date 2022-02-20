@@ -390,7 +390,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
             addConditionButton.setEnabled(false);
             return;
         }
-        if (hourSpinner.getValue().equals(0) && minuteSpinner.getValue().equals(0)) {
+        if (hourSpinner.getValue().equals(0L) && minuteSpinner.getValue().equals(0L)) {
             addConditionButton.setEnabled(false);
             return;
         }
