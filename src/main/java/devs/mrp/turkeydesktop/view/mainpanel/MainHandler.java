@@ -38,7 +38,7 @@ import javax.swing.JLabel;
 public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPanelWithFetcher<MainEnum, AWTEvent>> {
     
     private static final String MAIN_TITLE = LocaleMessages.getInstance().getString("timeturkey");
-    private static final String TURKEY_IMG = "turkey.png";
+    private static final String TURKEY_IMG = "/turkey.png";
     
     PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>> timesHandler;
     PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>> categoryProcessHandler;
@@ -57,7 +57,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     @Override
     protected FeedbackerPanelWithFetcher<MainEnum, AWTEvent> initPanel() {
         this.getFrame().setTitle(MAIN_TITLE);
-        this.getFrame().setIconImage(Toolkit.getDefaultToolkit().getImage(TURKEY_IMG));
+        this.getFrame().setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource(TURKEY_IMG)));
         this.setPanel(FMainPanel.getMainPanel());
         return this.getPanel();
     }
