@@ -10,7 +10,6 @@ import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.FConditionService;
 import devs.mrp.turkeydesktop.database.conditions.IConditionService;
 import devs.mrp.turkeydesktop.database.group.FGroupService;
-import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.group.IGroupService;
 import devs.mrp.turkeydesktop.database.logs.FTimeLogService;
 import devs.mrp.turkeydesktop.database.logs.ITimeLogService;
@@ -43,6 +42,9 @@ public class ConditionChecker implements IConditionChecker {
 
     @Override
     public boolean areConditionsMet(long groupId) {
+        if (groupId <= 0){
+            return true;
+        }
         List<Condition> conditions = conditionService.findByGroupId(groupId);
         return areConditionsMet(conditions);
     }

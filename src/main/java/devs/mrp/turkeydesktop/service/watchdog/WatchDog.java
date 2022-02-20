@@ -13,6 +13,7 @@ import devs.mrp.turkeydesktop.service.conditionchecker.IConditionChecker;
 import devs.mrp.turkeydesktop.service.processchecker.FProcessChecker;
 import devs.mrp.turkeydesktop.service.processchecker.IProcessChecker;
 import devs.mrp.turkeydesktop.service.processkiller.KillerChainCommander;
+import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.service.watchdog.logger.DbLogger;
 import devs.mrp.turkeydesktop.service.watchdog.logger.DbLoggerF;
 import java.util.List;
@@ -126,8 +127,14 @@ public class WatchDog implements IWatchDog {
         // insert entry to db
         TimeLog entry = dbLogger.logEntry(elapsed, processChecker.currentProcessPid(), processChecker.currentProcessName(), processChecker.currentWindowTitle());
         
-        if (entry.getCounted() < 0 && (entry.getAccumulated() <= 0 || !conditionChecker.areConditionsMet(entry.getGroupId()))) {
-            killerHandler.receiveRequest("kill", processChecker.currentProcessPid());
+        boolean conditionsMet = conditionChecker.areConditionsMet(entry.getGroupId());
+        if (entry.getCounted() < 0 && (entry.getAccumulated() <= 0 || !conditionsMet)) {
+            killerHandler.receiveRequest(null, processChecker.currentProcessPid());
+            Toaster.sendToast(localeMessages.getString("killingProcess"));
+        }
+        
+        if (!conditionsMet) {
+            Toaster.sendToast(localeMessages.getString("conditionsNotMet"));
         }
     }
 

@@ -84,7 +84,15 @@ public class GroupAssignationService implements IGroupAssignationService {
 
     @Override
     public GroupAssignation findByProcessId(String processId) {
-        return elementFromResultSetEntry(repo.findByElementId(GroupAssignation.ElementType.PROCESS, processId));
+        ResultSet set = repo.findByElementId(GroupAssignation.ElementType.PROCESS, processId);
+        try {
+            if (set.next()) {
+                return elementFromResultSetEntry(set);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(GroupAssignationService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
     
     @Override
@@ -94,7 +102,15 @@ public class GroupAssignationService implements IGroupAssignationService {
 
     @Override
     public GroupAssignation findByTitleId(String titleId) {
-        return elementFromResultSetEntry(repo.findByElementId(GroupAssignation.ElementType.TITLE, titleId));
+        ResultSet set = repo.findByElementId(GroupAssignation.ElementType.TITLE, titleId);
+        try {
+            if (set.next()) {
+                return elementFromResultSetEntry(set);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(GroupAssignationService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
     
     @Override
@@ -137,9 +153,6 @@ public class GroupAssignationService implements IGroupAssignationService {
     private GroupAssignation elementFromResultSetEntry(ResultSet set) {
         GroupAssignation el = new GroupAssignation();
         try {
-            if (set.getRow() == 0) {
-                return null;
-            }
             el.setType(set.getString(GroupAssignation.TYPE) != null ? GroupAssignation.ElementType.valueOf(set.getString(GroupAssignation.TYPE)) : null);
             el.setElementId(set.getString(GroupAssignation.ELEMENT_ID));
             el.setGroupId(set.getLong(GroupAssignation.GROUP_ID));

@@ -79,7 +79,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                         this.addCondition();
                     } catch (Exception e) {
                         // print error and go back
-                        logger.log(Level.SEVERE, "error adding condition");
+                        logger.log(Level.SEVERE, "error adding condition", e);
                         this.getCaller().show();
                     }
                     break;
@@ -87,14 +87,14 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                     try {
                         saveGroupName();
                     } catch (Exception ex) {
-                        logger.log(Level.SEVERE, "error saving group name");
+                        logger.log(Level.SEVERE, "error saving group name", ex);
                     }
                     break;
                 case DELETE_GROUP:
                     try {
                         deleteGroup();
                     } catch (Exception ex) {
-                        logger.log(Level.SEVERE, "error deleting group");
+                        logger.log(Level.SEVERE, "error deleting group", ex);
                     }
                     break;
                 default:
@@ -112,7 +112,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             setConditions();
         } catch (Exception e) {
             // print error and go back
-            logger.log(Level.SEVERE, "error setting conditions");
+            logger.log(Level.SEVERE, "error setting conditions", e);
             this.getCaller().show();
         }
         setConfiguration();
@@ -290,7 +290,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         try {
             fillConditionFields();
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "failed refreshing conditions fields after condition deletion");
+            logger.log(Level.SEVERE, "failed refreshing conditions fields after condition deletion", e);
         }
     }
     
