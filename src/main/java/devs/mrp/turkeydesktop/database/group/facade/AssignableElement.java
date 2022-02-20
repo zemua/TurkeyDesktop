@@ -12,13 +12,12 @@ import devs.mrp.turkeydesktop.database.type.Type;
  *
  * @author miguel
  */
-public class AssignableElement {
+public class AssignableElement<TYPE> {
     
     private String elementName;
     private GroupAssignation.ElementType processOrTitle;
-    private Type.Types positiveOrNegative;
+    private TYPE positiveOrNegative;
     private Long groupId;
-    private Long groupAssignationId;
 
     public String getElementName() {
         return elementName;
@@ -36,11 +35,11 @@ public class AssignableElement {
         this.processOrTitle = processOrTitle;
     }
 
-    public Type.Types getPositiveOrNegative() {
+    public TYPE getPositiveOrNegative() {
         return positiveOrNegative;
     }
 
-    public void setPositiveOrNegative(Type.Types positiveOrNegative) {
+    public void setPositiveOrNegative(TYPE positiveOrNegative) {
         this.positiveOrNegative = positiveOrNegative;
     }
 
@@ -50,14 +49,6 @@ public class AssignableElement {
 
     public void setGroupId(Long groupId) {
         this.groupId = groupId;
-    }
-
-    public Long getGroupAssignationId() {
-        return groupAssignationId;
-    }
-
-    public void setGroupAssignationId(Long groupAssignationId) {
-        this.groupAssignationId = groupAssignationId;
     }
     
 }

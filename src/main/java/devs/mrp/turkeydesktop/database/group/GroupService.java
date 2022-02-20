@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 public class GroupService implements IGroupService {
     
     private static final GroupDao repo = GroupRepository.getInstance();
+    private static final Logger logger = Logger.getLogger(GroupService.class.getName());
     
     @Override
     public long add(Group element) {
@@ -41,7 +42,7 @@ public class GroupService implements IGroupService {
                     return 0;
                 }
             } catch (SQLException ex) {
-                Logger.getLogger(GroupService.class.getName()).log(Level.SEVERE, null, ex);
+                logger.log(Level.SEVERE, null, ex);
             }
             // else there is no element stored with this id
             return repo.add(element);
@@ -70,7 +71,7 @@ public class GroupService implements IGroupService {
                 element = elementFromResultSetEntry(set);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(GroupService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return element;
     }
@@ -98,7 +99,7 @@ public class GroupService implements IGroupService {
                 elements.add(el);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(ConfigElementService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return elements;
     }
@@ -110,7 +111,7 @@ public class GroupService implements IGroupService {
             el.setName(set.getString(Group.NAME));
             el.setType(Group.GroupType.valueOf(set.getString(Group.TYPE)));
         } catch (SQLException ex) {
-            Logger.getLogger(GroupService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return el;
     }

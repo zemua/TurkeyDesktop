@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 public class TitleService implements ITitleService {
 
     private final TitleDao repo = TitleRepository.getInstance();
+    private static final Logger logger = Logger.getLogger(TitleService.class.getName());
 
     private static Map<String, Title> conditionsMap;
 
@@ -75,7 +76,7 @@ public class TitleService implements ITitleService {
                 elements.add(el);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(TitleService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         conditionsMap.clear();
         elements.forEach(e -> conditionsMap.put(e.getSubStr(), e));
@@ -120,7 +121,7 @@ public class TitleService implements ITitleService {
             el.setSubStr(set.getString(Title.SUB_STR));
             el.setType(Title.Type.valueOf(set.getString(Title.TYPE)));
         } catch (SQLException ex) {
-            Logger.getLogger(TitleService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return el;
     }
@@ -132,6 +133,15 @@ public class TitleService implements ITitleService {
                 .map(e -> e.getValue())
                 .sorted((e1, e2) -> e2.getType().compareTo(e1.getType())) // "NEGATIVE" before "POSITIVE" in natural order
                 .collect(Collectors.toList());
+    }
+    
+    @Override
+    public Title findLongestContainedBy(String title) {
+        return conditionsMap.entrySet().stream()
+                .filter(e -> title.contains(e.getKey()))
+                .max((e1, e2) -> Long.compare(e1.getKey().length(), e2.getKey().length()))
+                .map(e -> e.getValue())
+                .orElse(null);
     }
 
     @Override

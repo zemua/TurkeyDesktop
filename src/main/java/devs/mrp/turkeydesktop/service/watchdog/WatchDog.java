@@ -5,9 +5,15 @@
  */
 package devs.mrp.turkeydesktop.service.watchdog;
 
+import devs.mrp.turkeydesktop.common.ChainHandler;
+import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
+import devs.mrp.turkeydesktop.service.conditionchecker.FConditionChecker;
+import devs.mrp.turkeydesktop.service.conditionchecker.IConditionChecker;
 import devs.mrp.turkeydesktop.service.processchecker.FProcessChecker;
 import devs.mrp.turkeydesktop.service.processchecker.IProcessChecker;
+import devs.mrp.turkeydesktop.service.processkiller.KillerChainCommander;
+import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.service.watchdog.logger.DbLogger;
 import devs.mrp.turkeydesktop.service.watchdog.logger.DbLoggerF;
 import java.util.List;
@@ -39,6 +45,8 @@ public class WatchDog implements IWatchDog {
     private AtomicLong timestamp;
     private IProcessChecker processChecker;
     private LocaleMessages localeMessages;
+    private final IConditionChecker conditionChecker = FConditionChecker.getConditionChecker();
+    private ChainHandler<String> killerHandler = new KillerChainCommander().getHandlerChain();
 
     private WatchDog() {
         timestamp = new AtomicLong();
@@ -116,15 +124,18 @@ public class WatchDog implements IWatchDog {
         processChecker.refresh();
         Long elapsed = current - timestamp.getAndSet(current);
         
-        // log some stuff
-        log(String.format(localeMessages.getString("elapsedmillis"), elapsed));
-        log(String.format(localeMessages.getString("windowname"), processChecker.currentWindowTitle()));
-        log(String.format(localeMessages.getString("currentpid"), processChecker.currentProcessPid()));
-        log(String.format(localeMessages.getString("currentprocess"), processChecker.currentProcessName()));
-        
         // insert entry to db
-        dbLogger.logEntry(elapsed, processChecker.currentProcessPid(), processChecker.currentProcessName(), processChecker.currentWindowTitle());
-        // TODO in case of negative process/title and no remaining time, kill process
+        TimeLog entry = dbLogger.logEntry(elapsed, processChecker.currentProcessPid(), processChecker.currentProcessName(), processChecker.currentWindowTitle());
+        
+        boolean conditionsMet = conditionChecker.areConditionsMet(entry.getGroupId());
+        if (entry.getCounted() < 0 && (entry.getAccumulated() <= 0 || !conditionsMet)) {
+            killerHandler.receiveRequest(null, processChecker.currentProcessPid());
+            Toaster.sendToast(localeMessages.getString("killingProcess"));
+        }
+        
+        if (!conditionsMet) {
+            Toaster.sendToast(localeMessages.getString("conditionsNotMet"));
+        }
     }
 
 }

@@ -16,6 +16,7 @@ public interface ITitleService {
     public long save(Title element);
     public List<Title> findAll();
     public List<Title> findContainedByAndNegativeFirst(String title);
+    public Title findLongestContainedBy(String title);
     public Title findBySubString(String subStr);
     public long deleteBySubString(String subStr);
     public long countTypesOf(Title.Type type, String title);

@@ -13,6 +13,6 @@ import devs.mrp.turkeydesktop.database.logs.TimeLog;
  */
 public interface DbLogger {
     
-    public void logEntry(long elapsed, String processPid, String processName, String windowTitle);
+    public TimeLog logEntry(long elapsed, String processPid, String processName, String windowTitle);
     
 }

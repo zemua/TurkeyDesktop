@@ -23,7 +23,7 @@ public class CheckerChainHandlerLinuxBash extends ChainHandler<IProcessInfo> {
     private static final String WINDOW_TITLE_COMMAND = "xdotool getwindowfocus getwindowname";
     private static final String PROCESS_PID_COMMAND = "xdotool getactivewindow getwindowpid";
 
-    Runtime r = Runtime.getRuntime();
+    private Runtime r = Runtime.getRuntime();
 
     @Override
     protected boolean canHandle(String tipo) {

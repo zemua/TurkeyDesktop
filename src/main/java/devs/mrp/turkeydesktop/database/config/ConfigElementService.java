@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 public class ConfigElementService implements IConfigElementService {
 
     private static final ConfigElementDao repo = ConfigElementRepository.getInstance();
+    private static final Logger logger = Logger.getLogger(ConfigElementService.class.getName());
 
     private static Map<ConfigurationEnum, String> configMap;
 
@@ -55,7 +56,7 @@ public class ConfigElementService implements IConfigElementService {
                     return 0;
                 }
             } catch (SQLException ex) {
-                Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
+                logger.log(Level.SEVERE, null, ex);
             }
             configMap.put(element.getKey(), element.getValue());
             return repo.add(element);
@@ -81,7 +82,7 @@ public class ConfigElementService implements IConfigElementService {
                 elements.add(el);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(ConfigElementService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         configMap.clear();
         elements.forEach(e -> configMap.put(e.getKey(), e.getValue()));
@@ -100,7 +101,7 @@ public class ConfigElementService implements IConfigElementService {
                 element = configElement(key);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(ConfigElement.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return element;
     }
@@ -120,7 +121,7 @@ public class ConfigElementService implements IConfigElementService {
             el.setKey(ConfigurationEnum.valueOf(set.getString(ConfigElement.KEY.toString())));
             el.setValue(set.getString(ConfigElement.VALUE));
         } catch (SQLException ex) {
-            Logger.getLogger(ConfigElementService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return el;
     }

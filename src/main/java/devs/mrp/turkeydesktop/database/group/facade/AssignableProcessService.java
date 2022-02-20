@@ -13,41 +13,42 @@ import devs.mrp.turkeydesktop.database.type.ITypeService;
 import devs.mrp.turkeydesktop.database.type.Type;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
  *
  * @author miguel
  */
-public class AssignableProcessService implements IAssignableElementService {
+public class AssignableProcessService extends AssignableAbstractService implements IAssignableElementService<Type.Types> {
     
-    private ITypeService typeService = FTypeService.getService();
-    private IGroupAssignationService assignationService = FGroupAssignationService.getService();
+    private final ITypeService typeService = FTypeService.getService();
+    private static final Logger logger = Logger.getLogger(AssignableProcessService.class.getName());
     
     @Override
-    public List<AssignableElement> positiveElementsWithAssignation() {
+    public List<AssignableElement<Type.Types>> positiveElementsWithAssignation() {
         return elementsWithAssignation(getAssignationsMap(GroupAssignation.ElementType.PROCESS),
                 Type.Types.POSITIVE);
     }
 
     @Override
-    public List<AssignableElement> negativeElementsWithAssignation() {
+    public List<AssignableElement<Type.Types>> negativeElementsWithAssignation() {
         return elementsWithAssignation(getAssignationsMap(GroupAssignation.ElementType.PROCESS),
                 Type.Types.NEGATIVE);
     }
     
-    private List<AssignableElement> elementsWithAssignation(Map<String, GroupAssignation> assignables, Type.Types positiveOrNegative) {
+    private List<AssignableElement<Type.Types>> elementsWithAssignation(Map<String, GroupAssignation> assignables, Type.Types positiveOrNegative) {
         return typeService.findAll()
                 .stream()
                 .filter(t -> t.getType().equals(positiveOrNegative))
                 .map(t -> {
-                    AssignableElement element = new AssignableElement();
+                    AssignableElement<Type.Types> element = new AssignableElement<>();
                     element.setElementName(t.getProcess());
                     if (assignables.get(t.getProcess()) != null) {
-                        element.setGroupAssignationId(assignables.get(t.getProcess()).getId());
+                        //element.setGroupAssignationId(assignables.get(t.getProcess()).getId());
                         element.setGroupId(assignables.get(t.getProcess()).getGroupId());
                     } else {
-                        element.setGroupAssignationId(null);
+                        //element.setGroupAssignationId(null);
                         element.setGroupId(null);
                     }
                     element.setPositiveOrNegative(positiveOrNegative);
@@ -55,14 +56,6 @@ public class AssignableProcessService implements IAssignableElementService {
                     return element;
                 })
                 .collect(Collectors.toList());
-    }
-    
-    private Map<String, GroupAssignation> getAssignationsMap(GroupAssignation.ElementType type) {
-        return assignationService
-                .findAll()
-                .stream()
-                .filter(a -> a.getType().equals(type))
-                .collect(Collectors.toMap((a -> a.getElementId()),(a -> a)));
     }
     
 }

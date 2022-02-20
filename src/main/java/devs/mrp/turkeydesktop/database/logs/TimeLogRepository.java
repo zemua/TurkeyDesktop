@@ -6,6 +6,8 @@
 package devs.mrp.turkeydesktop.database.logs;
 
 import devs.mrp.turkeydesktop.database.Db;
+import devs.mrp.turkeydesktop.database.group.Group;
+import devs.mrp.turkeydesktop.database.type.Type;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -44,9 +46,18 @@ public class TimeLogRepository implements TimeLogDao {
             semaphore.acquire();
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s) ", 
-                        Db.WATCHDOG_TABLE, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.COUNTED, TimeLog.ACCUMULATED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE)
-                        + "VALUES (?,?,?,?,?,?,?)",
+                stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s, %s) ", 
+                        Db.WATCHDOG_TABLE,
+                        TimeLog.EPOCH, // 1
+                        TimeLog.ELAPSED, // 2
+                        TimeLog.COUNTED, // 3
+                        TimeLog.ACCUMULATED, // 4
+                        TimeLog.PID, // 5
+                        TimeLog.PROCESS_NAME, // 6
+                        TimeLog.WINDOW_TITLE, // 7
+                        Group.GROUP, // 8
+                        Type.TYPE) // 9
+                        + "VALUES (?,?,?,?,?,?,?,?,?)",
                         Statement.RETURN_GENERATED_KEYS);
                 stm.setLong(1, element.getEpoch());
                 stm.setLong(2, element.getElapsed());
@@ -55,6 +66,10 @@ public class TimeLogRepository implements TimeLogDao {
                 stm.setString(5, element.getPid());
                 stm.setString(6, element.getProcessName());
                 stm.setString(7, element.getWindowTitle());
+                stm.setLong(8, element.getGroupId());
+                if (element.getType() != null) {
+                    stm.setString(9, element.getType().toString());
+                }
                 stm.executeUpdate();
                 ResultSet generatedId = stm.getGeneratedKeys();
                 if (generatedId.next()) {
@@ -78,8 +93,8 @@ public class TimeLogRepository implements TimeLogDao {
             semaphore.acquire();
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=?, %s=?, %s=?, %s=?, %s=? WHERE %s=?",
-                        Db.WATCHDOG_TABLE, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.COUNTED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE, TimeLog.ID));
+                stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=?, %s=?, %s=?, %s=?, %s=?, %s=?, %s=? WHERE %s=?",
+                        Db.WATCHDOG_TABLE, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.COUNTED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE, Group.GROUP, Type.TYPE, TimeLog.ID));
                 stm.setLong(1, element.getEpoch());
                 stm.setLong(2, element.getElapsed());
                 stm.setLong(3, element.getCounted());
@@ -87,6 +102,8 @@ public class TimeLogRepository implements TimeLogDao {
                 stm.setString(5, element.getProcessName());
                 stm.setString(6, element.getWindowTitle());
                 stm.setLong(7, element.getId());
+                stm.setLong(8, element.getGroupId());
+                stm.setString(9, element.getType().toString());
                 entriesUpdated = stm.executeUpdate();
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
@@ -178,6 +195,30 @@ public class TimeLogRepository implements TimeLogDao {
                         TimeLog.PROCESS_NAME, TimeLog.ELAPSED, Db.WATCHDOG_TABLE, TimeLog.EPOCH, TimeLog.EPOCH, TimeLog.PROCESS_NAME));
                 stm.setLong(1, from);
                 stm.setLong(2, to);
+                rs = stm.executeQuery();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null ,ex);
+            }
+        } catch (InterruptedException ex) {
+            logger.log(Level.SEVERE, null ,ex);
+        } finally {
+            semaphore.release();
+        }
+        return rs;
+    }
+    
+    @Override
+    public ResultSet getTimeFrameOfGroup(long groupId, long from, long to) {
+        ResultSet rs = null;
+        try {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT %s, SUM(%s) FROM %s WHERE %s>=? AND %s<=? AND %s=? GROUP BY %s",
+                        TimeLog.PROCESS_NAME, TimeLog.ELAPSED, Db.WATCHDOG_TABLE, TimeLog.EPOCH, TimeLog.EPOCH, Group.GROUP, Group.GROUP));
+                stm.setLong(1, from);
+                stm.setLong(2, to);
+                stm.setLong(3, groupId);
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null ,ex);

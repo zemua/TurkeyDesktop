@@ -7,6 +7,8 @@ package devs.mrp.turkeydesktop.database.logs;
 
 import devs.mrp.turkeydesktop.common.Dupla;
 import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.database.group.Group;
+import devs.mrp.turkeydesktop.database.type.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -22,6 +24,7 @@ import java.util.logging.Logger;
 public class TimeLogService implements ITimeLogService {
 
     private final TimeLogDao repo = TimeLogRepository.getInstance();
+    private static final Logger logger = Logger.getLogger(TimeLogService.class.getName());
 
     /**
      * @deprecated
@@ -67,7 +70,7 @@ public class TimeLogService implements ITimeLogService {
                 times.add(dupla);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return times;
     }
@@ -80,7 +83,7 @@ public class TimeLogService implements ITimeLogService {
                 timeLog = setTimeLogFromResultSetEntry(set);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return timeLog;
     }
@@ -97,7 +100,7 @@ public class TimeLogService implements ITimeLogService {
                 logList.add(timeLog);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return logList;
     }
@@ -111,7 +114,7 @@ public class TimeLogService implements ITimeLogService {
                 entry = setTimeLogFromResultSetEntry(set);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return entry;
     }
@@ -127,8 +130,12 @@ public class TimeLogService implements ITimeLogService {
             entry.setPid(set.getString(TimeLog.PID));
             entry.setProcessName(set.getString(TimeLog.PROCESS_NAME));
             entry.setWindowTitle(set.getString(TimeLog.WINDOW_TITLE));
+            entry.setGroupId(set.getLong(Group.GROUP));
+            if (set.getString(Type.TYPE) != null) {
+                entry.setType(Type.Types.valueOf(set.getString(Type.TYPE)));
+            }
         } catch (SQLException ex) {
-            Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return entry;
     }
@@ -150,9 +157,23 @@ public class TimeLogService implements ITimeLogService {
                 groupedTimes.add(dupla);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return groupedTimes;
+    }
+    
+    @Override
+    public long timeSpentOnGroupForFrame(long groupId, long from, long to) {
+        ResultSet set = repo.getTimeFrameOfGroup(groupId, from, to);
+        long spent = 0;
+        try {
+            if (set.next()) {
+                spent = set.getLong(2);
+            }
+        } catch (SQLException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        }
+        return spent;
     }
 
 }

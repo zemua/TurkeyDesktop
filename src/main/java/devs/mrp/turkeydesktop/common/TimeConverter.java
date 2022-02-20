@@ -5,7 +5,6 @@
  */
 package devs.mrp.turkeydesktop.common;
 
-import java.util.Calendar;
 import java.util.Formatter;
 import java.util.concurrent.TimeUnit;
 
@@ -20,9 +19,22 @@ public class TimeConverter {
                 TimeUnit.MILLISECONDS.toMinutes(millis) % TimeUnit.HOURS.toMinutes(1),
                 TimeUnit.MILLISECONDS.toSeconds(millis) % TimeUnit.MINUTES.toSeconds(1));
     }
+    
+    public static String millisToHM(long millis) {
+        return String.format("%02d:%02d", TimeUnit.MILLISECONDS.toHours(millis),
+                TimeUnit.MILLISECONDS.toMinutes(millis) % TimeUnit.HOURS.toMinutes(1));
+    }
 
     public static long getHours(long millis) {
         return millis/(1000*60/60);
+    }
+    
+    public static long hoursToMilis(long hours) {
+        return hours*60*60*1000;
+    }
+    
+    public static long minutesToMilis(long minutes) {
+        return minutes*60*1000;
     }
     
     public static long getMinutes(long millis) {
@@ -71,6 +83,14 @@ public class TimeConverter {
     public static long millisToEndOfDay(long milliseconds) {
         var days = daysFromMillis(milliseconds);
         return millisFromDays(days) + millisFromDays(1);
+    }
+    
+    public static long endOfToday() {
+        return millisToEndOfDay(System.currentTimeMillis());
+    }
+    
+    public static long beginningOfOffsetDays(long offsetDays) {
+        return millisToBeginningOfDay(System.currentTimeMillis() - millisFromDays(offsetDays));
     }
     
 }

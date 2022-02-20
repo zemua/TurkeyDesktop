@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 public class TypeService implements ITypeService {
     
     TypeDao repo = TypeRepository.getInstance();
+    private static final Logger logger = Logger.getLogger(TypeService.class.getName());
 
     @Override
     public long add(Type element) {
@@ -33,7 +34,7 @@ public class TypeService implements ITypeService {
                 return update(element);
             }
             } catch (SQLException ex) {
-                Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
+                logger.log(Level.SEVERE, null, ex);
             }
             return repo.add(element);
         }
@@ -63,7 +64,7 @@ public class TypeService implements ITypeService {
                 type.setType(Type.Types.valueOf(set.getString(Type.TYPE)));
             }
         } catch (SQLException ex) {
-            Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return type;
     }
@@ -83,7 +84,7 @@ public class TypeService implements ITypeService {
                 typeList.add(type);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(TimeLogService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return typeList;
     }

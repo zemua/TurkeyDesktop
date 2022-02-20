@@ -31,6 +31,7 @@ public class TitledLogServiceFacade implements ITitledLogServiceFacade {
     private ITitleService titleService = FTitleService.getService();
     private ITimeLogService logService = FTimeLogService.getService();
     private ITitledLogDaoFacade titleFacade = TitledLogRepoFacade.getInstance();
+    private static final Logger logger = Logger.getLogger(TitledLogServiceFacade.class.getName());
 
     @Override
     public List<TitledLog> getLogsWithTitleConditions(Date from, Date to) {
@@ -59,7 +60,7 @@ public class TitledLogServiceFacade implements ITitledLogServiceFacade {
                 logList.add(titledLog);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(TitledLogServiceFacade.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return logList;
     }
@@ -74,7 +75,7 @@ public class TitledLogServiceFacade implements ITitledLogServiceFacade {
             log.setQtyPositives(titleService.countTypesOf(Title.Type.POSITIVE, title));
             log.setQtyNegatives(titleService.countTypesOf(Title.Type.NEGATIVE, title));
         } catch (SQLException ex) {
-            Logger.getLogger(TitledLogServiceFacade.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return log;
     }

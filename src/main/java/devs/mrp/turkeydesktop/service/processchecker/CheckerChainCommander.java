@@ -14,7 +14,7 @@ import devs.mrp.turkeydesktop.common.ChainHandler;
  */
 public class CheckerChainCommander implements ChainCommander {
 
-    ChainHandler linuxHandler;
+    private ChainHandler linuxHandler;
     
     @Override
     public ChainHandler getHandlerChain() {

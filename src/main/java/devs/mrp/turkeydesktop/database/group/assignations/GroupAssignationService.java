@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 public class GroupAssignationService implements IGroupAssignationService {
     
     private static final GroupAssignationDao repo = GroupAssignationRepository.getInstance();
+    private static final Logger logger = Logger.getLogger(GroupAssignationService.class.getName());
     
     @Override
     public long add(GroupAssignation element) {
@@ -28,7 +29,7 @@ public class GroupAssignationService implements IGroupAssignationService {
             return -1;
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            ResultSet rs = repo.findById(element.getId());
+            ResultSet rs = repo.findByElementId(element.getType(), element.getElementId());
             try {
                 if (rs.next()) {
                     GroupAssignation group = elementFromResultSetEntry(rs);
@@ -40,7 +41,7 @@ public class GroupAssignationService implements IGroupAssignationService {
                     return 0;
                 }
             } catch (SQLException ex) {
-                Logger.getLogger(GroupAssignationService.class.getName()).log(Level.SEVERE, null, ex);
+                logger.log(Level.SEVERE, null, ex);
             }
             // else there is no element stored with this id
             return repo.add(element);
@@ -60,6 +61,7 @@ public class GroupAssignationService implements IGroupAssignationService {
         return elementsFromResultSet(repo.findAll());
     }
 
+    @Deprecated
     @Override
     public GroupAssignation findById(long id) {
         ResultSet set = repo.findById(id);
@@ -69,11 +71,12 @@ public class GroupAssignationService implements IGroupAssignationService {
                 element = elementFromResultSetEntry(set);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(GroupAssignationService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return element;
     }
 
+    @Deprecated
     @Override
     public long deleteById(long id) {
         return repo.deleteById(id);
@@ -81,12 +84,47 @@ public class GroupAssignationService implements IGroupAssignationService {
 
     @Override
     public GroupAssignation findByProcessId(String processId) {
-        return elementFromResultSetEntry(repo.findByElementId(GroupAssignation.ElementType.PROCESS, processId));
+        ResultSet set = repo.findByElementId(GroupAssignation.ElementType.PROCESS, processId);
+        try {
+            if (set.next()) {
+                return elementFromResultSetEntry(set);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(GroupAssignationService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
+    @Override
+    public long deleteByProcessId(String processId) {
+        return repo.deleteByElementId(GroupAssignation.ElementType.PROCESS, processId);
     }
 
     @Override
     public GroupAssignation findByTitleId(String titleId) {
-        return elementFromResultSetEntry(repo.findByElementId(GroupAssignation.ElementType.TITLE, titleId));
+        ResultSet set = repo.findByElementId(GroupAssignation.ElementType.TITLE, titleId);
+        try {
+            if (set.next()) {
+                return elementFromResultSetEntry(set);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(GroupAssignationService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
+    @Override
+    public GroupAssignation findLongestTitleIdContainedIn(String titleId) {
+        List<GroupAssignation> titleAssignations = elementsFromResultSet(repo.findAllOfType(GroupAssignation.ElementType.TITLE));
+        return titleAssignations.stream()
+                .filter(ga -> titleId.contains(ga.getElementId()))
+                .max((ga1, ga2) -> Integer.compare(ga1.getElementId().length(), ga2.getElementId().length()))
+                .orElse(null);
+    }
+    
+    @Override
+    public long deleteByTitleId(String titleId) {
+        return repo.deleteByElementId(GroupAssignation.ElementType.TITLE, titleId);
     }
 
     @Override
@@ -107,7 +145,7 @@ public class GroupAssignationService implements IGroupAssignationService {
                 elements.add(el);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(ConfigElementService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return elements;
     }
@@ -115,12 +153,11 @@ public class GroupAssignationService implements IGroupAssignationService {
     private GroupAssignation elementFromResultSetEntry(ResultSet set) {
         GroupAssignation el = new GroupAssignation();
         try {
-            el.setId(set.getLong(GroupAssignation.ID));
-            el.setType(GroupAssignation.ElementType.valueOf(set.getString(GroupAssignation.TYPE)));
+            el.setType(set.getString(GroupAssignation.TYPE) != null ? GroupAssignation.ElementType.valueOf(set.getString(GroupAssignation.TYPE)) : null);
             el.setElementId(set.getString(GroupAssignation.ELEMENT_ID));
             el.setGroupId(set.getLong(GroupAssignation.GROUP_ID));
         } catch (SQLException ex) {
-            Logger.getLogger(GroupService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         return el;
     }

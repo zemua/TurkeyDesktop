@@ -55,5 +55,10 @@ public class Group {
                 && ((this.getName() == null && group.getName() == null) || this.getName().equals(group.getName()))
                 && ((this.getType() == null && group.getType() == null) || this.getType().equals(group.getType()));
     }
+    
+    @Override
+    public String toString() {
+        return this.name;
+    }
 
 }
