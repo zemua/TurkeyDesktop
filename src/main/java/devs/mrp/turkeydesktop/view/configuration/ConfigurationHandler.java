@@ -85,12 +85,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
     
     private void handleLockdownStatusChange() {
-        Object lockDownObject = this.getPanel().getProperty(ConfigurationPanelEnum.LOCKDOWN);
-        if (lockDownObject == null || !(lockDownObject instanceof JToggleButton)) {
-            logger.log(Level.SEVERE, "Incorrect object retrieved from panel");
-            return;
-        }
-        JToggleButton lockDownButton = (JToggleButton)lockDownObject;
+        JToggleButton lockDownButton = (JToggleButton)getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN, JToggleButton.class).orElseThrow();
         boolean checked = lockDownButton.isSelected();
         ConfigElement el = new ConfigElement();
         el.setKey(ConfigurationEnum.LOCKDOWN);
@@ -99,15 +94,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
     
     private void handleLockdownFromChange() {
-        Object lockDownHour = this.getPanel().getProperty(ConfigurationPanelEnum.LOCKDOWN_FROM_HOUR);
-        Object lockDownMin = this.getPanel().getProperty(ConfigurationPanelEnum.LOCKDOWN_FROM_MIN);
-        if (lockDownHour == null || lockDownMin == null || !(lockDownHour instanceof JSpinner) || !(lockDownMin instanceof JSpinner)) {
-            logger.log(Level.SEVERE, "Incorrect object retrieved from panel");
-            return;
-        }
+        JSpinner lockDownHourSpinner = (JSpinner)getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_FROM_HOUR, JSpinner.class).orElseThrow();
+        JSpinner lockDownMinSpinner = (JSpinner)getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_FROM_MIN, JSpinner.class).orElseThrow();
         try {
-            JSpinner lockDownHourSpinner = (JSpinner)lockDownHour;
-            JSpinner lockDownMinSpinner = (JSpinner)lockDownMin;
             Long time = 60*1000*(Long)lockDownMinSpinner.getValue();
             time += 60*60*1000*(Long)lockDownHourSpinner.getValue();
             ConfigElement el = new ConfigElement();
@@ -120,15 +109,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
     
     private void handleLockdownToChange() {
-        Object lockDownHour = this.getPanel().getProperty(ConfigurationPanelEnum.LOCKDOWN_TO_HOUR);
-        Object lockDownMin = this.getPanel().getProperty(ConfigurationPanelEnum.LOCKDOWN_TO_MIN);
-        if (lockDownHour == null || lockDownMin == null || !(lockDownHour instanceof JSpinner) || !(lockDownMin instanceof JSpinner)) {
-            logger.log(Level.SEVERE, "Incorrect object retrieved from panel");
-            return;
-        }
+        JSpinner lockDownHourSpinner = (JSpinner)getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_TO_HOUR, JSpinner.class).orElseThrow();
+        JSpinner lockDownMinSpinner = (JSpinner)getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_TO_MIN, JSpinner.class).orElseThrow();
         try {
-            JSpinner lockDownHourSpinner = (JSpinner)lockDownHour;
-            JSpinner lockDownMinSpinner = (JSpinner)lockDownMin;
             Long time = 60*1000*(Long)lockDownMinSpinner.getValue();
             time += 60*60*1000*(Long)lockDownHourSpinner.getValue();
             ConfigElement el = new ConfigElement();
