@@ -12,8 +12,12 @@ import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JSlider;
+import javax.swing.JSpinner;
+import javax.swing.JToggleButton;
 
 /**
  *
@@ -23,6 +27,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     
     private IConfigElementService configService = FConfigElementService.getService();
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
+    private Logger logger = Logger.getLogger(ConfigurationHandler.class.getName());
 
     public ConfigurationHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
         super(frame, caller);
@@ -43,6 +48,15 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                     break;
                 case PROPORTION:
                     handleNewProportion();
+                    break;
+                case LOCKDOWN:
+                    handleLockdownStatusChange();
+                    break;
+                case LOCKDOWN_FROM:
+                    handleLockdownFromChange();
+                    break;
+                case LOCKDOWN_TO:
+                    handleLockdownToChange();
                     break;
                 default:
                     break;
@@ -68,6 +82,43 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         el.setKey(ConfigurationEnum.PROPORTION);
         el.setValue(String.valueOf(proportion));
         configService.add(el);
+    }
+    
+    private void handleLockdownStatusChange() {
+        Object lockDownObject = this.getPanel().getProperty(ConfigurationPanelEnum.LOCKDOWN);
+        if (lockDownObject == null || !(lockDownObject instanceof JToggleButton)) {
+            logger.log(Level.SEVERE, "Incorrect object retrieved from panel");
+            return;
+        }
+        JToggleButton lockDownButton = (JToggleButton)lockDownObject;
+        boolean checked = lockDownButton.isSelected();
+        ConfigElement el = new ConfigElement();
+        el.setKey(ConfigurationEnum.LOCKDOWN);
+        el.setValue(String.valueOf(el));
+        configService.add(el);
+    }
+    
+    private void handleLockdownFromChange() {
+        Object lockDownHour = this.getPanel().getProperty(ConfigurationPanelEnum.LOCKDOWN_FROM_HOUR);
+        Object lockDownMin = this.getPanel().getProperty(ConfigurationPanelEnum.LOCKDOWN_FROM_MIN);
+        if (lockDownHour == null || lockDownMin == null || !(lockDownHour instanceof JSpinner) || !(lockDownMin instanceof JSpinner)) {
+            logger.log(Level.SEVERE, "Incorrect object retrieved from panel");
+            return;
+        }
+        try {
+            JSpinner lockDownHourSpinner = (JSpinner)lockDownHour;
+            JSpinner lockDownMinSpinner = (JSpinner)lockDownMin;
+            Long time = 60*1000*(Long)lockDownMinSpinner.getValue();
+            time += 60*60*1000*(Long)lockDownHourSpinner.getValue();
+            // TODO save into db
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error getting values from spinners to db", e);
+        }
+        
+    }
+    
+    private void handleLockdownToChange() {
+        // TODO
     }
     
 }

@@ -10,7 +10,7 @@ package devs.mrp.turkeydesktop.view.configuration;
  * @author miguel
  */
 public enum ConfigurationEnum {
-    PROPORTION("4");
+    PROPORTION("4"), LOCKDOWN("false"), LOCKDOWN_FROM("0"), LOCKDOWN_TO("0");
     
     private final String def;
     

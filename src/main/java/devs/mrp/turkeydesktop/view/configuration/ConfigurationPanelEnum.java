@@ -10,5 +10,6 @@ package devs.mrp.turkeydesktop.view.configuration;
  * @author miguel
  */
 public enum ConfigurationPanelEnum {
-    BACK, PROPORTION;
+    BACK, PROPORTION, LOCKDOWN, LOCKDOWN_FROM, LOCKDOWN_TO,
+    LOCKDOWN_FROM_HOUR, LOCKDOWN_FROM_MIN, LOCKDOWN_TO_HOUR, LOCKDOWN_TO_MIN;
 }

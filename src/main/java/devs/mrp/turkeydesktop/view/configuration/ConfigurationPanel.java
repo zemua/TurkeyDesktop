@@ -37,8 +37,8 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         jScrollPane1 = new javax.swing.JScrollPane();
         jPanel1 = new javax.swing.JPanel();
         proportionLabel = new javax.swing.JLabel();
-        jSlider1 = new javax.swing.JSlider();
-        jToggleButton1 = new javax.swing.JToggleButton();
+        proportionSlider = new javax.swing.JSlider();
+        lockDownButton = new javax.swing.JToggleButton();
         jLabel1 = new javax.swing.JLabel();
         fromHours = new javax.swing.JSpinner();
         jLabel2 = new javax.swing.JLabel();
@@ -52,42 +52,67 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
         proportionLabel.setText(bundle.getString("proportion")); // NOI18N
 
-        jSlider1.setMajorTickSpacing(1);
-        jSlider1.setMaximum(10);
-        jSlider1.setMinimum(1);
-        jSlider1.setMinorTickSpacing(1);
-        jSlider1.setPaintLabels(true);
-        jSlider1.setPaintTicks(true);
-        jSlider1.setSnapToTicks(true);
-        jSlider1.setValue(Integer.parseInt(ConfigurationEnum.PROPORTION.getDefault()));
-        jSlider1.addChangeListener(new javax.swing.event.ChangeListener() {
+        proportionSlider.setMajorTickSpacing(1);
+        proportionSlider.setMaximum(10);
+        proportionSlider.setMinimum(1);
+        proportionSlider.setMinorTickSpacing(1);
+        proportionSlider.setPaintLabels(true);
+        proportionSlider.setPaintTicks(true);
+        proportionSlider.setSnapToTicks(true);
+        proportionSlider.setValue(Integer.parseInt(ConfigurationEnum.PROPORTION.getDefault()));
+        proportionSlider.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                jSlider1StateChanged(evt);
+                proportionSliderStateChanged(evt);
             }
         });
-        jSlider1.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+        proportionSlider.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                jSlider1PropertyChange(evt);
+                proportionSliderPropertyChange(evt);
             }
         });
 
-        jToggleButton1.setText(bundle.getString("lockdown")); // NOI18N
+        lockDownButton.setText(bundle.getString("lockdown")); // NOI18N
+        lockDownButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lockDownButtonActionPerformed(evt);
+            }
+        });
 
         jLabel1.setText(bundle.getString("from")); // NOI18N
 
         fromHours.setModel(new javax.swing.SpinnerNumberModel(0, 0, 23, 1));
+        fromHours.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                fromHoursStateChanged(evt);
+            }
+        });
 
         jLabel2.setText(bundle.getString("hours")); // NOI18N
 
         fromMinutes.setModel(new javax.swing.SpinnerNumberModel(0, 0, 59, 1));
+        fromMinutes.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                fromMinutesStateChanged(evt);
+            }
+        });
 
         jLabel4.setText(bundle.getString("to")); // NOI18N
 
         toHours.setModel(new javax.swing.SpinnerNumberModel(0, 0, 23, 1));
+        toHours.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                toHoursStateChanged(evt);
+            }
+        });
 
         jLabel5.setText(bundle.getString("hours")); // NOI18N
 
         toMinutes.setModel(new javax.swing.SpinnerNumberModel(0, 0, 59, 1));
+        toMinutes.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                toMinutesStateChanged(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -99,10 +124,10 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                         .addGap(12, 12, 12)
                         .addComponent(proportionLabel)
                         .addGap(12, 12, 12)
-                        .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(proportionSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jToggleButton1))
+                        .addComponent(lockDownButton))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jLabel1)
@@ -128,9 +153,9 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                 .addGap(12, 12, 12)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(proportionLabel)
-                    .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(proportionSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(jToggleButton1)
+                .addComponent(lockDownButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(fromHours, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -181,19 +206,49 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         giveFeedback(ConfigurationPanelEnum.BACK, evt);
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void jSlider1PropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jSlider1PropertyChange
+    private void proportionSliderPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_proportionSliderPropertyChange
         //giveFeedback(ConfigurationPanelEnum.PROPORTION, null);
-    }//GEN-LAST:event_jSlider1PropertyChange
+    }//GEN-LAST:event_proportionSliderPropertyChange
 
-    private void jSlider1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider1StateChanged
+    private void proportionSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_proportionSliderStateChanged
         giveFeedback(ConfigurationPanelEnum.PROPORTION, null);
-    }//GEN-LAST:event_jSlider1StateChanged
+    }//GEN-LAST:event_proportionSliderStateChanged
+
+    private void lockDownButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lockDownButtonActionPerformed
+        giveFeedback(ConfigurationPanelEnum.LOCKDOWN, evt);
+    }//GEN-LAST:event_lockDownButtonActionPerformed
+
+    private void fromHoursStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_fromHoursStateChanged
+        giveFeedback(ConfigurationPanelEnum.LOCKDOWN_FROM, null);
+    }//GEN-LAST:event_fromHoursStateChanged
+
+    private void fromMinutesStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_fromMinutesStateChanged
+        giveFeedback(ConfigurationPanelEnum.LOCKDOWN_FROM, null);
+    }//GEN-LAST:event_fromMinutesStateChanged
+
+    private void toHoursStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_toHoursStateChanged
+        giveFeedback(ConfigurationPanelEnum.LOCKDOWN_TO, null);
+    }//GEN-LAST:event_toHoursStateChanged
+
+    private void toMinutesStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_toMinutesStateChanged
+        giveFeedback(ConfigurationPanelEnum.LOCKDOWN_TO, null);
+    }//GEN-LAST:event_toMinutesStateChanged
 
     @Override
     public Object getProperty(ConfigurationPanelEnum property) {
         switch (property) {
             case PROPORTION:
-                return jSlider1;
+                return proportionSlider;
+            case LOCKDOWN:
+                return lockDownButton;
+            case LOCKDOWN_FROM_HOUR:
+                return fromHours;
+            case LOCKDOWN_FROM_MIN:
+                return fromMinutes;
+            case LOCKDOWN_TO_HOUR:
+                return toHours;
+            case LOCKDOWN_TO_MIN:
+                return toMinutes;
             default:
                 return null;
         }
@@ -220,9 +275,9 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JSlider jSlider1;
-    private javax.swing.JToggleButton jToggleButton1;
+    private javax.swing.JToggleButton lockDownButton;
     private javax.swing.JLabel proportionLabel;
+    private javax.swing.JSlider proportionSlider;
     private javax.swing.JSpinner toHours;
     private javax.swing.JSpinner toMinutes;
     // End of variables declaration//GEN-END:variables
