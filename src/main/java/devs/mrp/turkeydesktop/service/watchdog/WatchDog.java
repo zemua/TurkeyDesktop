@@ -32,6 +32,7 @@ public class WatchDog implements IWatchDog {
     
     // TODO set toque de queda
     // TODO start as daemon in system tray, open window on click, and hide on close
+    // TODO when another instance is open and try to open a second one, on error, close the process of that second one
     
     private static final Logger LOGGER = Logger.getLogger(WatchDog.class.getName());
 

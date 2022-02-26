@@ -6,6 +6,7 @@
 package devs.mrp.turkeydesktop.view.mainpanel;
 
 import devs.mrp.turkeydesktop.view.PanelHandler;
+import java.awt.AWTEvent;
 import javax.swing.JFrame;
 
 /**
@@ -13,11 +14,11 @@ import javax.swing.JFrame;
  * @author miguel
  */
 public class FMainPanel {
-    public static FeedbackerPanelWithFetcher getMainPanel() {
+    public static FeedbackerPanelWithFetcher<MainEnum, AWTEvent> getMainPanel() {
         return new MainPanel();
     }
     
-    public static PanelHandler getMainHandler(JFrame frame) {
+    public static PanelHandler<MainEnum, AWTEvent, FeedbackerPanelWithFetcher<MainEnum, AWTEvent>> getMainHandler(JFrame frame) {
         return new MainHandler(frame, null);
     }
 }

@@ -80,7 +80,7 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
 
         jLabel1.setText(bundle.getString("from")); // NOI18N
 
-        fromHours.setModel(new javax.swing.SpinnerNumberModel(0, 0, 23, 1));
+        fromHours.setModel(new javax.swing.SpinnerNumberModel(Long.valueOf(0L), Long.valueOf(0L), Long.valueOf(23L), Long.valueOf(1L)));
         fromHours.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 fromHoursStateChanged(evt);
@@ -89,7 +89,7 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
 
         jLabel2.setText(bundle.getString("hours")); // NOI18N
 
-        fromMinutes.setModel(new javax.swing.SpinnerNumberModel(0, 0, 59, 1));
+        fromMinutes.setModel(new javax.swing.SpinnerNumberModel(Long.valueOf(0L), Long.valueOf(0L), Long.valueOf(59L), Long.valueOf(1L)));
         fromMinutes.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 fromMinutesStateChanged(evt);
@@ -98,7 +98,7 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
 
         jLabel4.setText(bundle.getString("to")); // NOI18N
 
-        toHours.setModel(new javax.swing.SpinnerNumberModel(0, 0, 23, 1));
+        toHours.setModel(new javax.swing.SpinnerNumberModel(Long.valueOf(0L), Long.valueOf(0L), Long.valueOf(23L), Long.valueOf(1L)));
         toHours.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 toHoursStateChanged(evt);
@@ -107,7 +107,7 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
 
         jLabel5.setText(bundle.getString("hours")); // NOI18N
 
-        toMinutes.setModel(new javax.swing.SpinnerNumberModel(0, 0, 59, 1));
+        toMinutes.setModel(new javax.swing.SpinnerNumberModel(Long.valueOf(0L), Long.valueOf(0L), Long.valueOf(59L), Long.valueOf(1L)));
         toMinutes.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 toMinutesStateChanged(evt);
