@@ -110,15 +110,34 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
             JSpinner lockDownMinSpinner = (JSpinner)lockDownMin;
             Long time = 60*1000*(Long)lockDownMinSpinner.getValue();
             time += 60*60*1000*(Long)lockDownHourSpinner.getValue();
-            // TODO save into db
+            ConfigElement el = new ConfigElement();
+            el.setKey(ConfigurationEnum.LOCKDOWN_FROM);
+            el.setValue(String.valueOf(time));
+            configService.add(el);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error getting values from spinners to db", e);
         }
-        
     }
     
     private void handleLockdownToChange() {
-        // TODO
+        Object lockDownHour = this.getPanel().getProperty(ConfigurationPanelEnum.LOCKDOWN_TO_HOUR);
+        Object lockDownMin = this.getPanel().getProperty(ConfigurationPanelEnum.LOCKDOWN_TO_MIN);
+        if (lockDownHour == null || lockDownMin == null || !(lockDownHour instanceof JSpinner) || !(lockDownMin instanceof JSpinner)) {
+            logger.log(Level.SEVERE, "Incorrect object retrieved from panel");
+            return;
+        }
+        try {
+            JSpinner lockDownHourSpinner = (JSpinner)lockDownHour;
+            JSpinner lockDownMinSpinner = (JSpinner)lockDownMin;
+            Long time = 60*1000*(Long)lockDownMinSpinner.getValue();
+            time += 60*60*1000*(Long)lockDownHourSpinner.getValue();
+            ConfigElement el = new ConfigElement();
+            el.setKey(ConfigurationEnum.LOCKDOWN_TO);
+            el.setValue(String.valueOf(time));
+            configService.add(el);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error getting values from spinners to db", e);
+        }
     }
     
 }
