@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.view.configuration;
 
+import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.FConfigElementService;
 import devs.mrp.turkeydesktop.database.config.IConfigElementService;
@@ -75,6 +76,24 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         slider.setValue(proportion);
     }
     
+    private void setupLockDown() {
+        boolean locked = Boolean.valueOf(configService.configElement(ConfigurationEnum.LOCKDOWN).getValue());
+        JToggleButton lockedButton = (JToggleButton)getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN, JToggleButton.class).orElseThrow();
+        lockedButton.setSelected(locked);
+        
+        long from = Long.valueOf(configService.configElement(ConfigurationEnum.LOCKDOWN_FROM).getValue());
+        JSpinner fromHour = (JSpinner)getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_FROM_HOUR, JSpinner.class).orElseThrow();
+        JSpinner fromMin = (JSpinner)getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_FROM_MIN, JSpinner.class).orElseThrow();
+        fromHour.setValue(TimeConverter.getHours(from));
+        fromMin.setValue(TimeConverter.getMinutes(from));
+        
+        long to = Long.valueOf(configService.configElement(ConfigurationEnum.LOCKDOWN_TO).getValue());
+        JSpinner toHour = (JSpinner)getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_TO_HOUR, JSpinner.class).orElseThrow();
+        JSpinner toMin = (JSpinner)getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_TO_MIN, JSpinner.class).orElseThrow();
+        toHour.setValue(TimeConverter.getHours(to));
+        toMin.setValue(TimeConverter.getMinutes(to));
+    }
+    
     private void handleNewProportion() {
         JSlider slider = (JSlider) this.getPanel().getProperty(ConfigurationPanelEnum.PROPORTION);
         int proportion = slider.getValue();
@@ -97,8 +116,8 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         JSpinner lockDownHourSpinner = (JSpinner)getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_FROM_HOUR, JSpinner.class).orElseThrow();
         JSpinner lockDownMinSpinner = (JSpinner)getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_FROM_MIN, JSpinner.class).orElseThrow();
         try {
-            Long time = 60*1000*(Long)lockDownMinSpinner.getValue();
-            time += 60*60*1000*(Long)lockDownHourSpinner.getValue();
+            Long time = TimeConverter.minutesToMilis((Long)lockDownMinSpinner.getValue());
+            time += TimeConverter.hoursToMilis((Long)lockDownHourSpinner.getValue());
             ConfigElement el = new ConfigElement();
             el.setKey(ConfigurationEnum.LOCKDOWN_FROM);
             el.setValue(String.valueOf(time));
@@ -112,8 +131,8 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         JSpinner lockDownHourSpinner = (JSpinner)getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_TO_HOUR, JSpinner.class).orElseThrow();
         JSpinner lockDownMinSpinner = (JSpinner)getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_TO_MIN, JSpinner.class).orElseThrow();
         try {
-            Long time = 60*1000*(Long)lockDownMinSpinner.getValue();
-            time += 60*60*1000*(Long)lockDownHourSpinner.getValue();
+            Long time = TimeConverter.minutesToMilis((Long)lockDownMinSpinner.getValue());
+            time += TimeConverter.hoursToMilis((Long)lockDownHourSpinner.getValue());
             ConfigElement el = new ConfigElement();
             el.setKey(ConfigurationEnum.LOCKDOWN_TO);
             el.setValue(String.valueOf(time));
