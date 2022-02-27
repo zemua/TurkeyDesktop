@@ -35,7 +35,7 @@ public class ConditionChecker implements IConditionChecker {
 
     @Override
     public boolean areConditionsMet(List<Condition> conditions) {
-        return !isLockDownTime() && conditions.stream()
+        return conditions.stream()
                 .map(c -> isConditionMet(c))
                 .allMatch(b -> b.equals(true));
     }

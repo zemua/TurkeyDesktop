@@ -137,7 +137,11 @@ public class WatchDog implements IWatchDog {
             Toaster.sendToast(localeMessages.getString("killingProcess"));
         }
         
-        if (!conditionsMet) {
+        if (entry.getType().equals(this)) {
+            // TODO discount points
+        }
+        
+        if (!conditionsMet || conditionChecker.isLockDownTime()) {
             Toaster.sendToast(localeMessages.getString("conditionsNotMet"));
         }
     }

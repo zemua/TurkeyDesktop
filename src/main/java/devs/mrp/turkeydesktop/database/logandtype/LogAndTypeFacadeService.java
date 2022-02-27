@@ -7,13 +7,10 @@ package devs.mrp.turkeydesktop.database.logandtype;
 
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.Tripla;
-import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.FConditionService;
 import devs.mrp.turkeydesktop.database.conditions.IConditionService;
 import devs.mrp.turkeydesktop.database.config.FConfigElementService;
 import devs.mrp.turkeydesktop.database.config.IConfigElementService;
-import devs.mrp.turkeydesktop.database.group.FGroupService;
-import devs.mrp.turkeydesktop.database.group.IGroupService;
 import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
@@ -93,36 +90,41 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
     
     private TimeLog adjustDependingOnType(TimeLog element) {
         Type type = typeService.findById(element.getProcessName());
+        boolean lockdown = conditionChecker.isLockDownTime();
+        int proportion = Integer.valueOf(configService.configElement(ConfigurationEnum.PROPORTION).getValue());
         if (type == null || type.getType() == null) {
             type = new Type();
             type.setType(Type.Types.UNDEFINED);
         }
-        switch (type.getType()){
+        switch (type.getType()){ // TODO make chain of responsibility to handle each case in a more clean way
             case NEUTRAL:
                 element.setType(Type.Types.NEUTRAL);
                 element.setGroupId(-1);
-                element.setCounted(0);
+                element.setCounted(lockdown ? -1 * proportion * element.getElapsed() : 0);
                 break;
             case UNDEFINED:
                 element.setType(Type.Types.UNDEFINED);
                 element.setGroupId(-1);
-                element.setCounted(0);
+                element.setCounted(lockdown ? -1 * proportion * element.getElapsed() : 0);
                 break;
             case DEPENDS:
                 element.setType(Type.Types.DEPENDS);
                 // If title is "hello to you" and we have records "hello" in group1 and "hello to" in group2 the group2 will be chosen
                 GroupAssignation assignation = groupAssignationService.findLongestTitleIdContainedIn(element.getWindowTitle());
                 element.setGroupId(assignation != null ? assignation.getGroupId() : -1);
-                setCountedDependingOnTitle(element, element.getElapsed());
+                if (!lockdown){setCountedDependingOnTitle(element, element.getElapsed());} else {element.setCounted(-1 * proportion * element.getElapsed());}
                 break;
             case POSITIVE:
                 element.setType(Type.Types.POSITIVE);
                 GroupAssignation positiveAssignation = groupAssignationService.findByProcessId(element.getProcessName());
                 element.setGroupId(positiveAssignation != null ? positiveAssignation.getGroupId() : -1);
-                element.setCounted(conditionChecker.areConditionsMet(element.getGroupId()) ? Math.abs(element.getElapsed()) : 0);
+                if (!lockdown) {
+                    element.setCounted(conditionChecker.areConditionsMet(element.getGroupId()) ? Math.abs(element.getElapsed()) : 0);
+                } else {
+                    element.setCounted(-1 * proportion * element.getElapsed());
+                }
                 break;
             case NEGATIVE:
-                int proportion = Integer.valueOf(configService.configElement(ConfigurationEnum.PROPORTION).getValue());
                 element.setType(Type.Types.NEGATIVE);
                 GroupAssignation negativeAssignation = groupAssignationService.findByProcessId(element.getProcessName());
                 element.setGroupId(negativeAssignation != null ? negativeAssignation.getGroupId() : -1);
@@ -131,6 +133,7 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
             default:
                 break;
         }
+        
         return element;
     }
     
@@ -155,7 +158,8 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
         if (last != null) {
             lastAccumulated = last.getAccumulated();
         }
-        long accumulated = lastAccumulated + counted;
+        long accumulated;
+        accumulated = lastAccumulated + counted;
         element.setAccumulated(accumulated);
         //LOGGER.log(Level.INFO, "accumulated: " + accumulated);
         return element;
