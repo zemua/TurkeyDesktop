@@ -35,7 +35,7 @@ public class ConditionChecker implements IConditionChecker {
 
     @Override
     public boolean areConditionsMet(List<Condition> conditions) {
-        return conditions.stream()
+        return !isLockDownTime() && conditions.stream()
                 .map(c -> isConditionMet(c))
                 .allMatch(b -> b.equals(true));
     }
@@ -47,6 +47,12 @@ public class ConditionChecker implements IConditionChecker {
         }
         List<Condition> conditions = conditionService.findByGroupId(groupId);
         return areConditionsMet(conditions);
+    }
+    
+    @Override
+    public boolean isLockDownTime() {
+        // TODO
+        return false;
     }
     
 }
