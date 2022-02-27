@@ -68,6 +68,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     @Override
     protected void doExtraBeforeShow() {
         setupProportion();
+        setupLockDown();
     }
     
     private void setupProportion() {
@@ -108,7 +109,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         boolean checked = lockDownButton.isSelected();
         ConfigElement el = new ConfigElement();
         el.setKey(ConfigurationEnum.LOCKDOWN);
-        el.setValue(String.valueOf(el));
+        el.setValue(String.valueOf(checked));
         configService.add(el);
     }
     

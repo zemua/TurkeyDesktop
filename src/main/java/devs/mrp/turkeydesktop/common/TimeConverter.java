@@ -26,7 +26,7 @@ public class TimeConverter {
     }
 
     public static long getHours(long millis) {
-        return millis/(1000*60/60);
+        return millis/(1000*60*60);
     }
     
     public static long hoursToMilis(long hours) {
