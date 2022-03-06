@@ -141,7 +141,7 @@ public class WatchDog implements IWatchDog {
             // TODO discount points
         }
         
-        if (!conditionsMet || conditionChecker.isLockDownTime()) {
+        if (!conditionsMet || conditionChecker.isLockDownTime(current)) {
             Toaster.sendToast(localeMessages.getString("conditionsNotMet"));
         }
     }

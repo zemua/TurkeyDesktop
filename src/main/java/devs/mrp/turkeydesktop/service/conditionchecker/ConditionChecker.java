@@ -51,6 +51,11 @@ public class ConditionChecker implements IConditionChecker {
     
     @Override
     public boolean isLockDownTime() {
+        return isLockDownTime(System.currentTimeMillis());
+    }
+    
+    @Override
+    public boolean isLockDownTime(long now) {
         // TODO
         return false;
     }
