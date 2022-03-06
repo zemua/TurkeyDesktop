@@ -30,6 +30,10 @@ import javax.swing.SwingWorker;
  */
 public class WatchDog implements IWatchDog {
     
+    // TODO set toque de queda
+    // TODO start as daemon in system tray, open window on click, and hide on close
+    // TODO when another instance is open and try to open a second one, on error, close the process of that second one
+    
     private static final Logger LOGGER = Logger.getLogger(WatchDog.class.getName());
 
     private static final long SLEEP_MILIS = 3000;
@@ -128,7 +132,7 @@ public class WatchDog implements IWatchDog {
         TimeLog entry = dbLogger.logEntry(elapsed, processChecker.currentProcessPid(), processChecker.currentProcessName(), processChecker.currentWindowTitle());
         
         boolean conditionsMet = conditionChecker.areConditionsMet(entry.getGroupId());
-        if (entry.getCounted() < 0 && (entry.getAccumulated() <= 0 || !conditionsMet)) {
+        if (entry.isBlockable() && (entry.getAccumulated() <= 0 || !conditionsMet)) {
             killerHandler.receiveRequest(null, processChecker.currentProcessPid());
             Toaster.sendToast(localeMessages.getString("killingProcess"));
         }

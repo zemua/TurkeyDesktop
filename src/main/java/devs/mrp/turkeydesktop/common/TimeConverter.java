@@ -5,6 +5,13 @@
  */
 package devs.mrp.turkeydesktop.common;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.util.Formatter;
 import java.util.concurrent.TimeUnit;
 
@@ -26,7 +33,7 @@ public class TimeConverter {
     }
 
     public static long getHours(long millis) {
-        return millis/(1000*60/60);
+        return millis/(1000*60*60);
     }
     
     public static long hoursToMilis(long hours) {
@@ -64,25 +71,28 @@ public class TimeConverter {
     }
     
     public static long currentDay() {
-        return daysFromMillis(System.currentTimeMillis());
+        return LocalDate.now().toEpochDay();
     }
     
     public static long offsetDay(long nDays) {
-        return currentDay()-nDays;
+        return LocalDate.now().minusDays(nDays).toEpochDay();
     }
     
     public static long offsetDayInMillis(long nDays) {
-        return millisFromDays(offsetDay(nDays));
+        //return millisFromDays(offsetDay(nDays));
+        return beginningOfOffsetDays(nDays);
     }
     
     public static long millisToBeginningOfDay(long milliseconds) {
-        var days = daysFromMillis(milliseconds);
-        return millisFromDays(days);
+        LocalDateTime start = LocalDate.ofInstant(Instant.ofEpochMilli(milliseconds), ZoneId.systemDefault()).atStartOfDay();
+        ZonedDateTime zdt = start.atZone(ZoneId.systemDefault());
+        return zdt.toInstant().toEpochMilli();
     }
     
     public static long millisToEndOfDay(long milliseconds) {
-        var days = daysFromMillis(milliseconds);
-        return millisFromDays(days) + millisFromDays(1);
+        LocalDateTime start = LocalDate.ofInstant(Instant.ofEpochMilli(milliseconds), ZoneId.systemDefault()).atStartOfDay().plusDays(1);
+        ZonedDateTime zdt = start.atZone(ZoneId.systemDefault());
+        return zdt.toInstant().toEpochMilli();
     }
     
     public static long endOfToday() {
@@ -90,7 +100,14 @@ public class TimeConverter {
     }
     
     public static long beginningOfOffsetDays(long offsetDays) {
-        return millisToBeginningOfDay(System.currentTimeMillis() - millisFromDays(offsetDays));
+        LocalDateTime start = LocalDate.now().atStartOfDay().minusDays(offsetDays);
+        ZonedDateTime zdt = start.atZone(ZoneId.systemDefault());
+        return zdt.toInstant().toEpochMilli();
+    }
+    
+    public static long epochToMilisOnGivenDay(long epoch) {
+        LocalTime time = LocalDateTime.ofInstant(Instant.ofEpochMilli(epoch), ZoneId.systemDefault()).toLocalTime();
+        return time.getLong(ChronoField.MILLI_OF_DAY);
     }
     
 }
