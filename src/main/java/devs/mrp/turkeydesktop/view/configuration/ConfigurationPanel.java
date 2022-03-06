@@ -47,6 +47,9 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         toHours = new javax.swing.JSpinner();
         jLabel5 = new javax.swing.JLabel();
         toMinutes = new javax.swing.JSpinner();
+        notifyLockButton = new javax.swing.JToggleButton();
+        minutesLock = new javax.swing.JSpinner();
+        jLabel3 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
@@ -114,6 +117,22 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
             }
         });
 
+        notifyLockButton.setText(bundle.getString("notify")); // NOI18N
+        notifyLockButton.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                notifyLockButtonStateChanged(evt);
+            }
+        });
+
+        minutesLock.setModel(new javax.swing.SpinnerNumberModel(Long.valueOf(10L), Long.valueOf(1L), Long.valueOf(60L), Long.valueOf(1L)));
+        minutesLock.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                minutesLockStateChanged(evt);
+            }
+        });
+
+        jLabel3.setText(bundle.getString("minBeforeLock")); // NOI18N
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -144,7 +163,14 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(toMinutes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(toMinutes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(notifyLockButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(minutesLock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel3)))
                 .addContainerGap(303, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -166,7 +192,12 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                     .addComponent(toHours, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel5)
                     .addComponent(toMinutes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(269, 269, 269))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(notifyLockButton)
+                    .addComponent(minutesLock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3))
+                .addContainerGap())
         );
 
         jScrollPane1.setViewportView(jPanel1);
@@ -234,6 +265,14 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         giveFeedback(ConfigurationPanelEnum.LOCKDOWN_TO, null);
     }//GEN-LAST:event_toMinutesStateChanged
 
+    private void notifyLockButtonStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_notifyLockButtonStateChanged
+        giveFeedback(ConfigurationPanelEnum.LOCKDOWN_NOTIFY, null);
+    }//GEN-LAST:event_notifyLockButtonStateChanged
+
+    private void minutesLockStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_minutesLockStateChanged
+        giveFeedback(ConfigurationPanelEnum.LOCKDOWN_NOTIFY_MIN, null);
+    }//GEN-LAST:event_minutesLockStateChanged
+
     @Override
     public Object getProperty(ConfigurationPanelEnum property) {
         switch (property) {
@@ -249,6 +288,10 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                 return toHours;
             case LOCKDOWN_TO_MIN:
                 return toMinutes;
+            case LOCKDOWN_NOTIFY:
+                return notifyLockButton;
+            case LOCKDOWN_NOTIFY_MIN:
+                return minutesLock;
             default:
                 return null;
         }
@@ -271,11 +314,14 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JToggleButton lockDownButton;
+    private javax.swing.JSpinner minutesLock;
+    private javax.swing.JToggleButton notifyLockButton;
     private javax.swing.JLabel proportionLabel;
     private javax.swing.JSlider proportionSlider;
     private javax.swing.JSpinner toHours;

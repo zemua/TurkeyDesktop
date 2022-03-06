@@ -19,6 +19,7 @@ import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.util.List;
+import java.util.Optional;
 
 /**
  *
@@ -71,8 +72,9 @@ public class ConditionChecker implements IConditionChecker {
                 || (from > to && (hourNow >= from || hourNow <= to));
         if (isLockDown) {
             Toaster.sendToast(localeMessages.getString("isLockDown"));
+        } else if (closeToLock(hourNow, from)) {
+            Toaster.sendToast(localeMessages.getString("closeToLock"));
         }
-        System.out.println(String.format("from = %s to = %s hourNow = %s", String.valueOf(from), String.valueOf(to), String.valueOf(hourNow)));
         return isLockDown;
     }
     
@@ -82,6 +84,20 @@ public class ConditionChecker implements IConditionChecker {
     
     private Long lockDownEnd() {
         return Long.valueOf(configService.findById(ConfigurationEnum.LOCKDOWN_TO).getValue());
+    }
+    
+    private boolean closeToLock(Long hourNow, Long from) {
+        Boolean isNotice = Boolean.valueOf(configService.findById(ConfigurationEnum.LOCK_NOTIFY).getValue());
+        if (!isNotice) {
+            return false;
+        }
+        Long minutesNotice = TimeConverter.getMinutes(Long.valueOf(configService.findById(ConfigurationEnum.LOCK_NOTIFY_MINUTES).getValue()));
+        if (hourNow < from) {
+            return from - hourNow < 60*1000 * minutesNotice;
+        } else if (hourNow > from) {
+            return from + TimeConverter.hoursToMilis(24) - hourNow < 60*1000 * minutesNotice;
+        }
+        return false;
     }
     
 }
