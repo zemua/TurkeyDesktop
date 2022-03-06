@@ -65,6 +65,12 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                 case LOCKDOWN_NOTIFY_MIN:
                     handleLockDownMinutesNotificationChange();
                     break;
+                case NOTIFY_MIN_LEFT:
+                    handleMinLeftNotificationChange();
+                    break;
+                case NOTIFY_MIN_LEFT_QTY:
+                    handleMinLeftQtyNotificationChange();
+                    break;
                 default:
                     break;
             }
@@ -76,6 +82,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         setupProportion();
         setupLockDown();
         setupLockDownNotification();
+        setupMinLeftNotification();
     }
     
     private void setupProportion() {
@@ -112,6 +119,19 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
             notifyMinutes = 10*60*1000;
         }
         JSpinner minSpin = (JSpinner)getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_NOTIFY_MIN, JSpinner.class).orElseThrow();
+        minSpin.setValue(TimeConverter.getMinutes(notifyMinutes));
+    }
+    
+    private void setupMinLeftNotification() {
+        boolean notify = Boolean.valueOf(configService.configElement(ConfigurationEnum.MIN_LEFT_BUTTON).getValue());
+        JToggleButton notifyButton = (JToggleButton)getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_MIN_LEFT, JToggleButton.class).orElseThrow();
+        notifyButton.setSelected(notify);
+        
+        long notifyMinutes = Long.valueOf(configService.configElement(ConfigurationEnum.MIN_LEFT_QTY).getValue());
+        if (notifyMinutes < 1*60*1000 || notifyMinutes > 60*60*1000) {
+            notifyMinutes = 10*60*1000;
+        }
+        JSpinner minSpin = (JSpinner)getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_MIN_LEFT_QTY, JSpinner.class).orElseThrow();
         minSpin.setValue(TimeConverter.getMinutes(notifyMinutes));
     }
     
@@ -178,6 +198,28 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
             Long time = TimeConverter.minutesToMilis((Long)lockDownMinSpinner.getValue());
             ConfigElement el = new ConfigElement();
             el.setKey(ConfigurationEnum.LOCK_NOTIFY_MINUTES);
+            el.setValue(String.valueOf(time));
+            configService.add(el);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error getting values from spinners to db", e);
+        }
+    }
+    
+    private void handleMinLeftNotificationChange() {
+        JToggleButton minLeftNotification = (JToggleButton)getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_MIN_LEFT, JToggleButton.class).orElseThrow();
+        boolean checked = minLeftNotification.isSelected();
+        ConfigElement el = new ConfigElement();
+        el.setKey(ConfigurationEnum.MIN_LEFT_BUTTON);
+        el.setValue(String.valueOf(checked));
+        configService.add(el);
+    }
+    
+    private void handleMinLeftQtyNotificationChange() {
+        JSpinner minLeftQty = (JSpinner)getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_MIN_LEFT_QTY, JSpinner.class).orElseThrow();
+        try {
+            Long time = TimeConverter.minutesToMilis((Long)minLeftQty.getValue());
+            ConfigElement el = new ConfigElement();
+            el.setKey(ConfigurationEnum.MIN_LEFT_QTY);
             el.setValue(String.valueOf(time));
             configService.add(el);
         } catch (Exception e) {

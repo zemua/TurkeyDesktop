@@ -15,11 +15,11 @@ import devs.mrp.turkeydesktop.database.group.FGroupService;
 import devs.mrp.turkeydesktop.database.group.IGroupService;
 import devs.mrp.turkeydesktop.database.logs.FTimeLogService;
 import devs.mrp.turkeydesktop.database.logs.ITimeLogService;
+import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.util.List;
-import java.util.Optional;
 
 /**
  *
@@ -98,6 +98,18 @@ public class ConditionChecker implements IConditionChecker {
             return from + TimeConverter.hoursToMilis(24) - hourNow < 60*1000 * minutesNotice;
         }
         return false;
+    }
+
+    @Override
+    public boolean isTimeRunningOut() {
+        Boolean notify = Boolean.valueOf(configService.findById(ConfigurationEnum.MIN_LEFT_BUTTON).getValue());
+        if (!notify) {
+            return false;
+        }
+        Long accumulated = timeLogService.findMostRecent().getAccumulated();
+        Long notification = Long.valueOf(configService.findById(ConfigurationEnum.MIN_LEFT_QTY).getValue());
+        Long proportion = Long.valueOf(configService.findById(ConfigurationEnum.PROPORTION).getValue());
+        return notification * proportion >= accumulated;
     }
     
 }

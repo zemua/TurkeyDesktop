@@ -20,5 +20,6 @@ public interface IConditionChecker {
     public boolean areConditionsMet(long groupId);
     public boolean isLockDownTime();
     public boolean isLockDownTime(Long now);
+    public boolean isTimeRunningOut();
     
 }

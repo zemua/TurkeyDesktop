@@ -50,6 +50,10 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         notifyLockButton = new javax.swing.JToggleButton();
         minutesLock = new javax.swing.JSpinner();
         jLabel3 = new javax.swing.JLabel();
+        notifyMinLeftButton = new javax.swing.JToggleButton();
+        jLabel6 = new javax.swing.JLabel();
+        minLeftToNotify = new javax.swing.JSpinner();
+        jLabel7 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
@@ -133,6 +137,24 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
 
         jLabel3.setText(bundle.getString("minBeforeLock")); // NOI18N
 
+        notifyMinLeftButton.setText(bundle.getString("notify")); // NOI18N
+        notifyMinLeftButton.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                notifyMinLeftButtonStateChanged(evt);
+            }
+        });
+
+        jLabel6.setText(bundle.getString("whenIhave")); // NOI18N
+
+        minLeftToNotify.setModel(new javax.swing.SpinnerNumberModel(Long.valueOf(10L), Long.valueOf(1L), Long.valueOf(60L), Long.valueOf(1L)));
+        minLeftToNotify.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                minLeftToNotifyStateChanged(evt);
+            }
+        });
+
+        jLabel7.setText(bundle.getString("minLeft")); // NOI18N
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -170,7 +192,16 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(minutesLock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel3)))
+                        .addComponent(jLabel3))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(notifyMinLeftButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel6)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(minLeftToNotify, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel7)))
                 .addContainerGap(303, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -197,6 +228,12 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                     .addComponent(notifyLockButton)
                     .addComponent(minutesLock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(notifyMinLeftButton)
+                    .addComponent(jLabel6)
+                    .addComponent(minLeftToNotify, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7))
                 .addContainerGap())
         );
 
@@ -228,7 +265,7 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                 .addContainerGap()
                 .addComponent(jButton1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 404, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -273,6 +310,14 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         giveFeedback(ConfigurationPanelEnum.LOCKDOWN_NOTIFY_MIN, null);
     }//GEN-LAST:event_minutesLockStateChanged
 
+    private void notifyMinLeftButtonStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_notifyMinLeftButtonStateChanged
+        giveFeedback(ConfigurationPanelEnum.NOTIFY_MIN_LEFT, null);
+    }//GEN-LAST:event_notifyMinLeftButtonStateChanged
+
+    private void minLeftToNotifyStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_minLeftToNotifyStateChanged
+        giveFeedback(ConfigurationPanelEnum.NOTIFY_MIN_LEFT_QTY, null);
+    }//GEN-LAST:event_minLeftToNotifyStateChanged
+
     @Override
     public Object getProperty(ConfigurationPanelEnum property) {
         switch (property) {
@@ -292,6 +337,10 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                 return notifyLockButton;
             case LOCKDOWN_NOTIFY_MIN:
                 return minutesLock;
+            case NOTIFY_MIN_LEFT:
+                return notifyMinLeftButton;
+            case NOTIFY_MIN_LEFT_QTY:
+                return minLeftToNotify;
             default:
                 return null;
         }
@@ -317,11 +366,15 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JToggleButton lockDownButton;
+    private javax.swing.JSpinner minLeftToNotify;
     private javax.swing.JSpinner minutesLock;
     private javax.swing.JToggleButton notifyLockButton;
+    private javax.swing.JToggleButton notifyMinLeftButton;
     private javax.swing.JLabel proportionLabel;
     private javax.swing.JSlider proportionSlider;
     private javax.swing.JSpinner toHours;

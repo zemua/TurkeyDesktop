@@ -140,6 +140,10 @@ public class WatchDog implements IWatchDog {
         if (!conditionsMet) {
             Toaster.sendToast(localeMessages.getString("conditionsNotMet"));
         }
+        
+        if (entry.getCounted() < 0 && conditionChecker.isTimeRunningOut()) {
+            Toaster.sendToast(localeMessages.getString("timeRunningOut"));
+        }
     }
 
 }
