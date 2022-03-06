@@ -9,10 +9,13 @@ import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.FConditionService;
 import devs.mrp.turkeydesktop.database.conditions.IConditionService;
+import devs.mrp.turkeydesktop.database.config.FConfigElementService;
+import devs.mrp.turkeydesktop.database.config.IConfigElementService;
 import devs.mrp.turkeydesktop.database.group.FGroupService;
 import devs.mrp.turkeydesktop.database.group.IGroupService;
 import devs.mrp.turkeydesktop.database.logs.FTimeLogService;
 import devs.mrp.turkeydesktop.database.logs.ITimeLogService;
+import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.util.List;
 
 /**
@@ -24,6 +27,7 @@ public class ConditionChecker implements IConditionChecker {
     private IConditionService conditionService = FConditionService.getService();
     private IGroupService groupService = FGroupService.getService();
     private ITimeLogService timeLogService = FTimeLogService.getService();
+    private IConfigElementService configService = FConfigElementService.getService();
 
     @Override
     public boolean isConditionMet(Condition condition) {
@@ -55,9 +59,22 @@ public class ConditionChecker implements IConditionChecker {
     }
     
     @Override
-    public boolean isLockDownTime(long now) {
+    public boolean isLockDownTime(Long now) {
         // TODO
+        Long from = lockDownStart();
+        Long to = lockDownEnd();
+        if ((from < to && from <= now && now <= to) || (from > to && now >= from || now <= to)) {
+            return true;
+        }
         return false;
+    }
+    
+    private Long lockDownStart() {
+        return Long.valueOf(configService.findById(ConfigurationEnum.LOCKDOWN_FROM).getValue());
+    }
+    
+    private Long lockDownEnd() {
+        return Long.valueOf(configService.findById(ConfigurationEnum.LOCKDOWN_TO).getValue());
     }
     
 }

@@ -19,6 +19,6 @@ public interface IConditionChecker {
     public boolean areConditionsMet(List<Condition> conditions);
     public boolean areConditionsMet(long groupId);
     public boolean isLockDownTime();
-    public boolean isLockDownTime(long now);
+    public boolean isLockDownTime(Long now);
     
 }
