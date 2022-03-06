@@ -33,6 +33,16 @@ public class TimeLog {
     private String windowTitle;
     private long groupId;
     private Type.Types type;
+    
+    private boolean blockable;
+
+    public boolean isBlockable() {
+        return blockable;
+    }
+
+    public void setBlockable(boolean blockable) {
+        this.blockable = blockable;
+    }
 
     public Type.Types getType() {
         return type;

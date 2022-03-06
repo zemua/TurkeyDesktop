@@ -132,16 +132,12 @@ public class WatchDog implements IWatchDog {
         TimeLog entry = dbLogger.logEntry(elapsed, processChecker.currentProcessPid(), processChecker.currentProcessName(), processChecker.currentWindowTitle());
         
         boolean conditionsMet = conditionChecker.areConditionsMet(entry.getGroupId());
-        if (entry.getCounted() < 0 && (entry.getAccumulated() <= 0 || !conditionsMet)) {
+        if (entry.isBlockable() && (entry.getAccumulated() <= 0 || !conditionsMet)) {
             killerHandler.receiveRequest(null, processChecker.currentProcessPid());
             Toaster.sendToast(localeMessages.getString("killingProcess"));
         }
         
-        if (entry.getType().equals(this)) {
-            // TODO discount points
-        }
-        
-        if (!conditionsMet || conditionChecker.isLockDownTime(current)) {
+        if (!conditionsMet) {
             Toaster.sendToast(localeMessages.getString("conditionsNotMet"));
         }
     }

@@ -96,6 +96,7 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
             type = new Type();
             type.setType(Type.Types.UNDEFINED);
         }
+        element.setBlockable(false);
         switch (type.getType()){ // TODO make chain of responsibility to handle each case in a more clean way
             case NEUTRAL:
                 element.setType(Type.Types.NEUTRAL);
@@ -112,7 +113,7 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
                 // If title is "hello to you" and we have records "hello" in group1 and "hello to" in group2 the group2 will be chosen
                 GroupAssignation assignation = groupAssignationService.findLongestTitleIdContainedIn(element.getWindowTitle());
                 element.setGroupId(assignation != null ? assignation.getGroupId() : -1);
-                if (!lockdown){setCountedDependingOnTitle(element, element.getElapsed());} else {element.setCounted(-1 * proportion * element.getElapsed());}
+                if (!lockdown){setCountedDependingOnTitle(element, element.getElapsed());} else {setCountedForTitleWhenLockdown(element, proportion);}
                 break;
             case POSITIVE:
                 element.setType(Type.Types.POSITIVE);
@@ -129,11 +130,21 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
                 GroupAssignation negativeAssignation = groupAssignationService.findByProcessId(element.getProcessName());
                 element.setGroupId(negativeAssignation != null ? negativeAssignation.getGroupId() : -1);
                 element.setCounted(Math.abs(element.getElapsed()) * proportion * (-1));
+                element.setBlockable(true);
                 break;
             default:
                 break;
         }
         
+        return element;
+    }
+    
+    private TimeLog setCountedForTitleWhenLockdown(TimeLog element, long proportion) {
+        element.setCounted(-1 * proportion * element.getElapsed());
+        var title = titleService.findLongestContainedBy(element.getWindowTitle());
+        if (title != null && title.getType().equals(Title.Type.NEGATIVE)) {
+            element.setBlockable(true);
+        }
         return element;
     }
     
@@ -149,6 +160,7 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
             return element;
         }
         element.setCounted(isPositive ? Math.abs(elapsed) : - Math.abs(elapsed));
+        element.setBlockable(true);
         return element;
     }
     
