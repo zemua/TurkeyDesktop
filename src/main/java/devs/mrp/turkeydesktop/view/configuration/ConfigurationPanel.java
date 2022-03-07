@@ -54,6 +54,10 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         jLabel6 = new javax.swing.JLabel();
         minLeftToNotify = new javax.swing.JSpinner();
         jLabel7 = new javax.swing.JLabel();
+        exportToggle = new javax.swing.JToggleButton();
+        jLabel8 = new javax.swing.JLabel();
+        exportButton = new javax.swing.JButton();
+        targetFileLabel = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
@@ -155,6 +159,24 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
 
         jLabel7.setText(bundle.getString("minLeft")); // NOI18N
 
+        exportToggle.setText(bundle.getString("exportAccumulated")); // NOI18N
+        exportToggle.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                exportToggleStateChanged(evt);
+            }
+        });
+
+        jLabel8.setText(bundle.getString("toThisTxt")); // NOI18N
+
+        exportButton.setText(bundle.getString("find")); // NOI18N
+        exportButton.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                exportButtonStateChanged(evt);
+            }
+        });
+
+        targetFileLabel.setText(bundle.getString("noFile")); // NOI18N
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -201,7 +223,16 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(minLeftToNotify, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel7)))
+                        .addComponent(jLabel7))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(exportToggle)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel8)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(exportButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(targetFileLabel)))
                 .addContainerGap(303, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -234,6 +265,12 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                     .addComponent(jLabel6)
                     .addComponent(minLeftToNotify, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel7))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(exportToggle)
+                    .addComponent(jLabel8)
+                    .addComponent(exportButton)
+                    .addComponent(targetFileLabel))
                 .addContainerGap())
         );
 
@@ -318,6 +355,14 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         giveFeedback(ConfigurationPanelEnum.NOTIFY_MIN_LEFT_QTY, null);
     }//GEN-LAST:event_minLeftToNotifyStateChanged
 
+    private void exportToggleStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_exportToggleStateChanged
+        giveFeedback(ConfigurationPanelEnum.EXPORT_TOGGLE, null);
+    }//GEN-LAST:event_exportToggleStateChanged
+
+    private void exportButtonStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_exportButtonStateChanged
+        giveFeedback(ConfigurationPanelEnum.EXPORT_BUTTON, null);
+    }//GEN-LAST:event_exportButtonStateChanged
+
     @Override
     public Object getProperty(ConfigurationPanelEnum property) {
         switch (property) {
@@ -358,6 +403,8 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton exportButton;
+    private javax.swing.JToggleButton exportToggle;
     private javax.swing.JSpinner fromHours;
     private javax.swing.JSpinner fromMinutes;
     private javax.swing.JButton jButton1;
@@ -368,6 +415,7 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JToggleButton lockDownButton;
@@ -377,6 +425,7 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
     private javax.swing.JToggleButton notifyMinLeftButton;
     private javax.swing.JLabel proportionLabel;
     private javax.swing.JSlider proportionSlider;
+    private javax.swing.JLabel targetFileLabel;
     private javax.swing.JSpinner toHours;
     private javax.swing.JSpinner toMinutes;
     // End of variables declaration//GEN-END:variables
