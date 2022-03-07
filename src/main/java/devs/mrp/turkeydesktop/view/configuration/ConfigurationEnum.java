@@ -11,7 +11,7 @@ package devs.mrp.turkeydesktop.view.configuration;
  */
 public enum ConfigurationEnum {
     PROPORTION("4"), LOCKDOWN("false"), LOCKDOWN_FROM("0"), LOCKDOWN_TO("0"), LOCK_NOTIFY("true"), LOCK_NOTIFY_MINUTES("10"),
-    MIN_LEFT_BUTTON("true"), MIN_LEFT_QTY("10");
+    MIN_LEFT_BUTTON("true"), MIN_LEFT_QTY("10"), EXPORT_TOGGLE("false");
     
     private final String def;
     
