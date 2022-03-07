@@ -293,7 +293,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
 
     private void handleExportButton() throws Exception {
-        // TODO
+        // TODO start a JFileChooser
         JButton exportButton = (JButton) getObjectFromPanel(ConfigurationPanelEnum.EXPORT_BUTTON, JButton.class).orElseThrow(() -> new Exception("wrong object"));
         
     }
