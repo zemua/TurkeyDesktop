@@ -15,6 +15,9 @@ import java.nio.file.Files;
  */
 public class FileHandler {
     
+    private static final long millisBetweenOperations = 60*1000;
+    private static final long lastOperation = 0;
+    
     public static File createFile(File file, String extension) throws IOException {
         File target = file;
         String path = target.getPath();

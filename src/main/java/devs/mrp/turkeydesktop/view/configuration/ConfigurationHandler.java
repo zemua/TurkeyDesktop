@@ -309,8 +309,15 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
             return;
         }
         File file = FileHandler.createFile(chooser.getSelectedFile(), ".txt");
-        // TODO save file path to db
-        // TODO make a handler to write to the file
+        // save file path to db
+        if (file.getPath().length() > 150) {
+            exportButton.setText(localeMessages.getString("errorPath150"));
+            return;
+        }
+        ConfigElement el = new ConfigElement();
+        el.setKey(ConfigurationEnum.EXPORT_PATH);
+        el.setValue(file.getPath());
+        configService.add(el);
     }
 
 }
