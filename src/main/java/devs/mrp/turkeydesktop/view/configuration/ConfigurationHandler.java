@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.view.configuration;
 
+import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.FConfigElementService;
@@ -13,13 +14,16 @@ import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
+import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -114,6 +118,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                         logger.log(Level.SEVERE, "error handling response", e);
                         getCaller().show();
                     }
+                    break;
                 case EXPORT_TOGGLE:
                     try {
                         handleExportToggle();
@@ -121,6 +126,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                         logger.log(Level.SEVERE, "error handling response", e);
                         getCaller().show();
                     }
+                    break;
                 default:
                     break;
             }
@@ -293,9 +299,18 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
 
     private void handleExportButton() throws Exception {
-        // TODO start a JFileChooser
         JButton exportButton = (JButton) getObjectFromPanel(ConfigurationPanelEnum.EXPORT_BUTTON, JButton.class).orElseThrow(() -> new Exception("wrong object"));
-        
+        JFileChooser chooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Plain text files .txt only", "txt");
+        chooser.setFileFilter(filter);
+        chooser.setAcceptAllFileFilterUsed(false);
+        int returnVal = chooser.showSaveDialog(chooser);
+        if (returnVal != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        File file = FileHandler.createFile(chooser.getSelectedFile(), ".txt");
+        // TODO save file path to db
+        // TODO make a handler to write to the file
     }
 
 }
