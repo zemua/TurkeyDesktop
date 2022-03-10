@@ -308,7 +308,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         if (returnVal != JFileChooser.APPROVE_OPTION) {
             return;
         }
-        File file = FileHandler.createFile(chooser.getSelectedFile(), ".txt");
+        File file = FileHandler.createFileIfNotExists(chooser.getSelectedFile(), ".txt");
         // save file path to db
         if (file.getPath().length() > 150) {
             exportButton.setText(localeMessages.getString("errorPath150"));
