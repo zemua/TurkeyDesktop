@@ -144,6 +144,8 @@ public class WatchDog implements IWatchDog {
         if (entry.getCounted() < 0 && conditionChecker.isTimeRunningOut()) {
             Toaster.sendToast(localeMessages.getString("timeRunningOut"));
         }
+        
+        // TODO check configuration, if toggled export, and path not blank, call write to file
     }
 
 }
