@@ -7,8 +7,6 @@ package devs.mrp.turkeydesktop.service.watchdog;
 
 import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.common.FileHandler;
-import devs.mrp.turkeydesktop.database.config.FConfigElementService;
-import devs.mrp.turkeydesktop.database.config.IConfigElementService;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.conditionchecker.FConditionChecker;
@@ -19,8 +17,6 @@ import devs.mrp.turkeydesktop.service.processkiller.KillerChainCommander;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.service.watchdog.logger.DbLogger;
 import devs.mrp.turkeydesktop.service.watchdog.logger.DbLoggerF;
-import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -36,7 +32,7 @@ import javax.swing.SwingWorker;
  */
 public class WatchDog implements IWatchDog {
     
-    // TODO set toque de queda
+    // TODO check idle time for conditions met of positive stuff
     // TODO start as daemon in system tray, open window on click, and hide on close
     // TODO when another instance is open and try to open a second one, on error, close the process of that second one
     
@@ -80,8 +76,13 @@ public class WatchDog implements IWatchDog {
     }
     
     public void begin() {
+        if (semaphore.availablePermits() < 1) {
+            // if it is already running, don't duplicate it
+            return;
+        }
         try {
             semaphore.acquire();
+            // if it is not running, set it up and execute it
             if (worker == null || worker.isDone() || worker.getState().equals(SwingWorker.StateValue.PENDING)) {
                 initializeWorker();
                 timestamp.set(System.currentTimeMillis());

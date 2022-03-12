@@ -12,6 +12,7 @@ import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.titles.Title;
 import devs.mrp.turkeydesktop.database.type.Type;
+import devs.mrp.turkeydesktop.service.watchdog.WatchDog;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -27,7 +28,6 @@ import javax.swing.JOptionPane;
  * @author miguel
  */
 public class Db { // TODO create asynchronous listeners to update livedata
-    // TODO create a static semaphore common for all repositories
     
     public static final String WATCHDOG_TABLE = "WATCHDOG_LOG";
     public static final String GROUPS_TABLE = "GROUPS_OF_APPS";
@@ -67,6 +67,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
             Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
             con = null;
             JOptionPane.showMessageDialog(null, "Error: Is it possible that the application is already opened?");
+            WatchDog.getInstance().stop();
         }
     }
     
