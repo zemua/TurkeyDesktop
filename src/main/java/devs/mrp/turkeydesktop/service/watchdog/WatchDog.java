@@ -6,6 +6,9 @@
 package devs.mrp.turkeydesktop.service.watchdog;
 
 import devs.mrp.turkeydesktop.common.ChainHandler;
+import devs.mrp.turkeydesktop.common.FileHandler;
+import devs.mrp.turkeydesktop.database.config.FConfigElementService;
+import devs.mrp.turkeydesktop.database.config.IConfigElementService;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.conditionchecker.FConditionChecker;
@@ -16,6 +19,9 @@ import devs.mrp.turkeydesktop.service.processkiller.KillerChainCommander;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.service.watchdog.logger.DbLogger;
 import devs.mrp.turkeydesktop.service.watchdog.logger.DbLoggerF;
+import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
@@ -51,6 +57,7 @@ public class WatchDog implements IWatchDog {
     private LocaleMessages localeMessages;
     private final IConditionChecker conditionChecker = FConditionChecker.getConditionChecker();
     private ChainHandler<String> killerHandler = new KillerChainCommander().getHandlerChain();
+    private Logger logger = Logger.getLogger(WatchDog.class.getName());
 
     private WatchDog() {
         timestamp = new AtomicLong();
@@ -145,7 +152,12 @@ public class WatchDog implements IWatchDog {
             Toaster.sendToast(localeMessages.getString("timeRunningOut"));
         }
         
-        // TODO check configuration, if toggled export, and path not blank, call write to file
+        try {
+            FileHandler.exportAccumulated(entry.getAccumulated());
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Error exporting accumulated time to file", e);
+        }
+        
     }
 
 }

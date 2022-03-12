@@ -5,6 +5,9 @@
  */
 package devs.mrp.turkeydesktop.common;
 
+import devs.mrp.turkeydesktop.database.config.FConfigElementService;
+import devs.mrp.turkeydesktop.database.config.IConfigElementService;
+import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -19,6 +22,7 @@ public class FileHandler {
     
     private static final long millisBetweenOperations = 60*1000;
     private static long lastOperation = 0;
+    private static IConfigElementService configService = FConfigElementService.getService();
     
     public static File createFileIfNotExists(File file, String extension) throws IOException {
         File target = file;
@@ -40,6 +44,20 @@ public class FileHandler {
         }
         lastOperation = now;
         File target = createFileIfNotExists(file, ".txt");
+        exportToFile(target, text);
+    }
+    
+    public static void exportAccumulated(long time) throws IOException {
+        String exportPath = configService.configElement(ConfigurationEnum.EXPORT_PATH).getValue();
+        if (!"".equals(exportPath) && Boolean.valueOf(configService.configElement(ConfigurationEnum.EXPORT_TOGGLE).getValue())) {
+            writeToTxt(new File(exportPath), String.valueOf(time));
+        }
+    }
+    
+    private static void exportToFile(File file, String text) throws IOException {
+        if (!file.exists() || !file.canWrite() || !file.isFile())  {
+            throw new IOException("Cannot write to file");
+        }
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.write(text);
         }
