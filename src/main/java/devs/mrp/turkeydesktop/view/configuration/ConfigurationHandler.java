@@ -140,7 +140,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
             setupLockDown();
             setupLockDownNotification();
             setupMinLeftNotification();
-            // TODO setupExportItems();
+            setupExport();
         } catch (Exception e) {
             logger.log(Level.SEVERE, "error showing panel", e);
             getCaller().show();
@@ -196,6 +196,12 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         JSpinner minSpin = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_MIN_LEFT_QTY, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         minSpin.setValue(TimeConverter.getMinutes(notifyMinutes));
     }
+    
+    private void setupExport() {
+        // TODO
+    }
+    
+    // HANDLE EVENTS IN THE UI
 
     private void handleNewProportion() {
         JSlider slider = (JSlider) this.getPanel().getProperty(ConfigurationPanelEnum.PROPORTION);
@@ -318,6 +324,10 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         el.setKey(ConfigurationEnum.EXPORT_PATH);
         el.setValue(file.getPath());
         configService.add(el);
+        // change button's name
+        int size = 25;
+        String path = file.getPath();
+        exportButton.setText(path.length() > size ? path.substring(path.length()-size) : path);
     }
 
 }

@@ -173,6 +173,11 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                 exportButtonStateChanged(evt);
             }
         });
+        exportButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                exportButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -354,10 +359,24 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
     }//GEN-LAST:event_exportToggleStateChanged
 
     private void exportButtonStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_exportButtonStateChanged
-        giveFeedback(ConfigurationPanelEnum.EXPORT_BUTTON, null);
+
     }//GEN-LAST:event_exportButtonStateChanged
 
+    private void exportButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportButtonActionPerformed
+        giveFeedback(ConfigurationPanelEnum.EXPORT_BUTTON, null);
+    }//GEN-LAST:event_exportButtonActionPerformed
+
     @Override
+    public void addFeedbackListener(FeedbackListener<ConfigurationPanelEnum, AWTEvent> listener) {
+        listeners.add(listener);
+    }
+
+    @Override
+    public void giveFeedback(ConfigurationPanelEnum tipo, AWTEvent feedback) {
+        listeners.forEach(l -> l.giveFeedback(tipo, feedback));
+    }
+
+        @Override
     public Object getProperty(ConfigurationPanelEnum property) {
         switch (property) {
             case PROPORTION:
@@ -380,21 +399,14 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                 return notifyMinLeftButton;
             case NOTIFY_MIN_LEFT_QTY:
                 return minLeftToNotify;
+            case EXPORT_BUTTON:
+                return exportButton;
+            case EXPORT_TOGGLE:
+                return exportToggle;
             default:
                 return null;
         }
     }
-
-    @Override
-    public void addFeedbackListener(FeedbackListener<ConfigurationPanelEnum, AWTEvent> listener) {
-        listeners.add(listener);
-    }
-
-    @Override
-    public void giveFeedback(ConfigurationPanelEnum tipo, AWTEvent feedback) {
-        listeners.forEach(l -> l.giveFeedback(tipo, feedback));
-    }
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton exportButton;
