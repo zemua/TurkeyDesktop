@@ -197,8 +197,15 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         minSpin.setValue(TimeConverter.getMinutes(notifyMinutes));
     }
     
-    private void setupExport() {
-        // TODO
+    private void setupExport() throws Exception {
+        boolean export = Boolean.valueOf(configService.configElement(ConfigurationEnum.EXPORT_TOGGLE).getValue());
+        JToggleButton exportToggle = (JToggleButton) getObjectFromPanel(ConfigurationPanelEnum.EXPORT_TOGGLE, JToggleButton.class).orElseThrow(() -> new Exception("wrong object"));
+        exportToggle.setSelected(export);
+        
+        String pathName = configService.configElement(ConfigurationEnum.EXPORT_PATH).getValue();
+        JButton button = (JButton) getObjectFromPanel(ConfigurationPanelEnum.EXPORT_BUTTON, JButton.class).orElseThrow(() -> new Exception("wrong object"));
+        int size = 25;
+        button.setText(pathName.length() > size ? pathName.substring(pathName.length()-size) : pathName);
     }
     
     // HANDLE EVENTS IN THE UI
