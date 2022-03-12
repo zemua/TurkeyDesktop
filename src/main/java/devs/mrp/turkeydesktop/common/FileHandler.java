@@ -27,8 +27,12 @@ public class FileHandler {
     public static File createFileIfNotExists(File file, String extension) throws IOException {
         File target = file;
         String path = target.getPath();
-        if (!path.endsWith(".txt")) {
-            path = path.concat(".txt");
+        String mExtension = extension;
+        if (!mExtension.startsWith(".")) {
+            mExtension = ".".concat(mExtension);
+        }
+        if (!path.endsWith(mExtension)) {
+            path = path.concat(mExtension);
             target = new File(path);
         }
         if (!Files.exists(target.toPath())) {
@@ -43,14 +47,19 @@ public class FileHandler {
             return;
         }
         lastOperation = now;
-        File target = createFileIfNotExists(file, ".txt");
+        File target = createFileIfNotExists(file, "txt");
         exportToFile(target, text);
     }
     
     public static void exportAccumulated(long time) throws IOException {
+        long now = System.currentTimeMillis();
+        if (lastOperation + millisBetweenOperations > now) {
+            return;
+        }
+        lastOperation = now;
         String exportPath = configService.configElement(ConfigurationEnum.EXPORT_PATH).getValue();
         if (!"".equals(exportPath) && Boolean.valueOf(configService.configElement(ConfigurationEnum.EXPORT_TOGGLE).getValue())) {
-            writeToTxt(new File(exportPath), String.valueOf(time));
+            exportToFile(createFileIfNotExists(new File(exportPath), "txt"), String.valueOf(time));
         }
     }
     
