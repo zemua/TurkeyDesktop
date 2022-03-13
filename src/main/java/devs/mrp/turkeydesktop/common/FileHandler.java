@@ -8,8 +8,10 @@ package devs.mrp.turkeydesktop.common;
 import devs.mrp.turkeydesktop.database.config.FConfigElementService;
 import devs.mrp.turkeydesktop.database.config.IConfigElementService;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -70,6 +72,26 @@ public class FileHandler {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.write(text);
         }
+    }
+    
+    public String readFromFile(File file) throws IOException {
+        if (!file.exists() || !file.canRead() || !file.isFile())  {
+            throw new IOException("Cannot read from file");
+        }
+        StringBuilder result = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            boolean first = true;
+            while ((line = reader.readLine()) != null) {
+                if (first) {
+                    first = false;
+                } else {
+                    result.append(System.lineSeparator());
+                }
+                result.append(line);
+            }
+        }
+        return result.toString();
     }
     
 }
