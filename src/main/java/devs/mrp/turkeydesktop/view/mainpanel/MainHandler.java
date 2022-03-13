@@ -14,6 +14,8 @@ import devs.mrp.turkeydesktop.database.logs.FTimeLogService;
 import devs.mrp.turkeydesktop.database.logs.ITimeLogService;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
+import devs.mrp.turkeydesktop.service.conditionchecker.FConditionChecker;
+import devs.mrp.turkeydesktop.service.conditionchecker.IConditionChecker;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessEnum;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.FCatProcessPanel;
@@ -49,6 +51,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     
     private ITimeLogService timeLogService = FTimeLogService.getService();
     private IConfigElementService configService = FConfigElementService.getService();
+    private IConditionChecker conditionChecker = FConditionChecker.getConditionChecker();
 
     public MainHandler(JFrame frame, PanelHandler<?,?, ?> caller) {
         super(frame, caller);
@@ -140,12 +143,8 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     }
     
     private void setTimeOnHeaderLabel() {
-        TimeLog el = timeLogService.findMostRecent();
-        ConfigElement cel = configService.configElement(ConfigurationEnum.PROPORTION);
         JLabel label = (JLabel)this.getPanel().getProperty(MainEnum.LABELIZER);
-        long proportion = Integer.valueOf(cel.getValue());
-        long accumulated = el != null ? el.getAccumulated() : 0;
-        label.setText(TimeConverter.millisToHMS(accumulated/proportion));
+        label.setText(TimeConverter.millisToHMS(conditionChecker.timeRemaining()));
     }
     
 }

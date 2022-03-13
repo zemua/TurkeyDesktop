@@ -132,7 +132,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
                 CONDITIONS_TABLE, Condition.ID, Condition.GROUP_ID, Condition.TARGET_ID, Condition.USAGE_TIME_CONDITION, Condition.LAST_DAYS_CONDITION, Condition.ID));
         
         execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
-                + "%s VARCHAR(500) NOT NULL" // file path
+                + "%s VARCHAR(500) NOT NULL," // file path
                 + "PRIMARY KEY (%s))",
                 IMPORTS_TABLE, ConfigurationEnum.IMPORT_PATH.toString(), ConfigurationEnum.IMPORT_PATH.toString()));
         

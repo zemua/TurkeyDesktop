@@ -118,10 +118,8 @@ public class ConditionChecker implements IConditionChecker {
         if (!notify) {
             return false;
         }
-        Long accumulated = timeLogService.findMostRecent().getAccumulated();
         Long notification = Long.valueOf(configService.findById(ConfigurationEnum.MIN_LEFT_QTY).getValue());
-        Long proportion = Long.valueOf(configService.findById(ConfigurationEnum.PROPORTION).getValue());
-        return notification * proportion >= accumulated;
+        return notification >= timeRemaining();
     }
 
     @Override
@@ -140,8 +138,10 @@ public class ConditionChecker implements IConditionChecker {
                 .filter(s -> !s.isBlank()) // filter blanks
                 .filter(s -> Pattern.compile("^\\d+$").matcher(s).matches()) // filter non numbers
                 .collect(Collectors.summingLong(Long::valueOf));
-        Long accumulated = timeLogService.findMostRecent().getAccumulated();
-        return accumulated + totalImported;
+        TimeLog tl = timeLogService.findMostRecent();
+        Long accumulated = tl != null ? tl.getAccumulated() : 0;
+        Long proportion = Long.valueOf(configService.findById(ConfigurationEnum.PROPORTION).getValue());
+        return (accumulated + totalImported)/proportion;
     }
 
 }
