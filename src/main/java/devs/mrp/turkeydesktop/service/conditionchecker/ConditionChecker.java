@@ -47,7 +47,6 @@ public class ConditionChecker implements IConditionChecker {
     private IConfigElementService configService = FConfigElementService.getService();
     private ImportService importService = ImportServiceFactory.getService();
     private ChainHandler<LongWrapper> idleHandler = new IdleChainCommander().getHandlerChain();
-    private ChainHandler<String> toaster = new ToasterChainCommander().getHandlerChain();
     
     private Logger logger = Logger.getLogger(ConditionChecker.class.getName());
 
@@ -164,7 +163,7 @@ public class ConditionChecker implements IConditionChecker {
     public boolean isIdleWithToast() {
         boolean idle = isIdle();
         if (idle) {
-            toaster.receiveRequest("toast", localeMessages.getString("idleMsg"));
+            Toaster.sendToast(localeMessages.getString("idleMsg"));
         }
         return idle;
     }
