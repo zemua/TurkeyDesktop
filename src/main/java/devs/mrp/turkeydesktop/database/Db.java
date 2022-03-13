@@ -13,6 +13,7 @@ import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.titles.Title;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.service.watchdog.WatchDog;
+import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -37,6 +38,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
     public static final String TITLES_TABLE = "TITLES_TABLE";
     public static final String ACCUMULATED_TIME_TABLE = "ACCUMULATED_TIME";
     public static final String CONFIG_TABLE = "CONFIG_TABLE";
+    public static final String IMPORTS_TABLE = "IMPORTS_TABLE";
     private static final Semaphore semaphore = new Semaphore(1);
     
     private static Db instance = null;
@@ -128,6 +130,11 @@ public class Db { // TODO create asynchronous listeners to update livedata
                 + "%s INT NOT NULL, " // timeframe in days for the usage time to be met
                 + "PRIMARY KEY (%s))",
                 CONDITIONS_TABLE, Condition.ID, Condition.GROUP_ID, Condition.TARGET_ID, Condition.USAGE_TIME_CONDITION, Condition.LAST_DAYS_CONDITION, Condition.ID));
+        
+        execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
+                + "%s VARCHAR(500) NOT NULL" // file path
+                + "PRIMARY KEY (%s))",
+                IMPORTS_TABLE, ConfigurationEnum.IMPORT_PATH.toString(), ConfigurationEnum.IMPORT_PATH.toString()));
         
         //close();
     }

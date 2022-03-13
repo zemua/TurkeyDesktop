@@ -186,18 +186,13 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         jLabel9.setText(bundle.getString("addImport")); // NOI18N
 
         importButton.setText(bundle.getString("select")); // NOI18N
+        importButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                importButtonActionPerformed(evt);
+            }
+        });
 
-        javax.swing.GroupLayout importPanelLayout = new javax.swing.GroupLayout(importPanel);
-        importPanel.setLayout(importPanelLayout);
-        importPanelLayout.setHorizontalGroup(
-            importPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1004, Short.MAX_VALUE)
-        );
-        importPanelLayout.setVerticalGroup(
-            importPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 158, Short.MAX_VALUE)
-        );
-
+        importPanel.setLayout(new javax.swing.BoxLayout(importPanel, javax.swing.BoxLayout.PAGE_AXIS));
         jScrollPane2.setViewportView(importPanel);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -396,8 +391,12 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
     }//GEN-LAST:event_exportButtonStateChanged
 
     private void exportButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportButtonActionPerformed
-        giveFeedback(ConfigurationPanelEnum.EXPORT_BUTTON, null);
+        giveFeedback(ConfigurationPanelEnum.EXPORT_BUTTON, evt);
     }//GEN-LAST:event_exportButtonActionPerformed
+
+    private void importButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importButtonActionPerformed
+        giveFeedback(ConfigurationPanelEnum.IMPORT_BUTTON, evt);
+    }//GEN-LAST:event_importButtonActionPerformed
 
     @Override
     public void addFeedbackListener(FeedbackListener<ConfigurationPanelEnum, AWTEvent> listener) {
