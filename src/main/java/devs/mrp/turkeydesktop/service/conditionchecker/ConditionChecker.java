@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.service.conditionchecker;
 
+import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
@@ -20,6 +21,8 @@ import devs.mrp.turkeydesktop.database.logs.FTimeLogService;
 import devs.mrp.turkeydesktop.database.logs.ITimeLogService;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
+import devs.mrp.turkeydesktop.service.conditionchecker.idle.IdleChainCommander;
+import devs.mrp.turkeydesktop.service.conditionchecker.idle.LongWrapper;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.io.File;
@@ -42,6 +45,7 @@ public class ConditionChecker implements IConditionChecker {
     private ITimeLogService timeLogService = FTimeLogService.getService();
     private IConfigElementService configService = FConfigElementService.getService();
     private ImportService importService = ImportServiceFactory.getService();
+    private ChainHandler<LongWrapper> idleHandler = new IdleChainCommander().getHandlerChain();
     
     private Logger logger = Logger.getLogger(ConditionChecker.class.getName());
 
@@ -148,8 +152,10 @@ public class ConditionChecker implements IConditionChecker {
     
     @Override
     public boolean isIdle() {
-        // TODO
-        return false;
+        Long idleCondition = Long.valueOf(configService.findById(ConfigurationEnum.IDLE).getValue());
+        LongWrapper currentIdle = new LongWrapper();
+        idleHandler.receiveRequest("idle", currentIdle);
+        return currentIdle.getValue() >= idleCondition;
     }
 
 }
