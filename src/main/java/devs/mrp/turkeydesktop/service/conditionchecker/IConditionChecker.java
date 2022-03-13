@@ -23,5 +23,6 @@ public interface IConditionChecker {
     public boolean isTimeRunningOut();
     public long timeRemaining();
     public boolean isIdle();
+    public boolean isIdleWithToast();
     
 }

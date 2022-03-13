@@ -24,6 +24,7 @@ import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.conditionchecker.idle.IdleChainCommander;
 import devs.mrp.turkeydesktop.service.conditionchecker.idle.LongWrapper;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
+import devs.mrp.turkeydesktop.service.toaster.ToasterChainCommander;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.io.File;
 import java.io.IOException;
@@ -46,6 +47,7 @@ public class ConditionChecker implements IConditionChecker {
     private IConfigElementService configService = FConfigElementService.getService();
     private ImportService importService = ImportServiceFactory.getService();
     private ChainHandler<LongWrapper> idleHandler = new IdleChainCommander().getHandlerChain();
+    private ChainHandler<String> toaster = new ToasterChainCommander().getHandlerChain();
     
     private Logger logger = Logger.getLogger(ConditionChecker.class.getName());
 
@@ -156,6 +158,15 @@ public class ConditionChecker implements IConditionChecker {
         LongWrapper currentIdle = new LongWrapper();
         idleHandler.receiveRequest("idle", currentIdle);
         return currentIdle.getValue() >= idleCondition;
+    }
+    
+    @Override
+    public boolean isIdleWithToast() {
+        boolean idle = isIdle();
+        if (idle) {
+            toaster.receiveRequest("toast", localeMessages.getString("idleMsg"));
+        }
+        return idle;
     }
 
 }

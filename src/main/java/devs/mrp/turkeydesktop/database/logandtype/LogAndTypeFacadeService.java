@@ -120,7 +120,7 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
                 GroupAssignation positiveAssignation = groupAssignationService.findByProcessId(element.getProcessName());
                 element.setGroupId(positiveAssignation != null ? positiveAssignation.getGroupId() : -1);
                 if (!lockdown) {
-                    element.setCounted(conditionChecker.areConditionsMet(element.getGroupId()) ? Math.abs(element.getElapsed()) : 0);
+                    element.setCounted(!conditionChecker.isIdleWithToast() && conditionChecker.areConditionsMet(element.getGroupId()) ? Math.abs(element.getElapsed()) : 0);
                 } else {
                     element.setCounted(-1 * proportion * element.getElapsed());
                 }
@@ -155,7 +155,7 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
             return element;
         }
         boolean isPositive = title.getType().equals(Title.Type.POSITIVE);
-        if (isPositive && !conditionChecker.areConditionsMet(element.getGroupId())) {
+        if (isPositive && (conditionChecker.isIdleWithToast() || !conditionChecker.areConditionsMet(element.getGroupId()))) {
             element.setCounted(0);
             return element;
         }
