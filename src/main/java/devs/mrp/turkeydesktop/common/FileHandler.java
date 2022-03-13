@@ -74,24 +74,17 @@ public class FileHandler {
         }
     }
     
-    public String readFromFile(File file) throws IOException {
+    public String readFirstLineFromFile(File file) throws IOException {
         if (!file.exists() || !file.canRead() || !file.isFile())  {
             throw new IOException("Cannot read from file");
         }
-        StringBuilder result = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            boolean first = true;
-            while ((line = reader.readLine()) != null) {
-                if (first) {
-                    first = false;
-                } else {
-                    result.append(System.lineSeparator());
-                }
-                result.append(line);
+            String line = reader.readLine();
+            if (line != null) {
+                return line;
             }
         }
-        return result.toString();
+        return "";
     }
     
 }
