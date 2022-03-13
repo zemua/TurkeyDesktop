@@ -145,5 +145,11 @@ public class ConditionChecker implements IConditionChecker {
         Long proportion = Long.valueOf(configService.findById(ConfigurationEnum.PROPORTION).getValue());
         return (accumulated + totalImported)/proportion;
     }
+    
+    @Override
+    public boolean isIdle() {
+        // TODO
+        return false;
+    }
 
 }

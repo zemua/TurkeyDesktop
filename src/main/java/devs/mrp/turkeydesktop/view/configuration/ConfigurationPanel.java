@@ -61,6 +61,10 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         importButton = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         importPanel = new javax.swing.JPanel();
+        jLabel10 = new javax.swing.JLabel();
+        idleSpinner = new javax.swing.JSpinner();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
         backButton = new javax.swing.JButton();
 
         jScrollPane1.setHorizontalScrollBar(null);
@@ -197,6 +201,19 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         importPanel.setLayout(new javax.swing.BoxLayout(importPanel, javax.swing.BoxLayout.PAGE_AXIS));
         jScrollPane2.setViewportView(importPanel);
 
+        jLabel10.setText(bundle.getString("considerIdel")); // NOI18N
+
+        idleSpinner.setModel(new javax.swing.SpinnerNumberModel(Long.valueOf(1L), Long.valueOf(1L), Long.valueOf(15L), Long.valueOf(1L)));
+        idleSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                idleSpinnerStateChanged(evt);
+            }
+        });
+
+        jLabel11.setText(bundle.getString("minutes")); // NOI18N
+
+        jLabel12.setText(bundle.getString("forPositiveOnly")); // NOI18N
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -258,7 +275,16 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                         .addComponent(importButton))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 731, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 731, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel10)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(idleSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel11)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel12)))
                 .addContainerGap(263, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -302,6 +328,12 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                     .addComponent(importButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel10)
+                    .addComponent(idleSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel11)
+                    .addComponent(jLabel12))
                 .addContainerGap())
         );
 
@@ -402,6 +434,10 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         giveFeedback(ConfigurationPanelEnum.IMPORT_BUTTON, evt);
     }//GEN-LAST:event_importButtonActionPerformed
 
+    private void idleSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_idleSpinnerStateChanged
+        giveFeedback(ConfigurationPanelEnum.IDLE_SPINNER, null);
+    }//GEN-LAST:event_idleSpinnerStateChanged
+
     @Override
     public void addFeedbackListener(FeedbackListener<ConfigurationPanelEnum, AWTEvent> listener) {
         listeners.add(listener);
@@ -443,6 +479,8 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                 return importButton;
             case IMPORT_PANEL:
                 return importPanel;
+            case IDLE_SPINNER:
+                return idleSpinner;
             default:
                 return null;
         }
@@ -454,9 +492,13 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
     private javax.swing.JToggleButton exportToggle;
     private javax.swing.JSpinner fromHours;
     private javax.swing.JSpinner fromMinutes;
+    private javax.swing.JSpinner idleSpinner;
     private javax.swing.JButton importButton;
     private javax.swing.JPanel importPanel;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;

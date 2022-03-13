@@ -142,6 +142,13 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                         getCaller().show();
                     }
                     break;
+                case IDLE_SPINNER:
+                    try {
+                        handleIdleChange();
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE, "error handling response", e);
+                        getCaller().show();
+                    }
                 default:
                     break;
             }
@@ -157,6 +164,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
             setupMinLeftNotification();
             setupExport();
             refreshImportPanel();
+            setupIdle();
         } catch (Exception e) {
             logger.log(Level.SEVERE, "error showing panel", e);
             getCaller().show();
@@ -222,6 +230,15 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         JButton button = (JButton) getObjectFromPanel(ConfigurationPanelEnum.EXPORT_BUTTON, JButton.class).orElseThrow(() -> new Exception("wrong object"));
         int size = 25;
         button.setText(pathName.length() > size ? pathName.substring(pathName.length()-size) : pathName);
+    }
+    
+    private void setupIdle() throws Exception {
+        long idleMinutes = Long.valueOf(configService.configElement(ConfigurationEnum.IDLE).getValue());
+        if (idleMinutes < 1*60*1000 || idleMinutes > 15*60*1000) {
+            idleMinutes = 1*60*1000;
+        }
+        JSpinner spinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.IDLE_SPINNER, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        spinner.setValue(TimeConverter.getMinutes(idleMinutes));
     }
     
     // HANDLE EVENTS IN THE UI
@@ -410,6 +427,19 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                 .forEach(label -> importPanel.add(label));
         importPanel.revalidate();
         importPanel.repaint();
+    }
+    
+    private void handleIdleChange() throws Exception {
+        JSpinner spinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.IDLE_SPINNER, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        try {
+            Long time = TimeConverter.minutesToMilis((Long) spinner.getValue());
+            ConfigElement el = new ConfigElement();
+            el.setKey(ConfigurationEnum.IDLE);
+            el.setValue(String.valueOf(time));
+            configService.add(el);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error getting values from spinners to db", e);
+        }
     }
 
 }
