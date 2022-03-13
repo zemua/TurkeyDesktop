@@ -21,5 +21,6 @@ public interface IConditionChecker {
     public boolean isLockDownTime();
     public boolean isLockDownTime(Long now);
     public boolean isTimeRunningOut();
+    public long timeRemaining();
     
 }

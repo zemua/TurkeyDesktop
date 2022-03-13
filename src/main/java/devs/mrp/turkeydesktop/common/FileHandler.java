@@ -15,6 +15,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -25,6 +27,12 @@ public class FileHandler {
     private static final long millisBetweenOperations = 60*1000;
     private static long lastOperation = 0;
     private static IConfigElementService configService = FConfigElementService.getService();
+    private static Map<String,CachedValue> readerCache = new HashMap<>();
+    
+    private static class CachedValue {
+        String value;
+        long lastUpdated;
+    }
     
     public static File createFileIfNotExists(File file, String extension) throws IOException {
         File target = file;
@@ -74,13 +82,21 @@ public class FileHandler {
         }
     }
     
-    public String readFirstLineFromFile(File file) throws IOException {
+    public static String readFirstLineFromFile(File file) throws IOException {
+        long now = System.currentTimeMillis();
+        if (readerCache.containsKey(file.getPath()) && now > readerCache.get(file.getPath()).lastUpdated + millisBetweenOperations) {
+            return readerCache.get(file.getPath()).value;
+        }
         if (!file.exists() || !file.canRead() || !file.isFile())  {
             throw new IOException("Cannot read from file");
         }
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line = reader.readLine();
             if (line != null) {
+                CachedValue cached = new CachedValue();
+                cached.lastUpdated = now;
+                cached.value = line;
+                readerCache.put(file.getPath(), cached);
                 return line;
             }
         }
