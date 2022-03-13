@@ -5,7 +5,9 @@
  */
 package devs.mrp.turkeydesktop.view.configuration;
 
+import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.common.FileHandler;
+import devs.mrp.turkeydesktop.common.RemovableLabel;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.FConfigElementService;
@@ -379,8 +381,30 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         importPanel.removeAll();
         importService.findAll().stream()
                 .map(path -> {
-                    JLabel label = new JLabel();
-                    label.setText(path);
+                    RemovableLabel<String> label = new RemovableLabel<>(path) {
+                        @Override
+                        protected String getNameFromElement(String element) {
+                            return element;
+                        }
+                        @Override
+                        protected void initializeOtherElements() {
+                            // ¯\_ (ツ)_/¯
+                        }
+                        @Override
+                        protected void addOtherItems(JPanel panel) {
+                            // ¯\_ (ツ)_/¯
+                        }
+                    };
+                    label.addFeedbackListener((String tipo, RemovableLabel.Action feedback) -> {
+                        if (feedback.equals(RemovableLabel.Action.DELETE)) {
+                            importService.deleteById(tipo);
+                            try {
+                                refreshImportPanel();
+                            } catch (Exception e) {
+                                logger.log(Level.SEVERE, "could not refresh import panel after path deletion", e);
+                            }
+                        }
+                    });
                     return label;
                 })
                 .forEach(label -> importPanel.add(label));
