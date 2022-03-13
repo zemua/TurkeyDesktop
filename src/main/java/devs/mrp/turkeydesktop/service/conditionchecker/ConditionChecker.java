@@ -25,6 +25,7 @@ import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -135,9 +136,10 @@ public class ConditionChecker implements IConditionChecker {
                     }
                     return firstLine;
                 })
+                .filter(Objects::nonNull) // filter nulls
                 .filter(s -> !s.isBlank()) // filter blanks
                 .filter(s -> Pattern.compile("^\\d+$").matcher(s).matches()) // filter non numbers
-                .collect(Collectors.summingLong(Long::valueOf));
+                .collect(Collectors.summingLong(Long::valueOf)); // convert to long and sum up
         TimeLog tl = timeLogService.findMostRecent();
         Long accumulated = tl != null ? tl.getAccumulated() : 0;
         Long proportion = Long.valueOf(configService.findById(ConfigurationEnum.PROPORTION).getValue());

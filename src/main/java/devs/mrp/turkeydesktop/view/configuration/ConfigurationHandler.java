@@ -10,6 +10,8 @@ import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.FConfigElementService;
 import devs.mrp.turkeydesktop.database.config.IConfigElementService;
+import devs.mrp.turkeydesktop.database.imports.ImportService;
+import devs.mrp.turkeydesktop.database.imports.ImportServiceFactory;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
@@ -20,6 +22,8 @@ import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
@@ -32,6 +36,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, AWTEvent, FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent>> {
 
     private IConfigElementService configService = FConfigElementService.getService();
+    private ImportService importService = ImportServiceFactory.getService();
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
     private Logger logger = Logger.getLogger(ConfigurationHandler.class.getName());
 
@@ -127,6 +132,14 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                         getCaller().show();
                     }
                     break;
+                case IMPORT_BUTTON:
+                    try {
+                        handleImportButton();
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE, "error handling response", e);
+                        getCaller().show();
+                    }
+                    break;
                 default:
                     break;
             }
@@ -141,6 +154,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
             setupLockDownNotification();
             setupMinLeftNotification();
             setupExport();
+            refreshImportPanel();
         } catch (Exception e) {
             logger.log(Level.SEVERE, "error showing panel", e);
             getCaller().show();
@@ -335,6 +349,43 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         int size = 25;
         String path = file.getPath();
         exportButton.setText(path.length() > size ? path.substring(path.length()-size) : path);
+    }
+    
+    private void handleImportButton() throws Exception {
+        JPanel importPanel = (JPanel) getObjectFromPanel(ConfigurationPanelEnum.IMPORT_PANEL, JPanel.class).orElseThrow(() -> new Exception("wrong object"));
+        JFileChooser chooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Plain text files .txt only", "txt");
+        chooser.setFileFilter(filter);
+        chooser.setAcceptAllFileFilterUsed(false);
+        int returnVal = chooser.showSaveDialog(chooser);
+        if (returnVal != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        File file = chooser.getSelectedFile();
+        if (file.getPath().length() > 500) {
+            JLabel message = new JLabel();
+            message.setText(localeMessages.getString("errorPath500"));
+            importPanel.add(message);
+            importPanel.revalidate();
+            importPanel.repaint();
+            return;
+        }
+        importService.add(file.getPath());
+        refreshImportPanel();
+    }
+    
+    private void refreshImportPanel() throws Exception {
+        JPanel importPanel = (JPanel) getObjectFromPanel(ConfigurationPanelEnum.IMPORT_PANEL, JPanel.class).orElseThrow(() -> new Exception("wrong object"));
+        importPanel.removeAll();
+        importService.findAll().stream()
+                .map(path -> {
+                    JLabel label = new JLabel();
+                    label.setText(path);
+                    return label;
+                })
+                .forEach(label -> importPanel.add(label));
+        importPanel.revalidate();
+        importPanel.repaint();
     }
 
 }
