@@ -12,12 +12,12 @@ package devs.mrp.turkeydesktop.database.conditions;
 public abstract class AbstractCondition<T extends AbstractCondition> {
     
     public static final String ID = "ID";
-    public static final String TARGET_ID = "TARGET_ID";
+    public static final String GROUP_ID = "GROUP_ID";
     public static final String USAGE_TIME_CONDITION = "USAGE_TIME_CONDITION";
     public static final String LAST_DAYS_CONDITION = "LAST_DAYS_CONDITION";
     
     private long id;
-    private long targetId;
+    private long groupId;
     private long usageTimeCondition;
     private long lastDaysCondition;
 
@@ -27,14 +27,6 @@ public abstract class AbstractCondition<T extends AbstractCondition> {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public long getTargetId() {
-        return targetId;
-    }
-
-    public void setTargetId(long targetId) {
-        this.targetId = targetId;
     }
 
     public long getUsageTimeCondition() {
@@ -53,6 +45,14 @@ public abstract class AbstractCondition<T extends AbstractCondition> {
         this.lastDaysCondition = lastDaysCondition;
     }
     
+    public long getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(long groupId) {
+        this.groupId = groupId;
+    }
+    
     protected abstract boolean otherFieldsEquals(T condition);
     
     public boolean equals(T condition) {
@@ -60,7 +60,7 @@ public abstract class AbstractCondition<T extends AbstractCondition> {
             return false;
         }
         // check target id
-        if (this.getTargetId() != condition.getTargetId()) {
+        if (this.getGroupId() != condition.getGroupId()) {
             return false;
         }
         // check usage time

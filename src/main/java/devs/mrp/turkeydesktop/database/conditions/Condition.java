@@ -11,21 +11,21 @@ package devs.mrp.turkeydesktop.database.conditions;
  */
 public class Condition extends AbstractCondition<Condition> {
     
-    public static final String GROUP_ID = "GROUP_ID";
+    public static final String TARGET_ID = "TARGET_ID";
     
-    private long groupId;
-
-    public long getGroupId() {
-        return groupId;
+    private long targetId;
+    
+    public long getTargetId() {
+        return targetId;
     }
 
-    public void setGroupId(long groupId) {
-        this.groupId = groupId;
+    public void setTargetId(long targetId) {
+        this.targetId = targetId;
     }
 
     @Override
     protected boolean otherFieldsEquals(Condition condition) {
-        return condition.getGroupId() == this.groupId;
+        return condition.getTargetId() == this.targetId;
     }
     
 }

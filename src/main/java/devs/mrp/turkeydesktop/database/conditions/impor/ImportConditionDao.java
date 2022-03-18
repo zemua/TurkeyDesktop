@@ -14,8 +14,8 @@ import java.sql.ResultSet;
  */
 public interface ImportConditionDao extends GeneralDao<ImportCondition, Long> {
     
-    public ResultSet findByTxtFile(String txtFile);
-    public long deleteByTxtFile(String txtFile);
-    public long deleteByTargetId(long targetId);
+    public ResultSet findByGroupId(long groupId);
+    public long deleteByGroupId(long groupId);
+    public long deleteByTargetTxt(String targetTxt);
     
 }

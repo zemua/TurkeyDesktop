@@ -136,12 +136,12 @@ public class Db { // TODO create asynchronous listeners to update livedata
         
         execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
                 + "%s BIGINT NOT NULL AUTO_INCREMENT, " // id
+                + "%s BIGINT NOT NULL, " // the group id to which this condition belongs
                 + "%s VARCHAR(500) NOT NULL, " // the txt file with the data
-                + "%s BIGINT NOT NULL, " // target id, like the other group's id, the randome check id, etc.
                 + "%s BIGINT NOT NULL, " // usage time from the target that has to be met
                 + "%s INT NOT NULL, " // timeframe in days for the usage time to be met
                 + "PRIMARY KEY (%s))",
-                IMPORT_CONDITIONS_TABLE, ImportCondition.ID, ImportCondition.TXT_FILE, ImportCondition.TARGET_ID, ImportCondition.USAGE_TIME_CONDITION, ImportCondition.LAST_DAYS_CONDITION, ImportCondition.ID
+                IMPORT_CONDITIONS_TABLE, ImportCondition.ID, ImportCondition.GROUP_ID, ImportCondition.TXT_FILE, ImportCondition.USAGE_TIME_CONDITION, ImportCondition.LAST_DAYS_CONDITION, ImportCondition.ID
         ));
         
         execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
