@@ -5,7 +5,9 @@
  */
 package devs.mrp.turkeydesktop.database;
 
+import devs.mrp.turkeydesktop.database.conditions.AbstractCondition;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
+import devs.mrp.turkeydesktop.database.conditions.impor.ImportCondition;
 import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
@@ -35,6 +37,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
     public static final String GROUP_ASSIGNATION_TABLE = "GROUP_ASSIGNATION_TABLE";
     public static final String CATEGORIZED_TABLE = "TYPES_CATEGORIZATION";
     public static final String CONDITIONS_TABLE = "CONDITIONS_TABLE";
+    public static final String IMPORT_CONDITIONS_TABLE = "IMPORT_CONDITIONS_TABLE";
     public static final String TITLES_TABLE = "TITLES_TABLE";
     public static final String ACCUMULATED_TIME_TABLE = "ACCUMULATED_TIME";
     public static final String CONFIG_TABLE = "CONFIG_TABLE";
@@ -130,6 +133,16 @@ public class Db { // TODO create asynchronous listeners to update livedata
                 + "%s INT NOT NULL, " // timeframe in days for the usage time to be met
                 + "PRIMARY KEY (%s))",
                 CONDITIONS_TABLE, Condition.ID, Condition.GROUP_ID, Condition.TARGET_ID, Condition.USAGE_TIME_CONDITION, Condition.LAST_DAYS_CONDITION, Condition.ID));
+        
+        execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
+                + "%s BIGINT NOT NULL AUTO_INCREMENT, " // id
+                + "%s VARCHAR(500) NOT NULL, " // the txt file with the data
+                + "%s BIGINT NOT NULL, " // target id, like the other group's id, the randome check id, etc.
+                + "%s BIGINT NOT NULL, " // usage time from the target that has to be met
+                + "%s INT NOT NULL, " // timeframe in days for the usage time to be met
+                + "PRIMARY KEY (%s))",
+                IMPORT_CONDITIONS_TABLE, ImportCondition.ID, ImportCondition.TXT_FILE, ImportCondition.TARGET_ID, ImportCondition.USAGE_TIME_CONDITION, ImportCondition.LAST_DAYS_CONDITION, ImportCondition.ID
+        ));
         
         execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
                 + "%s VARCHAR(500) NOT NULL," // file path
