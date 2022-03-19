@@ -117,7 +117,7 @@ public class FileHandler {
             boolean first = true;
             while ((line = reader.readLine()) != null) {
                 if (!first) {
-                    builder.append("\n");
+                    builder.append(System.lineSeparator());
                 }
                 builder.append(line);
                 first = false;

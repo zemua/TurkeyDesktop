@@ -14,8 +14,7 @@ import devs.mrp.turkeydesktop.database.logs.FTimeLogService;
 import devs.mrp.turkeydesktop.database.logs.ITimeLogService;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
-import devs.mrp.turkeydesktop.service.conditionchecker.FConditionChecker;
-import devs.mrp.turkeydesktop.service.conditionchecker.IConditionChecker;
+import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessEnum;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.FCatProcessPanel;
@@ -32,6 +31,7 @@ import java.awt.AWTEvent;
 import java.awt.Toolkit;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 
 /**
  *
@@ -51,7 +51,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     
     private ITimeLogService timeLogService = FTimeLogService.getService();
     private IConfigElementService configService = FConfigElementService.getService();
-    private IConditionChecker conditionChecker = FConditionChecker.getConditionChecker();
+    private ConditionChecker conditionChecker = ConditionCheckerFactory.getConditionChecker();
 
     public MainHandler(JFrame frame, PanelHandler<?,?, ?> caller) {
         super(frame, caller);

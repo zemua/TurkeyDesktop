@@ -25,8 +25,7 @@ import devs.mrp.turkeydesktop.database.type.FTypeService;
 import devs.mrp.turkeydesktop.database.type.ITypeService;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.database.type.TypeRepository;
-import devs.mrp.turkeydesktop.service.conditionchecker.FConditionChecker;
-import devs.mrp.turkeydesktop.service.conditionchecker.IConditionChecker;
+import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -35,6 +34,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 
 /**
  *
@@ -52,7 +52,7 @@ public class LogAndTypeFacadeService implements ILogAndTypeService {
     private final IGroupAssignationService groupAssignationService = FGroupAssignationService.getService();
     private final IConditionService conditionService = FConditionService.getService();
     
-    private final IConditionChecker conditionChecker = FConditionChecker.getConditionChecker();
+    private final ConditionChecker conditionChecker = ConditionCheckerFactory.getConditionChecker();
     
     private static final Logger LOGGER = Logger.getLogger(LogAndTypeFacadeService.class.getName());
 

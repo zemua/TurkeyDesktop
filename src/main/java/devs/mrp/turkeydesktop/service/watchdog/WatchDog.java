@@ -9,8 +9,7 @@ import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
-import devs.mrp.turkeydesktop.service.conditionchecker.FConditionChecker;
-import devs.mrp.turkeydesktop.service.conditionchecker.IConditionChecker;
+import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
 import devs.mrp.turkeydesktop.service.processchecker.FProcessChecker;
 import devs.mrp.turkeydesktop.service.processchecker.IProcessChecker;
 import devs.mrp.turkeydesktop.service.processkiller.KillerChainCommander;
@@ -25,6 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JTextArea;
 import javax.swing.SwingWorker;
+import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 
 /**
  *
@@ -51,7 +51,7 @@ public class WatchDog implements IWatchDog {
     private AtomicLong timestamp;
     private IProcessChecker processChecker;
     private LocaleMessages localeMessages;
-    private final IConditionChecker conditionChecker = FConditionChecker.getConditionChecker();
+    private final ConditionChecker conditionChecker = ConditionCheckerFactory.getConditionChecker();
     private ChainHandler<String> killerHandler = new KillerChainCommander().getHandlerChain();
     private Logger logger = Logger.getLogger(WatchDog.class.getName());
 

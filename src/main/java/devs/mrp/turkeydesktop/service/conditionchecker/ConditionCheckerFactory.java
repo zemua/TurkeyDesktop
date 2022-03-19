@@ -9,8 +9,8 @@ package devs.mrp.turkeydesktop.service.conditionchecker;
  *
  * @author miguel
  */
-public class FConditionChecker {
-    public static IConditionChecker getConditionChecker() {
-        return new ConditionChecker();
+public class ConditionCheckerFactory {
+    public static ConditionChecker getConditionChecker() {
+        return new ConditionCheckerImpl();
     }
 }
