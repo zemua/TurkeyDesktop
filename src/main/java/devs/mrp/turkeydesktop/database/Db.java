@@ -9,6 +9,7 @@ import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
+import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.titles.Title;
 import devs.mrp.turkeydesktop.database.type.Type;
@@ -32,6 +33,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
     
     public static final String WATCHDOG_TABLE = "WATCHDOG_LOG";
     public static final String GROUPS_TABLE = "GROUPS_OF_APPS";
+    public static final String GROUPS_EXTERNAL_TABLE = "GROUPS_EXTERNAL_TABLE";
     public static final String GROUP_ASSIGNATION_TABLE = "GROUP_ASSIGNATION_TABLE";
     public static final String CATEGORIZED_TABLE = "TYPES_CATEGORIZATION";
     public static final String CONDITIONS_TABLE = "CONDITIONS_TABLE";
@@ -135,6 +137,13 @@ public class Db { // TODO create asynchronous listeners to update livedata
                 + "%s VARCHAR(500) NOT NULL," // file path
                 + "PRIMARY KEY (%s))",
                 IMPORTS_TABLE, ConfigurationEnum.IMPORT_PATH.toString(), ConfigurationEnum.IMPORT_PATH.toString()));
+        
+        execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
+                + "%s BIGINT NOT NULL AUTO_INCREMENT, " // id
+                + "%s BIGINT NOT NULL, " // the group id to which this external time belongs
+                + "%s VARCHAR(500) NOT NULL," // file path with date-time data
+                + "PRIMARY KEY (%s))",
+                GROUPS_EXTERNAL_TABLE, ExternalGroup.ID, ExternalGroup.GROUP, ExternalGroup.FILE, ExternalGroup.ID));
         
         //close();
     }

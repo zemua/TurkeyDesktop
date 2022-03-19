@@ -5,6 +5,8 @@
  */
 package devs.mrp.turkeydesktop.database.group;
 
+import java.util.Objects;
+
 /**
  *
  * @author miguel
@@ -50,10 +52,34 @@ public class Group {
         this.type = type;
     }
     
-    public boolean equals(Group group) {
-        return group != null
-                && ((this.getName() == null && group.getName() == null) || this.getName().equals(group.getName()))
-                && ((this.getType() == null && group.getType() == null) || this.getType().equals(group.getType()));
+        @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 47 * hash + (int) (this.id ^ (this.id >>> 32));
+        hash = 47 * hash + Objects.hashCode(this.name);
+        hash = 47 * hash + Objects.hashCode(this.type);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Group other = (Group) obj;
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (this.type != other.type) {
+            return false;
+        }
+        return true;
     }
     
     @Override
