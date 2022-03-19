@@ -148,5 +148,71 @@ public class ExternalGroupRepository implements ExternalGroupDao {
         }
         return delQty;
     }
+
+    @Override
+    public ResultSet findByGroup(Long id) {
+        ResultSet rs = null;
+        try {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+                        Db.GROUPS_EXTERNAL_TABLE, ExternalGroup.GROUP));
+                stm.setLong(1, id);
+                rs = stm.executeQuery();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
+        } catch (InterruptedException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        } finally {
+            semaphore.release();
+        }
+        return rs;
+    }
+
+    @Override
+    public ResultSet findByFile(String file) {
+        ResultSet rs = null;
+        try {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+                        Db.GROUPS_EXTERNAL_TABLE, ExternalGroup.FILE));
+                stm.setString(1, file);
+                rs = stm.executeQuery();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
+        } catch (InterruptedException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        } finally {
+            semaphore.release();
+        }
+        return rs;
+    }
+
+    @Override
+    public long deleteByGroup(Long id) {
+        long delQty = -1;
+        try {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
+                        Db.GROUPS_EXTERNAL_TABLE, ExternalGroup.GROUP));
+                stm.setLong(1, id);
+                delQty = stm.executeUpdate();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
+        } catch (InterruptedException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        } finally {
+            semaphore.release();
+        }
+        return delQty;
+    }
     
 }

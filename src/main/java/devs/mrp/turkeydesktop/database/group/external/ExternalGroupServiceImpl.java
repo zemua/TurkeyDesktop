@@ -25,6 +25,9 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     public long add(ExternalGroup element) {
         if (element == null) {
             return -1;
+        } else if (element.getFile() != null && element.getFile().length() > 500) {
+            logger.log(Level.SEVERE, "File path cannot be longer than 500 characters");
+            return -1;
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
             ResultSet rs = repo.findById(element.getId());
@@ -49,6 +52,9 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     @Override
     public long update(ExternalGroup element) {
         if (element == null) {
+            return -1;
+        } else if (element.getFile() != null && element.getFile().length() > 500) {
+            logger.log(Level.SEVERE, "File path cannot be longer than 500 characters");
             return -1;
         }
         return repo.update(element);
@@ -101,6 +107,21 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
             logger.log(Level.SEVERE, null, ex);
         }
         return el;
+    }
+
+    @Override
+    public List<ExternalGroup> findByGroup(Long id) {
+        return elementsFromResultSet(repo.findByGroup(id));
+    }
+
+    @Override
+    public List<ExternalGroup> findByFile(String file) {
+        return elementsFromResultSet(repo.findByFile(file));
+    }
+
+    @Override
+    public long deleteByGroup(Long id) {
+        return repo.deleteByGroup(id);
     }
     
 }

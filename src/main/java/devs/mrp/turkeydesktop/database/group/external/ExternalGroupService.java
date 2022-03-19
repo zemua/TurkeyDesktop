@@ -17,4 +17,7 @@ public interface ExternalGroupService {
     public List<ExternalGroup> findAll();
     public ExternalGroup findById(long id);
     public long deleteById(long id);
+    public List<ExternalGroup> findByGroup(Long id);
+    public List<ExternalGroup> findByFile(String file);
+    public long deleteByGroup(Long id);
 }

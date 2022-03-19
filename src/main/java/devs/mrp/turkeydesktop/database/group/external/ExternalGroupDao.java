@@ -6,11 +6,14 @@
 package devs.mrp.turkeydesktop.database.group.external;
 
 import devs.mrp.turkeydesktop.database.GeneralDao;
+import java.sql.ResultSet;
 
 /**
  *
  * @author miguel
  */
 public interface ExternalGroupDao extends GeneralDao<ExternalGroup, Long> {
-    
+    public ResultSet findByGroup(Long id);
+    public ResultSet findByFile(String file);
+    public long deleteByGroup(Long id);
 }

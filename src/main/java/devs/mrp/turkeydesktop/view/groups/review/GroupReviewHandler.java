@@ -15,6 +15,8 @@ import devs.mrp.turkeydesktop.database.group.IGroupService;
 import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
+import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
+import devs.mrp.turkeydesktop.database.group.external.ExternalGroupServiceFactory;
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElement;
 import devs.mrp.turkeydesktop.database.group.facade.FAssignableElementService;
 import devs.mrp.turkeydesktop.database.group.facade.IAssignableElementService;
@@ -49,6 +51,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private final IAssignableElementService assignableProcessService = FAssignableElementService.getProcessesService();
     private final IAssignableElementService assignableTitlesService = FAssignableElementService.getTitlesService();
     private final IConditionService conditionService = FConditionService.getService();
+    private final ExternalGroupService externalGroupService = ExternalGroupServiceFactory.getService();
     private final IGroupConditionFacadeService groupConditionFacadeService = FGroupConditionFacadeService.getService();
     
     private JComboBox<Group> targetComboBox;
@@ -324,6 +327,8 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         groupService.deleteById(group.getId());
         conditionService.deleteByGroupId(group.getId());
         conditionService.deleteByTargetId(group.getId());
+        externalGroupService.deleteByGroup(group.getId());
+        groupAssignationService.deleteByGroupId(group.getId());
         this.getCaller().show();
     }
     

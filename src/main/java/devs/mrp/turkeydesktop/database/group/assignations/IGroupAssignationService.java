@@ -19,6 +19,7 @@ public interface IGroupAssignationService {
     public GroupAssignation findById(long id);
     @Deprecated
     public long deleteById(long id);
+    public long deleteByGroupId(long id);
     
     public GroupAssignation findByProcessId(String processId);
     public long deleteByProcessId(String processId);

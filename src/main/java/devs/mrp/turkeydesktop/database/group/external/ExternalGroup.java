@@ -14,7 +14,7 @@ import java.util.Objects;
 public class ExternalGroup {
     
     public static final String ID = "ID";
-    public static final String GROUP = "GROUP";
+    public static final String GROUP = "GROUP_COLUMN";
     public static final String FILE = "FILE";
     
     private long id;
