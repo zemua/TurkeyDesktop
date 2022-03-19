@@ -214,5 +214,28 @@ public class ExternalGroupRepository implements ExternalGroupDao {
         }
         return delQty;
     }
+
+    @Override
+    public ResultSet findByGroupAndFile(Long id, String file) {
+        ResultSet rs = null;
+        try {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=? AND %s=?",
+                        Db.GROUPS_EXTERNAL_TABLE, ExternalGroup.GROUP, ExternalGroup.FILE));
+                stm.setLong(1, id);
+                stm.setString(2, file);
+                rs = stm.executeQuery();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
+        } catch (InterruptedException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        } finally {
+            semaphore.release();
+        }
+        return rs;
+    }
     
 }

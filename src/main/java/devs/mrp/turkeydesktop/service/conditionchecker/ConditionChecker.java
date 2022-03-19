@@ -53,7 +53,7 @@ public class ConditionChecker implements IConditionChecker {
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
 
     @Override
-    public boolean isConditionMet(Condition condition) {
+    public boolean isConditionMet(Condition condition) { // TODO check also imported time on that group
         long timeSpent = timeLogService.timeSpentOnGroupForFrame(condition.getTargetId(),
                 TimeConverter.beginningOfOffsetDays(condition.getLastDaysCondition()),
                 TimeConverter.endOfToday());

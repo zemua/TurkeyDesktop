@@ -90,17 +90,9 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
             }
         });
 
-        javax.swing.GroupLayout externalTimePanelLayout = new javax.swing.GroupLayout(externalTimePanel);
-        externalTimePanel.setLayout(externalTimePanelLayout);
-        externalTimePanelLayout.setHorizontalGroup(
-            externalTimePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1049, Short.MAX_VALUE)
-        );
-        externalTimePanelLayout.setVerticalGroup(
-            externalTimePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 132, Short.MAX_VALUE)
-        );
+        jScrollPane2.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
+        externalTimePanel.setLayout(new javax.swing.BoxLayout(externalTimePanel, javax.swing.BoxLayout.PAGE_AXIS));
         jScrollPane2.setViewportView(externalTimePanel);
 
         javax.swing.GroupLayout externalTimeTabLayout = new javax.swing.GroupLayout(externalTimeTab);
@@ -113,7 +105,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                     .addGroup(externalTimeTabLayout.createSequentialGroup()
                         .addComponent(externalTimeButton)
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 1051, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2))
                 .addContainerGap())
         );
         externalTimeTabLayout.setVerticalGroup(
@@ -122,7 +114,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                 .addContainerGap()
                 .addComponent(externalTimeButton)
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 134, Short.MAX_VALUE)
+                .addComponent(jScrollPane2)
                 .addContainerGap())
         );
 

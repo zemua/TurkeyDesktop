@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.view.groups.review;
 
+import devs.mrp.turkeydesktop.common.RemovableLabel;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.FConditionService;
@@ -15,6 +16,7 @@ import devs.mrp.turkeydesktop.database.group.IGroupService;
 import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
+import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupServiceFactory;
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElement;
@@ -22,20 +24,24 @@ import devs.mrp.turkeydesktop.database.group.facade.FAssignableElementService;
 import devs.mrp.turkeydesktop.database.group.facade.IAssignableElementService;
 import devs.mrp.turkeydesktop.database.groupcondition.FGroupConditionFacadeService;
 import devs.mrp.turkeydesktop.database.groupcondition.IGroupConditionFacadeService;
+import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.groups.review.switchable.Switchable;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
+import java.io.File;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -44,6 +50,7 @@ import javax.swing.JTextField;
 public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent>> {
 
     private static final Logger logger = Logger.getLogger(GroupReviewHandler.class.getName());
+    private final LocaleMessages localeMessages = LocaleMessages.getInstance();
     
     private Group group;
     private final IGroupService groupService = FGroupService.getService();
@@ -115,17 +122,18 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
 
     @Override
     protected void doExtraBeforeShow() {
-        setGroupLabelName();
-        setProcesses();
-        setTitles();
         try {
+            setGroupLabelName();
+            setProcesses();
+            setTitles();
             setConditions();
+            refreshExternalTime();
+            setConfiguration();
         } catch (Exception e) {
             // print error and go back
-            logger.log(Level.SEVERE, "error setting conditions", e);
+            logger.log(Level.SEVERE, "error setting up UI", e);
             this.getCaller().show();
         }
-        setConfiguration();
     }
     
     private void setGroupLabelName() {
@@ -339,8 +347,64 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         this.getCaller().show();
     }
     
-    private void addExternalTime() {
-        // TODO
+    private void addExternalTime() throws Exception {
+        JFileChooser chooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Plain text files .txt only", "txt");
+        chooser.setFileFilter(filter);
+        chooser.setAcceptAllFileFilterUsed(false);
+        int returnVal = chooser.showOpenDialog(chooser);
+        if (returnVal != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        File file = chooser.getSelectedFile();
+        if (file.getPath().length() > 500) {
+            JLabel message = new JLabel();
+            message.setText(localeMessages.getString("errorPath500"));
+            JPanel panel = (JPanel) getObjectFromPanel(GroupReviewEnum.EXTERNAL_TIME_PANEL, JPanel.class).orElseThrow(() -> new Exception("wrong object"));
+            panel.add(message);
+            panel.revalidate();
+            panel.repaint();
+        }
+        ExternalGroup externalGroup = new ExternalGroup();
+        externalGroup.setGroup(this.group.getId());
+        externalGroup.setFile(file.getPath());
+        externalGroupService.add(externalGroup);
+        refreshExternalTime();
+    }
+    
+    private void refreshExternalTime() throws Exception {
+        JPanel panel = (JPanel) getObjectFromPanel(GroupReviewEnum.EXTERNAL_TIME_PANEL, JPanel.class).orElseThrow(() -> new Exception("wrong object"));
+        panel.removeAll();
+        externalGroupService.findByGroup(this.group.getId()).stream()
+                .map(externalGroup -> {
+                    RemovableLabel<ExternalGroup> label = new RemovableLabel<>(externalGroup) {
+                        @Override
+                        protected String getNameFromElement(ExternalGroup element) {
+                            return element.getFile();
+                        }
+                        @Override
+                        protected void initializeOtherElements() {
+                            // ¯\_ (ツ)_/¯
+                        }
+                        @Override
+                        protected void addOtherItems(JPanel panel) {
+                            // ¯\_ (ツ)_/¯
+                        }
+                    };
+                    label.addFeedbackListener((ExternalGroup tipo, RemovableLabel.Action feedback) -> {
+                        if (feedback.equals(RemovableLabel.Action.DELETE)) {
+                            externalGroupService.deleteById(tipo.getId());
+                            try {
+                                refreshExternalTime();
+                            } catch (Exception e) {
+                                logger.log(Level.SEVERE, "could not refresh external time panel after path deletion", e);
+                            }
+                        }
+                    });
+                    return label;
+                }).forEach(label -> panel.add(label));
+        panel.revalidate();
+        panel.repaint();
     }
     
 }

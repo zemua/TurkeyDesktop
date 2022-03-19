@@ -17,10 +17,10 @@ import java.util.logging.Logger;
  * @author miguel
  */
 public class ExternalGroupServiceImpl implements ExternalGroupService {
-    
+
     private static final ExternalGroupDao repo = ExternalGroupRepository.getInstance();
     private static final Logger logger = Logger.getLogger(ExternalGroupServiceImpl.class.getName());
-    
+
     @Override
     public long add(ExternalGroup element) {
         if (element == null) {
@@ -33,13 +33,12 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
             ResultSet rs = repo.findById(element.getId());
             try {
                 if (rs.next()) {
-                    ExternalGroup group = elementFromResultSetEntry(rs);
-                    // if the value stored differs from the one received
-                    if (!group.equals(element)) {
-                        return update(element);
-                    }
-                    // else the value is the same as the one stored
-                    return 0;
+                    return updateOrKeep(element, rs);
+                }
+                // if no element by that id, try with same group and file
+                rs = repo.findByGroupAndFile(element.getGroup(), element.getFile());
+                if (rs.next()) {
+                    return updateOrKeep(element, rs);
                 }
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
@@ -47,6 +46,16 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
             // else there is no element stored with this id
             return repo.add(element);
         }
+    }
+
+    private long updateOrKeep(ExternalGroup element, ResultSet rs) {
+        ExternalGroup group = elementFromResultSetEntry(rs);
+        // if the value stored differs from the one received
+        if (!group.equals(element)) {
+            return update(element);
+        }
+        // else the value is the same as the one stored
+        return 0;
     }
 
     @Override
@@ -83,7 +92,7 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     public long deleteById(long id) {
         return repo.deleteById(id);
     }
-    
+
     private List<ExternalGroup> elementsFromResultSet(ResultSet set) {
         List<ExternalGroup> elements = new ArrayList<>();
         try {
@@ -96,7 +105,7 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
         }
         return elements;
     }
-    
+
     private ExternalGroup elementFromResultSetEntry(ResultSet set) {
         ExternalGroup el = new ExternalGroup();
         try {
@@ -123,5 +132,5 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     public long deleteByGroup(Long id) {
         return repo.deleteByGroup(id);
     }
-    
+
 }

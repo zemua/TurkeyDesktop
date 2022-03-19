@@ -376,7 +376,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Plain text files .txt only", "txt");
         chooser.setFileFilter(filter);
         chooser.setAcceptAllFileFilterUsed(false);
-        int returnVal = chooser.showSaveDialog(chooser);
+        int returnVal = chooser.showOpenDialog(chooser);
         if (returnVal != JFileChooser.APPROVE_OPTION) {
             return;
         }

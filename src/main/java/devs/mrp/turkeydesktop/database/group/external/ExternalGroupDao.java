@@ -15,5 +15,6 @@ import java.sql.ResultSet;
 public interface ExternalGroupDao extends GeneralDao<ExternalGroup, Long> {
     public ResultSet findByGroup(Long id);
     public ResultSet findByFile(String file);
+    public ResultSet findByGroupAndFile(Long id, String file);
     public long deleteByGroup(Long id);
 }
