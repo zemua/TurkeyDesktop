@@ -98,11 +98,10 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
                 element.init(t.getValue1(), t.getValue3());
                 panel.add(element);
                 setRadioListener(element);
-            } else {
-                panel.updateUI();
             }
         });
-        //panel.revalidate();
+        panel.updateUI();
+        panel.revalidate();
     }
     
     private void updateItemsInList() {

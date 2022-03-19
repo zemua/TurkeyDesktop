@@ -33,6 +33,8 @@ import javax.swing.SwingWorker;
 public class WatchDog implements IWatchDog {
     
     // TODO start as daemon in system tray, open window on click, and hide on close
+    // TODO count external time from exercise.txt into exercise group and similar
+    // TODO export time of groups to txt for the last x number of days
     
     private static final Logger LOGGER = Logger.getLogger(WatchDog.class.getName());
 
