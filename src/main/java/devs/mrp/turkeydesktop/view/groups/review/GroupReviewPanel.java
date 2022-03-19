@@ -42,6 +42,10 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         jTabbedPane1 = new javax.swing.JTabbedPane();
         processPanel = new javax.swing.JPanel();
         titlePanel = new javax.swing.JPanel();
+        externalTimeTab = new javax.swing.JPanel();
+        externalTimeButton = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        externalTimePanel = new javax.swing.JPanel();
         conditionsPanel = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         targetNameComboBox = new javax.swing.JComboBox<>();
@@ -78,6 +82,51 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
 
         titlePanel.setLayout(new javax.swing.BoxLayout(titlePanel, javax.swing.BoxLayout.PAGE_AXIS));
         jTabbedPane1.addTab(bundle.getString("title"), titlePanel); // NOI18N
+
+        externalTimeButton.setText(bundle.getString("select")); // NOI18N
+        externalTimeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                externalTimeButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout externalTimePanelLayout = new javax.swing.GroupLayout(externalTimePanel);
+        externalTimePanel.setLayout(externalTimePanelLayout);
+        externalTimePanelLayout.setHorizontalGroup(
+            externalTimePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 1049, Short.MAX_VALUE)
+        );
+        externalTimePanelLayout.setVerticalGroup(
+            externalTimePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 132, Short.MAX_VALUE)
+        );
+
+        jScrollPane2.setViewportView(externalTimePanel);
+
+        javax.swing.GroupLayout externalTimeTabLayout = new javax.swing.GroupLayout(externalTimeTab);
+        externalTimeTab.setLayout(externalTimeTabLayout);
+        externalTimeTabLayout.setHorizontalGroup(
+            externalTimeTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(externalTimeTabLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(externalTimeTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(externalTimeTabLayout.createSequentialGroup()
+                        .addComponent(externalTimeButton)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 1051, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        externalTimeTabLayout.setVerticalGroup(
+            externalTimeTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(externalTimeTabLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(externalTimeButton)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 134, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        jTabbedPane1.addTab(bundle.getString("externalTime"), externalTimeTab); // NOI18N
 
         jLabel2.setText(bundle.getString("if")); // NOI18N
 
@@ -183,7 +232,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(addConditionButton)
-                        .addGap(0, 381, Short.MAX_VALUE)))
+                        .addGap(0, 417, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         conditionsPanelLayout.setVerticalGroup(
@@ -343,6 +392,10 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         giveFeedback(GroupReviewEnum.DELETE_GROUP, evt);
     }//GEN-LAST:event_jToggleButton1ActionPerformed
 
+    private void externalTimeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_externalTimeButtonActionPerformed
+        giveFeedback(GroupReviewEnum.EXTERNAL_TIME_BUTTON, evt);
+    }//GEN-LAST:event_externalTimeButtonActionPerformed
+
     @Override
     public Object getProperty(GroupReviewEnum property) {
         switch (property) {
@@ -370,6 +423,8 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                 return groupNameText;
             case DELETE_TEXT:
                 return deleteText;
+            case EXTERNAL_TIME_PANEL:
+                return externalTimePanel;
             default:
                 return null;
         }
@@ -405,6 +460,9 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
     private javax.swing.JPanel configurationPanel;
     private javax.swing.JSpinner daySpinner;
     private javax.swing.JTextField deleteText;
+    private javax.swing.JButton externalTimeButton;
+    private javax.swing.JPanel externalTimePanel;
+    private javax.swing.JPanel externalTimeTab;
     private javax.swing.JLabel groupLabel;
     private javax.swing.JTextField groupNameText;
     private javax.swing.JSpinner hourSpinner;
@@ -418,6 +476,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JSpinner minuteSpinner;

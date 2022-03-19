@@ -103,4 +103,31 @@ public class FileHandler {
         return "";
     }
     
+    public static String readAllLinesFromFile(File file) throws IOException {
+        long now = System.currentTimeMillis();
+        if (readerCache.containsKey(file.getPath()) && now > readerCache.get(file.getPath()).lastUpdated + millisBetweenOperations) {
+            return readerCache.get(file.getPath()).value;
+        }
+        if (!file.exists() || !file.canRead() || !file.isFile())  {
+            throw new IOException("Cannot read from file");
+        }
+        StringBuilder builder = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            boolean first = true;
+            while ((line = reader.readLine()) != null) {
+                if (!first) {
+                    builder.append("\n");
+                }
+                builder.append(line);
+                first = false;
+            }
+            CachedValue cached = new CachedValue();
+            cached.lastUpdated = now;
+            cached.value = builder.toString();
+            readerCache.put(file.getPath(), cached);
+        }
+        return builder.toString();
+    }
+    
 }

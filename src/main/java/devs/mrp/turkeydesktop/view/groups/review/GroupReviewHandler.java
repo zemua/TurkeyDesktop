@@ -100,6 +100,13 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                         logger.log(Level.SEVERE, "error deleting group", ex);
                     }
                     break;
+                case EXTERNAL_TIME_BUTTON:
+                    try {
+                        addExternalTime();
+                    } catch (Exception ex) {
+                        logger.log(Level.SEVERE, "error adding external time", ex);
+                    }
+                    break;
                 default:
                     break;
             }
@@ -330,6 +337,10 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         externalGroupService.deleteByGroup(group.getId());
         groupAssignationService.deleteByGroupId(group.getId());
         this.getCaller().show();
+    }
+    
+    private void addExternalTime() {
+        // TODO
     }
     
 }
