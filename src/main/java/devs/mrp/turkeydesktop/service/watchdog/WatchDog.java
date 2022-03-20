@@ -115,7 +115,7 @@ public class WatchDog implements IWatchDog {
         this.worker = new SwingWorker<>() {
             @Override
             protected Object doInBackground() throws Exception {
-                while (WatchDog.this.on) {
+                while (WatchDog.this.on && Thread.currentThread().isAlive()) {
                     Thread.sleep(SLEEP_MILIS);
                     doLoopedStuff();
                     // publish calls to process() method of SwingWorker
