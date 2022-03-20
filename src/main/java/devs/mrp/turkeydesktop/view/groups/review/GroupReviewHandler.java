@@ -442,7 +442,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Plain text files .txt only", "txt");
         chooser.setFileFilter(filter);
         chooser.setAcceptAllFileFilterUsed(false);
-        int returnVal = chooser.showOpenDialog(chooser);
+        int returnVal = chooser.showSaveDialog(chooser);
         if (returnVal != JFileChooser.APPROVE_OPTION) {
             return;
         }
