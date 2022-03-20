@@ -57,7 +57,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         pan.addFeedbackListener((tipo, feedback) -> {
             switch (tipo) {
                 case BACK:
-                    this.getCaller().show();
+                    exit();
                     break;
                 case PROPORTION:
                     handleNewProportion();
@@ -67,7 +67,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                         handleLockdownStatusChange();
                     } catch (Exception e) {
                         logger.log(Level.SEVERE, "error handling response", e);
-                        getCaller().show();
+                        exit();
                     }
                     break;
                 case LOCKDOWN_FROM:
@@ -75,7 +75,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                         handleLockdownFromChange();
                     } catch (Exception e) {
                         logger.log(Level.SEVERE, "error handling response", e);
-                        getCaller().show();
+                        exit();
                     }
                     break;
                 case LOCKDOWN_TO:
@@ -83,7 +83,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                         handleLockdownToChange();
                     } catch (Exception e) {
                         logger.log(Level.SEVERE, "error handling response", e);
-                        getCaller().show();
+                        exit();
                     }
                     break;
                 case LOCKDOWN_NOTIFY:
@@ -91,7 +91,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                         handleLockDownNotificationChange();
                     } catch (Exception e) {
                         logger.log(Level.SEVERE, "error handling response", e);
-                        getCaller().show();
+                        exit();
                     }
                     break;
                 case LOCKDOWN_NOTIFY_MIN:
@@ -99,7 +99,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                         handleLockDownMinutesNotificationChange();
                     } catch (Exception e) {
                         logger.log(Level.SEVERE, "error handling response", e);
-                        getCaller().show();
+                        exit();
                     }
                     break;
                 case NOTIFY_MIN_LEFT:
@@ -107,7 +107,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                         handleMinLeftNotificationChange();
                     } catch (Exception e) {
                         logger.log(Level.SEVERE, "error handling response", e);
-                        getCaller().show();
+                        exit();
                     }
                     break;
                 case NOTIFY_MIN_LEFT_QTY:
@@ -115,7 +115,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                         handleMinLeftQtyNotificationChange();
                     } catch (Exception e) {
                         logger.log(Level.SEVERE, "error handling response", e);
-                        getCaller().show();
+                        exit();
                     }
                     break;
                 case EXPORT_BUTTON:
@@ -123,7 +123,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                         handleExportButton();
                     } catch (Exception e) {
                         logger.log(Level.SEVERE, "error handling response", e);
-                        getCaller().show();
+                        exit();
                     }
                     break;
                 case EXPORT_TOGGLE:
@@ -131,7 +131,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                         handleExportToggle();
                     } catch (Exception e) {
                         logger.log(Level.SEVERE, "error handling response", e);
-                        getCaller().show();
+                        exit();
                     }
                     break;
                 case IMPORT_BUTTON:
@@ -139,7 +139,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                         handleImportButton();
                     } catch (Exception e) {
                         logger.log(Level.SEVERE, "error handling response", e);
-                        getCaller().show();
+                        exit();
                     }
                     break;
                 case IDLE_SPINNER:
@@ -147,7 +147,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                         handleIdleChange();
                     } catch (Exception e) {
                         logger.log(Level.SEVERE, "error handling response", e);
-                        getCaller().show();
+                        exit();
                     }
                 default:
                     break;
@@ -167,7 +167,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
             setupIdle();
         } catch (Exception e) {
             logger.log(Level.SEVERE, "error showing panel", e);
-            getCaller().show();
+            exit();
         }
     }
 
@@ -440,6 +440,11 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error getting values from spinners to db", e);
         }
+    }
+
+    @Override
+    protected void doBeforeExit() {
+        // blank
     }
 
 }

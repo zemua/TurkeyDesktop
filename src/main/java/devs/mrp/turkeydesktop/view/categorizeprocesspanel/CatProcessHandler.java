@@ -56,7 +56,7 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
         pan.addFeedbackListener((tipo, feedback) -> {
             switch (tipo) {
                 case BACK:
-                    this.getCaller().show();
+                    exit();
                     break;
                 case UPDATE:
                     updateItemsInList();
@@ -138,6 +138,11 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
         t.setProcess(process);
         t.setType(type);
         typeService.add(t);
+    }
+
+    @Override
+    protected void doBeforeExit() {
+        // intentionally left blank
     }
     
 }

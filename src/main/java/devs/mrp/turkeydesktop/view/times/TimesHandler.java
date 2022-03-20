@@ -61,7 +61,7 @@ public class TimesHandler extends PanelHandler<TimesEnum, AWTEvent, FeedbackerPa
     }
     
     private void initCaller() {
-        this.getCaller().show();
+        exit();
     }
     
     private void attachRecordsToLogger(List<TimeLog> list) {
@@ -82,6 +82,11 @@ public class TimesHandler extends PanelHandler<TimesEnum, AWTEvent, FeedbackerPa
     
     private Date getTo() {
         return (Date)this.getPanel().getProperty(TimesEnum.TO);
+    }
+
+    @Override
+    protected void doBeforeExit() {
+        // blank
     }
     
 }

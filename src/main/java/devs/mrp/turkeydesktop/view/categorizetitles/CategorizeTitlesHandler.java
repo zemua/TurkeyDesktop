@@ -42,7 +42,7 @@ public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, 
         pan.addFeedbackListener((tipo, feedback) -> {
             switch (tipo) {
                 case BACK:
-                    this.getCaller().show();
+                    exit();
                     break;
                 case UPDATE:
                     updateItemsInList();
@@ -107,6 +107,11 @@ public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, 
             var handler = FTitleConditionsPanel.getHandler(getFrame(), CategorizeTitlesHandler.this, titledLog);
             handler.show();
         });
+    }
+
+    @Override
+    protected void doBeforeExit() {
+        // blank
     }
 
 }

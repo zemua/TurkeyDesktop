@@ -22,6 +22,7 @@ public abstract class PanelHandler<T, E, P extends FeedbackerPanelWithFetcher<T,
     private PanelHandler<?, ?, ?> caller;
     private P panel;
     private JFrame frame;
+    private boolean listening = false;
     
     public PanelHandler(JFrame frame, PanelHandler<?,?,?> caller) {
         this.caller = caller;
@@ -36,6 +37,11 @@ public abstract class PanelHandler<T, E, P extends FeedbackerPanelWithFetcher<T,
         frame.revalidate();
         //panel.revalidate();
         panel.updateUI();
+        listening = true;
+    }
+    
+    protected boolean isListening() {
+        return listening;
     }
     
     protected abstract P initPanel();
@@ -43,8 +49,16 @@ public abstract class PanelHandler<T, E, P extends FeedbackerPanelWithFetcher<T,
     protected abstract void initListeners(P pan);
     
     protected abstract void doExtraBeforeShow();
+    
+    protected abstract void doBeforeExit();
+    
+    protected void exit() {
+        listening = false;
+        doBeforeExit();
+        this.getCaller().show();
+    }
 
-    public PanelHandler<?,?,?> getCaller() {
+    private PanelHandler<?,?,?> getCaller() {
         return caller;
     }
 

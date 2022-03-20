@@ -80,9 +80,10 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     @Override
     protected void initListeners(FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent> pan) {
         pan.addFeedbackListener((tipo, feedback) -> {
-            switch (tipo) {
+            if (isListening()) {
+                switch (tipo) {
                 case BACK:
-                    this.getCaller().show();
+                    exit();
                     break;
                 case ADD_CONDITION_BUTTON:
                     try {
@@ -90,7 +91,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                     } catch (Exception e) {
                         // print error and go back
                         logger.log(Level.SEVERE, "error adding condition", e);
-                        this.getCaller().show();
+                        exit();
                     }
                     break;
                 case SAVE_GROUP_NAME:
@@ -114,8 +115,23 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                         logger.log(Level.SEVERE, "error adding external time", ex);
                     }
                     break;
+                case EXPORT_GROUP_TARGET:
+                    try {
+                        // TODO save export target into db
+                    } catch (Exception ex) {
+                        logger.log(Level.SEVERE, "error adding external time", ex);
+                    }
+                    break;
+                case EXPORT_GROUP_DAYS:
+                    try {
+                        // TODO save export target into db
+                    } catch (Exception ex) {
+                        logger.log(Level.SEVERE, "error adding external time", ex);
+                    }
+                    break;
                 default:
                     break;
+                }
             }
         });
     }
@@ -132,8 +148,12 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         } catch (Exception e) {
             // print error and go back
             logger.log(Level.SEVERE, "error setting up UI", e);
-            this.getCaller().show();
+            exit();
         }
+    }
+    
+    @Override
+    protected void doBeforeExit() {
     }
     
     private void setGroupLabelName() {
@@ -344,7 +364,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         conditionService.deleteByTargetId(group.getId());
         externalGroupService.deleteByGroup(group.getId());
         groupAssignationService.deleteByGroupId(group.getId());
-        this.getCaller().show();
+        exit();
     }
     
     private void addExternalTime() throws Exception {
@@ -380,7 +400,11 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                     RemovableLabel<ExternalGroup> label = new RemovableLabel<>(externalGroup) {
                         @Override
                         protected String getNameFromElement(ExternalGroup element) {
-                            return element.getFile();
+                            String filePath = element.getFile();
+                            if (filePath.length() > 25) {
+                                filePath = filePath.substring(filePath.length() - 25);
+                            }
+                            return filePath;
                         }
                         @Override
                         protected void initializeOtherElements() {

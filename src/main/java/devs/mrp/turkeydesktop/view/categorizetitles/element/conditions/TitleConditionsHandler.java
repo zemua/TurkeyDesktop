@@ -46,7 +46,7 @@ public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AW
         pan.addFeedbackListener((tipo, feedback) -> {
             switch (tipo) {
                 case BACK:
-                    this.getCaller().show();
+                    exit();
                     break;
                 case POSITIVE_BUTTON:
                     addCondition(((JLabel)getPanel().getProperty(TitleConditionsEnum.NEW_CONDITION_TEXT)).getText(), Title.Type.POSITIVE);
@@ -105,6 +105,11 @@ public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AW
         titleService.deleteBySubString(substr);
         fillConditions();
         
+    }
+
+    @Override
+    protected void doBeforeExit() {
+        // blank
     }
     
 }
