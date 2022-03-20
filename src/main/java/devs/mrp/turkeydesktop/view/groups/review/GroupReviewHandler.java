@@ -16,6 +16,9 @@ import devs.mrp.turkeydesktop.database.group.IGroupService;
 import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
+import devs.mrp.turkeydesktop.database.group.expor.ExportedGroup;
+import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupService;
+import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupServiceFactory;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupServiceFactory;
@@ -31,9 +34,11 @@ import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.io.File;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -59,6 +64,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private final IAssignableElementService assignableTitlesService = FAssignableElementService.getTitlesService();
     private final IConditionService conditionService = FConditionService.getService();
     private final ExternalGroupService externalGroupService = ExternalGroupServiceFactory.getService();
+    private final ExportedGroupService exportedGroupService = ExportedGroupServiceFactory.getService();
     private final IGroupConditionFacadeService groupConditionFacadeService = FGroupConditionFacadeService.getService();
     
     private JComboBox<Group> targetComboBox;
@@ -117,16 +123,16 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                     break;
                 case EXPORT_GROUP_TARGET:
                     try {
-                        // TODO save export target into db
+                        selectFileGroupExporter();
                     } catch (Exception ex) {
-                        logger.log(Level.SEVERE, "error adding external time", ex);
+                        logger.log(Level.SEVERE, "error setting group time exporter", ex);
                     }
                     break;
                 case EXPORT_GROUP_DAYS:
                     try {
-                        // TODO save export target into db
+                        updateGroupExporterDays();
                     } catch (Exception ex) {
-                        logger.log(Level.SEVERE, "error adding external time", ex);
+                        logger.log(Level.SEVERE, "error setting group time exporter", ex);
                     }
                     break;
                 default:
@@ -332,8 +338,8 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         }
     }
     
-    private void setConfiguration() {
-        // nothing here
+    private void setConfiguration() throws Exception {
+        refreshGroupExporter();
     }
     
     private void saveGroupName() throws Exception {
@@ -429,6 +435,55 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                 }).forEach(label -> panel.add(label));
         panel.revalidate();
         panel.repaint();
+    }
+    
+    private void selectFileGroupExporter() throws Exception {
+        JFileChooser chooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Plain text files .txt only", "txt");
+        chooser.setFileFilter(filter);
+        chooser.setAcceptAllFileFilterUsed(false);
+        int returnVal = chooser.showOpenDialog(chooser);
+        if (returnVal != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        File file = chooser.getSelectedFile();
+        if (file.getPath().length() > 500) {
+            JButton button = (JButton) getObjectFromPanel(GroupReviewEnum.EXPORT_GROUP_TARGET, JButton.class).orElseThrow(() -> new Exception("wrong object"));
+            button.setText(localeMessages.getString("errorPath500"));
+        }
+        ExportedGroup exportedGroup = new ExportedGroup();
+        JSpinner daysSpinner = (JSpinner) getObjectFromPanel(GroupReviewEnum.EXPORT_GROUP_DAYS, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        exportedGroup.setDays((Long)daysSpinner.getValue());
+        exportedGroup.setFile(file.getPath());
+        exportedGroup.setGroup(this.group.getId());
+        exportedGroupService.add(exportedGroup);
+        refreshGroupExporter();
+    }
+    
+    private void updateGroupExporterDays() throws Exception {
+        JSpinner daysSpinner = (JSpinner) getObjectFromPanel(GroupReviewEnum.EXPORT_GROUP_DAYS, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        ExportedGroup existing = exportedGroupService.findById(this.group.getId());
+        if (Objects.isNull(existing)) {
+            return;
+        }
+        existing.setDays((Long)daysSpinner.getValue());
+        exportedGroupService.add(existing);
+        refreshGroupExporter();
+    }
+    
+    private void refreshGroupExporter() throws Exception {
+        JSpinner daysSpinner = (JSpinner) getObjectFromPanel(GroupReviewEnum.EXPORT_GROUP_DAYS, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        JButton button = (JButton) getObjectFromPanel(GroupReviewEnum.EXPORT_GROUP_TARGET, JButton.class).orElseThrow(() -> new Exception("wrong object"));
+        ExportedGroup existing = exportedGroupService.findById(this.group.getId());
+        if (Objects.isNull(existing)) {
+            return;
+        }
+        daysSpinner.setValue(existing.getDays());
+        String text = existing.getFile();
+        if (text.length() > 25) {
+            text = text.substring(text.length() - 25);
+        }
+        button.setText(text);
     }
     
 }
