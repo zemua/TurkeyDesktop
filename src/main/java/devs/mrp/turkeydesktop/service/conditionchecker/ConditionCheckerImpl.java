@@ -15,6 +15,9 @@ import devs.mrp.turkeydesktop.database.config.FConfigElementService;
 import devs.mrp.turkeydesktop.database.config.IConfigElementService;
 import devs.mrp.turkeydesktop.database.group.FGroupService;
 import devs.mrp.turkeydesktop.database.group.IGroupService;
+import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
+import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
+import devs.mrp.turkeydesktop.database.group.external.ExternalGroupServiceFactory;
 import devs.mrp.turkeydesktop.database.imports.ImportService;
 import devs.mrp.turkeydesktop.database.imports.ImportServiceFactory;
 import devs.mrp.turkeydesktop.database.logs.FTimeLogService;
@@ -23,13 +26,18 @@ import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.conditionchecker.idle.IdleChainCommander;
 import devs.mrp.turkeydesktop.service.conditionchecker.idle.LongWrapper;
+import devs.mrp.turkeydesktop.service.conditionchecker.imports.ImportReader;
+import devs.mrp.turkeydesktop.service.conditionchecker.imports.ImportReaderFactory;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.service.toaster.ToasterChainCommander;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.function.ToLongFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -47,6 +55,8 @@ public class ConditionCheckerImpl implements ConditionChecker {
     private IConfigElementService configService = FConfigElementService.getService();
     private ImportService importService = ImportServiceFactory.getService();
     private ChainHandler<LongWrapper> idleHandler = new IdleChainCommander().getHandlerChain();
+    private ExternalGroupService externalGroupService = ExternalGroupServiceFactory.getService();
+    private ImportReader importReader = ImportReaderFactory.getReader();
     
     private Logger logger = Logger.getLogger(ConditionCheckerImpl.class.getName());
 
@@ -58,7 +68,18 @@ public class ConditionCheckerImpl implements ConditionChecker {
         long timeSpent = timeLogService.timeSpentOnGroupForFrame(condition.getTargetId(),
                 TimeConverter.beginningOfOffsetDays(condition.getLastDaysCondition()),
                 TimeConverter.endOfToday());
-        return timeSpent >= condition.getUsageTimeCondition();
+        long external = externalTimeFromCondition(condition);
+        return timeSpent+external >= condition.getUsageTimeCondition();
+    }
+    
+    private long externalTimeFromCondition(Condition condition) {
+        LocalDate to = LocalDate.now();
+        LocalDate from = LocalDate.now().minusDays(condition.getLastDaysCondition());
+        List<ExternalGroup> externals = externalGroupService.findByGroup(condition.getTargetId());
+        return externals.stream()
+                .map(ExternalGroup::getFile)
+                .map(file -> importReader.getTotalSpentFromFileBetweenDates(file, from, to))
+                .collect(Collectors.summingLong(l -> l));
     }
 
     @Override
