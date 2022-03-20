@@ -51,6 +51,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
     private Logger logger = Logger.getLogger(ConditionCheckerImpl.class.getName());
 
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
+    private static final Pattern NUMBER_PATTERN = Pattern.compile("^-?\\d+$");
 
     @Override
     public boolean isConditionMet(Condition condition) { // TODO check also imported time on that group
@@ -143,7 +144,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
                 })
                 .filter(Objects::nonNull) // filter nulls
                 .filter(s -> !s.isBlank()) // filter blanks
-                .filter(s -> Pattern.compile("^\\d+$").matcher(s).matches()) // filter non numbers
+                .filter(s -> NUMBER_PATTERN.matcher(s).matches()) // filter non numbers positive or negative
                 .collect(Collectors.summingLong(Long::valueOf)); // convert to long and sum up
         TimeLog tl = timeLogService.findMostRecent();
         Long accumulated = tl != null ? tl.getAccumulated() : 0;
