@@ -72,7 +72,7 @@ public class ImportReaderImpl implements ImportReader {
         }
         String[] values = entry.split("-");
         Integer year = Integer.parseInt(values[0]);
-        Integer month = Integer.parseInt(values[1]);
+        Integer month = Integer.parseInt(values[1])+1; // TODO from Android it comes in a range of 0 to 11, but LocalDate has a range of 1 to 12
         Integer day = Integer.parseInt(values[2]);
         Long spent = Long.parseLong(values[3]);
         LocalDate date = LocalDate.of(year, month, day);

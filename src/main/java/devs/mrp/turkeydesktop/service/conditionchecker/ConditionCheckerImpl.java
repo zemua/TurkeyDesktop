@@ -29,15 +29,12 @@ import devs.mrp.turkeydesktop.service.conditionchecker.idle.LongWrapper;
 import devs.mrp.turkeydesktop.service.conditionchecker.imports.ImportReader;
 import devs.mrp.turkeydesktop.service.conditionchecker.imports.ImportReaderFactory;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
-import devs.mrp.turkeydesktop.service.toaster.ToasterChainCommander;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.function.ToLongFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -64,7 +61,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
     private static final Pattern NUMBER_PATTERN = Pattern.compile("^-?\\d+$");
 
     @Override
-    public boolean isConditionMet(Condition condition) { // TODO check also imported time on that group
+    public boolean isConditionMet(Condition condition) {
         long timeSpent = timeLogService.timeSpentOnGroupForFrame(condition.getTargetId(),
                 TimeConverter.beginningOfOffsetDays(condition.getLastDaysCondition()),
                 TimeConverter.endOfToday());
