@@ -5,7 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.type;
 
-import devs.mrp.turkeydesktop.database.logs.TimeLogService;
+import devs.mrp.turkeydesktop.database.logs.TimeLogServiceImpl;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;

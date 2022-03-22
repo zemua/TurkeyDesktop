@@ -9,10 +9,10 @@ package devs.mrp.turkeydesktop.database.logs;
  *
  * @author miguel
  */
-public class FTimeLogService {
+public class TimeLogServiceFactory {
     
-    public static ITimeLogService getService() {
-        return new TimeLogService();
+    public static TimeLogService getService() {
+        return new TimeLogServiceImpl();
     }
     
 }

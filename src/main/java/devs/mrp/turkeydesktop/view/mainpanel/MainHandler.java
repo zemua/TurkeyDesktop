@@ -10,8 +10,7 @@ import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.FConfigElementService;
 import devs.mrp.turkeydesktop.database.config.IConfigElementService;
 import devs.mrp.turkeydesktop.database.group.Group;
-import devs.mrp.turkeydesktop.database.logs.FTimeLogService;
-import devs.mrp.turkeydesktop.database.logs.ITimeLogService;
+import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
@@ -32,6 +31,7 @@ import java.awt.Toolkit;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
+import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 
 /**
  *
@@ -49,7 +49,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     PanelHandler<GroupsEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>> negativeGroupsHandler;
     PanelHandler<ConfigurationPanelEnum, AWTEvent, FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent>> configHandler;
     
-    private ITimeLogService timeLogService = FTimeLogService.getService();
+    private TimeLogService timeLogService = TimeLogServiceFactory.getService();
     private IConfigElementService configService = FConfigElementService.getService();
     private ConditionChecker conditionChecker = ConditionCheckerFactory.getConditionChecker();
 

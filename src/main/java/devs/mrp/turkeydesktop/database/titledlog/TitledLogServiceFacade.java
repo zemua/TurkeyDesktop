@@ -6,10 +6,9 @@
 package devs.mrp.turkeydesktop.database.titledlog;
 
 import devs.mrp.turkeydesktop.common.TimeConverter;
-import devs.mrp.turkeydesktop.database.logs.FTimeLogService;
-import devs.mrp.turkeydesktop.database.logs.ITimeLogService;
+import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
-import devs.mrp.turkeydesktop.database.logs.TimeLogService;
+import devs.mrp.turkeydesktop.database.logs.TimeLogServiceImpl;
 import devs.mrp.turkeydesktop.database.titles.FTitleService;
 import devs.mrp.turkeydesktop.database.titles.ITitleService;
 import devs.mrp.turkeydesktop.database.titles.Title;
@@ -21,6 +20,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 
 /**
  *
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 public class TitledLogServiceFacade implements ITitledLogServiceFacade {
     
     private ITitleService titleService = FTitleService.getService();
-    private ITimeLogService logService = FTimeLogService.getService();
+    private TimeLogService logService = TimeLogServiceFactory.getService();
     private ITitledLogDaoFacade titleFacade = TitledLogRepoFacade.getInstance();
     private static final Logger logger = Logger.getLogger(TitledLogServiceFacade.class.getName());
 
