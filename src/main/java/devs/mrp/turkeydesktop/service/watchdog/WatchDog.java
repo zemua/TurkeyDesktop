@@ -25,6 +25,8 @@ import java.util.logging.Logger;
 import javax.swing.JTextArea;
 import javax.swing.SwingWorker;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
+import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritter;
+import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritterFactory;
 
 /**
  *
@@ -59,6 +61,7 @@ public class WatchDog implements IWatchDog {
     private final ConditionChecker conditionChecker = ConditionCheckerFactory.getConditionChecker();
     private ChainHandler<String> killerHandler = new KillerChainCommander().getHandlerChain();
     private Logger logger = Logger.getLogger(WatchDog.class.getName());
+    private ExportWritter exportWritter = ExportWritterFactory.getWritter();
 
     private WatchDog() {
         timestamp = new AtomicLong();
@@ -164,6 +167,8 @@ public class WatchDog implements IWatchDog {
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Error exporting accumulated time to file", e);
         }
+        
+        exportWritter.exportChanged();
         
     }
 

@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  *
@@ -25,9 +27,10 @@ import java.util.Map;
 public class FileHandler {
     
     private static final long millisBetweenOperations = 60*1000;
-    private static long lastOperation = 0;
+    private static long lastExport = 0;
     private static IConfigElementService configService = FConfigElementService.getService();
     private static Map<String,CachedValue> readerCache = new HashMap<>();
+    private static Map<String,Long> lastWrittings = new HashMap<>();
     
     private static class CachedValue {
         String value;
@@ -52,21 +55,34 @@ public class FileHandler {
     }
     
     public static void writeToTxt(File file, String text) throws IOException {
+        writeToTxt(file, text, false);
+    }
+    
+    private static void writeToTxt(File file, String text, boolean resetTimer) throws IOException {
         long now = System.currentTimeMillis();
-        if (lastOperation + millisBetweenOperations > now) {
+        Long lastWrite = lastWrittings.containsKey(file.getPath()) ? lastWrittings.get(file.getPath()) : 0;
+        if (lastWrite + millisBetweenOperations > now) {
             return;
         }
-        lastOperation = now;
+        if (resetTimer) {
+            lastWrittings.put(file.getPath(), 0L);
+        } else {
+            lastWrittings.put(file.getPath(), now);
+        }
         File target = createFileIfNotExists(file, "txt");
         exportToFile(target, text);
     }
     
+    public static void clearTxt(File file) throws IOException {
+        writeToTxt(file, "", true);
+    }
+    
     public static void exportAccumulated(long time) throws IOException {
         long now = System.currentTimeMillis();
-        if (lastOperation + millisBetweenOperations > now) {
+        if (lastExport + millisBetweenOperations > now) {
             return;
         }
-        lastOperation = now;
+        lastExport = now;
         String exportPath = configService.configElement(ConfigurationEnum.EXPORT_PATH).getValue();
         if (!"".equals(exportPath) && Boolean.valueOf(configService.configElement(ConfigurationEnum.EXPORT_TOGGLE).getValue())) {
             exportToFile(createFileIfNotExists(new File(exportPath), "txt"), String.valueOf(time));
@@ -82,13 +98,21 @@ public class FileHandler {
         }
     }
     
-    public static String readFirstLineFromFile(File file) throws IOException {
-        long now = System.currentTimeMillis();
+    private static String getCache(File file, long now) throws IOException {
         if (readerCache.containsKey(file.getPath()) && now > readerCache.get(file.getPath()).lastUpdated + millisBetweenOperations) {
             return readerCache.get(file.getPath()).value;
         }
         if (!file.exists() || !file.canRead() || !file.isFile())  {
             throw new IOException("Cannot read from file");
+        }
+        return null;
+    }
+    
+    public static String readFirstLineFromFile(File file) throws IOException {
+        long now = System.currentTimeMillis();
+        String cach = getCache(file, now);
+        if (Objects.nonNull(cach)){
+            return cach;
         }
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line = reader.readLine();
@@ -105,11 +129,9 @@ public class FileHandler {
     
     public static String readAllLinesFromFile(File file) throws IOException {
         long now = System.currentTimeMillis();
-        if (readerCache.containsKey(file.getPath()) && now > readerCache.get(file.getPath()).lastUpdated + millisBetweenOperations) {
-            return readerCache.get(file.getPath()).value;
-        }
-        if (!file.exists() || !file.canRead() || !file.isFile())  {
-            throw new IOException("Cannot read from file");
+        String cach = getCache(file, now);
+        if (Objects.nonNull(cach)){
+            return cach;
         }
         StringBuilder builder = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
