@@ -65,7 +65,7 @@ public class ExportWritterImpl implements ExportWritter {
         }
         StringBuilder fileText = new StringBuilder();
         for (int i = 0; i < export.getDays(); i++) {
-            long to = TimeConverter.endOfToday();
+            long to = TimeConverter.endOfOffsetDays(i);
             long from = TimeConverter.beginningOfOffsetDays(i);
             long spent = timeLogService.timeSpentOnGroupForFrame(export.getGroup(), from, to);
             LocalDate date = LocalDate.now().minusDays(i);
