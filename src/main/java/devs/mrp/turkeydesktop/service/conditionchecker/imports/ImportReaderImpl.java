@@ -11,7 +11,9 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,12 +31,20 @@ public class ImportReaderImpl implements ImportReader {
     private static final String ENTRY_PATTERN = "[\\d]{4}-[\\d]{2}-[\\d]{2}-\\d+$";
     private static final Pattern PATTERN = Pattern.compile(ENTRY_PATTERN);
     
+    private static final long timeBetweenSyncs = 1*60*1000; // 1 minute
+    private static Map<String,CachedValues> cachedValues = new HashMap<>();
+            
+    private class CachedValues {
+        long lastUpdated = 0;
+        List<ImportValue> values;
+    }
+    
     @Override
     public List<ImportValue> getValuesFromFile(String path) {
         return streamFromFile(path).collect(Collectors.toList());
     }
     
-    private Stream<ImportValue> streamFromFile(String path) {
+    private Stream<ImportValue> streamFromFile(String path) { // TODO get values from cache if times is not yet expired
         try {
             String contents = FileHandler.readAllLinesFromFile(new File(path));
             return Arrays.asList(contents.split(System.lineSeparator()))
