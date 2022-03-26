@@ -34,12 +34,12 @@ import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritterFac
  */
 public class WatchDog implements IWatchDog {
     
-    // TODO start as daemon in system tray, open window on click, and hide on close
     // TODO adding conditions for titles, highlight which ones are positive or negative
     // TODO error when adding condition to group for more than 0 days
     // TODO after adding condition the list of groups to select gets repeated
     // TODO no descontar por toque de queda si está idle
     // TODO option to prevent closing of selected "depends" processes if title is negative (for IDE for example)
+    // TODO start as daemon in system tray, open window on click, and hide on close
     
     private static final Logger LOGGER = Logger.getLogger(WatchDog.class.getName());
 
