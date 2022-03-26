@@ -184,7 +184,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
 
         jLabel7.setText(bundle.getString("minutes")); // NOI18N
 
-        daySpinner.setModel(new javax.swing.SpinnerNumberModel(0, 0, 30, 1));
+        daySpinner.setModel(new javax.swing.SpinnerNumberModel(Long.valueOf(0L), Long.valueOf(0L), Long.valueOf(30L), Long.valueOf(1L)));
         daySpinner.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 daySpinnerStateChanged(evt);
