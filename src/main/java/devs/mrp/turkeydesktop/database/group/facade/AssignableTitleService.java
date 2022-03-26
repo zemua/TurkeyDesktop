@@ -8,12 +8,12 @@ package devs.mrp.turkeydesktop.database.group.facade;
 import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
-import devs.mrp.turkeydesktop.database.titles.FTitleService;
-import devs.mrp.turkeydesktop.database.titles.ITitleService;
+import devs.mrp.turkeydesktop.database.titles.TitleServiceFactory;
 import devs.mrp.turkeydesktop.database.titles.Title;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import devs.mrp.turkeydesktop.database.titles.TitleService;
 
 /**
  *
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  */
 public class AssignableTitleService extends AssignableAbstractService implements IAssignableElementService<Title.Type> {
     
-    private final ITitleService titleService = FTitleService.getService();
+    private final TitleService titleService = TitleServiceFactory.getService();
     
     @Override
     public List<AssignableElement<Title.Type>> positiveElementsWithAssignation() {

@@ -11,7 +11,7 @@ import java.sql.ResultSet;
  *
  * @author miguel
  */
-public interface ITitledLogDaoFacade {
+public interface TitledLogDaoFacade {
     
     public ResultSet getTimeFrameOfDependablesGroupedByProcess(long from, long to);
     

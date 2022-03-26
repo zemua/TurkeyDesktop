@@ -7,8 +7,7 @@ package devs.mrp.turkeydesktop.view.categorizetitles.element.conditions;
 
 import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.database.titledlog.TitledLog;
-import devs.mrp.turkeydesktop.database.titles.FTitleService;
-import devs.mrp.turkeydesktop.database.titles.ITitleService;
+import devs.mrp.turkeydesktop.database.titles.TitleServiceFactory;
 import devs.mrp.turkeydesktop.database.titles.Title;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
@@ -20,6 +19,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
+import devs.mrp.turkeydesktop.database.titles.TitleService;
 
 /**
  *
@@ -28,7 +28,7 @@ import javax.swing.text.JTextComponent;
 public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AWTEvent, FeedbackerPanelWithFetcher<TitleConditionsEnum, AWTEvent>> {
 
     private TitledLog mTitledLog;
-    private ITitleService titleService = FTitleService.getService();
+    private TitleService titleService = TitleServiceFactory.getService();
     private static final Logger logger = Logger.getLogger(TitleConditionsHandler.class.getName());
     
     public TitleConditionsHandler(JFrame frame, PanelHandler<?, ?, ?> caller, TitledLog titledLog) {

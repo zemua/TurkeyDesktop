@@ -3,16 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package devs.mrp.turkeydesktop.database.titles;
+package devs.mrp.turkeydesktop.database.logandtype;
 
 /**
  *
  * @author miguel
  */
-public class FTitleService {
+public class LogAndTypeServiceFactory {
     
-    public static ITitleService getService() {
-        return new TitleService();
+    public static LogAndTypeFacadeService getService() {
+        return new LogAndTypeFacadeServiceImpl();
     }
     
 }

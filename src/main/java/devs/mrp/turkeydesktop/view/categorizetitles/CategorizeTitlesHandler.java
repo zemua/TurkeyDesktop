@@ -6,8 +6,7 @@
 package devs.mrp.turkeydesktop.view.categorizetitles;
 
 import devs.mrp.turkeydesktop.common.Feedbacker;
-import devs.mrp.turkeydesktop.database.titledlog.FTitledLogServiceFacade;
-import devs.mrp.turkeydesktop.database.titledlog.ITitledLogServiceFacade;
+import devs.mrp.turkeydesktop.database.titledlog.TitledLogServiceFacadeFactory;
 import devs.mrp.turkeydesktop.database.titledlog.TitledLog;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.categorizetitles.element.CategorizeTitlesElement;
@@ -19,6 +18,7 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import devs.mrp.turkeydesktop.database.titledlog.TitledLogServiceFacade;
 
 /**
  *
@@ -26,7 +26,7 @@ import javax.swing.JPanel;
  */
 public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, AWTEvent, FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent>> {
 
-    ITitledLogServiceFacade facadeService = FTitledLogServiceFacade.getService();
+    TitledLogServiceFacade facadeService = TitledLogServiceFacadeFactory.getService();
 
     public CategorizeTitlesHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
         super(frame, caller);

@@ -19,7 +19,7 @@ import java.util.logging.Logger;
  *
  * @author miguel
  */
-public class TitledLogRepoFacade implements ITitledLogDaoFacade {
+public class TitledLogRepoFacade implements TitledLogDaoFacade {
     
     private final Db dbInstance = Db.getInstance();
     private Logger logger = Logger.getLogger(TitledLogRepoFacade.class.getName());

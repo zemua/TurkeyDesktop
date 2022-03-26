@@ -35,7 +35,6 @@ import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritterFac
 public class WatchDog implements IWatchDog {
     
     // TODO start as daemon in system tray, open window on click, and hide on close
-    // TODO adding conditions for titles, remove case sensitive
     // TODO adding conditions for titles, highlight which ones are positive or negative
     // TODO error when adding condition to group for more than 0 days
     // TODO after adding condition the list of groups to select gets repeated
