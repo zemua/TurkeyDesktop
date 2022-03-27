@@ -282,6 +282,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         if (targetComboBox == null || hourSpinner == null || minuteSpinner == null || daySpinner == null) {
             throw new Exception("error getting some fields for condition");
         }
+        targetComboBox.removeAllItems();
         comboItems().forEach(item -> targetComboBox.addItem(item));
     }
     
