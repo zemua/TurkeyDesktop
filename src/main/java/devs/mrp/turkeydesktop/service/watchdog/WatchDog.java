@@ -34,7 +34,6 @@ import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritterFac
  */
 public class WatchDog implements IWatchDog {
     
-    // TODO show when condition is meet and when it is not
     // TODO no descontar por toque de queda si está idle
     // TODO option to prevent closing of selected "depends" processes if title is negative (for IDE for example)
     // TODO start as daemon in system tray, open window on click, and hide on close
