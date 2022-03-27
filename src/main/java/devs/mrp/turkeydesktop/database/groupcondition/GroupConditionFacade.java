@@ -6,7 +6,10 @@
 package devs.mrp.turkeydesktop.database.groupcondition;
 
 import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
+import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
+import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
 
 /**
  *
@@ -15,6 +18,7 @@ import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 public class GroupConditionFacade {
     
     private LocaleMessages locale = LocaleMessages.getInstance();
+    private ConditionChecker conditionCheker = ConditionCheckerFactory.getConditionChecker();
     
     private long conditionId;
     private long groupId;
@@ -100,7 +104,20 @@ public class GroupConditionFacade {
         } else {
             builder.append(locale.getString("today"));
         }
+        if (!conditionCheker.isConditionMet(toCondition())) {
+            builder.append(String.format(" - %s", locale.getString("notMet")));
+        }
         return builder.toString();
+    }
+    
+    private Condition toCondition() {
+        Condition condition = new Condition();
+        condition.setId(conditionId);
+        condition.setGroupId(groupId);
+        condition.setUsageTimeCondition(usageTimeCondition);
+        condition.setLastDaysCondition(lastDaysCondition);
+        condition.setTargetId(targetId);
+        return condition;
     }
     
 }

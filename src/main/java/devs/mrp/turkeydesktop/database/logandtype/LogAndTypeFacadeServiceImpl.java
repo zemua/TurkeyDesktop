@@ -91,6 +91,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
     private TimeLog adjustDependingOnType(TimeLog element) {
         Type type = typeService.findById(element.getProcessName());
         boolean lockdown = conditionChecker.isLockDownTime();
+        boolean idle = conditionChecker.isIdle();
         int proportion = Integer.valueOf(configService.configElement(ConfigurationEnum.PROPORTION).getValue());
         if (type == null || type.getType() == null) {
             type = new Type();
@@ -101,12 +102,12 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
             case NEUTRAL:
                 element.setType(Type.Types.NEUTRAL);
                 element.setGroupId(-1);
-                element.setCounted(lockdown ? -1 * proportion * element.getElapsed() : 0);
+                element.setCounted(lockdown && !idle ? -1 * proportion * element.getElapsed() : 0);
                 break;
             case UNDEFINED:
                 element.setType(Type.Types.UNDEFINED);
                 element.setGroupId(-1);
-                element.setCounted(lockdown ? -1 * proportion * element.getElapsed() : 0);
+                element.setCounted(lockdown && !idle ? -1 * proportion * element.getElapsed() : 0);
                 break;
             case DEPENDS:
                 element.setType(Type.Types.DEPENDS);
@@ -121,7 +122,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                 element.setGroupId(positiveAssignation != null ? positiveAssignation.getGroupId() : -1);
                 if (!lockdown) {
                     element.setCounted(!conditionChecker.isIdleWithToast() && conditionChecker.areConditionsMet(element.getGroupId()) ? Math.abs(element.getElapsed()) : 0);
-                } else {
+                } else if (!conditionChecker.isIdle()) { // when in lockdown, don't disccount points if idle
                     element.setCounted(-1 * proportion * element.getElapsed());
                 }
                 break;
@@ -140,10 +141,14 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
     }
     
     private TimeLog setCountedForTitleWhenLockdown(TimeLog element, long proportion) {
-        element.setCounted(-1 * proportion * element.getElapsed());
         var title = titleService.findLongestContainedBy(element.getWindowTitle().toLowerCase());
         if (title != null && title.getType().equals(Title.Type.NEGATIVE)) {
             element.setBlockable(true);
+            element.setCounted(-1 * proportion * element.getElapsed());
+        } else if (!conditionChecker.isIdle()) { // when not negative, don't disccount points if idle
+            element.setCounted(-1 * proportion * element.getElapsed());
+        } else {
+            element.setCounted(0);
         }
         return element;
     }
