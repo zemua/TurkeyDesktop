@@ -7,6 +7,8 @@ package devs.mrp.turkeydesktop.database.logandtype;
 
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.Tripla;
+import devs.mrp.turkeydesktop.database.closeables.CloseableService;
+import devs.mrp.turkeydesktop.database.closeables.CloseableServiceFactory;
 import devs.mrp.turkeydesktop.database.conditions.FConditionService;
 import devs.mrp.turkeydesktop.database.conditions.IConditionService;
 import devs.mrp.turkeydesktop.database.config.FConfigElementService;
@@ -51,6 +53,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
     private final TitleService titleService = TitleServiceFactory.getService();
     private final IGroupAssignationService groupAssignationService = FGroupAssignationService.getService();
     private final IConditionService conditionService = FConditionService.getService();
+    private final CloseableService closeableService = CloseableServiceFactory.getService();
     
     private final ConditionChecker conditionChecker = ConditionCheckerFactory.getConditionChecker();
     
@@ -143,7 +146,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
     private TimeLog setCountedForTitleWhenLockdown(TimeLog element, long proportion) {
         var title = titleService.findLongestContainedBy(element.getWindowTitle().toLowerCase());
         if (title != null && title.getType().equals(Title.Type.NEGATIVE)) {
-            element.setBlockable(true);
+            element.setBlockable(closeableService.canBeClosed(element.getProcessName()));
             element.setCounted(-1 * proportion * element.getElapsed());
         } else if (!conditionChecker.isIdle()) { // when not negative, don't disccount points if idle
             element.setCounted(-1 * proportion * element.getElapsed());
@@ -165,7 +168,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
             return element;
         }
         element.setCounted(isPositive ? Math.abs(elapsed) : - Math.abs(elapsed));
-        element.setBlockable(true);
+        element.setBlockable(closeableService.canBeClosed(element.getProcessName()));
         return element;
     }
     
