@@ -34,7 +34,6 @@ import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritterFac
  */
 public class WatchDog implements IWatchDog {
     
-    // TODO error when adding condition to group for more than 0 days -> will show today still
     // TODO after adding condition the list of groups to select gets repeated
     // TODO show when condition is meet and when it is not
     // TODO no descontar por toque de queda si está idle

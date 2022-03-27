@@ -36,6 +36,10 @@ public class TimeLogServiceImpl implements TimeLogService {
         if (element == null) {
             return -1;
         } else {
+            if (element.getWindowTitle().length() > 500) {
+                logger.log(Level.SEVERE, String.format("Window title too long: %s", element.getWindowTitle()));
+                element.setWindowTitle(element.getWindowTitle().substring(0, 499));
+            }
             return repo.add(element);
         }
     }
@@ -45,6 +49,10 @@ public class TimeLogServiceImpl implements TimeLogService {
         if (element == null || element.getId() <= 0) {
             return -1;
         } else {
+            if (element.getWindowTitle().length() > 500) {
+                logger.log(Level.SEVERE, String.format("Window title too long: %s", element.getWindowTitle()));
+                element.setWindowTitle(element.getWindowTitle().substring(0, 499));
+            }
             return repo.update(element);
         }
     }

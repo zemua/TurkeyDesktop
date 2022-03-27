@@ -88,7 +88,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
                 + "%s BIGINT NOT NULL, " // accumulated
                 + "%s VARCHAR(10), " // pid
                 + "%s VARCHAR(50), " // process name
-                + "%s VARCHAR(150), " // window title
+                + "%s VARCHAR(500), " // window title
                 + "%s INT, " // group id
                 + "%s VARCHAR(15), " // type id
                 + "PRIMARY KEY (%s))",
