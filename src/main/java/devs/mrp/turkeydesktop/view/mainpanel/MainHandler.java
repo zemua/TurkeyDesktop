@@ -32,6 +32,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
+import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesEnum;
+import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesPanelFactory;
 
 /**
  *
@@ -48,6 +50,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     PanelHandler<GroupsEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>> positiveGroupsHandler;
     PanelHandler<GroupsEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>> negativeGroupsHandler;
     PanelHandler<ConfigurationPanelEnum, AWTEvent, FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent>> configHandler;
+    PanelHandler<NotCloseablesEnum, Object, FeedbackerPanelWithFetcher<NotCloseablesEnum, Object>> notCloseableHandler;
     
     private TimeLogService timeLogService = TimeLogServiceFactory.getService();
     private IConfigElementService configService = FConfigElementService.getService();
@@ -86,6 +89,9 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
                     break;
                 case CONFIG:
                     initConfigHandler();
+                    break;
+                case NOT_CLOSEABLES:
+                    initNotCloseablesHandler();
                     break;
                 default:
                     break;
@@ -140,6 +146,13 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
             configHandler = FConfigurationPanel.getHandler(this.getFrame(), this);
         }
         configHandler.show();
+    }
+    
+    private void initNotCloseablesHandler() {
+        if (notCloseableHandler == null) {
+            notCloseableHandler = NotCloseablesPanelFactory.getHandler(this.getFrame(), this);
+        }
+        notCloseableHandler.show();
     }
     
     private void setTimeOnHeaderLabel() {

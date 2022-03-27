@@ -6,6 +6,7 @@
 package devs.mrp.turkeydesktop.view;
 
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
+import java.util.Objects;
 import java.util.Optional;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -55,7 +56,9 @@ public abstract class PanelHandler<T, E, P extends FeedbackerPanelWithFetcher<T,
     protected void exit() {
         listening = false;
         doBeforeExit();
-        this.getCaller().show();
+        if (Objects.nonNull(this.getCaller())) {
+            this.getCaller().show();
+        }
     }
 
     private PanelHandler<?,?,?> getCaller() {

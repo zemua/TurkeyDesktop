@@ -8,8 +8,7 @@ package devs.mrp.turkeydesktop.view.categorizeprocesspanel;
 import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.common.Tripla;
 import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeServiceFactory;
-import devs.mrp.turkeydesktop.database.type.FTypeService;
-import devs.mrp.turkeydesktop.database.type.ITypeService;
+import devs.mrp.turkeydesktop.database.type.TypeServiceFactory;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.list.CategorizerElement;
@@ -21,6 +20,7 @@ import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeService;
+import devs.mrp.turkeydesktop.database.type.TypeService;
 
 /**
  *
@@ -37,13 +37,13 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
     
     private Logger logger = Logger.getLogger(CatProcessHandler.class.getName());
     private FeedbackListener<Type.Types,String> mListener;
-    private ITypeService typeService;
+    private TypeService typeService;
     
     LogAndTypeFacadeService typedService = LogAndTypeServiceFactory.getService();
     
     public CatProcessHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
         super(frame, caller);
-        typeService = FTypeService.getService();
+        typeService = TypeServiceFactory.getService();
     }
     
     @Override

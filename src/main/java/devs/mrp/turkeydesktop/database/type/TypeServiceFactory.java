@@ -9,10 +9,10 @@ package devs.mrp.turkeydesktop.database.type;
  *
  * @author miguel
  */
-public class FTypeService {
+public class TypeServiceFactory {
     
-    public static ITypeService getService() {
-        return new TypeService();
+    public static TypeService getService() {
+        return new TypeServiceImpl();
     }
     
 }

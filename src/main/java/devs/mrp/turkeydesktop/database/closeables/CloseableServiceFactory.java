@@ -3,12 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package devs.mrp.turkeydesktop.view.mainpanel;
+package devs.mrp.turkeydesktop.database.closeables;
 
 /**
  *
  * @author miguel
  */
-public enum MainEnum {
-    CATEGORIZEPROCESS, CATEGORIZETITLES, POSITIVE_GROUPS, NEGATIVE_GROUPS, TIMES, LOGGER, LABELIZER, READY, CONFIG, NOT_CLOSEABLES;
+public class CloseableServiceFactory {
+    
+    public static CloseableService getService() {
+        return new CloseableServiceImpl();
+    }
+    
 }

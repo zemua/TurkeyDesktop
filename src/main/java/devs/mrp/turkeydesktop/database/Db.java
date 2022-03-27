@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database;
 
+import devs.mrp.turkeydesktop.database.closeables.Closeable;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
@@ -38,6 +39,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
     public static final String GROUPS_EXPORT_TABLE = "GROUPS_EXPORT_TABLE";
     public static final String GROUP_ASSIGNATION_TABLE = "GROUP_ASSIGNATION_TABLE";
     public static final String CATEGORIZED_TABLE = "TYPES_CATEGORIZATION";
+    public static final String CLOSEABLES_TABLE = "CLOSEABLES_TABLE";
     public static final String CONDITIONS_TABLE = "CONDITIONS_TABLE";
     public static final String TITLES_TABLE = "TITLES_TABLE";
     public static final String ACCUMULATED_TIME_TABLE = "ACCUMULATED_TIME";
@@ -154,6 +156,11 @@ public class Db { // TODO create asynchronous listeners to update livedata
                 + "%s INT NOT NULL, " // days to be included in the export
                 + "PRIMARY KEY (%s))",
                 GROUPS_EXPORT_TABLE, ExportedGroup.GROUP, ExportedGroup.FILE, ExportedGroup.DAYS, ExportedGroup.GROUP));
+        
+        execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
+                + "%s VARCHAR(50), " // process name
+                + "PRIMARY KEY (%s))",
+                CLOSEABLES_TABLE, Closeable.PROCESS_NAME, Closeable.PROCESS_NAME));
         
         //close();
     }

@@ -19,8 +19,7 @@ import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.logs.TimeLogRepository;
 import devs.mrp.turkeydesktop.database.titles.TitleServiceFactory;
 import devs.mrp.turkeydesktop.database.titles.Title;
-import devs.mrp.turkeydesktop.database.type.FTypeService;
-import devs.mrp.turkeydesktop.database.type.ITypeService;
+import devs.mrp.turkeydesktop.database.type.TypeServiceFactory;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.database.type.TypeRepository;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
@@ -35,6 +34,7 @@ import java.util.logging.Logger;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
+import devs.mrp.turkeydesktop.database.type.TypeService;
 
 /**
  *
@@ -46,7 +46,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
     private final TimeLogRepository logRepo = TimeLogRepository.getInstance();
     private final TypeRepository typeRepo = TypeRepository.getInstance();
     private final TimeLogService logService = TimeLogServiceFactory.getService();
-    private final ITypeService typeService = FTypeService.getService();
+    private final TypeService typeService = TypeServiceFactory.getService();
     private final IConfigElementService configService = FConfigElementService.getService();
     private final TitleService titleService = TitleServiceFactory.getService();
     private final IGroupAssignationService groupAssignationService = FGroupAssignationService.getService();

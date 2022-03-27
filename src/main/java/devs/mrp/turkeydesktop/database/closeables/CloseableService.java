@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package devs.mrp.turkeydesktop.database.type;
+package devs.mrp.turkeydesktop.database.closeables;
 
 import java.util.List;
 
@@ -11,12 +11,12 @@ import java.util.List;
  *
  * @author miguel
  */
-public interface ITypeService {
+public interface CloseableService {
     
-    public long add(Type element);
-    public long update(Type element);
-    public List<Type> findAll();
-    public Type findById(String id);
+    public long add(Closeable element);
+    public List<Closeable> findAll();
+    public Closeable findById(String id);
+    public boolean canBeClosed(String process);
     public long deleteById(String id);
     
 }
