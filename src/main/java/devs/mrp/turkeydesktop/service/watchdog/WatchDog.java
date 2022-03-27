@@ -34,7 +34,6 @@ import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritterFac
  */
 public class WatchDog implements IWatchDog {
     
-    // TODO option to prevent closing of selected "depends" processes if title is negative (for IDE for example)
     // TODO start as daemon in system tray, open window on click, and hide on close
     
     private static final Logger LOGGER = Logger.getLogger(WatchDog.class.getName());
