@@ -91,10 +91,10 @@ public class GroupConditionFacade {
         builder.append(" ");
         builder.append(TimeConverter.millisToHM(usageTimeCondition));
         builder.append(" ");
-        if (TimeConverter.daysFromMillis(lastDaysCondition) != 0) {
+        if (lastDaysCondition > 0) {
             builder.append(locale.getString("inTheLast"));
             builder.append(" ");
-            builder.append(TimeConverter.daysFromMillis(lastDaysCondition));
+            builder.append(lastDaysCondition);
             builder.append(" ");
             builder.append(locale.getString("days"));
         } else {
