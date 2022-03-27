@@ -74,8 +74,8 @@ public class Db { // TODO create asynchronous listeners to update livedata
             System.out.println("error intentando conseguir la conexión");
             Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
             con = null;
-            JOptionPane.showMessageDialog(null, "Error: Is it possible that the application is already opened?");
             WatchDog.getInstance().stop();
+            JOptionPane.showMessageDialog(null, "Error: Is it possible that the application is already opened?");
         }
     }
     

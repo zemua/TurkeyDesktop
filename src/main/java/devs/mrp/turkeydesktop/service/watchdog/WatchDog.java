@@ -52,16 +52,25 @@ public class WatchDog implements IWatchDog {
     private AtomicLong timestamp;
     private IProcessChecker processChecker;
     private LocaleMessages localeMessages;
-    private final ConditionChecker conditionChecker = ConditionCheckerFactory.getConditionChecker();
+    private ConditionChecker conditionChecker;
     private ChainHandler<String> killerHandler = new KillerChainCommander().getHandlerChain();
     private Logger logger = Logger.getLogger(WatchDog.class.getName());
     private ExportWritter exportWritter = ExportWritterFactory.getWritter();
 
     private WatchDog() {
+        initConditionChecker();
         timestamp = new AtomicLong();
         processChecker = FProcessChecker.getNew();
         localeMessages = LocaleMessages.getInstance();
         dbLogger = DbLoggerF.getNew();
+    }
+    
+    private void initConditionChecker() {
+        try {
+            conditionChecker = ConditionCheckerFactory.getConditionChecker();
+        } catch (Exception e) {
+            stop();
+        }
     }
 
     public static IWatchDog getInstance() {
@@ -85,7 +94,7 @@ public class WatchDog implements IWatchDog {
         try {
             semaphore.acquire();
             // if it is not running, set it up and execute it
-            if (worker == null || worker.isDone() || worker.getState().equals(SwingWorker.StateValue.PENDING)) {
+            if (on && (worker == null || worker.isDone() || worker.getState().equals(SwingWorker.StateValue.PENDING))) {
                 initializeWorker();
                 timestamp.set(System.currentTimeMillis());
                 worker.execute();

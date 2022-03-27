@@ -13,7 +13,7 @@ import java.util.List;
  */
 public interface CloseableService {
     
-    public long add(Closeable element);
+    public long add(String element);
     public List<Closeable> findAll();
     public Closeable findById(String id);
     public boolean canBeClosed(String process);

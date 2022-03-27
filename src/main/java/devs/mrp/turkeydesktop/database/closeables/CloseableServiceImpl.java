@@ -22,12 +22,12 @@ public class CloseableServiceImpl implements CloseableService {
     private static final Logger logger = Logger.getLogger(CloseableServiceImpl.class.getName());
     
     @Override
-    public long add(Closeable element) {
+    public long add(String element) {
         if (element == null) {
             return -1;
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            ResultSet rs = repo.findById(element.getProcess());
+            ResultSet rs = repo.findById(element);
             try{
                 if (rs.next()){
                 return 0;
@@ -35,7 +35,7 @@ public class CloseableServiceImpl implements CloseableService {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-            return repo.add(element);
+            return repo.add(new Closeable(element));
         }
     }
 

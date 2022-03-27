@@ -6,11 +6,14 @@
 package devs.mrp.turkeydesktop.database.type;
 
 import devs.mrp.turkeydesktop.database.GeneralDao;
+import java.sql.ResultSet;
 
 /**
  *
  * @author miguel
  */
 public interface TypeDao extends GeneralDao<Type, String> {
+    
+    public ResultSet findByType(String type);
     
 }

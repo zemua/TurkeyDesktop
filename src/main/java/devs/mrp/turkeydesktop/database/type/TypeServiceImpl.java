@@ -53,6 +53,11 @@ public class TypeServiceImpl implements TypeService {
     public List<Type> findAll() {
         return listFromResultSet(repo.findAll());
     }
+    
+    @Override
+    public List<Type> findByType(Type.Types type) {
+        return listFromResultSet(repo.findByType(type.toString()));
+    }
 
     @Override
     public Type findById(String id) {

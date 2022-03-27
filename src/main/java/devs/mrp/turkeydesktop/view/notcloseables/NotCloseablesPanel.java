@@ -35,6 +35,9 @@ public class NotCloseablesPanel extends FeedbackerPanelWithFetcher<NotCloseables
     private void initComponents() {
 
         backButton = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        processesPanel = new javax.swing.JPanel();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
         backButton.setText(bundle.getString("back")); // NOI18N
@@ -44,21 +47,36 @@ public class NotCloseablesPanel extends FeedbackerPanelWithFetcher<NotCloseables
             }
         });
 
+        jLabel1.setText(bundle.getString("selectedWontClose")); // NOI18N
+
+        processesPanel.setLayout(new javax.swing.BoxLayout(processesPanel, javax.swing.BoxLayout.PAGE_AXIS));
+        jScrollPane1.setViewportView(processesPanel);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(backButton)
-                .addContainerGap(344, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(backButton)
+                            .addComponent(jLabel1))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(backButton)
-                .addContainerGap(260, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -69,6 +87,8 @@ public class NotCloseablesPanel extends FeedbackerPanelWithFetcher<NotCloseables
     @Override
     public Object getProperty(NotCloseablesEnum property) {
         switch (property) {
+            case PANEL:
+                return processesPanel;
             default:
                 return null;
         }
@@ -87,5 +107,8 @@ public class NotCloseablesPanel extends FeedbackerPanelWithFetcher<NotCloseables
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton backButton;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JPanel processesPanel;
     // End of variables declaration//GEN-END:variables
 }

@@ -10,5 +10,5 @@ package devs.mrp.turkeydesktop.view.notcloseables;
  * @author miguel
  */
 public enum NotCloseablesEnum {
-    BACK;
+    BACK, PANEL;
 }

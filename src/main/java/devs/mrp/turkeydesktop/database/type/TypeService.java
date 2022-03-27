@@ -18,5 +18,6 @@ public interface TypeService {
     public List<Type> findAll();
     public Type findById(String id);
     public long deleteById(String id);
+    public List<Type> findByType(Type.Types type);
     
 }
