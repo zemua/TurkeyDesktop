@@ -22,6 +22,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Objects;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -76,7 +77,12 @@ public class Db { // TODO create asynchronous listeners to update livedata
             con = null;
             WatchDog.getInstance().stop();
             JOptionPane.showMessageDialog(null, "Error: Is it possible that the application is already opened?");
+            System.exit(0);
         }
+    }
+    
+    public boolean isConnectionNull() {
+        return Objects.isNull(con);
     }
     
     private void inicializar(){

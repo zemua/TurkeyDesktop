@@ -41,8 +41,8 @@ import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesPanelFactory;
  */
 public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPanelWithFetcher<MainEnum, AWTEvent>> {
     
-    private static final String MAIN_TITLE = LocaleMessages.getInstance().getString("timeturkey");
-    private static final String TURKEY_IMG = "/turkey.png";
+    public static final String MAIN_TITLE = LocaleMessages.getInstance().getString("timeturkey");
+    public static final String TURKEY_IMG = "/turkey.png";
     
     PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>> timesHandler;
     PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>> categoryProcessHandler;
