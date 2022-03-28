@@ -35,8 +35,9 @@ public class MainContainer extends javax.swing.JFrame {
     public MainContainer() {
         super();
         initComponents();
-        //setVisible(true);
         initHandler();
+        initSystemTray();
+        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
     }
 
     private void initHandler() {
@@ -44,10 +45,9 @@ public class MainContainer extends javax.swing.JFrame {
         watchDog.begin();
         handler = FMainPanel.getMainHandler(this);
         handler.show();
-        hideToSystemTray();
     }
 
-    private void hideToSystemTray() {
+    private void initSystemTray() {
         SystemTray tray = SystemTray.get();
         if (tray == null) {
             throw new RuntimeException("Unable to lead SystemTray!");
