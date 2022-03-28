@@ -34,8 +34,6 @@ import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritterFac
  */
 public class WatchDog implements IWatchDog {
     
-    // TODO start as daemon in system tray, open window on click, and hide on close
-    
     private static final Logger LOGGER = Logger.getLogger(WatchDog.class.getName());
 
     private static final long SLEEP_MILIS = 3000;
