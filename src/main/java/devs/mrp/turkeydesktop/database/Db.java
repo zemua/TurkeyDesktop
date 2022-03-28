@@ -15,6 +15,7 @@ import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.titles.Title;
 import devs.mrp.turkeydesktop.database.type.Type;
+import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.watchdog.WatchDog;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.sql.Connection;
@@ -48,6 +49,8 @@ public class Db { // TODO create asynchronous listeners to update livedata
     public static final String IMPORTS_TABLE = "IMPORTS_TABLE";
     private static final Semaphore semaphore = new Semaphore(1);
     
+    private LocaleMessages localeMessages = LocaleMessages.getInstance();
+    
     private static Db instance = null;
     private Connection con = null;
     
@@ -72,11 +75,11 @@ public class Db { // TODO create asynchronous listeners to update livedata
             if (con != null && !con.isClosed()) return;
             con = DriverManager.getConnection("jdbc:h2:" + DbFiles.getDbFilePath());
         } catch (SQLException ex) {
-            System.out.println("error intentando conseguir la conexión");
+            System.out.println("error trying to get DB connection");
             Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
             con = null;
             WatchDog.getInstance().stop();
-            JOptionPane.showMessageDialog(null, "Error: Is it possible that the application is already opened?");
+            JOptionPane.showMessageDialog(null, localeMessages.getString("anotherConnOpen"));
             System.exit(0);
         }
     }
