@@ -75,7 +75,7 @@
                 <version>2.5</version>
                 <configuration>
                     <archive>
-                        <inde>true</inde>
+                        <index>true</index>
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
