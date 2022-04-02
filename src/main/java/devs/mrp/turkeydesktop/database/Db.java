@@ -34,7 +34,7 @@ import javax.swing.JOptionPane;
  * @author miguel
  */
 public class Db { // TODO create asynchronous listeners to update livedata
-    
+
     public static final String WATCHDOG_TABLE = "WATCHDOG_LOG";
     public static final String GROUPS_TABLE = "GROUPS_OF_APPS";
     public static final String GROUPS_EXTERNAL_TABLE = "GROUPS_EXTERNAL_TABLE";
@@ -48,31 +48,51 @@ public class Db { // TODO create asynchronous listeners to update livedata
     public static final String CONFIG_TABLE = "CONFIG_TABLE";
     public static final String IMPORTS_TABLE = "IMPORTS_TABLE";
     private static final Semaphore semaphore = new Semaphore(1);
-    
+
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
-    
+
     private static Db instance = null;
-    private Connection con = null;
-    
-    private Db(){
-        
+    private static Connection con = null;
+
+    private Db() {
+
     }
-    
-    public static Db getInstance(){
+
+    public static Db getInstance() {
         if (instance == null) {
             instance = new Db();
             instance.inicializar();
         }
         return instance;
     }
-    
+
     public static Semaphore getSemaphore() {
         return semaphore;
     }
-    
-    private void setConnection(){
+
+    public static boolean verifyCanGetDb() {
         try {
-            if (con != null && !con.isClosed()) return;
+            if (Objects.nonNull(con) && !con.isClosed()) {
+                return true;
+            }
+            con = DriverManager.getConnection("jdbc:h2:" + DbFiles.getDbFilePath());
+            return Objects.nonNull(con) && !con.isClosed();
+        } catch (SQLException ex) {
+            Logger.getLogger(Db.class.getName()).log(Level.SEVERE, "error trying to stablish db connection", ex);
+            try {
+                con.close();
+            } catch (SQLException ex1) {
+                Logger.getLogger(Db.class.getName()).log(Level.SEVERE, "error trying to close db connection", ex1);
+            }
+        }
+        return false;
+    }
+
+    private void setConnection() {
+        try {
+            if (con != null && !con.isClosed()) {
+                return;
+            }
             con = DriverManager.getConnection("jdbc:h2:" + DbFiles.getDbFilePath());
         } catch (SQLException ex) {
             System.out.println("error trying to get DB connection");
@@ -83,14 +103,14 @@ public class Db { // TODO create asynchronous listeners to update livedata
             System.exit(0);
         }
     }
-    
+
     public boolean isConnectionNull() {
         return Objects.isNull(con);
     }
-    
-    private void inicializar(){
+
+    private void inicializar() {
         setConnection();
-        
+
         execute(String.format("CREATE TABLE IF NOT EXISTS %s("
                 + "%s BIGINT NOT NULL AUTO_INCREMENT, " // id
                 + "%s BIGINT NOT NULL, " // epoch
@@ -104,39 +124,39 @@ public class Db { // TODO create asynchronous listeners to update livedata
                 + "%s VARCHAR(15), " // type id
                 + "PRIMARY KEY (%s))",
                 WATCHDOG_TABLE, TimeLog.ID, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.COUNTED, TimeLog.ACCUMULATED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE, Group.GROUP, Type.TYPE, TimeLog.ID));
-        
+
         execute(String.format("CREATE TABLE IF NOT EXISTS %s("
                 + "%s VARCHAR(50) NOT NULL, " // process name, unique in the table
                 + "%s VARCHAR(50), " // TYPE
                 + "PRIMARY KEY (%s))",
                 CATEGORIZED_TABLE, Type.PROCESS_NAME, Type.TYPE, Type.PROCESS_NAME));
-        
+
         execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
                 + "%s BIGINT NOT NULL AUTO_INCREMENT, " // id
                 + "%s VARCHAR(50), " // group name
                 + "%s VARCHAR(50), " // type
                 + "PRIMARY KEY (%s))",
                 GROUPS_TABLE, Group.ID, Group.NAME, Group.TYPE, Group.ID));
-        
+
         execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
                 + "%s VARCHAR(150) NOT NULL, " // key
                 + "%s VARCHAR(150) NOT NULL, " // value
                 + "PRIMARY KEY (%s))",
-                    CONFIG_TABLE, ConfigElement.KEY, ConfigElement.VALUE, ConfigElement.KEY));
-        
+                CONFIG_TABLE, ConfigElement.KEY, ConfigElement.VALUE, ConfigElement.KEY));
+
         execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
                 + "%s VARCHAR(300) NOT NULL, " // the string to match, unique
                 + "%s VARCHAR(15) NOT NULL, " // whether it is positive or negative
                 + "PRIMARY KEY (%s))",
                 TITLES_TABLE, Title.SUB_STR, Title.TYPE, Title.SUB_STR));
-        
+
         execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
                 + "%s VARCHAR(15) NOT NULL, " // the element type either process or title
                 + "%s VARCHAR(300) NOT NULL, " // the id of the element be it process name or title substring
                 + "%s BIGINT NOT NULL, " // the id of the group
                 + "PRIMARY KEY (%s))", // type + element id as primary key
                 GROUP_ASSIGNATION_TABLE, GroupAssignation.TYPE, GroupAssignation.ELEMENT_ID, GroupAssignation.GROUP_ID, GroupAssignation.TYPE + "," + GroupAssignation.ELEMENT_ID));
-        
+
         execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
                 + "%s BIGINT NOT NULL AUTO_INCREMENT, " // id
                 + "%s BIGINT NOT NULL, " // the group id to which this condition belongs
@@ -145,19 +165,19 @@ public class Db { // TODO create asynchronous listeners to update livedata
                 + "%s INT NOT NULL, " // timeframe in days for the usage time to be met
                 + "PRIMARY KEY (%s))",
                 CONDITIONS_TABLE, Condition.ID, Condition.GROUP_ID, Condition.TARGET_ID, Condition.USAGE_TIME_CONDITION, Condition.LAST_DAYS_CONDITION, Condition.ID));
-        
+
         execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
                 + "%s VARCHAR(500) NOT NULL," // file path
                 + "PRIMARY KEY (%s))",
                 IMPORTS_TABLE, ConfigurationEnum.IMPORT_PATH.toString(), ConfigurationEnum.IMPORT_PATH.toString()));
-        
+
         execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
                 + "%s BIGINT NOT NULL AUTO_INCREMENT, " // id
                 + "%s BIGINT NOT NULL, " // the group id to which this external time belongs
                 + "%s VARCHAR(500) NOT NULL," // file path with date-time data
                 + "PRIMARY KEY (%s))",
                 GROUPS_EXTERNAL_TABLE, ExternalGroup.ID, ExternalGroup.GROUP, ExternalGroup.FILE, ExternalGroup.ID));
-        
+
         // only one per group max
         execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
                 + "%s BIGINT NOT NULL, " // the group id to which this external time belongs
@@ -165,31 +185,33 @@ public class Db { // TODO create asynchronous listeners to update livedata
                 + "%s INT NOT NULL, " // days to be included in the export
                 + "PRIMARY KEY (%s))",
                 GROUPS_EXPORT_TABLE, ExportedGroup.GROUP, ExportedGroup.FILE, ExportedGroup.DAYS, ExportedGroup.GROUP));
-        
+
         execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
                 + "%s VARCHAR(50), " // process name
                 + "PRIMARY KEY (%s))",
                 CLOSEABLES_TABLE, Closeable.PROCESS_NAME, Closeable.PROCESS_NAME));
-        
+
         //close();
     }
-    
-    public Connection getConnection(){
+
+    public Connection getConnection() {
         //setConnection();
         return con;
     }
-    
-    private void close(){
+
+    private void close() {
         try {
-            if (con.isClosed())return;
+            if (con.isClosed()) {
+                return;
+            }
             con.commit();
             con.close();
         } catch (SQLException ex) {
             Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    private ResultSet getQuery(String str){
+
+    private ResultSet getQuery(String str) {
         //setConnection();
         ResultSet rs = null;
         try {
@@ -201,8 +223,8 @@ public class Db { // TODO create asynchronous listeners to update livedata
         //close();
         return rs;
     }
-    
-    private boolean execute(String str){
+
+    private boolean execute(String str) {
         //setConnection();
         boolean rs = false;
         try {
@@ -214,8 +236,8 @@ public class Db { // TODO create asynchronous listeners to update livedata
         //close();
         return rs;
     }
-    
-    private int executeUpdate(String str){
+
+    private int executeUpdate(String str) {
         //setConnection();
         int rs = 0;
         try {

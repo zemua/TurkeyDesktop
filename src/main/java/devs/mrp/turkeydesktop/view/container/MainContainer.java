@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.view.container;
 
+import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.watchdog.FWatchDog;
 import devs.mrp.turkeydesktop.service.watchdog.IWatchDog;
@@ -138,7 +139,9 @@ public class MainContainer extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new MainContainer().setVisible(false);
+                if (Db.verifyCanGetDb()) {
+                    new MainContainer().setVisible(false);
+                }
             }
         });
     }
