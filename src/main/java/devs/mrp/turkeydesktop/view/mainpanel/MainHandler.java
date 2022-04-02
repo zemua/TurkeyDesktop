@@ -10,10 +10,10 @@ import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.FConfigElementService;
 import devs.mrp.turkeydesktop.database.config.IConfigElementService;
 import devs.mrp.turkeydesktop.database.group.Group;
-import devs.mrp.turkeydesktop.database.logs.FTimeLogService;
-import devs.mrp.turkeydesktop.database.logs.ITimeLogService;
+import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
+import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessEnum;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.FCatProcessPanel;
@@ -30,6 +30,10 @@ import java.awt.AWTEvent;
 import java.awt.Toolkit;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
+import devs.mrp.turkeydesktop.database.logs.TimeLogService;
+import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesEnum;
+import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesPanelFactory;
 
 /**
  *
@@ -37,8 +41,8 @@ import javax.swing.JLabel;
  */
 public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPanelWithFetcher<MainEnum, AWTEvent>> {
     
-    private static final String MAIN_TITLE = LocaleMessages.getInstance().getString("timeturkey");
-    private static final String TURKEY_IMG = "/turkey.png";
+    public static final String MAIN_TITLE = LocaleMessages.getInstance().getString("timeturkey");
+    public static final String TURKEY_IMG = "/turkey.png";
     
     PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>> timesHandler;
     PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>> categoryProcessHandler;
@@ -46,9 +50,11 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     PanelHandler<GroupsEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>> positiveGroupsHandler;
     PanelHandler<GroupsEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>> negativeGroupsHandler;
     PanelHandler<ConfigurationPanelEnum, AWTEvent, FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent>> configHandler;
+    PanelHandler<NotCloseablesEnum, Object, FeedbackerPanelWithFetcher<NotCloseablesEnum, Object>> notCloseableHandler;
     
-    private ITimeLogService timeLogService = FTimeLogService.getService();
+    private TimeLogService timeLogService = TimeLogServiceFactory.getService();
     private IConfigElementService configService = FConfigElementService.getService();
+    private ConditionChecker conditionChecker = ConditionCheckerFactory.getConditionChecker();
 
     public MainHandler(JFrame frame, PanelHandler<?,?, ?> caller) {
         super(frame, caller);
@@ -83,6 +89,9 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
                     break;
                 case CONFIG:
                     initConfigHandler();
+                    break;
+                case NOT_CLOSEABLES:
+                    initNotCloseablesHandler();
                     break;
                 default:
                     break;
@@ -139,13 +148,21 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
         configHandler.show();
     }
     
+    private void initNotCloseablesHandler() {
+        if (notCloseableHandler == null) {
+            notCloseableHandler = NotCloseablesPanelFactory.getHandler(this.getFrame(), this);
+        }
+        notCloseableHandler.show();
+    }
+    
     private void setTimeOnHeaderLabel() {
-        TimeLog el = timeLogService.findMostRecent();
-        ConfigElement cel = configService.configElement(ConfigurationEnum.PROPORTION);
         JLabel label = (JLabel)this.getPanel().getProperty(MainEnum.LABELIZER);
-        long proportion = Integer.valueOf(cel.getValue());
-        long accumulated = el != null ? el.getAccumulated() : 0;
-        label.setText(TimeConverter.millisToHMS(accumulated/proportion));
+        label.setText(TimeConverter.millisToHMS(conditionChecker.timeRemaining()));
+    }
+
+    @Override
+    protected void doBeforeExit() {
+        // blank
     }
     
 }

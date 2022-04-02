@@ -105,6 +105,12 @@ public class TimeConverter {
         return zdt.toInstant().toEpochMilli();
     }
     
+    public static long endOfOffsetDays(long offsetDays) {
+        LocalDateTime start = LocalDate.now().atStartOfDay().plusHours(24).minusDays(offsetDays);
+        ZonedDateTime zdt = start.atZone(ZoneId.systemDefault());
+        return zdt.toInstant().toEpochMilli();
+    }
+    
     public static long epochToMilisOnGivenDay(long epoch) {
         LocalTime time = LocalDateTime.ofInstant(Instant.ofEpochMilli(epoch), ZoneId.systemDefault()).toLocalTime();
         return time.getLong(ChronoField.MILLI_OF_DAY);

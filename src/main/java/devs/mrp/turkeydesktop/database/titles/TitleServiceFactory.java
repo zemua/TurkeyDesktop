@@ -9,10 +9,10 @@ package devs.mrp.turkeydesktop.database.titles;
  *
  * @author miguel
  */
-public class FTitleService {
+public class TitleServiceFactory {
     
-    public static ITitleService getService() {
-        return new TitleService();
+    public static TitleService getService() {
+        return new TitleServiceImpl();
     }
     
 }

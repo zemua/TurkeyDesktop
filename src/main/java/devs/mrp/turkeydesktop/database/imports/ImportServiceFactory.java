@@ -3,16 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package devs.mrp.turkeydesktop.database.logs;
+package devs.mrp.turkeydesktop.database.imports;
 
 /**
  *
  * @author miguel
  */
-public class FTimeLogService {
-    
-    public static ITimeLogService getService() {
-        return new TimeLogService();
+public class ImportServiceFactory {
+    public static ImportService getService() {
+        return new ImportServiceImpl();
     }
-    
 }

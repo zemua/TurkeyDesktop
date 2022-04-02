@@ -3,16 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package devs.mrp.turkeydesktop.database.titledlog;
-
-import java.sql.ResultSet;
+package devs.mrp.turkeydesktop.view.notcloseables;
 
 /**
  *
  * @author miguel
  */
-public interface ITitledLogDaoFacade {
-    
-    public ResultSet getTimeFrameOfDependablesGroupedByProcess(long from, long to);
-    
+public enum NotCloseablesEnum {
+    BACK, PANEL;
 }

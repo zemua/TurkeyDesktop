@@ -3,16 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package devs.mrp.turkeydesktop.database.logandtype;
+package devs.mrp.turkeydesktop.service.conditionchecker;
 
 /**
  *
  * @author miguel
  */
-public class FLogAndTypeService {
-    
-    public static ILogAndTypeService getService() {
-        return new LogAndTypeFacadeService();
+public class ConditionCheckerFactory {
+    public static ConditionChecker getConditionChecker() {
+        return new ConditionCheckerImpl();
     }
-    
 }

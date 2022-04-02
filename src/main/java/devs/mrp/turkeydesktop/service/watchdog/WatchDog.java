@@ -6,16 +6,17 @@
 package devs.mrp.turkeydesktop.service.watchdog;
 
 import devs.mrp.turkeydesktop.common.ChainHandler;
+import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
-import devs.mrp.turkeydesktop.service.conditionchecker.FConditionChecker;
-import devs.mrp.turkeydesktop.service.conditionchecker.IConditionChecker;
+import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
 import devs.mrp.turkeydesktop.service.processchecker.FProcessChecker;
 import devs.mrp.turkeydesktop.service.processchecker.IProcessChecker;
 import devs.mrp.turkeydesktop.service.processkiller.KillerChainCommander;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.service.watchdog.logger.DbLogger;
 import devs.mrp.turkeydesktop.service.watchdog.logger.DbLoggerF;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
@@ -23,16 +24,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JTextArea;
 import javax.swing.SwingWorker;
+import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
+import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritter;
+import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritterFactory;
 
 /**
  *
  * @author miguel
  */
 public class WatchDog implements IWatchDog {
-    
-    // TODO set toque de queda
-    // TODO start as daemon in system tray, open window on click, and hide on close
-    // TODO when another instance is open and try to open a second one, on error, close the process of that second one
     
     private static final Logger LOGGER = Logger.getLogger(WatchDog.class.getName());
 
@@ -49,14 +49,25 @@ public class WatchDog implements IWatchDog {
     private AtomicLong timestamp;
     private IProcessChecker processChecker;
     private LocaleMessages localeMessages;
-    private final IConditionChecker conditionChecker = FConditionChecker.getConditionChecker();
+    private ConditionChecker conditionChecker;
     private ChainHandler<String> killerHandler = new KillerChainCommander().getHandlerChain();
+    private Logger logger = Logger.getLogger(WatchDog.class.getName());
+    private ExportWritter exportWritter = ExportWritterFactory.getWritter();
 
     private WatchDog() {
+        initConditionChecker();
         timestamp = new AtomicLong();
         processChecker = FProcessChecker.getNew();
         localeMessages = LocaleMessages.getInstance();
         dbLogger = DbLoggerF.getNew();
+    }
+    
+    private void initConditionChecker() {
+        try {
+            conditionChecker = ConditionCheckerFactory.getConditionChecker();
+        } catch (Exception e) {
+            stop();
+        }
     }
 
     public static IWatchDog getInstance() {
@@ -73,9 +84,14 @@ public class WatchDog implements IWatchDog {
     }
     
     public void begin() {
+        if (semaphore.availablePermits() < 1) {
+            // if it is already running, don't duplicate it
+            return;
+        }
         try {
             semaphore.acquire();
-            if (worker == null || worker.isDone() || worker.getState().equals(SwingWorker.StateValue.PENDING)) {
+            // if it is not running, set it up and execute it
+            if (on && (worker == null || worker.isDone() || worker.getState().equals(SwingWorker.StateValue.PENDING))) {
                 initializeWorker();
                 timestamp.set(System.currentTimeMillis());
                 worker.execute();
@@ -108,17 +124,18 @@ public class WatchDog implements IWatchDog {
         this.worker = new SwingWorker<>() {
             @Override
             protected Object doInBackground() throws Exception {
-                while (WatchDog.this.on) {
+                while (WatchDog.this.on && Thread.currentThread().isAlive()) {
                     Thread.sleep(SLEEP_MILIS);
+                    doLoopedStuff();
                     // publish calls to process() method of SwingWorker
-                    publish();
+                    //publish();
                 }
                 return null;
             }
 
             @Override
             protected void process(List<Object> chunks) {
-                doLoopedStuff();
+                //doLoopedStuff();
             }
         };
     }
@@ -132,7 +149,7 @@ public class WatchDog implements IWatchDog {
         TimeLog entry = dbLogger.logEntry(elapsed, processChecker.currentProcessPid(), processChecker.currentProcessName(), processChecker.currentWindowTitle());
         
         boolean conditionsMet = conditionChecker.areConditionsMet(entry.getGroupId());
-        if (entry.isBlockable() && (entry.getAccumulated() <= 0 || !conditionsMet)) {
+        if (entry.isBlockable() && (entry.getAccumulated() <= 0 || !conditionsMet || conditionChecker.isLockDownTime())) {
             killerHandler.receiveRequest(null, processChecker.currentProcessPid());
             Toaster.sendToast(localeMessages.getString("killingProcess"));
         }
@@ -140,6 +157,19 @@ public class WatchDog implements IWatchDog {
         if (!conditionsMet) {
             Toaster.sendToast(localeMessages.getString("conditionsNotMet"));
         }
+        
+        if (entry.getCounted() < 0 && conditionChecker.isTimeRunningOut()) {
+            Toaster.sendToast(localeMessages.getString("timeRunningOut"));
+        }
+        
+        try {
+            FileHandler.exportAccumulated(entry.getAccumulated());
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Error exporting accumulated time to file", e);
+        }
+        
+        exportWritter.exportChanged();
+        
     }
 
 }

@@ -44,7 +44,7 @@ public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, Feedbacker
         pan.addFeedbackListener((tipo, feedback) -> {
             switch (tipo) {
                 case BACK:
-                    this.getCaller().show();
+                    exit();
                     break;
                 case ADD:
                     addGroup();
@@ -98,6 +98,11 @@ public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, Feedbacker
     
     private void launchReviewGroupHandler(Group group){
         FGroupReviewPanel.getHandler(this.getFrame(), this, group).show();
+    }
+
+    @Override
+    protected void doBeforeExit() {
+        // blank
     }
     
 }

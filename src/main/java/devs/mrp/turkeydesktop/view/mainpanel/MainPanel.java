@@ -57,6 +57,7 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
         categorizeTitlesButton = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        notCloseablesButton = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         mainTimeLabel = new javax.swing.JLabel();
 
@@ -103,6 +104,13 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
             }
         });
 
+        notCloseablesButton.setText(bundle.getString("notCloseables")); // NOI18N
+        notCloseablesButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                notCloseablesButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -121,7 +129,9 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(timesButton)
                         .addGap(18, 18, 18)
-                        .addComponent(configButton)))
+                        .addComponent(configButton)
+                        .addGap(18, 18, 18)
+                        .addComponent(notCloseablesButton)))
                 .addContainerGap(340, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -136,7 +146,8 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(timesButton)
-                    .addComponent(configButton))
+                    .addComponent(configButton)
+                    .addComponent(notCloseablesButton))
                 .addContainerGap(164, Short.MAX_VALUE))
         );
 
@@ -208,6 +219,10 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
         giveFeedback(MainEnum.NEGATIVE_GROUPS, evt);
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    private void notCloseablesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_notCloseablesButtonActionPerformed
+        giveFeedback(MainEnum.NOT_CLOSEABLES, evt);
+    }//GEN-LAST:event_notCloseablesButtonActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton catProcButton;
@@ -218,6 +233,7 @@ public class MainPanel extends FeedbackerPanelWithFetcher<MainEnum, AWTEvent> {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JLabel mainTimeLabel;
+    private javax.swing.JButton notCloseablesButton;
     private javax.swing.JButton timesButton;
     // End of variables declaration//GEN-END:variables
     

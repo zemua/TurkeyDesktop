@@ -7,8 +7,7 @@ package devs.mrp.turkeydesktop.view.times;
 
 import devs.mrp.turkeydesktop.common.Dupla;
 import devs.mrp.turkeydesktop.common.TimeConverter;
-import devs.mrp.turkeydesktop.database.logs.FTimeLogService;
-import devs.mrp.turkeydesktop.database.logs.ITimeLogService;
+import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
@@ -18,6 +17,7 @@ import java.util.Date;
 import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
+import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 
 /**
  *
@@ -25,7 +25,7 @@ import javax.swing.JTextArea;
  */
 public class TimesHandler extends PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>> {
 
-    private ITimeLogService logService = FTimeLogService.getService();
+    private TimeLogService logService = TimeLogServiceFactory.getService();
     
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
     
@@ -61,7 +61,7 @@ public class TimesHandler extends PanelHandler<TimesEnum, AWTEvent, FeedbackerPa
     }
     
     private void initCaller() {
-        this.getCaller().show();
+        exit();
     }
     
     private void attachRecordsToLogger(List<TimeLog> list) {
@@ -82,6 +82,11 @@ public class TimesHandler extends PanelHandler<TimesEnum, AWTEvent, FeedbackerPa
     
     private Date getTo() {
         return (Date)this.getPanel().getProperty(TimesEnum.TO);
+    }
+
+    @Override
+    protected void doBeforeExit() {
+        // blank
     }
     
 }

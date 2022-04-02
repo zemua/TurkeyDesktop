@@ -161,5 +161,10 @@ public class GroupAssignationService implements IGroupAssignationService {
         }
         return el;
     }
+
+    @Override
+    public long deleteByGroupId(long id) {
+        return repo.deleteByGroupId(id);
+    }
     
 }

@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -97,6 +98,28 @@ public class TypeRepository implements TypeDao {
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s",
                         Db.CATEGORIZED_TABLE));
+                rs = stm.executeQuery();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null ,ex);
+            }
+        } catch (InterruptedException ex) {
+            logger.log(Level.SEVERE, null ,ex);
+        } finally {
+            semaphore.release();
+        }
+        return rs;
+    }
+    
+    @Override
+    public ResultSet findByType(String type) {
+        ResultSet rs = null;
+        try {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+                        Db.CATEGORIZED_TABLE, Type.TYPE));
+                stm.setString(1, type);
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null ,ex);

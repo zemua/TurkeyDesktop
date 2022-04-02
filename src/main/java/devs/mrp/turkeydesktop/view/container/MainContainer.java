@@ -5,10 +5,19 @@
  */
 package devs.mrp.turkeydesktop.view.container;
 
+import devs.mrp.turkeydesktop.database.Db;
+import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.watchdog.FWatchDog;
 import devs.mrp.turkeydesktop.service.watchdog.IWatchDog;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FMainPanel;
+import devs.mrp.turkeydesktop.view.mainpanel.MainHandler;
+import dorkbox.systemTray.SystemTray;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JFrame;
+import javax.swing.JMenuItem;
 
 /**
  *
@@ -19,21 +28,54 @@ public class MainContainer extends javax.swing.JFrame {
     private static IWatchDog watchDog;
     private static PanelHandler handler;
     
+    private LocaleMessages localeMessages = LocaleMessages.getInstance();
+
     /**
      * Creates new form MainContainer
      */
     public MainContainer() {
         super();
         initComponents();
-        //setVisible(true);
         initHandler();
+        initSystemTray();
+        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
     }
-    
+
     private void initHandler() {
         watchDog = FWatchDog.getInstance();
         watchDog.begin();
         handler = FMainPanel.getMainHandler(this);
         handler.show();
+    }
+
+    private void initSystemTray() {
+        SystemTray tray = SystemTray.get();
+        if (tray == null) {
+            throw new RuntimeException("Unable to lead SystemTray!");
+        }
+        
+        tray.installShutdownHook();
+        tray.setImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource(MainHandler.TURKEY_IMG)));
+        tray.setStatus("Running");
+        
+        JMenuItem openItem = new JMenuItem(localeMessages.getString("open"));
+        openItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setVisible(true);
+                setExtendedState(JFrame.NORMAL);
+            }
+        });
+        JMenuItem hideItem = new JMenuItem(localeMessages.getString("hide"));
+        hideItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setVisible(false);
+                setExtendedState(JFrame.ICONIFIED);
+            }
+        });
+        tray.getMenu().add(openItem);
+        tray.getMenu().add(hideItem);
     }
 
     /**
@@ -80,20 +122,26 @@ public class MainContainer extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MainContainer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MainContainer.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MainContainer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MainContainer.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MainContainer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MainContainer.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MainContainer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MainContainer.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new MainContainer().setVisible(true);
+                if (Db.verifyCanGetDb()) {
+                    new MainContainer().setVisible(false);
+                }
             }
         });
     }

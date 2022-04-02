@@ -42,6 +42,10 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         jTabbedPane1 = new javax.swing.JTabbedPane();
         processPanel = new javax.swing.JPanel();
         titlePanel = new javax.swing.JPanel();
+        externalTimeTab = new javax.swing.JPanel();
+        externalTimeButton = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        externalTimePanel = new javax.swing.JPanel();
         conditionsPanel = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         targetNameComboBox = new javax.swing.JComboBox<>();
@@ -62,6 +66,11 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         jLabel1 = new javax.swing.JLabel();
         deleteText = new javax.swing.JTextField();
         jToggleButton1 = new javax.swing.JToggleButton();
+        jLabel8 = new javax.swing.JLabel();
+        exportGroupButton = new javax.swing.JButton();
+        jLabel9 = new javax.swing.JLabel();
+        exportGroupDaysSpinner = new javax.swing.JSpinner();
+        jLabel10 = new javax.swing.JLabel();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
         jButton1.setText(bundle.getString("back")); // NOI18N
@@ -78,6 +87,43 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
 
         titlePanel.setLayout(new javax.swing.BoxLayout(titlePanel, javax.swing.BoxLayout.PAGE_AXIS));
         jTabbedPane1.addTab(bundle.getString("title"), titlePanel); // NOI18N
+
+        externalTimeButton.setText(bundle.getString("select")); // NOI18N
+        externalTimeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                externalTimeButtonActionPerformed(evt);
+            }
+        });
+
+        jScrollPane2.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+        externalTimePanel.setLayout(new javax.swing.BoxLayout(externalTimePanel, javax.swing.BoxLayout.PAGE_AXIS));
+        jScrollPane2.setViewportView(externalTimePanel);
+
+        javax.swing.GroupLayout externalTimeTabLayout = new javax.swing.GroupLayout(externalTimeTab);
+        externalTimeTab.setLayout(externalTimeTabLayout);
+        externalTimeTabLayout.setHorizontalGroup(
+            externalTimeTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(externalTimeTabLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(externalTimeTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(externalTimeTabLayout.createSequentialGroup()
+                        .addComponent(externalTimeButton)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2))
+                .addContainerGap())
+        );
+        externalTimeTabLayout.setVerticalGroup(
+            externalTimeTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(externalTimeTabLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(externalTimeButton)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane2)
+                .addContainerGap())
+        );
+
+        jTabbedPane1.addTab(bundle.getString("externalTime"), externalTimeTab); // NOI18N
 
         jLabel2.setText(bundle.getString("if")); // NOI18N
 
@@ -138,7 +184,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
 
         jLabel7.setText(bundle.getString("minutes")); // NOI18N
 
-        daySpinner.setModel(new javax.swing.SpinnerNumberModel(0, 0, 30, 1));
+        daySpinner.setModel(new javax.swing.SpinnerNumberModel(Long.valueOf(0L), Long.valueOf(0L), Long.valueOf(30L), Long.valueOf(1L)));
         daySpinner.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 daySpinnerStateChanged(evt);
@@ -183,7 +229,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(addConditionButton)
-                        .addGap(0, 381, Short.MAX_VALUE)))
+                        .addGap(0, 417, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         conditionsPanelLayout.setVerticalGroup(
@@ -225,6 +271,26 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
             }
         });
 
+        jLabel8.setText(bundle.getString("exportGroupTime")); // NOI18N
+
+        exportGroupButton.setText(bundle.getString("select")); // NOI18N
+        exportGroupButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                exportGroupButtonActionPerformed(evt);
+            }
+        });
+
+        jLabel9.setText(bundle.getString("forTheLast")); // NOI18N
+
+        exportGroupDaysSpinner.setModel(new javax.swing.SpinnerNumberModel(Long.valueOf(0L), Long.valueOf(0L), Long.valueOf(30L), Long.valueOf(1L)));
+        exportGroupDaysSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                exportGroupDaysSpinnerStateChanged(evt);
+            }
+        });
+
+        jLabel10.setText(bundle.getString("daysIncludingToday")); // NOI18N
+
         javax.swing.GroupLayout configurationPanelLayout = new javax.swing.GroupLayout(configurationPanel);
         configurationPanel.setLayout(configurationPanelLayout);
         configurationPanelLayout.setHorizontalGroup(
@@ -240,8 +306,18 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                     .addGroup(configurationPanelLayout.createSequentialGroup()
                         .addComponent(deleteText, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jToggleButton1)))
-                .addContainerGap(598, Short.MAX_VALUE))
+                        .addComponent(jToggleButton1))
+                    .addGroup(configurationPanelLayout.createSequentialGroup()
+                        .addComponent(jLabel8)
+                        .addGap(18, 18, 18)
+                        .addComponent(exportGroupButton)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel9)
+                        .addGap(18, 18, 18)
+                        .addComponent(exportGroupDaysSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel10)))
+                .addContainerGap(511, Short.MAX_VALUE))
         );
         configurationPanelLayout.setVerticalGroup(
             configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -256,7 +332,14 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                 .addGroup(configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(deleteText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jToggleButton1))
-                .addContainerGap(80, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addGroup(configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel8)
+                    .addComponent(exportGroupButton)
+                    .addComponent(jLabel9)
+                    .addComponent(exportGroupDaysSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel10))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab(bundle.getString("configuration"), configurationPanel); // NOI18N
@@ -343,6 +426,18 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         giveFeedback(GroupReviewEnum.DELETE_GROUP, evt);
     }//GEN-LAST:event_jToggleButton1ActionPerformed
 
+    private void externalTimeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_externalTimeButtonActionPerformed
+        giveFeedback(GroupReviewEnum.EXTERNAL_TIME_BUTTON, evt);
+    }//GEN-LAST:event_externalTimeButtonActionPerformed
+
+    private void exportGroupButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportGroupButtonActionPerformed
+        giveFeedback(GroupReviewEnum.EXPORT_GROUP_TARGET, evt);
+    }//GEN-LAST:event_exportGroupButtonActionPerformed
+
+    private void exportGroupDaysSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_exportGroupDaysSpinnerStateChanged
+        giveFeedback(GroupReviewEnum.EXPORT_GROUP_DAYS, null);
+    }//GEN-LAST:event_exportGroupDaysSpinnerStateChanged
+
     @Override
     public Object getProperty(GroupReviewEnum property) {
         switch (property) {
@@ -370,6 +465,12 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                 return groupNameText;
             case DELETE_TEXT:
                 return deleteText;
+            case EXTERNAL_TIME_PANEL:
+                return externalTimePanel;
+            case EXPORT_GROUP_TARGET:
+                return exportGroupButton;
+            case EXPORT_GROUP_DAYS:
+                return exportGroupDaysSpinner;
             default:
                 return null;
         }
@@ -405,19 +506,28 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
     private javax.swing.JPanel configurationPanel;
     private javax.swing.JSpinner daySpinner;
     private javax.swing.JTextField deleteText;
+    private javax.swing.JButton exportGroupButton;
+    private javax.swing.JSpinner exportGroupDaysSpinner;
+    private javax.swing.JButton externalTimeButton;
+    private javax.swing.JPanel externalTimePanel;
+    private javax.swing.JPanel externalTimeTab;
     private javax.swing.JLabel groupLabel;
     private javax.swing.JTextField groupNameText;
     private javax.swing.JSpinner hourSpinner;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JSpinner minuteSpinner;

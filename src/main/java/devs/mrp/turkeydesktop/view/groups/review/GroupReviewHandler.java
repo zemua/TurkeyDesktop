@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.view.groups.review;
 
+import devs.mrp.turkeydesktop.common.RemovableLabel;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.FConditionService;
@@ -15,25 +16,37 @@ import devs.mrp.turkeydesktop.database.group.IGroupService;
 import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
+import devs.mrp.turkeydesktop.database.group.expor.ExportedGroup;
+import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupService;
+import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupServiceFactory;
+import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
+import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
+import devs.mrp.turkeydesktop.database.group.external.ExternalGroupServiceFactory;
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElement;
 import devs.mrp.turkeydesktop.database.group.facade.FAssignableElementService;
 import devs.mrp.turkeydesktop.database.group.facade.IAssignableElementService;
 import devs.mrp.turkeydesktop.database.groupcondition.FGroupConditionFacadeService;
 import devs.mrp.turkeydesktop.database.groupcondition.IGroupConditionFacadeService;
+import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.groups.review.switchable.Switchable;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
+import java.io.File;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -42,6 +55,7 @@ import javax.swing.JTextField;
 public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent>> {
 
     private static final Logger logger = Logger.getLogger(GroupReviewHandler.class.getName());
+    private final LocaleMessages localeMessages = LocaleMessages.getInstance();
     
     private Group group;
     private final IGroupService groupService = FGroupService.getService();
@@ -49,6 +63,8 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private final IAssignableElementService assignableProcessService = FAssignableElementService.getProcessesService();
     private final IAssignableElementService assignableTitlesService = FAssignableElementService.getTitlesService();
     private final IConditionService conditionService = FConditionService.getService();
+    private final ExternalGroupService externalGroupService = ExternalGroupServiceFactory.getService();
+    private final ExportedGroupService exportedGroupService = ExportedGroupServiceFactory.getService();
     private final IGroupConditionFacadeService groupConditionFacadeService = FGroupConditionFacadeService.getService();
     
     private JComboBox<Group> targetComboBox;
@@ -70,9 +86,10 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     @Override
     protected void initListeners(FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent> pan) {
         pan.addFeedbackListener((tipo, feedback) -> {
-            switch (tipo) {
+            if (isListening()) {
+                switch (tipo) {
                 case BACK:
-                    this.getCaller().show();
+                    exit();
                     break;
                 case ADD_CONDITION_BUTTON:
                     try {
@@ -80,7 +97,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                     } catch (Exception e) {
                         // print error and go back
                         logger.log(Level.SEVERE, "error adding condition", e);
-                        this.getCaller().show();
+                        exit();
                     }
                     break;
                 case SAVE_GROUP_NAME:
@@ -97,25 +114,52 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                         logger.log(Level.SEVERE, "error deleting group", ex);
                     }
                     break;
+                case EXTERNAL_TIME_BUTTON:
+                    try {
+                        addExternalTime();
+                    } catch (Exception ex) {
+                        logger.log(Level.SEVERE, "error adding external time", ex);
+                    }
+                    break;
+                case EXPORT_GROUP_TARGET:
+                    try {
+                        selectFileGroupExporter();
+                    } catch (Exception ex) {
+                        logger.log(Level.SEVERE, "error setting group time exporter", ex);
+                    }
+                    break;
+                case EXPORT_GROUP_DAYS:
+                    try {
+                        updateGroupExporterDays();
+                    } catch (Exception ex) {
+                        logger.log(Level.SEVERE, "error setting group time exporter", ex);
+                    }
+                    break;
                 default:
                     break;
+                }
             }
         });
     }
 
     @Override
     protected void doExtraBeforeShow() {
-        setGroupLabelName();
-        setProcesses();
-        setTitles();
         try {
+            setGroupLabelName();
+            setProcesses();
+            setTitles();
             setConditions();
+            refreshExternalTime();
+            setConfiguration();
         } catch (Exception e) {
             // print error and go back
-            logger.log(Level.SEVERE, "error setting conditions", e);
-            this.getCaller().show();
+            logger.log(Level.SEVERE, "error setting up UI", e);
+            exit();
         }
-        setConfiguration();
+    }
+    
+    @Override
+    protected void doBeforeExit() {
     }
     
     private void setGroupLabelName() {
@@ -238,6 +282,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         if (targetComboBox == null || hourSpinner == null || minuteSpinner == null || daySpinner == null) {
             throw new Exception("error getting some fields for condition");
         }
+        targetComboBox.removeAllItems();
         comboItems().forEach(item -> targetComboBox.addItem(item));
     }
     
@@ -294,8 +339,8 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         }
     }
     
-    private void setConfiguration() {
-        // nothing here
+    private void setConfiguration() throws Exception {
+        refreshGroupExporter();
     }
     
     private void saveGroupName() throws Exception {
@@ -324,7 +369,122 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         groupService.deleteById(group.getId());
         conditionService.deleteByGroupId(group.getId());
         conditionService.deleteByTargetId(group.getId());
-        this.getCaller().show();
+        externalGroupService.deleteByGroup(group.getId());
+        groupAssignationService.deleteByGroupId(group.getId());
+        exit();
+    }
+    
+    private void addExternalTime() throws Exception {
+        JFileChooser chooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Plain text files .txt only", "txt");
+        chooser.setFileFilter(filter);
+        chooser.setAcceptAllFileFilterUsed(false);
+        int returnVal = chooser.showOpenDialog(chooser);
+        if (returnVal != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        File file = chooser.getSelectedFile();
+        if (file.getPath().length() > 500) {
+            JLabel message = new JLabel();
+            message.setText(localeMessages.getString("errorPath500"));
+            JPanel panel = (JPanel) getObjectFromPanel(GroupReviewEnum.EXTERNAL_TIME_PANEL, JPanel.class).orElseThrow(() -> new Exception("wrong object"));
+            panel.add(message);
+            panel.revalidate();
+            panel.repaint();
+        }
+        ExternalGroup externalGroup = new ExternalGroup();
+        externalGroup.setGroup(this.group.getId());
+        externalGroup.setFile(file.getPath());
+        externalGroupService.add(externalGroup);
+        refreshExternalTime();
+    }
+    
+    private void refreshExternalTime() throws Exception {
+        JPanel panel = (JPanel) getObjectFromPanel(GroupReviewEnum.EXTERNAL_TIME_PANEL, JPanel.class).orElseThrow(() -> new Exception("wrong object"));
+        panel.removeAll();
+        externalGroupService.findByGroup(this.group.getId()).stream()
+                .map(externalGroup -> {
+                    RemovableLabel<ExternalGroup> label = new RemovableLabel<>(externalGroup) {
+                        @Override
+                        protected String getNameFromElement(ExternalGroup element) {
+                            String filePath = element.getFile();
+                            if (filePath.length() > 25) {
+                                filePath = filePath.substring(filePath.length() - 25);
+                            }
+                            return filePath;
+                        }
+                        @Override
+                        protected void initializeOtherElements() {
+                            // ¯\_ (ツ)_/¯
+                        }
+                        @Override
+                        protected void addOtherItems(JPanel panel) {
+                            // ¯\_ (ツ)_/¯
+                        }
+                    };
+                    label.addFeedbackListener((ExternalGroup tipo, RemovableLabel.Action feedback) -> {
+                        if (feedback.equals(RemovableLabel.Action.DELETE)) {
+                            externalGroupService.deleteById(tipo.getId());
+                            try {
+                                refreshExternalTime();
+                            } catch (Exception e) {
+                                logger.log(Level.SEVERE, "could not refresh external time panel after path deletion", e);
+                            }
+                        }
+                    });
+                    return label;
+                }).forEach(label -> panel.add(label));
+        panel.revalidate();
+        panel.repaint();
+    }
+    
+    private void selectFileGroupExporter() throws Exception {
+        JFileChooser chooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Plain text files .txt only", "txt");
+        chooser.setFileFilter(filter);
+        chooser.setAcceptAllFileFilterUsed(false);
+        int returnVal = chooser.showSaveDialog(chooser);
+        if (returnVal != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        File file = chooser.getSelectedFile();
+        if (file.getPath().length() > 500) {
+            JButton button = (JButton) getObjectFromPanel(GroupReviewEnum.EXPORT_GROUP_TARGET, JButton.class).orElseThrow(() -> new Exception("wrong object"));
+            button.setText(localeMessages.getString("errorPath500"));
+        }
+        ExportedGroup exportedGroup = new ExportedGroup();
+        JSpinner daysSpinner = (JSpinner) getObjectFromPanel(GroupReviewEnum.EXPORT_GROUP_DAYS, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        exportedGroup.setDays((Long)daysSpinner.getValue());
+        exportedGroup.setFile(file.getPath());
+        exportedGroup.setGroup(this.group.getId());
+        exportedGroupService.add(exportedGroup);
+        refreshGroupExporter();
+    }
+    
+    private void updateGroupExporterDays() throws Exception {
+        JSpinner daysSpinner = (JSpinner) getObjectFromPanel(GroupReviewEnum.EXPORT_GROUP_DAYS, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        ExportedGroup existing = exportedGroupService.findById(this.group.getId());
+        if (Objects.isNull(existing)) {
+            return;
+        }
+        existing.setDays((Long)daysSpinner.getValue());
+        exportedGroupService.add(existing);
+        refreshGroupExporter();
+    }
+    
+    private void refreshGroupExporter() throws Exception {
+        JSpinner daysSpinner = (JSpinner) getObjectFromPanel(GroupReviewEnum.EXPORT_GROUP_DAYS, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        JButton button = (JButton) getObjectFromPanel(GroupReviewEnum.EXPORT_GROUP_TARGET, JButton.class).orElseThrow(() -> new Exception("wrong object"));
+        ExportedGroup existing = exportedGroupService.findById(this.group.getId());
+        if (Objects.isNull(existing)) {
+            return;
+        }
+        daysSpinner.setValue(existing.getDays());
+        String text = existing.getFile();
+        if (text.length() > 25) {
+            text = text.substring(text.length() - 25);
+        }
+        button.setText(text);
     }
     
 }

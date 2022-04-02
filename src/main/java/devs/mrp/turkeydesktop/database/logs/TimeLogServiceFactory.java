@@ -3,16 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package devs.mrp.turkeydesktop.database.type;
+package devs.mrp.turkeydesktop.database.logs;
 
 /**
  *
  * @author miguel
  */
-public class FTypeService {
+public class TimeLogServiceFactory {
     
-    public static ITypeService getService() {
-        return new TypeService();
+    public static TimeLogService getService() {
+        return new TimeLogServiceImpl();
     }
     
 }

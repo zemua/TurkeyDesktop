@@ -18,5 +18,6 @@ public interface GroupAssignationDao extends GeneralDao<GroupAssignation, Long> 
     public long deleteByElementId(GroupAssignation.ElementType elementType, String elementId);
     public ResultSet findAllElementTypeOfGroup(GroupAssignation.ElementType elementType, Long groupId);
     public ResultSet findAllOfType(GroupAssignation.ElementType elementType);
+    public long deleteByGroupId(long groupId);
     
 }

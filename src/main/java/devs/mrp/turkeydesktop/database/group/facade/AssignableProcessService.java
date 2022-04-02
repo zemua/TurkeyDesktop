@@ -8,13 +8,13 @@ package devs.mrp.turkeydesktop.database.group.facade;
 import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
-import devs.mrp.turkeydesktop.database.type.FTypeService;
-import devs.mrp.turkeydesktop.database.type.ITypeService;
+import devs.mrp.turkeydesktop.database.type.TypeServiceFactory;
 import devs.mrp.turkeydesktop.database.type.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import devs.mrp.turkeydesktop.database.type.TypeService;
 
 /**
  *
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  */
 public class AssignableProcessService extends AssignableAbstractService implements IAssignableElementService<Type.Types> {
     
-    private final ITypeService typeService = FTypeService.getService();
+    private final TypeService typeService = TypeServiceFactory.getService();
     private static final Logger logger = Logger.getLogger(AssignableProcessService.class.getName());
     
     @Override

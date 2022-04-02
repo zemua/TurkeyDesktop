@@ -5,7 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.config;
 
-import devs.mrp.turkeydesktop.database.logs.TimeLogService;
+import devs.mrp.turkeydesktop.database.logs.TimeLogServiceImpl;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -41,7 +41,7 @@ public class ConfigElementService implements IConfigElementService {
 
     @Override
     public long add(ConfigElement element) {
-        if (element == null) {
+        if (element == null || element.getKey() == null || element.getValue().length() > 150) {
             return -1;
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
@@ -65,7 +65,7 @@ public class ConfigElementService implements IConfigElementService {
 
     @Override
     public long update(ConfigElement element) {
-        if (element == null || element.getKey() == null) {
+        if (element == null || element.getKey() == null || element.getValue().length() > 150) {
             return -1;
         }
         configMap.put(element.getKey(), element.getValue());

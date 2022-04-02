@@ -5,15 +5,14 @@
  */
 package devs.mrp.turkeydesktop.database.titledlog;
 
-import java.util.Date;
-import java.util.List;
-
 /**
  *
  * @author miguel
  */
-public interface ITitledLogServiceFacade {
+public class TitledLogServiceFacadeFactory {
     
-    public List<TitledLog> getLogsWithTitleConditions(Date from, Date to);
-    public List<TitledLog> getLogsDependablesWithTitleConditions(Date from, Date to);
+    public static TitledLogServiceFacade getService() {
+        return new TitledLogServiceFacadeImpl();
+    }
+    
 }

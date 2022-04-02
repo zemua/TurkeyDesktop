@@ -7,10 +7,8 @@ package devs.mrp.turkeydesktop.view.categorizeprocesspanel;
 
 import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.common.Tripla;
-import devs.mrp.turkeydesktop.database.logandtype.FLogAndTypeService;
-import devs.mrp.turkeydesktop.database.logandtype.ILogAndTypeService;
-import devs.mrp.turkeydesktop.database.type.FTypeService;
-import devs.mrp.turkeydesktop.database.type.ITypeService;
+import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeServiceFactory;
+import devs.mrp.turkeydesktop.database.type.TypeServiceFactory;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.list.CategorizerElement;
@@ -21,6 +19,8 @@ import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeService;
+import devs.mrp.turkeydesktop.database.type.TypeService;
 
 /**
  *
@@ -37,13 +37,13 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
     
     private Logger logger = Logger.getLogger(CatProcessHandler.class.getName());
     private FeedbackListener<Type.Types,String> mListener;
-    private ITypeService typeService;
+    private TypeService typeService;
     
-    ILogAndTypeService typedService = FLogAndTypeService.getService();
+    LogAndTypeFacadeService typedService = LogAndTypeServiceFactory.getService();
     
     public CatProcessHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
         super(frame, caller);
-        typeService = FTypeService.getService();
+        typeService = TypeServiceFactory.getService();
     }
     
     @Override
@@ -56,7 +56,7 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
         pan.addFeedbackListener((tipo, feedback) -> {
             switch (tipo) {
                 case BACK:
-                    this.getCaller().show();
+                    exit();
                     break;
                 case UPDATE:
                     updateItemsInList();
@@ -98,11 +98,10 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
                 element.init(t.getValue1(), t.getValue3());
                 panel.add(element);
                 setRadioListener(element);
-            } else {
-                panel.updateUI();
             }
         });
-        //panel.revalidate();
+        panel.updateUI();
+        panel.revalidate();
     }
     
     private void updateItemsInList() {
@@ -139,6 +138,11 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
         t.setProcess(process);
         t.setType(type);
         typeService.add(t);
+    }
+
+    @Override
+    protected void doBeforeExit() {
+        // intentionally left blank
     }
     
 }
