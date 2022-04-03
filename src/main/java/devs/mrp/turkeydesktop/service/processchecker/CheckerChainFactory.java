@@ -5,14 +5,16 @@
  */
 package devs.mrp.turkeydesktop.service.processchecker;
 
+import devs.mrp.turkeydesktop.common.ChainHandler;
+
 /**
  *
  * @author miguel
  */
-public class FProcessChecker {
+public class CheckerChainFactory {
     
-    public static IProcessChecker getNew() {
-        return new ProcessChecker();
+    public static ChainHandler getChain() {
+        return new CheckerChainCommander().getHandlerChain();
     }
     
 }

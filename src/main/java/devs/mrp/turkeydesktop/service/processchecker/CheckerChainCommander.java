@@ -15,12 +15,14 @@ import devs.mrp.turkeydesktop.common.ChainHandler;
 public class CheckerChainCommander implements ChainCommander {
 
     private ChainHandler linuxHandler;
+    private ChainHandler macosHandler;
     
     @Override
     public ChainHandler getHandlerChain() {
-        //linuxHandler = new CheckerChainHandlerLinux();
-        //linuxHandler = new CheckerChainHandlerLinuxXdotool();
         linuxHandler = new CheckerChainHandlerLinuxBash();
+        macosHandler = new CheckerChainHandlerMacos();
+        
+        linuxHandler.setNextHandler(macosHandler);
         
         return linuxHandler;
     }

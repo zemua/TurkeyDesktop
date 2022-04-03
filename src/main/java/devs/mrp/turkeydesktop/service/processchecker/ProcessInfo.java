@@ -9,33 +9,17 @@ package devs.mrp.turkeydesktop.service.processchecker;
  *
  * @author miguel
  */
-public class ProcessInfo implements IProcessInfo {
-    
-    private String windowTitle;
-    private String processName;
-    private String processPid;
+public interface ProcessInfo {
 
-    public String getWindowTitle() {
-        return windowTitle;
-    }
+    public String getWindowTitle();
 
-    public void setWindowTitle(String windowTitle) {
-        this.windowTitle = windowTitle;
-    }
+    public void setWindowTitle(String windowTitle);
 
-    public String getProcessName() {
-        return processName;
-    }
+    public String getProcessName();
 
-    public void setProcessName(String processName) {
-        this.processName = processName;
-    }
+    public void setProcessName(String processName);
 
-    public String getProcessPid() {
-        return processPid;
-    }
+    public String getProcessPid();
 
-    public void setProcessPid(String processPid) {
-        this.processPid = processPid;
-    }
+    public void setProcessPid(String processPid);
 }

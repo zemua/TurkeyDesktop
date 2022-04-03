@@ -9,14 +9,8 @@ package devs.mrp.turkeydesktop.service.processchecker;
  *
  * @author miguel
  */
-public interface IProcessChecker {
-    
-    public void refresh();
-    
-    public String currentProcessName();
-    
-    public String currentWindowTitle();
-    
-    public String currentProcessPid();
-    
+public class ProcessInfoFactory {
+    public static ProcessInfo getNew() {
+        return new ProcessInfoImpl();
+    }
 }
