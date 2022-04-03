@@ -5,11 +5,14 @@
  */
 package devs.mrp.turkeydesktop.view.container;
 
+import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.watchdog.FWatchDog;
 import devs.mrp.turkeydesktop.service.watchdog.IWatchDog;
 import devs.mrp.turkeydesktop.view.PanelHandler;
+import devs.mrp.turkeydesktop.view.container.traychain.TrayChainCommander;
+import devs.mrp.turkeydesktop.view.container.traychain.TrayChainFactory;
 import devs.mrp.turkeydesktop.view.mainpanel.FMainPanel;
 import devs.mrp.turkeydesktop.view.mainpanel.MainHandler;
 import dorkbox.systemTray.SystemTray;
@@ -27,8 +30,6 @@ public class MainContainer extends javax.swing.JFrame {
 
     private static IWatchDog watchDog;
     private static PanelHandler handler;
-    
-    private LocaleMessages localeMessages = LocaleMessages.getInstance();
 
     /**
      * Creates new form MainContainer
@@ -37,7 +38,7 @@ public class MainContainer extends javax.swing.JFrame {
         super();
         initComponents();
         initHandler();
-        initSystemTray();
+        TrayChainFactory.getChain().receiveRequest("System Tray", this);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
     }
 
@@ -46,36 +47,6 @@ public class MainContainer extends javax.swing.JFrame {
         watchDog.begin();
         handler = FMainPanel.getMainHandler(this);
         handler.show();
-    }
-
-    private void initSystemTray() {
-        SystemTray tray = SystemTray.get();
-        if (tray == null) {
-            throw new RuntimeException("Unable to lead SystemTray!");
-        }
-        
-        tray.installShutdownHook();
-        tray.setImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource(MainHandler.TURKEY_IMG)));
-        tray.setStatus("Running");
-        
-        JMenuItem openItem = new JMenuItem(localeMessages.getString("open"));
-        openItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setVisible(true);
-                setExtendedState(JFrame.NORMAL);
-            }
-        });
-        JMenuItem hideItem = new JMenuItem(localeMessages.getString("hide"));
-        hideItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setVisible(false);
-                setExtendedState(JFrame.ICONIFIED);
-            }
-        });
-        tray.getMenu().add(openItem);
-        tray.getMenu().add(hideItem);
     }
 
     /**
@@ -141,6 +112,7 @@ public class MainContainer extends javax.swing.JFrame {
             public void run() {
                 if (Db.verifyCanGetDb()) {
                     new MainContainer().setVisible(false);
+                    //new MainContainer().setVisible(true);
                 }
             }
         });
