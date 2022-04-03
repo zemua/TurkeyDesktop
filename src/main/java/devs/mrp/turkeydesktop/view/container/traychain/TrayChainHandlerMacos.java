@@ -8,39 +8,43 @@ import com.sun.jna.Platform;
 import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.mainpanel.MainHandler;
-import dorkbox.systemTray.SystemTray;
+import java.awt.AWTException;
+import java.awt.Image;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
 import java.awt.Toolkit;
+import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JFrame;
-import javax.swing.JMenuItem;
 
 /**
- * new versions of gnome desktop have removed support of system tray and use a different api
- * so for ubuntu 18.04 onwards we need to make use of dorkbox implementation
+ * there is an error in mac if using dorkbox system tray
+ * so we are making use of the java awt default implementation
  * @author ncm55070
  */
-public class TrayChainHandlerLinux extends ChainHandler<JFrame> {
-
+public class TrayChainHandlerMacos extends ChainHandler<JFrame> {
+    
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
 
     @Override
     protected boolean canHandle(String tipo) {
-        return Platform.isLinux();
+        return Platform.isMac();
     }
 
     @Override
     protected void handle(JFrame frame) {
-        SystemTray tray = SystemTray.get();
-        if (tray == null) {
+        TrayIcon trayIcon = null;
+        if (!SystemTray.isSupported()) {
             throw new RuntimeException("Unable to load SystemTray!");
         }
-
-        tray.installShutdownHook();
-        tray.setImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource(MainHandler.TURKEY_IMG)));
-        tray.setStatus("Running");
-
-        JMenuItem openItem = new JMenuItem(localeMessages.getString("open"));
+        SystemTray tray = SystemTray.getSystemTray();
+        Image image = Toolkit.getDefaultToolkit().getImage(getClass().getResource(MainHandler.TURKEY_IMG));
+        
+        PopupMenu popup = new PopupMenu();
+        
+        MenuItem openItem = new MenuItem(localeMessages.getString("open"));
         openItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -48,7 +52,9 @@ public class TrayChainHandlerLinux extends ChainHandler<JFrame> {
                 frame.setExtendedState(JFrame.NORMAL);
             }
         });
-        JMenuItem hideItem = new JMenuItem(localeMessages.getString("hide"));
+        popup.add(openItem);
+        
+        MenuItem hideItem = new MenuItem(localeMessages.getString("hide"));
         hideItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -56,8 +62,17 @@ public class TrayChainHandlerLinux extends ChainHandler<JFrame> {
                 frame.setExtendedState(JFrame.ICONIFIED);
             }
         });
-        tray.getMenu().add(openItem);
-        tray.getMenu().add(hideItem);
+        popup.add(hideItem);
+        
+        trayIcon = new TrayIcon(image, "Turkey Desktop", popup);
+        trayIcon.setImageAutoSize(true);
+
+        try {
+            tray.add(trayIcon);
+        } catch (AWTException e) {
+            System.err.println(e);
+        }
+
     }
 
 }

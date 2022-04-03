@@ -5,22 +5,13 @@
  */
 package devs.mrp.turkeydesktop.view.container;
 
-import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.watchdog.FWatchDog;
 import devs.mrp.turkeydesktop.service.watchdog.IWatchDog;
 import devs.mrp.turkeydesktop.view.PanelHandler;
-import devs.mrp.turkeydesktop.view.container.traychain.TrayChainCommander;
 import devs.mrp.turkeydesktop.view.container.traychain.TrayChainFactory;
 import devs.mrp.turkeydesktop.view.mainpanel.FMainPanel;
-import devs.mrp.turkeydesktop.view.mainpanel.MainHandler;
-import dorkbox.systemTray.SystemTray;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import javax.swing.JFrame;
-import javax.swing.JMenuItem;
 
 /**
  *
@@ -112,7 +103,6 @@ public class MainContainer extends javax.swing.JFrame {
             public void run() {
                 if (Db.verifyCanGetDb()) {
                     new MainContainer().setVisible(false);
-                    //new MainContainer().setVisible(true);
                 }
             }
         });

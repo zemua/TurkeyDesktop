@@ -15,10 +15,14 @@ import javax.swing.JFrame;
 public class TrayChainCommander implements ChainCommander {
 
     private ChainHandler<JFrame> linuxHandler;
+    private ChainHandler<JFrame> macosHandler;
     
     @Override
     public ChainHandler getHandlerChain() {
         linuxHandler = new TrayChainHandlerLinux();
+        macosHandler = new TrayChainHandlerMacos();
+        
+        linuxHandler.setNextHandler(macosHandler);
         
         return linuxHandler;
     }
