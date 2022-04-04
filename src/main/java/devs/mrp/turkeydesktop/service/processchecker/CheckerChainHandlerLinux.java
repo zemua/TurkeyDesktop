@@ -20,7 +20,7 @@ import io.github.kingpulse.xdotool;
  *
  * @author miguel
  */
-public class CheckerChainHandlerLinux extends ChainHandler<IProcessInfo> {
+public class CheckerChainHandlerLinux extends ChainHandler<ProcessInfo> {
     
     private static final String DISPLAY_STRING = ":1";
     
@@ -39,7 +39,7 @@ public class CheckerChainHandlerLinux extends ChainHandler<IProcessInfo> {
     }
     
     @Override
-    protected void handle(IProcessInfo processInfo) {
+    protected void handle(ProcessInfo processInfo) {
         // Elements to be freed afterwards
         X11.Display display = x11.XOpenDisplay(null);
         X11.WindowByReference windowRef = new X11.WindowByReference();

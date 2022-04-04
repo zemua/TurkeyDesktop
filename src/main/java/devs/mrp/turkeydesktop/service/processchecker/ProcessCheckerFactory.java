@@ -9,8 +9,10 @@ package devs.mrp.turkeydesktop.service.processchecker;
  *
  * @author miguel
  */
-public class FProcessInfo {
-    public static IProcessInfo getNew() {
-        return new ProcessInfo();
+public class ProcessCheckerFactory {
+    
+    public static ProcessChecker getNew() {
+        return new ProcessCheckerImpl();
     }
+    
 }

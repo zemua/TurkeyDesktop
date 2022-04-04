@@ -5,40 +5,18 @@
  */
 package devs.mrp.turkeydesktop.service.processchecker;
 
-import devs.mrp.turkeydesktop.common.ChainHandler;
-import devs.mrp.turkeydesktop.common.Dupla;
-
 /**
  *
  * @author miguel
  */
-public class ProcessChecker implements IProcessChecker {
+public interface ProcessChecker {
     
-    ChainHandler<IProcessInfo> chainHandler;
-    IProcessInfo processInfo;
+    public void refresh();
     
-    public ProcessChecker() {
-        chainHandler = FCheckerChain.getChain();
-        processInfo = FProcessInfo.getNew();
-    }
+    public String currentProcessName();
     
-    @Override
-    public void refresh() {
-        chainHandler.receiveRequest("both", processInfo);
-    }
-
-    @Override
-    public String currentProcessName() {
-        return processInfo.getProcessName();
-    }
-
-    @Override
-    public String currentWindowTitle() {
-        return processInfo.getWindowTitle();
-    }
+    public String currentWindowTitle();
     
-    @Override
-    public String currentProcessPid() {
-        return processInfo.getProcessPid();
-    }
+    public String currentProcessPid();
+    
 }

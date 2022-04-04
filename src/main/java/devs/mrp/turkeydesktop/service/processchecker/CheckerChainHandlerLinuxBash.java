@@ -14,10 +14,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * xdotool needs to be installed in the system
  * @author miguel
  */
-public class CheckerChainHandlerLinuxBash extends ChainHandler<IProcessInfo> {
+public class CheckerChainHandlerLinuxBash extends ChainHandler<ProcessInfo> {
 
     private static final String EXPORT_DISPLAY_COMMAND = "bash export DISPLAY=:1";
     private static final String WINDOW_TITLE_COMMAND = "xdotool getwindowfocus getwindowname";
@@ -31,7 +31,7 @@ public class CheckerChainHandlerLinuxBash extends ChainHandler<IProcessInfo> {
     }
 
     @Override
-    protected void handle(IProcessInfo data) {
+    protected void handle(ProcessInfo data) {
         try {
             exportDisplay();
             data.setWindowTitle(commandOutput(WINDOW_TITLE_COMMAND));

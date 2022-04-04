@@ -18,7 +18,7 @@ import io.github.kingpulse.xdotool;
  * sudo apt-get install libxdo-dev
  * https://github.com/jordansissel/xdotool
  */
-public class CheckerChainHandlerLinuxXdotool extends ChainHandler<IProcessInfo> {
+public class CheckerChainHandlerLinuxXdotool extends ChainHandler<ProcessInfo> {
     
     private static final String DISPLAY_STRING = ":1";
     
@@ -38,7 +38,7 @@ public class CheckerChainHandlerLinuxXdotool extends ChainHandler<IProcessInfo> 
     }
 
     @Override
-    protected void handle(IProcessInfo processInfo) {
+    protected void handle(ProcessInfo processInfo) {
         // TODO implement
         X11.WindowByReference window_ret = new X11.WindowByReference();
         lib.xdo_get_active_window(xdo, window_ret);

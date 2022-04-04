@@ -10,8 +10,7 @@ import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
-import devs.mrp.turkeydesktop.service.processchecker.FProcessChecker;
-import devs.mrp.turkeydesktop.service.processchecker.IProcessChecker;
+import devs.mrp.turkeydesktop.service.processchecker.ProcessCheckerFactory;
 import devs.mrp.turkeydesktop.service.processkiller.KillerChainCommander;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.service.watchdog.logger.DbLogger;
@@ -27,6 +26,7 @@ import javax.swing.SwingWorker;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritter;
 import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritterFactory;
+import devs.mrp.turkeydesktop.service.processchecker.ProcessChecker;
 
 /**
  *
@@ -47,7 +47,7 @@ public class WatchDog implements IWatchDog {
     private JTextArea mLogger;
     private SwingWorker<Object, Object> worker;
     private AtomicLong timestamp;
-    private IProcessChecker processChecker;
+    private ProcessChecker processChecker;
     private LocaleMessages localeMessages;
     private ConditionChecker conditionChecker;
     private ChainHandler<String> killerHandler = new KillerChainCommander().getHandlerChain();
@@ -57,7 +57,7 @@ public class WatchDog implements IWatchDog {
     private WatchDog() {
         initConditionChecker();
         timestamp = new AtomicLong();
-        processChecker = FProcessChecker.getNew();
+        processChecker = ProcessCheckerFactory.getNew();
         localeMessages = LocaleMessages.getInstance();
         dbLogger = DbLoggerF.getNew();
     }
