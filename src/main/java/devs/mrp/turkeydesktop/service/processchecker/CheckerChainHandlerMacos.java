@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,16 +32,20 @@ public class CheckerChainHandlerMacos extends ChainHandler<ProcessInfo> {
         try {
             String frontAppQuery = "lsappinfo front";
             String frontApp = getDirectOutput(frontAppQuery);
-            
+
             String pidQuery = "lsappinfo info -only pid ".concat(frontApp);
             String nameQuery = "lsappinfo info -only name ".concat(frontApp);
             String[] queryForTitle = {"osascript", "-e", "tell application \"System Events\" to tell (process 1 whose it is frontmost) ¬\n"
                 + "        to tell (window 1 whose value of attribute \"AXMain\" is true) ¬\n"
                 + "        to set windowTitle to value of attribute \"AXTitle\""};
-            
-            String pid = getOneLinedValueOf(pidQuery);
-            String name = getOneLinedValueOf(nameQuery);
-            String title = getOneLinedAppleScript(queryForTitle);
+
+            String pid = Optional.ofNullable(getOneLinedValueOf(pidQuery)).orElse("");
+            String name = Optional.ofNullable(getOneLinedValueOf(nameQuery)).orElse("");
+            String title = Optional.ofNullable(getOneLinedAppleScript(queryForTitle)).orElse("");
+
+            data.setProcessName(name);
+            data.setProcessPid(pid);
+            data.setWindowTitle(title);
         } catch (IOException ex) {
             Logger.getLogger(CheckerChainHandlerMacos.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
@@ -74,14 +79,7 @@ public class CheckerChainHandlerMacos extends ChainHandler<ProcessInfo> {
         String line = b.readLine();
         b.close();
         if (Objects.nonNull(line)) {
-            String[] unparsed = line.split("=");
-            if (unparsed.length == 2) {
-                String valueInQuotes = unparsed[1];
-                if (valueInQuotes.contains("\"")) {
-                    valueInQuotes = valueInQuotes.substring(1, valueInQuotes.length() - 1);
-                }
-                return valueInQuotes;
-            }
+            return line;
         }
         return "";
     }
