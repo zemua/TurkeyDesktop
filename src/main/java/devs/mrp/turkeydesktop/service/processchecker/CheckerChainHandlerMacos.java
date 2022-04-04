@@ -31,12 +31,16 @@ public class CheckerChainHandlerMacos extends ChainHandler<ProcessInfo> {
         try {
             String frontAppQuery = "lsappinfo front";
             String frontApp = getDirectOutput(frontAppQuery);
+            
             String pidQuery = "lsappinfo info -only pid ".concat(frontApp);
-            String bundleIdQuery = "lsappinfo info -only bundleId ".concat(frontApp);
             String nameQuery = "lsappinfo info -only name ".concat(frontApp);
+            String[] queryForTitle = {"osascript", "-e", "tell application \"System Events\" to tell (process 1 whose it is frontmost) ¬\n"
+                + "        to tell (window 1 whose value of attribute \"AXMain\" is true) ¬\n"
+                + "        to set windowTitle to value of attribute \"AXTitle\""};
+            
             String pid = getOneLinedValueOf(pidQuery);
-            String bundle = getOneLinedValueOf(bundleIdQuery);
             String name = getOneLinedValueOf(nameQuery);
+            String title = getOneLinedAppleScript(queryForTitle);
         } catch (IOException ex) {
             Logger.getLogger(CheckerChainHandlerMacos.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
@@ -51,21 +55,37 @@ public class CheckerChainHandlerMacos extends ChainHandler<ProcessInfo> {
         String line = b.readLine();
         b.close();
         if (Objects.nonNull(line)) {
-            System.out.println(line);
             String[] unparsed = line.split("=");
             if (unparsed.length == 2) {
                 String valueInQuotes = unparsed[1];
                 if (valueInQuotes.contains("\"")) {
-                    valueInQuotes = valueInQuotes.substring(1, valueInQuotes.length()-1);
+                    valueInQuotes = valueInQuotes.substring(1, valueInQuotes.length() - 1);
                 }
                 return valueInQuotes;
             }
-        } else {
-            System.out.println("empty line => " + line);
         }
         return "";
     }
-    
+
+    private String getOneLinedAppleScript(String[] comands) throws IOException, InterruptedException {
+        Process p = r.exec(comands);
+        p.waitFor();
+        BufferedReader b = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        String line = b.readLine();
+        b.close();
+        if (Objects.nonNull(line)) {
+            String[] unparsed = line.split("=");
+            if (unparsed.length == 2) {
+                String valueInQuotes = unparsed[1];
+                if (valueInQuotes.contains("\"")) {
+                    valueInQuotes = valueInQuotes.substring(1, valueInQuotes.length() - 1);
+                }
+                return valueInQuotes;
+            }
+        }
+        return "";
+    }
+
     private String getDirectOutput(String query) throws IOException, InterruptedException {
         Process p = r.exec(query);
         p.waitFor();
