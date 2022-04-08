@@ -15,10 +15,14 @@ import devs.mrp.turkeydesktop.common.ChainHandler;
 public class IdleChainCommander implements ChainCommander {
     
     private ChainHandler<LongWrapper> linuxHandler;
+    private ChainHandler<LongWrapper> macosHandler;
     
     @Override
     public ChainHandler<LongWrapper> getHandlerChain() {
         linuxHandler = new IdleChainHandlerLinux();
+        macosHandler = new IdleChainHandlerMacos();
+        
+        linuxHandler.setNextHandler(macosHandler);
         
         return linuxHandler;
     }

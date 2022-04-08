@@ -126,7 +126,11 @@ public class WatchDog implements IWatchDog {
             protected Object doInBackground() throws Exception {
                 while (WatchDog.this.on && Thread.currentThread().isAlive()) {
                     Thread.sleep(SLEEP_MILIS);
-                    doLoopedStuff();
+                    try {
+                        doLoopedStuff();
+                    } catch (Exception e) {
+                        LOGGER.log(Level.SEVERE, "Exception while running watchdog", e);
+                    }
                     // publish calls to process() method of SwingWorker
                     //publish();
                 }
