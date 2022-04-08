@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  * @author ncm55070
  */
 public class IdleChainHandlerMacos extends ChainHandler<LongWrapper> {
-    
+
     private Runtime r = Runtime.getRuntime();
 
     @Override
@@ -32,26 +32,26 @@ public class IdleChainHandlerMacos extends ChainHandler<LongWrapper> {
     protected void handle(LongWrapper data) {
         try {
             List<String> lines = new ArrayList<>();
-            String[] comms = {"ioreg", "-c" ,"IOHIDSystem"};
+            String[] comms = {"ioreg", "-c", "IOHIDSystem"};
             Process p = r.exec(comms);
             BufferedReader b = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String line;
+            data.setValue(0);
             while ((line = b.readLine()) != null) {
-                lines.add(line);
+                if (line.contains("HIDIdleTime")) {
+                    String[] fragments = line.split(" ");
+                    Long time = Optional.ofNullable(Long.valueOf(fragments[fragments.length - 1])).orElse(0L) / 1000000;
+                    data.setValue(time);
+                    break;
+                }
             }
-            line = lines.stream().filter(l -> l.contains("HIDIdleTime")).findFirst().orElse("");
-            String[] fragments = line.split(" ");
-            Long time = Optional.ofNullable(Long.valueOf(fragments[fragments.length-1])).orElse(0L)/1000000;
-            data.setValue(time);
             b.close();
         } catch (IOException ex) {
             Logger.getLogger(IdleChainHandlerMacos.class.getName()).log(Level.SEVERE, null, ex);
-            data.setValue(0);
         } catch (Exception ex) {
             // if there is an exception parsing the values of runtime catch it here to not break the watchdog
             Logger.getLogger(IdleChainHandlerMacos.class.getName()).log(Level.SEVERE, null, ex);
-            data.setValue(0);
         }
     }
-    
+
 }
