@@ -46,6 +46,11 @@ public class IdleChainHandlerMacos extends ChainHandler<LongWrapper> {
             b.close();
         } catch (IOException ex) {
             Logger.getLogger(IdleChainHandlerMacos.class.getName()).log(Level.SEVERE, null, ex);
+            data.setValue(0);
+        } catch (Exception ex) {
+            // if there is an exception parsing the values of runtime catch it here to not break the watchdog
+            Logger.getLogger(IdleChainHandlerMacos.class.getName()).log(Level.SEVERE, null, ex);
+            data.setValue(0);
         }
     }
     
