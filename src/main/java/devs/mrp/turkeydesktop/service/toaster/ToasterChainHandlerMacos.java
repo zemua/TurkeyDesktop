@@ -30,10 +30,7 @@ public class ToasterChainHandlerMacos extends ChainHandler<String> {
         String[] sender = {"osascript", "-e", message};
         try {
             Process p = r.exec(sender);
-            p.waitFor();
         } catch (IOException ex) {
-            Logger.getLogger(ToasterChainHandlerMacos.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
             Logger.getLogger(ToasterChainHandlerMacos.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
