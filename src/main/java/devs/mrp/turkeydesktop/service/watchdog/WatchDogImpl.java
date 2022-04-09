@@ -15,7 +15,7 @@ import devs.mrp.turkeydesktop.service.processchecker.ProcessCheckerFactory;
 import devs.mrp.turkeydesktop.service.processkiller.KillerChainCommander;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.service.watchdog.logger.DbLogger;
-import devs.mrp.turkeydesktop.service.watchdog.logger.DbLoggerF;
+import devs.mrp.turkeydesktop.service.watchdog.logger.DbLoggerFactory;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -63,7 +63,7 @@ public class WatchDogImpl implements WatchDog {
         timestamp = new AtomicLong();
         processChecker = ProcessCheckerFactory.getNew();
         localeMessages = LocaleMessages.getInstance();
-        dbLogger = DbLoggerF.getNew();
+        dbLogger = DbLoggerFactory.getNew();
     }
     
     private void initConditionChecker() {

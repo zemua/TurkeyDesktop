@@ -5,9 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.group.facade;
 
-import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
-import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
 import devs.mrp.turkeydesktop.database.titles.TitleServiceFactory;
 import devs.mrp.turkeydesktop.database.titles.Title;
 import java.util.List;

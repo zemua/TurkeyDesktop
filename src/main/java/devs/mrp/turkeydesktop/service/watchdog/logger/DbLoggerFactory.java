@@ -9,7 +9,7 @@ package devs.mrp.turkeydesktop.service.watchdog.logger;
  *
  * @author miguel
  */
-public class DbLoggerF {
+public class DbLoggerFactory {
     
     public static DbLogger getNew() {
         return new DbLoggerImpl();
