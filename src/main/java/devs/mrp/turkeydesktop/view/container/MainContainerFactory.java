@@ -11,7 +11,7 @@ import javax.swing.JFrame;
  *
  * @author miguel
  */
-public class FContainer {
+public class MainContainerFactory {
     public static JFrame getContainer() {
         return new MainContainer();
     }

@@ -50,6 +50,9 @@ public class TrayChainHandlerMacos extends ChainHandler<JFrame> {
             public void actionPerformed(ActionEvent e) {
                 frame.setVisible(true);
                 frame.setExtendedState(JFrame.NORMAL);
+                // because frame.toFront() doesn't work
+                frame.setAlwaysOnTop(true);
+                frame.setAlwaysOnTop(false);
             }
         });
         popup.add(openItem);

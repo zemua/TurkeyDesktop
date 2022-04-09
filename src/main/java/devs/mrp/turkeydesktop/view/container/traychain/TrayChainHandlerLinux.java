@@ -46,6 +46,9 @@ public class TrayChainHandlerLinux extends ChainHandler<JFrame> {
             public void actionPerformed(ActionEvent e) {
                 frame.setVisible(true);
                 frame.setExtendedState(JFrame.NORMAL);
+                // because fram.toFront() doesnt work
+                frame.setAlwaysOnTop(true);
+                frame.setAlwaysOnTop(false);
             }
         });
         JMenuItem hideItem = new JMenuItem(localeMessages.getString("hide"));
