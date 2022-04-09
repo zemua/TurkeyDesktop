@@ -16,7 +16,7 @@ import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.titles.Title;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
-import devs.mrp.turkeydesktop.service.watchdog.WatchDog;
+import devs.mrp.turkeydesktop.service.watchdog.WatchDogImpl;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -98,7 +98,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
             System.out.println("error trying to get DB connection");
             Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
             con = null;
-            WatchDog.getInstance().stop();
+            WatchDogImpl.getInstance().stop();
             JOptionPane.showMessageDialog(null, localeMessages.getString("anotherConnOpen"));
             System.exit(0);
         }

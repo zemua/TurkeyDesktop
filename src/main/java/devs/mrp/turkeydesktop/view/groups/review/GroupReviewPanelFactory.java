@@ -16,7 +16,7 @@ import javax.swing.JFrame;
  *
  * @author miguel
  */
-public class FGroupReviewPanel {
+public class GroupReviewPanelFactory {
     
     public static FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent> getPanel() {
         return new GroupReviewPanel();

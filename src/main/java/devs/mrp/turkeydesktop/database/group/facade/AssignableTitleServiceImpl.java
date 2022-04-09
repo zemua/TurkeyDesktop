@@ -5,9 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.group.facade;
 
-import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
-import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
 import devs.mrp.turkeydesktop.database.titles.TitleServiceFactory;
 import devs.mrp.turkeydesktop.database.titles.Title;
 import java.util.List;
@@ -19,7 +17,7 @@ import devs.mrp.turkeydesktop.database.titles.TitleService;
  *
  * @author miguel
  */
-public class AssignableTitleService extends AssignableAbstractService implements IAssignableElementService<Title.Type> {
+public class AssignableTitleServiceImpl extends AssignableAbstractService implements AssignableElementService<Title.Type> {
     
     private final TitleService titleService = TitleServiceFactory.getService();
     
@@ -32,7 +30,7 @@ public class AssignableTitleService extends AssignableAbstractService implements
     @Override
     public List<AssignableElement<Title.Type>> negativeElementsWithAssignation() {
         return elementsWithAssignation(getAssignationsMap(GroupAssignation.ElementType.TITLE),
-                Title.Type.POSITIVE);
+                Title.Type.NEGATIVE);
     }
     
     private List<AssignableElement<Title.Type>> elementsWithAssignation(Map<String, GroupAssignation> assignables, Title.Type positiveOrNegative) {

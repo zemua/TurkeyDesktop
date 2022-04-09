@@ -6,20 +6,17 @@
 package devs.mrp.turkeydesktop.view.mainpanel;
 
 import devs.mrp.turkeydesktop.common.TimeConverter;
-import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.FConfigElementService;
 import devs.mrp.turkeydesktop.database.config.IConfigElementService;
 import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
-import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessEnum;
-import devs.mrp.turkeydesktop.view.categorizeprocesspanel.FCatProcessPanel;
+import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessPanelFactory;
 import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesEnum;
-import devs.mrp.turkeydesktop.view.categorizetitles.FCategorizeTitlesPanel;
-import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
+import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesPanelFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelEnum;
 import devs.mrp.turkeydesktop.view.configuration.FConfigurationPanel;
 import devs.mrp.turkeydesktop.view.groups.FGroupsPanel;
@@ -32,8 +29,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
+import devs.mrp.turkeydesktop.service.resourcehandler.ImagesEnum;
+import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandler;
+import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandlerFactory;
+import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactory;
 import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesEnum;
 import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesPanelFactory;
+import java.awt.Image;
 
 /**
  *
@@ -42,7 +44,6 @@ import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesPanelFactory;
 public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPanelWithFetcher<MainEnum, AWTEvent>> {
     
     public static final String MAIN_TITLE = LocaleMessages.getInstance().getString("timeturkey");
-    public static final String TURKEY_IMG = "/turkey.png";
     
     PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>> timesHandler;
     PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>> categoryProcessHandler;
@@ -55,6 +56,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     private TimeLogService timeLogService = TimeLogServiceFactory.getService();
     private IConfigElementService configService = FConfigElementService.getService();
     private ConditionChecker conditionChecker = ConditionCheckerFactory.getConditionChecker();
+    private ResourceHandler<Image,ImagesEnum> imageHandler;
 
     public MainHandler(JFrame frame, PanelHandler<?,?, ?> caller) {
         super(frame, caller);
@@ -63,8 +65,10 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     @Override
     protected FeedbackerPanelWithFetcher<MainEnum, AWTEvent> initPanel() {
         this.getFrame().setTitle(MAIN_TITLE);
-        this.getFrame().setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource(TURKEY_IMG)));
-        this.setPanel(FMainPanel.getMainPanel());
+        imageHandler = ResourceHandlerFactory.getImagesHandler();
+        this.getFrame().setIconImage(imageHandler.getResource(ImagesEnum.TURKEY));
+        this.setPanel(MainPanelFactory.getMainPanel());
+        setupHeaderUpdater();
         return this.getPanel();
     }
 
@@ -115,14 +119,14 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     
     private void initCategorizeHandler() {
         if(categoryProcessHandler == null) {
-            categoryProcessHandler = FCatProcessPanel.getHandler(this.getFrame(), this);
+            categoryProcessHandler = CatProcessPanelFactory.getHandler(this.getFrame(), this);
         }
         categoryProcessHandler.show();
     }
     
     private void initCategorizeTitlesHandler() {
         if (categoryTitlesHandler == null) {
-            categoryTitlesHandler = FCategorizeTitlesPanel.getHandler(this.getFrame(), this);
+            categoryTitlesHandler = CategorizeTitlesPanelFactory.getHandler(this.getFrame(), this);
         }
         categoryTitlesHandler.show();
     }
@@ -158,6 +162,12 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     private void setTimeOnHeaderLabel() {
         JLabel label = (JLabel)this.getPanel().getProperty(MainEnum.LABELIZER);
         label.setText(TimeConverter.millisToHMS(conditionChecker.timeRemaining()));
+    }
+    
+    private void setupHeaderUpdater() {
+        WatchDogFactory.getInstance().addFeedbacker((msg,data) -> {
+            setTimeOnHeaderLabel();
+        });
     }
 
     @Override

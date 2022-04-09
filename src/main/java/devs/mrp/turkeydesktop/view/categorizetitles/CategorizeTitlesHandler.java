@@ -34,7 +34,7 @@ public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, 
 
     @Override
     protected FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent> initPanel() {
-        return FCategorizeTitlesPanel.getPanel();
+        return CategorizeTitlesPanelFactory.getPanel();
     }
 
     @Override

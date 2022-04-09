@@ -23,8 +23,7 @@ import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupServiceFactory;
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElement;
-import devs.mrp.turkeydesktop.database.group.facade.FAssignableElementService;
-import devs.mrp.turkeydesktop.database.group.facade.IAssignableElementService;
+import devs.mrp.turkeydesktop.database.group.facade.AssignableElementServiceFactory;
 import devs.mrp.turkeydesktop.database.groupcondition.FGroupConditionFacadeService;
 import devs.mrp.turkeydesktop.database.groupcondition.IGroupConditionFacadeService;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
@@ -47,6 +46,7 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import devs.mrp.turkeydesktop.database.group.facade.AssignableElementService;
 
 /**
  *
@@ -60,8 +60,8 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private Group group;
     private final IGroupService groupService = FGroupService.getService();
     private final IGroupAssignationService groupAssignationService = FGroupAssignationService.getService();
-    private final IAssignableElementService assignableProcessService = FAssignableElementService.getProcessesService();
-    private final IAssignableElementService assignableTitlesService = FAssignableElementService.getTitlesService();
+    private final AssignableElementService assignableProcessService = AssignableElementServiceFactory.getProcessesService();
+    private final AssignableElementService assignableTitlesService = AssignableElementServiceFactory.getTitlesService();
     private final IConditionService conditionService = FConditionService.getService();
     private final ExternalGroupService externalGroupService = ExternalGroupServiceFactory.getService();
     private final ExportedGroupService exportedGroupService = ExportedGroupServiceFactory.getService();
@@ -80,7 +80,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     
     @Override
     protected FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent> initPanel() {
-        return FGroupReviewPanel.getPanel();
+        return GroupReviewPanelFactory.getPanel();
     }
 
     @Override

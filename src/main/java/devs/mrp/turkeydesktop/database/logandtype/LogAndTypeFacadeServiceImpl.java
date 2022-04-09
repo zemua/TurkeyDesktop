@@ -117,7 +117,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                 // If title is "hello to you" and we have records "hello" in group1 and "hello to" in group2 the group2 will be chosen
                 GroupAssignation assignation = groupAssignationService.findLongestTitleIdContainedIn(element.getWindowTitle());
                 element.setGroupId(assignation != null ? assignation.getGroupId() : -1);
-                if (!lockdown){setCountedDependingOnTitle(element, element.getElapsed());} else {setCountedForTitleWhenLockdown(element, proportion);}
+                if (!lockdown){setCountedDependingOnTitle(element, element.getElapsed(), proportion);} else {setCountedForTitleWhenLockdown(element, proportion);}
                 break;
             case POSITIVE:
                 element.setType(Type.Types.POSITIVE);
@@ -156,7 +156,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
         return element;
     }
     
-    private TimeLog setCountedDependingOnTitle(TimeLog element, long elapsed) {
+    private TimeLog setCountedDependingOnTitle(TimeLog element, long elapsed, int proportion) {
         var title = titleService.findLongestContainedBy(element.getWindowTitle().toLowerCase());
         if (title == null) {
             element.setCounted(0);
@@ -167,7 +167,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
             element.setCounted(0);
             return element;
         }
-        element.setCounted(isPositive ? Math.abs(elapsed) : - Math.abs(elapsed));
+        element.setCounted(isPositive ? Math.abs(elapsed) : - Math.abs(elapsed) * proportion);
         element.setBlockable(closeableService.canBeClosed(element.getProcessName()));
         return element;
     }

@@ -14,7 +14,7 @@ import javax.swing.JFrame;
  *
  * @author miguel
  */
-public class FCategorizeTitlesPanel {
+public class CategorizeTitlesPanelFactory {
     
     public static FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent> getPanel(){
         return new CategorizeTitlesPanel();

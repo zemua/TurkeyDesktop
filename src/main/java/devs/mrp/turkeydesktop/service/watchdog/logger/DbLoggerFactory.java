@@ -3,16 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package devs.mrp.turkeydesktop.service.watchdog;
+package devs.mrp.turkeydesktop.service.watchdog.logger;
 
 /**
  *
  * @author miguel
  */
-public class FWatchDog {
+public class DbLoggerFactory {
     
-    public static IWatchDog getInstance() {
-        return WatchDog.getInstance();
+    public static DbLogger getNew() {
+        return new DbLoggerImpl();
     }
     
 }

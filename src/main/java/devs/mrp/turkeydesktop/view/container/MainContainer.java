@@ -6,12 +6,12 @@
 package devs.mrp.turkeydesktop.view.container;
 
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.service.watchdog.FWatchDog;
-import devs.mrp.turkeydesktop.service.watchdog.IWatchDog;
+import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactory;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.container.traychain.TrayChainFactory;
-import devs.mrp.turkeydesktop.view.mainpanel.FMainPanel;
+import devs.mrp.turkeydesktop.view.mainpanel.MainPanelFactory;
 import javax.swing.JFrame;
+import devs.mrp.turkeydesktop.service.watchdog.WatchDog;
 
 /**
  *
@@ -19,7 +19,7 @@ import javax.swing.JFrame;
  */
 public class MainContainer extends javax.swing.JFrame {
 
-    private static IWatchDog watchDog;
+    private static WatchDog watchDog;
     private static PanelHandler handler;
 
     /**
@@ -34,9 +34,9 @@ public class MainContainer extends javax.swing.JFrame {
     }
 
     private void initHandler() {
-        watchDog = FWatchDog.getInstance();
+        watchDog = WatchDogFactory.getInstance();
         watchDog.begin();
-        handler = FMainPanel.getMainHandler(this);
+        handler = MainPanelFactory.getMainHandler(this);
         handler.show();
     }
 

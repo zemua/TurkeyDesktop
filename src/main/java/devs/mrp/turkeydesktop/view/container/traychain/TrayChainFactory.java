@@ -13,7 +13,7 @@ import javax.swing.JFrame;
  */
 public class TrayChainFactory {
     
-    public static ChainHandler<JFrame> getChain() {
+    public static TrayChainBaseHandler getChain() {
         return new TrayChainCommander().getHandlerChain();
     }
     

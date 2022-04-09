@@ -265,6 +265,8 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
         comboModel.addElement(m.getString("negative"));
         comboModel.addElement(m.getString("neutral"));
         comboModel.addElement(m.getString("depends"));
+        
+        comboModel.setSelectedItem(m.getString("notCategorized"));
 
         return comboModel;
     }

@@ -3,16 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package devs.mrp.turkeydesktop.service.watchdog.logger;
+package devs.mrp.turkeydesktop.view.container;
+
+import javax.swing.JFrame;
 
 /**
  *
  * @author miguel
  */
-public class DbLoggerF {
-    
-    public static DbLogger getNew() {
-        return new DbLoggerImpl();
+public class MainContainerFactory {
+    public static JFrame getContainer() {
+        return new MainContainer();
     }
-    
 }

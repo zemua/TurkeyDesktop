@@ -48,7 +48,7 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
     
     @Override
     protected FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent> initPanel() {
-        return FCatProcessPanel.getPanel();
+        return CatProcessPanelFactory.getPanel();
     }
 
     @Override

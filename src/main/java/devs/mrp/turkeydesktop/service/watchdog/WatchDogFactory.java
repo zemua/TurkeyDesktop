@@ -3,16 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package devs.mrp.turkeydesktop.view.container;
-
-import javax.swing.JFrame;
+package devs.mrp.turkeydesktop.service.watchdog;
 
 /**
  *
  * @author miguel
  */
-public class FContainer {
-    public static JFrame getContainer() {
-        return new MainContainer();
+public class WatchDogFactory {
+    
+    public static WatchDog getInstance() {
+        return WatchDogImpl.getInstance();
     }
+    
 }
