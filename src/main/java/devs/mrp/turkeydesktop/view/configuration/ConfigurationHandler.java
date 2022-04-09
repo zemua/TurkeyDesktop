@@ -19,6 +19,7 @@ import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.io.File;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
@@ -227,6 +228,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         exportToggle.setSelected(export);
         
         String pathName = configService.configElement(ConfigurationEnum.EXPORT_PATH).getValue();
+        if (Objects.isNull(pathName) || "".equals(pathName)) {
+            pathName = localeMessages.getString("noFile");
+        }
         JButton button = (JButton) getObjectFromPanel(ConfigurationPanelEnum.EXPORT_BUTTON, JButton.class).orElseThrow(() -> new Exception("wrong object"));
         int size = 25;
         button.setText(pathName.length() > size ? pathName.substring(pathName.length()-size) : pathName);
