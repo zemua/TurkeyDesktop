@@ -9,10 +9,10 @@ package devs.mrp.turkeydesktop.service.watchdog;
  *
  * @author miguel
  */
-public class FWatchDog {
+public class WatchDogFactory {
     
-    public static IWatchDog getInstance() {
-        return WatchDog.getInstance();
+    public static WatchDog getInstance() {
+        return WatchDogImpl.getInstance();
     }
     
 }
