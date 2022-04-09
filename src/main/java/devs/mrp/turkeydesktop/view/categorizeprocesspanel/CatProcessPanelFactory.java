@@ -14,7 +14,7 @@ import javax.swing.JFrame;
  *
  * @author miguel
  */
-public class FCatProcessPanel {
+public class CatProcessPanelFactory {
     public static FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent> getPanel() {
         return new CatProcessPanel();
     }

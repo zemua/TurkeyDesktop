@@ -14,9 +14,9 @@ import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessEnum;
-import devs.mrp.turkeydesktop.view.categorizeprocesspanel.FCatProcessPanel;
+import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessPanelFactory;
 import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesEnum;
-import devs.mrp.turkeydesktop.view.categorizetitles.FCategorizeTitlesPanel;
+import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesPanelFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelEnum;
 import devs.mrp.turkeydesktop.view.configuration.FConfigurationPanel;
 import devs.mrp.turkeydesktop.view.groups.FGroupsPanel;
@@ -114,14 +114,14 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     
     private void initCategorizeHandler() {
         if(categoryProcessHandler == null) {
-            categoryProcessHandler = FCatProcessPanel.getHandler(this.getFrame(), this);
+            categoryProcessHandler = CatProcessPanelFactory.getHandler(this.getFrame(), this);
         }
         categoryProcessHandler.show();
     }
     
     private void initCategorizeTitlesHandler() {
         if (categoryTitlesHandler == null) {
-            categoryTitlesHandler = FCategorizeTitlesPanel.getHandler(this.getFrame(), this);
+            categoryTitlesHandler = CategorizeTitlesPanelFactory.getHandler(this.getFrame(), this);
         }
         categoryTitlesHandler.show();
     }

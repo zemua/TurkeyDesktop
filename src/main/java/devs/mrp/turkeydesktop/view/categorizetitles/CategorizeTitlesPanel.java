@@ -231,6 +231,8 @@ public class CategorizeTitlesPanel extends FeedbackerPanelWithFetcher<Categorize
         comboModel.addElement(m.getString("notCategorized"));
         comboModel.addElement(m.getString("positive"));
         comboModel.addElement(m.getString("negative"));
+        
+        comboModel.setSelectedItem(m.getString("notCategorized"));
 
         return comboModel;
     }
