@@ -9,14 +9,14 @@ package devs.mrp.turkeydesktop.database.group.facade;
  *
  * @author miguel
  */
-public class FAssignableElementService {
+public class AssignableElementServiceFactory {
     
-    public static IAssignableElementService getProcessesService() {
+    public static AssignableElementService getProcessesService() {
         return new AssignableProcessService();
     }
     
-    public static IAssignableElementService getTitlesService() {
-        return new AssignableTitleService();
+    public static AssignableElementService getTitlesService() {
+        return new AssignableTitleServiceImpl();
     }
     
 }

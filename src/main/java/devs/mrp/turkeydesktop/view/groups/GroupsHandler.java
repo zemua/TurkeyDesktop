@@ -9,7 +9,7 @@ import devs.mrp.turkeydesktop.database.group.FGroupService;
 import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.group.IGroupService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
-import devs.mrp.turkeydesktop.view.groups.review.FGroupReviewPanel;
+import devs.mrp.turkeydesktop.view.groups.review.GroupReviewPanelFactory;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.awt.event.MouseAdapter;
@@ -97,7 +97,7 @@ public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, Feedbacker
     }
     
     private void launchReviewGroupHandler(Group group){
-        FGroupReviewPanel.getHandler(this.getFrame(), this, group).show();
+        GroupReviewPanelFactory.getHandler(this.getFrame(), this, group).show();
     }
 
     @Override

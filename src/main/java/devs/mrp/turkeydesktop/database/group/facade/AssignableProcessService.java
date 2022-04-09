@@ -20,7 +20,7 @@ import devs.mrp.turkeydesktop.database.type.TypeService;
  *
  * @author miguel
  */
-public class AssignableProcessService extends AssignableAbstractService implements IAssignableElementService<Type.Types> {
+public class AssignableProcessService extends AssignableAbstractService implements AssignableElementService<Type.Types> {
     
     private final TypeService typeService = TypeServiceFactory.getService();
     private static final Logger logger = Logger.getLogger(AssignableProcessService.class.getName());

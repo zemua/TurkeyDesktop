@@ -11,7 +11,7 @@ import java.util.List;
  *
  * @author miguel
  */
-public interface IAssignableElementService<TYPE> {
+public interface AssignableElementService<TYPE> {
     public List<AssignableElement<TYPE>> positiveElementsWithAssignation();
     public List<AssignableElement<TYPE>> negativeElementsWithAssignation();
 }
