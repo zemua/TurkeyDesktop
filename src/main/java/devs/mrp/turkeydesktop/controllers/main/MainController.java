@@ -8,7 +8,7 @@ package devs.mrp.turkeydesktop.controllers.main;
 import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactory;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.container.FContainer;
-import devs.mrp.turkeydesktop.view.mainpanel.FMainPanel;
+import devs.mrp.turkeydesktop.view.mainpanel.MainPanelFactory;
 import java.awt.Dimension;
 import javax.swing.JFrame;
 import devs.mrp.turkeydesktop.service.watchdog.WatchDog;
@@ -34,7 +34,7 @@ public class MainController implements IStarter {
         mainFrame = FContainer.getContainer();
         //mainFrame.setSize(800, 250);
         //mainFrame.setResizable(false);
-        handler = FMainPanel.getMainHandler(mainFrame);
+        handler = MainPanelFactory.getMainHandler(mainFrame);
         handler.show();
     }
     

@@ -6,6 +6,7 @@
 package devs.mrp.turkeydesktop.service.watchdog;
 
 import devs.mrp.turkeydesktop.common.ChainHandler;
+import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
@@ -27,12 +28,15 @@ import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritter;
 import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritterFactory;
 import devs.mrp.turkeydesktop.service.processchecker.ProcessChecker;
+import java.util.ArrayList;
 
 /**
  *
  * @author miguel
  */
 public class WatchDogImpl implements WatchDog {
+    
+    private List<FeedbackListener<String,TimeLog>> listeners = new ArrayList<>();
     
     private static final Logger LOGGER = Logger.getLogger(WatchDogImpl.class.getName());
 
@@ -174,6 +178,21 @@ public class WatchDogImpl implements WatchDog {
         
         exportWritter.exportChanged();
         
+        giveFeedback("Entry logged", entry);
+    }
+
+    @Override
+    public void addFeedbacker(FeedbackListener<String, TimeLog> feedbackListener) {
+        listeners.add(feedbackListener);
+    }
+    
+    private void giveFeedback(String message, TimeLog entryData) {
+        listeners.forEach(l -> l.giveFeedback(message, entryData));
+    }
+
+    @Override
+    public void removeFeedbacker(FeedbackListener<String, TimeLog> feedbackListener) {
+        listeners.remove(feedbackListener);
     }
 
 }

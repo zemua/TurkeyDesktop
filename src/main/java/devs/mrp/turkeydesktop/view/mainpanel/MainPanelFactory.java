@@ -13,7 +13,7 @@ import javax.swing.JFrame;
  *
  * @author miguel
  */
-public class FMainPanel {
+public class MainPanelFactory {
     public static FeedbackerPanelWithFetcher<MainEnum, AWTEvent> getMainPanel() {
         return new MainPanel();
     }
