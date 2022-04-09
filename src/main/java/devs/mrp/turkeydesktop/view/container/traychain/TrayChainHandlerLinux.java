@@ -5,15 +5,12 @@
 package devs.mrp.turkeydesktop.view.container.traychain;
 
 import com.sun.jna.Platform;
-import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.resourcehandler.ImagesEnum;
 import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandler;
 import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandlerFactory;
-import devs.mrp.turkeydesktop.view.mainpanel.MainHandler;
 import dorkbox.systemTray.SystemTray;
 import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JFrame;
@@ -24,10 +21,24 @@ import javax.swing.JMenuItem;
  * so for ubuntu 18.04 onwards we need to make use of dorkbox implementation
  * @author ncm55070
  */
-public class TrayChainHandlerLinux extends ChainHandler<JFrame> {
+public class TrayChainHandlerLinux extends TrayChainBaseHandler {
 
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
     private ResourceHandler<Image,ImagesEnum> imageHandler = ResourceHandlerFactory.getImagesHandler();
+    private SystemTray tray;
+    
+    private static TrayChainHandlerLinux instance;
+    
+    private TrayChainHandlerLinux() {
+        
+    }
+    
+    public static TrayChainHandlerLinux getInstance() {
+        if (instance == null) {
+            instance = new TrayChainHandlerLinux();
+        }
+        return instance;
+    }
 
     @Override
     protected boolean canHandle(String tipo) {
@@ -36,7 +47,7 @@ public class TrayChainHandlerLinux extends ChainHandler<JFrame> {
 
     @Override
     protected void handle(JFrame frame) {
-        SystemTray tray = SystemTray.get();
+        tray = SystemTray.get();
         if (tray == null) {
             throw new RuntimeException("Unable to load SystemTray!");
         }
@@ -66,6 +77,13 @@ public class TrayChainHandlerLinux extends ChainHandler<JFrame> {
         });
         tray.getMenu().add(openItem);
         tray.getMenu().add(hideItem);
+    }
+
+    @Override
+    protected void setTrayIcon(Image image) {
+        if (tray != null) {
+            tray.setImage(image);
+        }
     }
 
 }

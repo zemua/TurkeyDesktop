@@ -5,8 +5,6 @@
 package devs.mrp.turkeydesktop.view.container.traychain;
 
 import devs.mrp.turkeydesktop.common.ChainCommander;
-import devs.mrp.turkeydesktop.common.ChainHandler;
-import javax.swing.JFrame;
 
 /**
  *
@@ -14,13 +12,13 @@ import javax.swing.JFrame;
  */
 public class TrayChainCommander implements ChainCommander {
 
-    private ChainHandler<JFrame> linuxHandler;
-    private ChainHandler<JFrame> macosHandler;
+    private TrayChainBaseHandler linuxHandler;
+    private TrayChainBaseHandler macosHandler;
     
     @Override
-    public ChainHandler getHandlerChain() {
-        linuxHandler = new TrayChainHandlerLinux();
-        macosHandler = new TrayChainHandlerMacos();
+    public TrayChainBaseHandler getHandlerChain() {
+        linuxHandler = TrayChainHandlerLinux.getInstance();
+        macosHandler = TrayChainHandlerMacos.getInstance();
         
         linuxHandler.setNextHandler(macosHandler);
         

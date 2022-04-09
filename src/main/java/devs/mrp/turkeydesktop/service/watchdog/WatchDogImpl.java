@@ -28,6 +28,12 @@ import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritter;
 import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritterFactory;
 import devs.mrp.turkeydesktop.service.processchecker.ProcessChecker;
+import devs.mrp.turkeydesktop.service.resourcehandler.ImagesEnum;
+import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandler;
+import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandlerFactory;
+import devs.mrp.turkeydesktop.view.container.traychain.TrayChainBaseHandler;
+import devs.mrp.turkeydesktop.view.container.traychain.TrayChainFactory;
+import java.awt.Image;
 import java.util.ArrayList;
 
 /**
@@ -57,6 +63,8 @@ public class WatchDogImpl implements WatchDog {
     private ChainHandler<String> killerHandler = new KillerChainCommander().getHandlerChain();
     private Logger logger = Logger.getLogger(WatchDogImpl.class.getName());
     private ExportWritter exportWritter = ExportWritterFactory.getWritter();
+    private TrayChainBaseHandler trayHandler = TrayChainFactory.getChain();
+    private ResourceHandler<Image,ImagesEnum> imageHandler = ResourceHandlerFactory.getImagesHandler();
 
     private WatchDogImpl() {
         initConditionChecker();
@@ -157,7 +165,8 @@ public class WatchDogImpl implements WatchDog {
         TimeLog entry = dbLogger.logEntry(elapsed, processChecker.currentProcessPid(), processChecker.currentProcessName(), processChecker.currentWindowTitle());
         
         boolean conditionsMet = conditionChecker.areConditionsMet(entry.getGroupId());
-        if (entry.isBlockable() && (entry.getAccumulated() <= 0 || !conditionsMet || conditionChecker.isLockDownTime())) {
+        boolean isLockDown = conditionChecker.isLockDownTime();
+        if (entry.isBlockable() && (entry.getAccumulated() <= 0 || !conditionsMet || isLockDown)) {
             killerHandler.receiveRequest(null, processChecker.currentProcessPid());
             Toaster.sendToast(localeMessages.getString("killingProcess"));
         }
@@ -179,6 +188,8 @@ public class WatchDogImpl implements WatchDog {
         exportWritter.exportChanged();
         
         giveFeedback("Entry logged", entry);
+        
+        updateTrayIcon(isLockDown, entry.getCounted());
     }
 
     @Override
@@ -193,6 +204,22 @@ public class WatchDogImpl implements WatchDog {
     @Override
     public void removeFeedbacker(FeedbackListener<String, TimeLog> feedbackListener) {
         listeners.remove(feedbackListener);
+    }
+    
+    private void updateTrayIcon(boolean lockdown, long counted) {
+        if (lockdown) {
+            trayHandler.requestChangeIcon("icon", imageHandler.getResource(ImagesEnum.BADGE));
+            return;
+        }
+        if (counted == 0) {
+            trayHandler.requestChangeIcon("icon", imageHandler.getResource(ImagesEnum.TURKEY));
+            return;
+        }  
+        if (counted > 0) {
+            trayHandler.requestChangeIcon("icon", imageHandler.getResource(ImagesEnum.FIRE));
+            return;
+        }
+        trayHandler.requestChangeIcon("icon", imageHandler.getResource(ImagesEnum.SNOW));
     }
 
 }

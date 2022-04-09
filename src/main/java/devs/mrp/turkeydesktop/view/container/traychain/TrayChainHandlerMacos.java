@@ -5,18 +5,15 @@
 package devs.mrp.turkeydesktop.view.container.traychain;
 
 import com.sun.jna.Platform;
-import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.resourcehandler.ImagesEnum;
 import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandler;
 import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandlerFactory;
-import devs.mrp.turkeydesktop.view.mainpanel.MainHandler;
 import java.awt.AWTException;
 import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
-import java.awt.Toolkit;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,10 +24,24 @@ import javax.swing.JFrame;
  * so we are making use of the java awt default implementation
  * @author ncm55070
  */
-public class TrayChainHandlerMacos extends ChainHandler<JFrame> {
+public class TrayChainHandlerMacos extends TrayChainBaseHandler {
     
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
     private ResourceHandler<Image,ImagesEnum> imageHandler = ResourceHandlerFactory.getImagesHandler();
+    private TrayIcon trayIcon;
+    
+    private static TrayChainHandlerMacos instance;
+    
+    private TrayChainHandlerMacos() {
+        
+    }
+    
+    public static TrayChainHandlerMacos getInstance() {
+        if (instance == null) {
+            instance = new TrayChainHandlerMacos();
+        }
+        return instance;
+    }
 
     @Override
     protected boolean canHandle(String tipo) {
@@ -39,7 +50,7 @@ public class TrayChainHandlerMacos extends ChainHandler<JFrame> {
 
     @Override
     protected void handle(JFrame frame) {
-        TrayIcon trayIcon = null;
+        trayIcon = null;
         if (!SystemTray.isSupported()) {
             throw new RuntimeException("Unable to load SystemTray!");
         }
@@ -80,6 +91,13 @@ public class TrayChainHandlerMacos extends ChainHandler<JFrame> {
             System.err.println(e);
         }
 
+    }
+
+    @Override
+    protected void setTrayIcon(Image image) {
+        if (trayIcon != null) {
+            trayIcon.setImage(image);
+        }
     }
 
 }
