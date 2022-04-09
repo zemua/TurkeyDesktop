@@ -102,9 +102,16 @@ public class ConditionCheckerImpl implements ConditionChecker {
 
     @Override
     public boolean isLockDownTime(Long now) {
+        if (!lockDownActivated()){
+            return false;
+        }
         Long hourNow = TimeConverter.epochToMilisOnGivenDay(now);
         Long from = lockDownStart();
         Long to = lockDownEnd();
+        // if start equals end then return
+        if (from.equals(to)){
+            return false;
+        }
         boolean isLockDown = (from < to && (from <= hourNow && hourNow <= to))
                 || (from > to && (hourNow >= from || hourNow <= to));
         if (isLockDown) {
@@ -113,6 +120,10 @@ public class ConditionCheckerImpl implements ConditionChecker {
             Toaster.sendToast(localeMessages.getString("closeToLock"));
         }
         return isLockDown;
+    }
+    
+    private boolean lockDownActivated() {
+        return Boolean.valueOf(configService.findById(ConfigurationEnum.LOCKDOWN).getValue());
     }
 
     private Long lockDownStart() {
@@ -124,8 +135,15 @@ public class ConditionCheckerImpl implements ConditionChecker {
     }
 
     private boolean closeToLock(Long hourNow, Long from) {
-        Boolean isNotice = Boolean.valueOf(configService.findById(ConfigurationEnum.LOCK_NOTIFY).getValue());
-        if (!isNotice) {
+        if (!lockDownActivated()) {
+            return false;
+        }
+        // if no notice is activated
+        if (!Boolean.valueOf(configService.findById(ConfigurationEnum.LOCK_NOTIFY).getValue())) {
+            return false;
+        }
+        // if start equals end
+        if (lockDownStart().equals(lockDownEnd())) {
             return false;
         }
         Long minutesNotice = TimeConverter.getMinutes(Long.valueOf(configService.findById(ConfigurationEnum.LOCK_NOTIFY_MINUTES).getValue()));
