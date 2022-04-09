@@ -29,9 +29,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
+import devs.mrp.turkeydesktop.service.resourcehandler.ImagesEnum;
+import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandler;
+import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandlerFactory;
 import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactory;
 import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesEnum;
 import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesPanelFactory;
+import java.awt.Image;
 
 /**
  *
@@ -40,7 +44,6 @@ import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesPanelFactory;
 public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPanelWithFetcher<MainEnum, AWTEvent>> {
     
     public static final String MAIN_TITLE = LocaleMessages.getInstance().getString("timeturkey");
-    public static final String TURKEY_IMG = "/turkey.png";
     
     PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>> timesHandler;
     PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>> categoryProcessHandler;
@@ -53,6 +56,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     private TimeLogService timeLogService = TimeLogServiceFactory.getService();
     private IConfigElementService configService = FConfigElementService.getService();
     private ConditionChecker conditionChecker = ConditionCheckerFactory.getConditionChecker();
+    private ResourceHandler<Image,ImagesEnum> imageHandler;
 
     public MainHandler(JFrame frame, PanelHandler<?,?, ?> caller) {
         super(frame, caller);
@@ -61,7 +65,8 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     @Override
     protected FeedbackerPanelWithFetcher<MainEnum, AWTEvent> initPanel() {
         this.getFrame().setTitle(MAIN_TITLE);
-        this.getFrame().setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource(TURKEY_IMG)));
+        imageHandler = ResourceHandlerFactory.getImagesHandler();
+        this.getFrame().setIconImage(imageHandler.getResource(ImagesEnum.TURKEY));
         this.setPanel(MainPanelFactory.getMainPanel());
         setupHeaderUpdater();
         return this.getPanel();

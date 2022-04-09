@@ -7,8 +7,12 @@ package devs.mrp.turkeydesktop.view.container.traychain;
 import com.sun.jna.Platform;
 import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
+import devs.mrp.turkeydesktop.service.resourcehandler.ImagesEnum;
+import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandler;
+import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandlerFactory;
 import devs.mrp.turkeydesktop.view.mainpanel.MainHandler;
 import dorkbox.systemTray.SystemTray;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,6 +27,7 @@ import javax.swing.JMenuItem;
 public class TrayChainHandlerLinux extends ChainHandler<JFrame> {
 
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
+    private ResourceHandler<Image,ImagesEnum> imageHandler = ResourceHandlerFactory.getImagesHandler();
 
     @Override
     protected boolean canHandle(String tipo) {
@@ -37,7 +42,7 @@ public class TrayChainHandlerLinux extends ChainHandler<JFrame> {
         }
 
         tray.installShutdownHook();
-        tray.setImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource(MainHandler.TURKEY_IMG)));
+        tray.setImage(imageHandler.getResource(ImagesEnum.TURKEY));
         tray.setStatus("Running");
 
         JMenuItem openItem = new JMenuItem(localeMessages.getString("open"));

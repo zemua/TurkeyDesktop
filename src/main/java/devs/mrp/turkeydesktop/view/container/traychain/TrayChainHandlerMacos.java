@@ -7,6 +7,9 @@ package devs.mrp.turkeydesktop.view.container.traychain;
 import com.sun.jna.Platform;
 import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
+import devs.mrp.turkeydesktop.service.resourcehandler.ImagesEnum;
+import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandler;
+import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandlerFactory;
 import devs.mrp.turkeydesktop.view.mainpanel.MainHandler;
 import java.awt.AWTException;
 import java.awt.Image;
@@ -27,6 +30,7 @@ import javax.swing.JFrame;
 public class TrayChainHandlerMacos extends ChainHandler<JFrame> {
     
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
+    private ResourceHandler<Image,ImagesEnum> imageHandler = ResourceHandlerFactory.getImagesHandler();
 
     @Override
     protected boolean canHandle(String tipo) {
@@ -40,7 +44,7 @@ public class TrayChainHandlerMacos extends ChainHandler<JFrame> {
             throw new RuntimeException("Unable to load SystemTray!");
         }
         SystemTray tray = SystemTray.getSystemTray();
-        Image image = Toolkit.getDefaultToolkit().getImage(getClass().getResource(MainHandler.TURKEY_IMG));
+        Image image = imageHandler.getResource(ImagesEnum.TURKEY);
         
         PopupMenu popup = new PopupMenu();
         
