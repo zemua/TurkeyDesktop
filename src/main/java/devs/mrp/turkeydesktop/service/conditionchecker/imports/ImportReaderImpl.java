@@ -45,12 +45,26 @@ public class ImportReaderImpl implements ImportReader {
     }
     
     private Stream<ImportValue> streamFromFile(String path) { // TODO get values from cache if times is not yet expired
+        CachedValues cached = cachedValues.get(path);
+        long now = System.currentTimeMillis();
+        if (cached != null && cached.lastUpdated + timeBetweenSyncs > now) {
+            return cached.values.stream();
+        }
+        // if the value is not cached or time has expired
+        if (cached == null) {
+            cached = new CachedValues();
+            cached.values = Collections.EMPTY_LIST;
+        }
         try {
             String contents = FileHandler.readAllLinesFromFile(new File(path));
-            return Arrays.asList(contents.split(System.lineSeparator()))
+            cached.values = Arrays.asList(contents.split(System.lineSeparator()))
                     .stream()
                     .map(line -> mapEntry(line))
-                    .filter(Objects::nonNull);
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            cached.lastUpdated = now;
+            cachedValues.put(path, cached);
+            return cached.values.stream();
         } catch (IOException ex) {
             Logger.getLogger(ImportReaderImpl.class.getName()).log(Level.SEVERE, null, ex);
             return Stream.empty();
