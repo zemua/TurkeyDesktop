@@ -23,17 +23,13 @@ inside this file copy this adapted to your personal case
 <plist version="1.0">
     <dict>
         <key>Label</key>
-            <string>devs.mrp.turkeydesktop</string>
-        <key>Program</key>
-            <string>/bin/zsh</string>
-        <key>ProgramArguments</key>
-        <array>
-            <string>/path/to/script</string>
-        </array>
+        	<string>devs.mrp.turkeydesktop</string>
+	<key>Program</key>
+        	<string>/Users/ncm55070/TurkeyDesktop.sh</string>
         <key>RunAtLoad</key>
-        <true/>
+        	<true/>
         <key>KeepAlive</key>
-        <false/>
+        	<true/>
     </dict>
 </plist>
 ```
