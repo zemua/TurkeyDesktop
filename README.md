@@ -13,7 +13,7 @@ sdk use java 11.0.13-zulu
 java -jar /Users/username/TurkeyDesktop/TurkeyDesktop-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
-Then go to /Library/LaunchDaemons
+Then go to ~/Library/LaunchAgents
 create a file devs.mrp.turkeydesktop.plist
 inside this file copy this adapted to your personal case
 
