@@ -1,3 +1,10 @@
+Tested in Ubuntu 20.04 and Macos Big Sur 11.6
+
+Keep in system tray
+![image](https://user-images.githubusercontent.com/48907268/162616170-4461714c-0716-444b-9a37-7af1db50dcf6.png)
+
+
+
 # Run At Startup
 
 To run it in Macos create a .sh file with this content
