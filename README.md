@@ -25,7 +25,7 @@ inside this file copy this adapted to your personal case
         <key>Label</key>
         	<string>devs.mrp.turkeydesktop</string>
 	<key>Program</key>
-        	<string>/Users/ncm55070/TurkeyDesktop.sh</string>
+        	<string>/Users/username/TurkeyDesktop.sh</string>
         <key>RunAtLoad</key>
         	<true/>
         <key>KeepAlive</key>
