@@ -37,3 +37,16 @@ inside this file copy this adapted to your personal case
 </plist>
 ```
 
+To run it in Ubuntu at startup
+
+create a script .sh file with this content (you can do the same SDK_MAN stuff as above)
+```
+#!/bin/bash
+java -jar ~/TurkeyDesktop-1.0-SNAPSHOT-jar-with-dependencies.jar
+```
+
+Then search for "startup apps" application and add a new command
+```
+/home/username/initTurkey.sh
+```
+
