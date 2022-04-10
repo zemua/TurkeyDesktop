@@ -1,4 +1,4 @@
-# TurkeyDesktop
+# Run At Startup
 
 To run it in Macos create a .sh file with this content
 
