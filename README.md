@@ -1,0 +1,39 @@
+# TurkeyDesktop
+
+To run it in Macos create a .sh file with this content
+
+```
+#!/bin/zsh
+## This is only if you have several sdk in your machine and you need to manage them
+## see sdk_man for reference, you should have it installed
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+sdk use java 11.0.13-zulu
+## this is the only important part that runs the jar file
+java -jar /Users/username/TurkeyDesktop/TurkeyDesktop-1.0-SNAPSHOT-jar-with-dependencies.jar
+```
+
+Then go to /Library/LaunchDaemons
+create a file devs.mrp.turkeydesktop.plist
+inside this file copy this adapted to your personal case
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>Label</key>
+        <string>com.example.app</string>
+        <key>ProgramArguments</key>
+        <array>
+            <string>/bin/sh</string>
+            <string>/path/to/script</string>
+        </array>
+        <key>RunAtLoad</key>
+        <true/>
+        <key>KeepAlive</key>
+        <false/>
+    </dict>
+</plist>
+```
+
