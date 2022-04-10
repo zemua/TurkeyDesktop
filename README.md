@@ -23,10 +23,11 @@ inside this file copy this adapted to your personal case
 <plist version="1.0">
     <dict>
         <key>Label</key>
-        <string>com.example.app</string>
+            <string>devs.mrp.turkeydesktop</string>
+        <key>Program</key>
+            <string>/bin/zsh</string>
         <key>ProgramArguments</key>
         <array>
-            <string>/bin/sh</string>
             <string>/path/to/script</string>
         </array>
         <key>RunAtLoad</key>
