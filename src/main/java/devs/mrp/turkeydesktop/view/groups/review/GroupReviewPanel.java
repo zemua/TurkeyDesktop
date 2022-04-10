@@ -40,12 +40,16 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         jButton1 = new javax.swing.JButton();
         groupLabel = new javax.swing.JLabel();
         jTabbedPane1 = new javax.swing.JTabbedPane();
+        scrollProcessPane = new javax.swing.JScrollPane();
         processPanel = new javax.swing.JPanel();
+        scrollTitlePane = new javax.swing.JScrollPane();
         titlePanel = new javax.swing.JPanel();
+        scrollExternalTimeTab = new javax.swing.JScrollPane();
         externalTimeTab = new javax.swing.JPanel();
         externalTimeButton = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         externalTimePanel = new javax.swing.JPanel();
+        scrollConditionsPanel = new javax.swing.JScrollPane();
         conditionsPanel = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         targetNameComboBox = new javax.swing.JComboBox<>();
@@ -60,6 +64,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         daySpinner = new javax.swing.JSpinner();
         jScrollPane1 = new javax.swing.JScrollPane();
         conditionsPanelList = new javax.swing.JPanel();
+        scrollConfigurationPane = new javax.swing.JScrollPane();
         configurationPanel = new javax.swing.JPanel();
         groupNameText = new javax.swing.JTextField();
         jButton2 = new javax.swing.JButton();
@@ -83,10 +88,14 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         groupLabel.setText("jLabel1");
 
         processPanel.setLayout(new javax.swing.BoxLayout(processPanel, javax.swing.BoxLayout.PAGE_AXIS));
-        jTabbedPane1.addTab(bundle.getString("process"), processPanel); // NOI18N
+        scrollProcessPane.setViewportView(processPanel);
+
+        jTabbedPane1.addTab(bundle.getString("process"), scrollProcessPane); // NOI18N
 
         titlePanel.setLayout(new javax.swing.BoxLayout(titlePanel, javax.swing.BoxLayout.PAGE_AXIS));
-        jTabbedPane1.addTab(bundle.getString("title"), titlePanel); // NOI18N
+        scrollTitlePane.setViewportView(titlePanel);
+
+        jTabbedPane1.addTab(bundle.getString("title"), scrollTitlePane); // NOI18N
 
         externalTimeButton.setText(bundle.getString("select")); // NOI18N
         externalTimeButton.addActionListener(new java.awt.event.ActionListener() {
@@ -123,7 +132,9 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                 .addContainerGap())
         );
 
-        jTabbedPane1.addTab(bundle.getString("externalTime"), externalTimeTab); // NOI18N
+        scrollExternalTimeTab.setViewportView(externalTimeTab);
+
+        jTabbedPane1.addTab(bundle.getString("externalTime"), scrollExternalTimeTab); // NOI18N
 
         jLabel2.setText(bundle.getString("if")); // NOI18N
 
@@ -253,7 +264,9 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                 .addContainerGap())
         );
 
-        jTabbedPane1.addTab(bundle.getString("conditions"), conditionsPanel); // NOI18N
+        scrollConditionsPanel.setViewportView(conditionsPanel);
+
+        jTabbedPane1.addTab(bundle.getString("conditions"), scrollConditionsPanel); // NOI18N
 
         jButton2.setText(bundle.getString("saveGroupName")); // NOI18N
         jButton2.addActionListener(new java.awt.event.ActionListener() {
@@ -317,7 +330,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                         .addComponent(exportGroupDaysSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jLabel10)))
-                .addContainerGap(511, Short.MAX_VALUE))
+                .addContainerGap(538, Short.MAX_VALUE))
         );
         configurationPanelLayout.setVerticalGroup(
             configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -339,10 +352,12 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                     .addComponent(jLabel9)
                     .addComponent(exportGroupDaysSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel10))
-                .addContainerGap(26, Short.MAX_VALUE))
+                .addContainerGap(49, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab(bundle.getString("configuration"), configurationPanel); // NOI18N
+        scrollConfigurationPane.setViewportView(configurationPanel);
+
+        jTabbedPane1.addTab(bundle.getString("configuration"), scrollConfigurationPane); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -532,6 +547,11 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
     private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JSpinner minuteSpinner;
     private javax.swing.JPanel processPanel;
+    private javax.swing.JScrollPane scrollConditionsPanel;
+    private javax.swing.JScrollPane scrollConfigurationPane;
+    private javax.swing.JScrollPane scrollExternalTimeTab;
+    private javax.swing.JScrollPane scrollProcessPane;
+    private javax.swing.JScrollPane scrollTitlePane;
     private javax.swing.JComboBox<Group> targetNameComboBox;
     private javax.swing.JPanel titlePanel;
     // End of variables declaration//GEN-END:variables
