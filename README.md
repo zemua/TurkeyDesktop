@@ -101,3 +101,10 @@ Then search for "startup apps" application and add a new command
 /home/username/initTurkey.sh
 ```
 
+# Ubuntu
+
+For this to work in Ubuntu you need to install the following
+
+```sudo apt-get install xprintidle```
+```sudo apt-get install xdotool```
+
