@@ -7,6 +7,10 @@ package devs.mrp.turkeydesktop.database.logs;
 
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
+import java.text.MessageFormat;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -128,7 +132,16 @@ public class TimeLog {
     
     @Override
     public String toString() {
-        return String.format(String.format(localeMessages.getString("timeLogToString"), epoch, elapsed, processName, windowTitle));
+        try {
+            return MessageFormat.format(localeMessages.getString("timeLogToString"),
+                Optional.ofNullable(epoch).orElse(0L),
+                Optional.ofNullable(elapsed).orElse(0L),
+                Optional.ofNullable(processName).orElse(""),
+                Optional.ofNullable(windowTitle).orElse(""));
+        } catch (Exception e) {
+            Logger.getLogger(TimeLog.class.getName()).log(Level.SEVERE, "Error formatting message", e);
+            return "";
+        }
     }
     
 }
