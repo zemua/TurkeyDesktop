@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -117,7 +118,7 @@ public class GroupAssignationService implements IGroupAssignationService {
     public GroupAssignation findLongestTitleIdContainedIn(String titleId) {
         List<GroupAssignation> titleAssignations = elementsFromResultSet(repo.findAllOfType(GroupAssignation.ElementType.TITLE));
         return titleAssignations.stream()
-                .filter(ga -> titleId.contains(ga.getElementId()))
+                .filter(ga -> StringUtils.containsIgnoreCase(titleId, ga.getElementId()))
                 .max((ga1, ga2) -> Integer.compare(ga1.getElementId().length(), ga2.getElementId().length()))
                 .orElse(null);
     }

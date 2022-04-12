@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -132,7 +133,7 @@ public class TitleServiceImpl implements TitleService {
     @Override
     public List<Title> findContainedByAndNegativeFirst(String title) {
         return conditionsMap.entrySet().stream()
-                .filter(e -> title.toLowerCase().contains(e.getKey()))
+                .filter(e -> StringUtils.containsIgnoreCase(title, e.getKey()))
                 .map(e -> e.getValue())
                 .sorted((e1, e2) -> e2.getType().compareTo(e1.getType())) // "NEGATIVE" before "POSITIVE" in natural order
                 .collect(Collectors.toList());
@@ -141,7 +142,7 @@ public class TitleServiceImpl implements TitleService {
     @Override
     public Title findLongestContainedBy(String title) {
         return conditionsMap.entrySet().stream()
-                .filter(e -> title.toLowerCase().contains(e.getKey()))
+                .filter(e -> StringUtils.containsIgnoreCase(title, e.getKey()))
                 .max((e1, e2) -> Long.compare(e1.getKey().length(), e2.getKey().length()))
                 .map(e -> e.getValue())
                 .orElse(null);
@@ -150,7 +151,7 @@ public class TitleServiceImpl implements TitleService {
     @Override
     public long countTypesOf(Title.Type type, String title) {
         return conditionsMap.entrySet().stream()
-                .filter(e -> title.toLowerCase().contains(e.getKey()))
+                .filter(e -> StringUtils.containsIgnoreCase(title, e.getKey()))
                 .filter(e -> e.getValue().getType().equals(type))
                 .count();
     }
