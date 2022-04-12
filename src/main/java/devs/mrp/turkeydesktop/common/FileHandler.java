@@ -18,7 +18,7 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -74,7 +74,7 @@ public class FileHandler {
     }
     
     public static void clearTxt(File file) throws IOException {
-        writeToTxt(file, "", true);
+        writeToTxt(file, StringUtils.EMPTY, true);
     }
     
     public static void exportAccumulated(long time) throws IOException {
@@ -84,7 +84,7 @@ public class FileHandler {
         }
         lastExport = now;
         String exportPath = configService.configElement(ConfigurationEnum.EXPORT_PATH).getValue();
-        if (!"".equals(exportPath) && Boolean.valueOf(configService.configElement(ConfigurationEnum.EXPORT_TOGGLE).getValue())) {
+        if (!StringUtils.EMPTY.equals(exportPath) && Boolean.valueOf(configService.configElement(ConfigurationEnum.EXPORT_TOGGLE).getValue())) {
             exportToFile(createFileIfNotExists(new File(exportPath), "txt"), String.valueOf(time));
         }
     }
@@ -99,7 +99,7 @@ public class FileHandler {
     }
     
     private static String getCache(File file, long now) throws IOException {
-        if (readerCache.containsKey(file.getPath()) && now > readerCache.get(file.getPath()).lastUpdated + millisBetweenOperations) {
+        if (readerCache.containsKey(file.getPath()) && now < readerCache.get(file.getPath()).lastUpdated + millisBetweenOperations) {
             return readerCache.get(file.getPath()).value;
         }
         if (!file.exists() || !file.canRead() || !file.isFile())  {
@@ -124,7 +124,7 @@ public class FileHandler {
                 return line;
             }
         }
-        return "";
+        return StringUtils.EMPTY;
     }
     
     public static String readAllLinesFromFile(File file) throws IOException {
