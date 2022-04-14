@@ -5,6 +5,7 @@
 package devs.mrp.turkeydesktop.view.container.traychain;
 
 import com.sun.jna.Platform;
+import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.resourcehandler.ImagesEnum;
 import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandler;
@@ -29,6 +30,7 @@ public class TrayChainHandlerMacos extends TrayChainBaseHandler {
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
     private ResourceHandler<Image,ImagesEnum> imageHandler = ResourceHandlerFactory.getImagesHandler();
     private TrayIcon trayIcon;
+    private MenuItem timeItem;
     
     private static TrayChainHandlerMacos instance;
     
@@ -82,6 +84,10 @@ public class TrayChainHandlerMacos extends TrayChainBaseHandler {
         });
         popup.add(hideItem);
         
+        timeItem = new MenuItem("00:00");
+        timeItem.setEnabled(false);
+        popup.add(timeItem);
+        
         trayIcon = new TrayIcon(image, "Turkey Desktop", popup);
         trayIcon.setImageAutoSize(true);
 
@@ -98,6 +104,11 @@ public class TrayChainHandlerMacos extends TrayChainBaseHandler {
         if (trayIcon != null) {
             trayIcon.setImage(image);
         }
+    }
+
+    @Override
+    protected void setTimeLeft(long millis) {
+        timeItem.setLabel(TimeConverter.millisToHM(millis));
     }
 
 }
