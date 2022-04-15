@@ -7,10 +7,13 @@ package devs.mrp.turkeydesktop.view.groups.review;
 
 import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.database.group.Group;
+import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 
 /**
  *
@@ -354,7 +357,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
 
         jTabbedPane1.addTab(bundle.getString("configuration"), configurationPanel); // NOI18N
 
-        orderDropdown.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        orderDropdown.setModel(getComboBoxModel());
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -382,7 +385,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                     .addComponent(groupLabel)
                     .addComponent(orderDropdown, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE)
+                .addComponent(jTabbedPane1)
                 .addContainerGap())
         );
 
@@ -513,6 +516,18 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
             return;
         }
         addConditionButton.setEnabled(true);
+    }
+    
+    private ComboBoxModel getComboBoxModel() {
+        DefaultComboBoxModel comboModel = new DefaultComboBoxModel();
+        LocaleMessages m = LocaleMessages.getInstance();
+
+        comboModel.addElement(m.getString(ComboOrderEnum.UNASSIGNED_FIRST.getKey()));
+        comboModel.addElement(m.getString(ComboOrderEnum.ASSIGNED_HERE_FIRST.getKey()));
+        
+        comboModel.setSelectedItem(m.getString(ComboOrderEnum.UNASSIGNED_FIRST.getKey()));
+
+        return comboModel;
     }
 
 
