@@ -47,7 +47,8 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElementService;
-import org.apache.commons.lang3.StringUtils;
+import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacade;
+import java.util.Comparator;
 
 /**
  *
@@ -190,6 +191,21 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
 
         setSwitchablesFromAssignables(assignables, panel, GroupAssignation.ElementType.PROCESS);
     }
+    
+    private Comparator<AssignableElement> getAssignableComparator() {
+        Comparator<AssignableElement> comparator = (AssignableElement o1, AssignableElement o2) -> {
+            try {
+                JComboBox orderDropdown = (JComboBox) getObjectFromPanel(GroupReviewEnum.ORDER_DROPDOWN, JComboBox.class).orElseThrow(() -> new Exception("wrong object"));
+                if (ComboOrderEnum.UNASSIGNED_FIRST.equals(orderDropdown.getSelectedItem())){
+                    // TODO return order value
+                }
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "error getting the combo box", e);
+            }
+            return 0;
+        };
+        return comparator;
+    }
 
     private void setTitles() {
         Object object = this.getPanel().getProperty(GroupReviewEnum.TITLE_PANEL);
@@ -209,11 +225,19 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private void setSwitchablesFromAssignables(List<AssignableElement> assignables, JPanel panel, GroupAssignation.ElementType type) {
         assignables.forEach(a -> {
             Switchable switchable = new Switchable(a.getElementName(),
-                    a.getGroupId() != null && a.getGroupId().equals(group.getId()), // checked if it belongs to this group
-                    a.getGroupId() == null || a.getGroupId().equals(group.getId())); // enabled if belongs to no group, or to this group
+                    assignableBelongsToGroup(a), // checked if it belongs to this group
+                    assignableIsEnabled(a)); // enabled if belongs to no group, or to this group
             setProcessSwitchableListener(switchable, a.getElementName(), type);
             panel.add(switchable);
         });
+    }
+    
+    private boolean assignableBelongsToGroup(AssignableElement assignable) {
+        return assignable.getGroupId() != null && assignable.getGroupId().equals(group.getId());
+    }
+    
+    private boolean assignableIsEnabled(AssignableElement assignable) {
+        return assignable.getGroupId() == null || assignable.getGroupId().equals(group.getId());
     }
 
     private void setProcessSwitchableListener(Switchable switchable, String name, GroupAssignation.ElementType processOrTitle) {
@@ -298,7 +322,6 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private void fillConditionsInPanel(JPanel panel) {
         panel.removeAll();
         groupConditionFacadeService.findByGroupId(group.getId())
-                .stream()
                 .forEach(cond -> {
                     ConditionElement element = new ConditionElement(cond);
                     panel.add(element);
