@@ -137,6 +137,10 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                         logger.log(Level.SEVERE, "error setting group time exporter", ex);
                     }
                     break;
+                    case ORDER_DROPDOWN:
+                        setTitles();
+                        setProcesses();
+                        break;
                     default:
                         break;
                 }
@@ -188,23 +192,12 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         List<AssignableElement> assignables = group.getType().equals(Group.GroupType.POSITIVE)
                 ? assignableProcessService.positiveElementsWithAssignation()
                 : assignableProcessService.negativeElementsWithAssignation();
+        
+        assignables.sort(getAssignableComparator());
 
         setSwitchablesFromAssignables(assignables, panel, GroupAssignation.ElementType.PROCESS);
-    }
-    
-    private Comparator<AssignableElement> getAssignableComparator() {
-        Comparator<AssignableElement> comparator = (AssignableElement o1, AssignableElement o2) -> {
-            try {
-                JComboBox orderDropdown = (JComboBox) getObjectFromPanel(GroupReviewEnum.ORDER_DROPDOWN, JComboBox.class).orElseThrow(() -> new Exception("wrong object"));
-                if (ComboOrderEnum.UNASSIGNED_FIRST.equals(orderDropdown.getSelectedItem())){
-                    // TODO return order value
-                }
-            } catch (Exception e) {
-                logger.log(Level.SEVERE, "error getting the combo box", e);
-            }
-            return 0;
-        };
-        return comparator;
+        panel.revalidate();
+        panel.updateUI();
     }
 
     private void setTitles() {
@@ -218,8 +211,34 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         List<AssignableElement> assignables = group.getType().equals(Group.GroupType.POSITIVE)
                 ? assignableTitlesService.positiveElementsWithAssignation()
                 : assignableTitlesService.negativeElementsWithAssignation();
+        
+        assignables.sort(getAssignableComparator());
 
         setSwitchablesFromAssignables(assignables, panel, GroupAssignation.ElementType.TITLE);
+        panel.revalidate();
+        panel.updateUI();
+    }
+    
+    private Comparator<AssignableElement> getAssignableComparator() {
+        Comparator<AssignableElement> comparator = (AssignableElement o1, AssignableElement o2) -> {
+            try {
+                JComboBox orderDropdown = (JComboBox) getObjectFromPanel(GroupReviewEnum.ORDER_DROPDOWN, JComboBox.class).orElseThrow(() -> new Exception("wrong object"));
+                if (localeMessages.getString(ComboOrderEnum.UNASSIGNED_FIRST.getKey()).equals(orderDropdown.getSelectedItem())){
+                    boolean b1 = !assignableBelongsToGroup(o1) && assignableIsEnabled(o1);
+                    boolean b2 = !assignableBelongsToGroup(o2) && assignableIsEnabled(o2);
+                    return Boolean.compare(b2, b1);
+                }
+                if (localeMessages.getString(ComboOrderEnum.ASSIGNED_HERE_FIRST.getKey()).equals(orderDropdown.getSelectedItem())) {
+                    boolean b1 = assignableBelongsToGroup(o1);
+                    boolean b2 = assignableBelongsToGroup(o2);
+                    return Boolean.compare(b2, b1);
+                }
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "error getting the combo box", e);
+            }
+            return 0;
+        };
+        return comparator;
     }
 
     private void setSwitchablesFromAssignables(List<AssignableElement> assignables, JPanel panel, GroupAssignation.ElementType type) {

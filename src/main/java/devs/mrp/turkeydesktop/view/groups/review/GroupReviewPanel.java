@@ -358,6 +358,11 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         jTabbedPane1.addTab(bundle.getString("configuration"), configurationPanel); // NOI18N
 
         orderDropdown.setModel(getComboBoxModel());
+        orderDropdown.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                orderDropdownItemStateChanged(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -455,6 +460,10 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
     private void exportGroupDaysSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_exportGroupDaysSpinnerStateChanged
         giveFeedback(GroupReviewEnum.EXPORT_GROUP_DAYS, null);
     }//GEN-LAST:event_exportGroupDaysSpinnerStateChanged
+
+    private void orderDropdownItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_orderDropdownItemStateChanged
+        giveFeedback(GroupReviewEnum.ORDER_DROPDOWN, evt);
+    }//GEN-LAST:event_orderDropdownItemStateChanged
 
     @Override
     public Object getProperty(GroupReviewEnum property) {
