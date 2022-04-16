@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -51,6 +52,9 @@ public class CategorizeTitlesPanel extends FeedbackerPanelWithFetcher<Categorize
         jScrollPane1 = new javax.swing.JScrollPane();
         listPanel = new javax.swing.JPanel();
         selectShowType = new javax.swing.JComboBox<>();
+        jLabel1 = new javax.swing.JLabel();
+        filterText = new javax.swing.JTextField();
+        filterClear = new javax.swing.JButton();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
         jButton1.setText(bundle.getString("back")); // NOI18N
@@ -88,6 +92,21 @@ public class CategorizeTitlesPanel extends FeedbackerPanelWithFetcher<Categorize
             }
         });
 
+        jLabel1.setText(bundle.getString("filter")); // NOI18N
+
+        filterText.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                filterTextKeyTyped(evt);
+            }
+        });
+
+        filterClear.setText(bundle.getString("clear")); // NOI18N
+        filterClear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                filterClearActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -108,7 +127,13 @@ public class CategorizeTitlesPanel extends FeedbackerPanelWithFetcher<Categorize
                         .addComponent(dateTo, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(selectShowType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 239, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(filterText, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(filterClear)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -121,7 +146,11 @@ public class CategorizeTitlesPanel extends FeedbackerPanelWithFetcher<Categorize
                     .addComponent(dateFrom, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(fromLabel)
                     .addComponent(jButton1)
-                    .addComponent(selectShowType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(selectShowType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel1)
+                        .addComponent(filterText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(filterClear)))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
                 .addContainerGap())
@@ -153,6 +182,15 @@ public class CategorizeTitlesPanel extends FeedbackerPanelWithFetcher<Categorize
             sendUpdate();
         }
     }//GEN-LAST:event_selectShowTypeActionPerformed
+
+    private void filterClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filterClearActionPerformed
+        filterText.setText(StringUtils.EMPTY);
+        giveFeedback(CategorizeTitlesEnum.TEXT_FILTER, evt);
+    }//GEN-LAST:event_filterClearActionPerformed
+
+    private void filterTextKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_filterTextKeyTyped
+        giveFeedback(CategorizeTitlesEnum.TEXT_FILTER, evt);
+    }//GEN-LAST:event_filterTextKeyTyped
 
     private void setDateChooserErrorColor() {
         if (isFromCorrect()) {
@@ -208,6 +246,8 @@ public class CategorizeTitlesPanel extends FeedbackerPanelWithFetcher<Categorize
                 return dateTo.getDate();
             case FILTER:
                 return selectShowType.getSelectedIndex();
+            case TEXT_FILTER:
+                return filterText;
             default:
                 return null;
         }
@@ -241,8 +281,11 @@ public class CategorizeTitlesPanel extends FeedbackerPanelWithFetcher<Categorize
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.toedter.calendar.JDateChooser dateFrom;
     private com.toedter.calendar.JDateChooser dateTo;
+    private javax.swing.JButton filterClear;
+    private javax.swing.JTextField filterText;
     private javax.swing.JLabel fromLabel;
     private javax.swing.JButton jButton1;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPanel listPanel;
     private javax.swing.JComboBox<String> selectShowType;

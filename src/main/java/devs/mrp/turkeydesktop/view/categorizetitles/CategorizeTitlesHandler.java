@@ -19,6 +19,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import devs.mrp.turkeydesktop.database.titledlog.TitledLogServiceFacade;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JTextField;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -27,6 +31,7 @@ import devs.mrp.turkeydesktop.database.titledlog.TitledLogServiceFacade;
 public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, AWTEvent, FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent>> {
 
     TitledLogServiceFacade facadeService = TitledLogServiceFacadeFactory.getService();
+    Logger logger = Logger.getLogger(CategorizeTitlesHandler.class.getName());
 
     public CategorizeTitlesHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
         super(frame, caller);
@@ -45,6 +50,9 @@ public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, 
                     exit();
                     break;
                 case UPDATE:
+                    updateItemsInList();
+                    break;
+                case TEXT_FILTER:
                     updateItemsInList();
                     break;
                 default:
@@ -74,7 +82,9 @@ public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, 
         panel.removeAll(); // clear in case it has been filled before
         List<TitledLog> titledLogs = facadeService.getLogsDependablesWithTitleConditions(from, to);
         titledLogs.sort((c1, c2) -> Long.valueOf(c2.getElapsed()).compareTo(c1.getElapsed()));
-        titledLogs.forEach(t -> {
+        titledLogs.stream()
+                .filter(c -> getFilterText().isEmpty() ? true : StringUtils.containsIgnoreCase(c.getTitle(), getFilterText()))
+                .forEach(t -> {
             if (ifPassFilter(t, filter)) {
                 CategorizeTitlesElement element = new CategorizeTitlesElement(t.getTitle(), t.getQtyPositives(), t.getQtyNegatives());
                 element.setTitledLog(t);
@@ -84,6 +94,16 @@ public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, 
         });
         panel.updateUI();
         panel.revalidate();
+    }
+    
+    private String getFilterText() {
+        Object object = this.getPanel().getProperty(CategorizeTitlesEnum.TEXT_FILTER);
+        if (!(object instanceof JTextField)) {
+            logger.log(Level.SEVERE, "text filter field not found, fallbacking to empty filter");
+            return StringUtils.EMPTY;
+        }
+        JTextField textField = (JTextField) object;
+        return textField.getText();
     }
 
     private boolean ifPassFilter(TitledLog log, int filter) {
