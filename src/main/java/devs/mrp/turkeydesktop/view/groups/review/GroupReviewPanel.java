@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -78,6 +79,9 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         exportGroupDaysSpinner = new javax.swing.JSpinner();
         jLabel10 = new javax.swing.JLabel();
         orderDropdown = new javax.swing.JComboBox<>();
+        jLabel11 = new javax.swing.JLabel();
+        textFilter = new javax.swing.JTextField();
+        jButton3 = new javax.swing.JButton();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
         jButton1.setText(bundle.getString("back")); // NOI18N
@@ -364,6 +368,21 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
             }
         });
 
+        jLabel11.setText(bundle.getString("filter")); // NOI18N
+
+        textFilter.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                textFilterKeyTyped(evt);
+            }
+        });
+
+        jButton3.setText(bundle.getString("clear")); // NOI18N
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -378,6 +397,12 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                         .addComponent(groupLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(orderDropdown, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel11)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(textFilter, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton3)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -388,7 +413,10 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(groupLabel)
-                    .addComponent(orderDropdown, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(orderDropdown, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel11)
+                    .addComponent(textFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTabbedPane1)
                 .addContainerGap())
@@ -465,6 +493,15 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         giveFeedback(GroupReviewEnum.ORDER_DROPDOWN, evt);
     }//GEN-LAST:event_orderDropdownItemStateChanged
 
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        textFilter.setText(StringUtils.EMPTY);
+        giveFeedback(GroupReviewEnum.TEXT_FILTER, evt);
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void textFilterKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textFilterKeyTyped
+        giveFeedback(GroupReviewEnum.TEXT_FILTER, evt);
+    }//GEN-LAST:event_textFilterKeyTyped
+
     @Override
     public Object getProperty(GroupReviewEnum property) {
         switch (property) {
@@ -500,6 +537,8 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                 return exportGroupDaysSpinner;
             case ORDER_DROPDOWN:
                 return orderDropdown;
+            case TEXT_FILTER:
+                return textFilter;
             default:
                 return null;
         }
@@ -557,8 +596,10 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
     private javax.swing.JSpinner hourSpinner;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -578,6 +619,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
     private javax.swing.JScrollPane scrollProcessPane;
     private javax.swing.JScrollPane scrollTitlePane;
     private javax.swing.JComboBox<Group> targetNameComboBox;
+    private javax.swing.JTextField textFilter;
     private javax.swing.JPanel titlePanel;
     // End of variables declaration//GEN-END:variables
 }

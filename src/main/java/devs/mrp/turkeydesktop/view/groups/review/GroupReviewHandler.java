@@ -48,7 +48,10 @@ import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElementService;
 import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacade;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -138,6 +141,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                     }
                     break;
                     case ORDER_DROPDOWN:
+                    case TEXT_FILTER:
                         setTitles();
                         setProcesses();
                         break;
@@ -193,7 +197,20 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                 ? assignableProcessService.positiveElementsWithAssignation()
                 : assignableProcessService.negativeElementsWithAssignation();
         
-        assignables.sort(getAssignableComparator());
+        Iterator<AssignableElement> iterator = assignables.iterator();
+        while (iterator.hasNext()) {
+            AssignableElement element = iterator.next();
+            try {
+                if (!getFilterText().isEmpty() && !StringUtils.containsIgnoreCase(element.getElementName(), getFilterText())) {
+                    iterator.remove();
+                }
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "error getting the text from filter, defaulting to no filter", e);
+            }
+            
+        }
+        
+        Collections.sort(assignables, getAssignableComparator());
 
         setSwitchablesFromAssignables(assignables, panel, GroupAssignation.ElementType.PROCESS);
         panel.revalidate();
@@ -212,11 +229,29 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                 ? assignableTitlesService.positiveElementsWithAssignation()
                 : assignableTitlesService.negativeElementsWithAssignation();
         
-        assignables.sort(getAssignableComparator());
+        Iterator<AssignableElement> iterator = assignables.iterator();
+        while (iterator.hasNext()) {
+            AssignableElement element = iterator.next();
+            try {
+                if (!getFilterText().isEmpty() && !StringUtils.containsIgnoreCase(element.getElementName(), getFilterText())) {
+                    iterator.remove();
+                }
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "error getting the text from filter, defaulting to no filter", e);
+            }
+            
+        }
+        
+        Collections.sort(assignables, getAssignableComparator());
 
         setSwitchablesFromAssignables(assignables, panel, GroupAssignation.ElementType.TITLE);
         panel.revalidate();
         panel.updateUI();
+    }
+    
+    private String getFilterText() throws Exception {
+        JTextField field = (JTextField) getObjectFromPanel(GroupReviewEnum.TEXT_FILTER, JTextField.class).orElseThrow(() -> new Exception("wrong object"));
+        return field.getText();
     }
     
     private Comparator<AssignableElement> getAssignableComparator() {
