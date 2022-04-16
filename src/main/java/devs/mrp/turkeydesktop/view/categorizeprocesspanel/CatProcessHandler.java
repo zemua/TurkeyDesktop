@@ -21,6 +21,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeService;
 import devs.mrp.turkeydesktop.database.type.TypeService;
+import java.util.logging.Level;
+import javax.swing.JTextField;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -61,6 +64,9 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
                 case UPDATE:
                     updateItemsInList();
                     break;
+                case TEXT_FILTER:
+                    updateItemsInList();
+                    break;
                 default:
                     break;
             }
@@ -69,22 +75,8 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
 
     @Override
     protected void doExtraBeforeShow() {
-        
-        //attachItemsToList(new Date(), new Date());
         attachItemsToListPanel(new Date(), new Date(), FILTER_ALL);
     }
-    
-    /*private void attachItemsToList(Date from, Date to) {
-        DefaultListModel<CategorizerElement> listModel = (DefaultListModel)this.getPanel().getProperty(CatProcessEnum.LIST_MODEL);
-        listModel.clear(); // clear in case it has been filled before
-        List<Tripla<String, Long, Type.Types>> triplas = typedService.getTypedLogGroupedByProcess(from, to);
-        triplas.sort((c1,c2) -> c2.getValue2().compareTo(c1.getValue2()));
-        triplas.forEach(t -> {
-            CategorizerElement element = new CategorizerElement();
-            element.init(t.getValue1(), t.getValue3());
-            listModel.add(0, element);
-        });
-    }*/
     
     private void attachItemsToListPanel(Date from, Date to, int filter) {
         JPanel panel = (JPanel)this.getPanel().getProperty(CatProcessEnum.LIST_PANEL);
@@ -92,7 +84,9 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
         panel.removeAll(); // clear in case it has been filled before
         List<Tripla<String, Long, Type.Types>> triplas = typedService.getTypedLogGroupedByProcess(from, to);
         triplas.sort((c1,c2) -> c2.getValue2().compareTo(c1.getValue2()));
-        triplas.forEach(t -> {
+        triplas.stream()
+                .filter(c -> textFromFilter().isEmpty() ? true : StringUtils.containsIgnoreCase(c.getValue1(), textFromFilter()))
+                .forEach(t -> {
             if (ifPassFilter(t.getValue3(), filter)) {
                 CategorizerElement element = new CategorizerElement(panel.getWidth(), panel.getHeight());
                 element.init(t.getValue1(), t.getValue3());
@@ -102,6 +96,16 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
         });
         panel.updateUI();
         panel.revalidate();
+    }
+    
+    private String textFromFilter() {
+        Object object = this.getPanel().getProperty(CatProcessEnum.TEXT_FILTER);
+        if (!(object instanceof JTextField)) {
+            logger.log(Level.SEVERE, "incorrect text filter field, fallbacking to empty filter");
+            return StringUtils.EMPTY;
+        }
+        JTextField textField = (JTextField) object;
+        return textField.getText();
     }
     
     private void updateItemsInList() {

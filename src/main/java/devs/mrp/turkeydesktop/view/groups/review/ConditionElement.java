@@ -5,19 +5,9 @@
  */
 package devs.mrp.turkeydesktop.view.groups.review;
 
-import devs.mrp.turkeydesktop.common.FeedbackListener;
-import devs.mrp.turkeydesktop.common.Feedbacker;
 import devs.mrp.turkeydesktop.common.RemovableLabel;
 import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacade;
-import devs.mrp.turkeydesktop.i18n.LocaleMessages;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.List;
-import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingWorker;
 
 /**
  *

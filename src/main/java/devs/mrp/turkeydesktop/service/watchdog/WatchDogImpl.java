@@ -190,6 +190,7 @@ public class WatchDogImpl implements WatchDog {
         giveFeedback("Entry logged", entry);
         
         updateTrayIcon(isLockDown, entry.getCounted());
+        trayHandler.requestChangeTimeLeft("time", conditionChecker.timeRemaining());
     }
 
     @Override

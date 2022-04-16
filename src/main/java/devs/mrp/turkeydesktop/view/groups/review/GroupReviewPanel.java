@@ -7,10 +7,13 @@ package devs.mrp.turkeydesktop.view.groups.review;
 
 import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.database.group.Group;
+import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 
 /**
  *
@@ -49,7 +52,6 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         externalTimeButton = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         externalTimePanel = new javax.swing.JPanel();
-        scrollConditionsPanel = new javax.swing.JScrollPane();
         conditionsPanel = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         targetNameComboBox = new javax.swing.JComboBox<>();
@@ -64,7 +66,6 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         daySpinner = new javax.swing.JSpinner();
         jScrollPane1 = new javax.swing.JScrollPane();
         conditionsPanelList = new javax.swing.JPanel();
-        scrollConfigurationPane = new javax.swing.JScrollPane();
         configurationPanel = new javax.swing.JPanel();
         groupNameText = new javax.swing.JTextField();
         jButton2 = new javax.swing.JButton();
@@ -76,6 +77,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         jLabel9 = new javax.swing.JLabel();
         exportGroupDaysSpinner = new javax.swing.JSpinner();
         jLabel10 = new javax.swing.JLabel();
+        orderDropdown = new javax.swing.JComboBox<>();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
         jButton1.setText(bundle.getString("back")); // NOI18N
@@ -85,7 +87,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
             }
         });
 
-        groupLabel.setText("jLabel1");
+        groupLabel.setText("group name");
 
         processPanel.setLayout(new javax.swing.BoxLayout(processPanel, javax.swing.BoxLayout.PAGE_AXIS));
         scrollProcessPane.setViewportView(processPanel);
@@ -240,7 +242,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(addConditionButton)
-                        .addGap(0, 417, Short.MAX_VALUE)))
+                        .addGap(0, 420, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         conditionsPanelLayout.setVerticalGroup(
@@ -260,13 +262,11 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                     .addComponent(jLabel5)
                     .addComponent(addConditionButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 138, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 140, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
-        scrollConditionsPanel.setViewportView(conditionsPanel);
-
-        jTabbedPane1.addTab(bundle.getString("conditions"), scrollConditionsPanel); // NOI18N
+        jTabbedPane1.addTab(bundle.getString("conditions"), conditionsPanel); // NOI18N
 
         jButton2.setText(bundle.getString("saveGroupName")); // NOI18N
         jButton2.addActionListener(new java.awt.event.ActionListener() {
@@ -330,7 +330,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                         .addComponent(exportGroupDaysSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jLabel10)))
-                .addContainerGap(538, Short.MAX_VALUE))
+                .addContainerGap(544, Short.MAX_VALUE))
         );
         configurationPanelLayout.setVerticalGroup(
             configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -352,12 +352,17 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                     .addComponent(jLabel9)
                     .addComponent(exportGroupDaysSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel10))
-                .addContainerGap(49, Short.MAX_VALUE))
+                .addContainerGap(54, Short.MAX_VALUE))
         );
 
-        scrollConfigurationPane.setViewportView(configurationPanel);
+        jTabbedPane1.addTab(bundle.getString("configuration"), configurationPanel); // NOI18N
 
-        jTabbedPane1.addTab(bundle.getString("configuration"), scrollConfigurationPane); // NOI18N
+        orderDropdown.setModel(getComboBoxModel());
+        orderDropdown.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                orderDropdownItemStateChanged(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -371,6 +376,8 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                         .addComponent(jButton1)
                         .addGap(18, 18, 18)
                         .addComponent(groupLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(orderDropdown, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -380,7 +387,8 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
-                    .addComponent(groupLabel))
+                    .addComponent(groupLabel)
+                    .addComponent(orderDropdown, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTabbedPane1)
                 .addContainerGap())
@@ -453,6 +461,10 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         giveFeedback(GroupReviewEnum.EXPORT_GROUP_DAYS, null);
     }//GEN-LAST:event_exportGroupDaysSpinnerStateChanged
 
+    private void orderDropdownItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_orderDropdownItemStateChanged
+        giveFeedback(GroupReviewEnum.ORDER_DROPDOWN, evt);
+    }//GEN-LAST:event_orderDropdownItemStateChanged
+
     @Override
     public Object getProperty(GroupReviewEnum property) {
         switch (property) {
@@ -486,6 +498,8 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                 return exportGroupButton;
             case EXPORT_GROUP_DAYS:
                 return exportGroupDaysSpinner;
+            case ORDER_DROPDOWN:
+                return orderDropdown;
             default:
                 return null;
         }
@@ -511,6 +525,18 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
             return;
         }
         addConditionButton.setEnabled(true);
+    }
+    
+    private ComboBoxModel getComboBoxModel() {
+        DefaultComboBoxModel comboModel = new DefaultComboBoxModel();
+        LocaleMessages m = LocaleMessages.getInstance();
+
+        comboModel.addElement(m.getString(ComboOrderEnum.UNASSIGNED_FIRST.getKey()));
+        comboModel.addElement(m.getString(ComboOrderEnum.ASSIGNED_HERE_FIRST.getKey()));
+        
+        comboModel.setSelectedItem(m.getString(ComboOrderEnum.UNASSIGNED_FIRST.getKey()));
+
+        return comboModel;
     }
 
 
@@ -546,9 +572,8 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JSpinner minuteSpinner;
+    private javax.swing.JComboBox<String> orderDropdown;
     private javax.swing.JPanel processPanel;
-    private javax.swing.JScrollPane scrollConditionsPanel;
-    private javax.swing.JScrollPane scrollConfigurationPane;
     private javax.swing.JScrollPane scrollExternalTimeTab;
     private javax.swing.JScrollPane scrollProcessPane;
     private javax.swing.JScrollPane scrollTitlePane;
