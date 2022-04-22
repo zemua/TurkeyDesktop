@@ -9,10 +9,10 @@ package devs.mrp.turkeydesktop.database.group;
  *
  * @author miguel
  */
-public class FGroupService {
+public class GroupServiceFactory {
     
-    public static IGroupService getService() {
-        return new GroupService();
+    public static GroupService getService() {
+        return new GroupServiceImpl();
     }
     
 }

@@ -5,9 +5,8 @@
  */
 package devs.mrp.turkeydesktop.view.groups;
 
-import devs.mrp.turkeydesktop.database.group.FGroupService;
+import devs.mrp.turkeydesktop.database.group.GroupServiceFactory;
 import devs.mrp.turkeydesktop.database.group.Group;
-import devs.mrp.turkeydesktop.database.group.IGroupService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.groups.review.GroupReviewPanelFactory;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
@@ -19,6 +18,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import devs.mrp.turkeydesktop.database.group.GroupService;
 
 /**
  *
@@ -27,7 +27,7 @@ import javax.swing.JTextField;
 public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>> {
 
     private Group.GroupType type;
-    private IGroupService groupService = FGroupService.getService();
+    private GroupService groupService = GroupServiceFactory.getService();
     
     public GroupsHandler(JFrame frame, PanelHandler<?, ?, ?> caller, Group.GroupType type) {
         super(frame, caller);

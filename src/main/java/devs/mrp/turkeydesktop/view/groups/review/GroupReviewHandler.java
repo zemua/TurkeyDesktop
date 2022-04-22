@@ -10,9 +10,8 @@ import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.FConditionService;
 import devs.mrp.turkeydesktop.database.conditions.IConditionService;
-import devs.mrp.turkeydesktop.database.group.FGroupService;
+import devs.mrp.turkeydesktop.database.group.GroupServiceFactory;
 import devs.mrp.turkeydesktop.database.group.Group;
-import devs.mrp.turkeydesktop.database.group.IGroupService;
 import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
@@ -52,6 +51,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import org.apache.commons.lang3.StringUtils;
+import devs.mrp.turkeydesktop.database.group.GroupService;
 
 /**
  *
@@ -63,7 +63,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private final LocaleMessages localeMessages = LocaleMessages.getInstance();
 
     private Group group;
-    private final IGroupService groupService = FGroupService.getService();
+    private final GroupService groupService = GroupServiceFactory.getService();
     private final IGroupAssignationService groupAssignationService = FGroupAssignationService.getService();
     private final AssignableElementService assignableProcessService = AssignableElementServiceFactory.getProcessesService();
     private final AssignableElementService assignableTitlesService = AssignableElementServiceFactory.getTitlesService();

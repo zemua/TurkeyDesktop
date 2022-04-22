@@ -13,8 +13,7 @@ import devs.mrp.turkeydesktop.database.conditions.FConditionService;
 import devs.mrp.turkeydesktop.database.conditions.IConditionService;
 import devs.mrp.turkeydesktop.database.config.FConfigElementService;
 import devs.mrp.turkeydesktop.database.config.IConfigElementService;
-import devs.mrp.turkeydesktop.database.group.FGroupService;
-import devs.mrp.turkeydesktop.database.group.IGroupService;
+import devs.mrp.turkeydesktop.database.group.GroupServiceFactory;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupServiceFactory;
@@ -39,6 +38,7 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
+import devs.mrp.turkeydesktop.database.group.GroupService;
 
 /**
  *
@@ -47,7 +47,7 @@ import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 public class ConditionCheckerImpl implements ConditionChecker {
 
     private IConditionService conditionService = FConditionService.getService();
-    private IGroupService groupService = FGroupService.getService();
+    private GroupService groupService = GroupServiceFactory.getService();
     private TimeLogService timeLogService = TimeLogServiceFactory.getService();
     private IConfigElementService configService = FConfigElementService.getService();
     private ImportService importService = ImportServiceFactory.getService();
