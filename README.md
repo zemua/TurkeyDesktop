@@ -64,7 +64,7 @@ export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 sdk use java 11.0.13-zulu
 ## this is the only important part that runs the jar file
-java -jar /Users/username/TurkeyDesktop/TurkeyDesktop-1.0-SNAPSHOT-jar-with-dependencies.jar
+java -Dapple.awt.UIElement="true" -jar /Users/ncm55070/TurkeyDesktop/TurkeyDesktop-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
 Then go to ~/Library/LaunchAgents
