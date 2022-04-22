@@ -14,6 +14,7 @@ import dorkbox.systemTray.SystemTray;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 
@@ -93,7 +94,9 @@ public class TrayChainHandlerLinux extends TrayChainBaseHandler {
 
     @Override
     protected void setTimeLeft(long millis) {
+        tray.getMenu().remove(tray.getMenu().getLast());
         timeItem.setText(TimeConverter.millisToHM(millis));
+        tray.getMenu().add(timeItem);
     }
 
 }
