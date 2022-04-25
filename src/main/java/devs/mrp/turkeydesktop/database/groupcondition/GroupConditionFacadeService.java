@@ -8,11 +8,11 @@ package devs.mrp.turkeydesktop.database.groupcondition;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.FConditionService;
 import devs.mrp.turkeydesktop.database.conditions.IConditionService;
-import devs.mrp.turkeydesktop.database.group.FGroupService;
+import devs.mrp.turkeydesktop.database.group.GroupServiceFactory;
 import devs.mrp.turkeydesktop.database.group.Group;
-import devs.mrp.turkeydesktop.database.group.IGroupService;
 import java.util.List;
 import java.util.stream.Collectors;
+import devs.mrp.turkeydesktop.database.group.GroupService;
 
 /**
  *
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class GroupConditionFacadeService implements IGroupConditionFacadeService {
     
     private final IConditionService conditionService = FConditionService.getService();
-    private final IGroupService groupService = FGroupService.getService();
+    private final GroupService groupService = GroupServiceFactory.getService();
     
     @Override
     public GroupConditionFacade findByConditionId(long conditionId) {

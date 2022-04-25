@@ -8,6 +8,8 @@ package devs.mrp.turkeydesktop.service.watchdog;
 import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.common.FileHandler;
+import devs.mrp.turkeydesktop.database.group.GroupService;
+import devs.mrp.turkeydesktop.database.group.GroupServiceFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
@@ -65,6 +67,7 @@ public class WatchDogImpl implements WatchDog {
     private ExportWritter exportWritter = ExportWritterFactory.getWritter();
     private TrayChainBaseHandler trayHandler = TrayChainFactory.getChain();
     private ResourceHandler<Image,ImagesEnum> imageHandler = ResourceHandlerFactory.getImagesHandler();
+    private GroupService groupService = GroupServiceFactory.getService();
 
     private WatchDogImpl() {
         initConditionChecker();
@@ -172,7 +175,7 @@ public class WatchDogImpl implements WatchDog {
         }
         
         if (!conditionsMet) {
-            Toaster.sendToast(localeMessages.getString("conditionsNotMet"));
+            Toaster.sendToast(localeMessages.getString("conditionsNotMetFor") + " " + groupService.findById(entry.getGroupId()).getName());
         }
         
         if (entry.getCounted() < 0 && conditionChecker.isTimeRunningOut()) {
