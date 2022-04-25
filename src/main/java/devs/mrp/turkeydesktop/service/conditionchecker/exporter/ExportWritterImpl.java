@@ -15,11 +15,8 @@ import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 /**
  *
