@@ -124,6 +124,9 @@ public class Db { // TODO create asynchronous listeners to update livedata
                 + "%s VARCHAR(15), " // type id
                 + "PRIMARY KEY (%s))",
                 WATCHDOG_TABLE, TimeLog.ID, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.COUNTED, TimeLog.ACCUMULATED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE, Group.GROUP, Type.TYPE, TimeLog.ID));
+        
+        execute(String.format("CREATE INDEX IF NOT EXISTS %s ON %s(%s)",
+                "EPOCH_INDEX", WATCHDOG_TABLE, TimeLog.EPOCH));
 
         execute(String.format("CREATE TABLE IF NOT EXISTS %s("
                 + "%s VARCHAR(50) NOT NULL, " // process name, unique in the table
@@ -191,9 +194,6 @@ public class Db { // TODO create asynchronous listeners to update livedata
                 + "PRIMARY KEY (%s))",
                 CLOSEABLES_TABLE, Closeable.PROCESS_NAME, Closeable.PROCESS_NAME));
         
-        execute(String.format("CREATE INDEX IF NOT EXISTS %s ON %s(%s)",
-                "EPOCH_INDEX", WATCHDOG_TABLE, TimeLog.EPOCH));
-
         //close();
     }
 
