@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database;
 
+import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.closeables.Closeable;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.group.Group;
@@ -47,7 +48,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
     public static final String ACCUMULATED_TIME_TABLE = "ACCUMULATED_TIME";
     public static final String CONFIG_TABLE = "CONFIG_TABLE";
     public static final String IMPORTS_TABLE = "IMPORTS_TABLE";
-    private static final Semaphore semaphore = new Semaphore(1);
+    private static final Semaphore semaphore = new Semaphore(4);
 
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
 
@@ -124,6 +125,9 @@ public class Db { // TODO create asynchronous listeners to update livedata
                 + "%s VARCHAR(15), " // type id
                 + "PRIMARY KEY (%s))",
                 WATCHDOG_TABLE, TimeLog.ID, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.COUNTED, TimeLog.ACCUMULATED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE, Group.GROUP, Type.TYPE, TimeLog.ID));
+        
+        execute(String.format("CREATE UNIQUE INDEX IF NOT EXISTS %s ON %s(%s)",
+                "EPOCH_INDEX", WATCHDOG_TABLE, TimeLog.EPOCH));
 
         execute(String.format("CREATE TABLE IF NOT EXISTS %s("
                 + "%s VARCHAR(50) NOT NULL, " // process name, unique in the table
@@ -190,7 +194,13 @@ public class Db { // TODO create asynchronous listeners to update livedata
                 + "%s VARCHAR(50), " // process name
                 + "PRIMARY KEY (%s))",
                 CLOSEABLES_TABLE, Closeable.PROCESS_NAME, Closeable.PROCESS_NAME));
-
+        
+        // REMOVE OLD LOG ENTRIES THAT ARE OF NO USE
+        execute(String.format("DELETE FROM %s WHERE %s < %s",
+                WATCHDOG_TABLE,
+                TimeLog.EPOCH,
+                TimeConverter.beginningOfOffsetDays(30)));
+        
         //close();
     }
 
