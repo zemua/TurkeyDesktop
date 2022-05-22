@@ -47,7 +47,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
     public static final String ACCUMULATED_TIME_TABLE = "ACCUMULATED_TIME";
     public static final String CONFIG_TABLE = "CONFIG_TABLE";
     public static final String IMPORTS_TABLE = "IMPORTS_TABLE";
-    private static final Semaphore semaphore = new Semaphore(1);
+    private static final Semaphore semaphore = new Semaphore(4);
 
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
 
@@ -190,6 +190,9 @@ public class Db { // TODO create asynchronous listeners to update livedata
                 + "%s VARCHAR(50), " // process name
                 + "PRIMARY KEY (%s))",
                 CLOSEABLES_TABLE, Closeable.PROCESS_NAME, Closeable.PROCESS_NAME));
+        
+        execute(String.format("CREATE INDEX IF NOT EXISTS %s ON %s(%s)",
+                "EPOCH_INDEX", WATCHDOG_TABLE, TimeLog.EPOCH));
 
         //close();
     }
