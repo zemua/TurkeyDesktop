@@ -96,6 +96,7 @@ create a script .sh file with this content (you can do the same SDK_MAN stuff as
 java -jar ~/TurkeyDesktop-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
+Give this script file permissions to run as an application
 Then search for "startup apps" application and add a new command
 ```
 /home/username/initTurkey.sh
