@@ -109,3 +109,6 @@ For this to work in Ubuntu you need to install the following
 ```sudo apt-get install xprintidle```
 ```sudo apt-get install xdotool```
 
+xdotool works with X.org so if you have installed some recent version of Ubuntu you may probably be running Wayland and the program will not be able to detect the current window. Currently there are no substitutes for xdotool that work with Wayland, only partially https://github.com/atx/wtype and https://github.com/ReimuNotMoe/ydotool can perform some keyboard/mouse actions.
+
+You can still choose to use X.org from the login screen in the configuration cog, details here: https://itsfoss.com/switch-xorg-wayland/
