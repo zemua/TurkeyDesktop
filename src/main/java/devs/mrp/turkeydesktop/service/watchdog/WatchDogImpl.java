@@ -169,7 +169,7 @@ public class WatchDogImpl implements WatchDog {
         
         boolean conditionsMet = conditionChecker.areConditionsMet(entry.getGroupId());
         boolean isLockDown = conditionChecker.isLockDownTime();
-        if (entry.isBlockable() && (entry.getAccumulated() <= 0 || !conditionsMet || isLockDown)) {
+        if (entry.isBlockable() && (conditionChecker.timeRemaining() <= 0 || !conditionsMet || isLockDown)) {
             killerHandler.receiveRequest(null, processChecker.currentProcessPid());
             Toaster.sendToast(localeMessages.getString("killingProcess"));
         }

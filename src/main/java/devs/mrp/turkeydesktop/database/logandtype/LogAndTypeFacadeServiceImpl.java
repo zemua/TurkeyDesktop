@@ -180,6 +180,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
         }
         long accumulated;
         accumulated = lastAccumulated + counted;
+        // TODO add to accumulated imported value
         element.setAccumulated(accumulated);
         //LOGGER.log(Level.INFO, "accumulated: " + accumulated);
         return element;
