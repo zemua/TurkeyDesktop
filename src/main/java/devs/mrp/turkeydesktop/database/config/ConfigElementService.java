@@ -5,7 +5,6 @@
  */
 package devs.mrp.turkeydesktop.database.config;
 
-import devs.mrp.turkeydesktop.database.logs.TimeLogServiceImpl;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.sql.ResultSet;
 import java.sql.SQLException;

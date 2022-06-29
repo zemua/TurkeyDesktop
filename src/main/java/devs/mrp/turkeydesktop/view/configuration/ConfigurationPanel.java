@@ -65,6 +65,7 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         idleSpinner = new javax.swing.JSpinner();
         jLabel11 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
+        notifySound = new javax.swing.JCheckBox();
         backButton = new javax.swing.JButton();
 
         jScrollPane1.setHorizontalScrollBar(null);
@@ -214,6 +215,13 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
 
         jLabel12.setText(bundle.getString("forPositiveOnly")); // NOI18N
 
+        notifySound.setText(bundle.getString("notifyWithSound")); // NOI18N
+        notifySound.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                notifySoundActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -260,7 +268,9 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(minLeftToNotify, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel7))
+                        .addComponent(jLabel7)
+                        .addGap(18, 18, 18)
+                        .addComponent(notifySound))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(exportToggle)
@@ -316,7 +326,8 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                     .addComponent(notifyMinLeftButton)
                     .addComponent(jLabel6)
                     .addComponent(minLeftToNotify, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel7))
+                    .addComponent(jLabel7)
+                    .addComponent(notifySound))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(exportToggle)
@@ -438,6 +449,10 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         giveFeedback(ConfigurationPanelEnum.IDLE_SPINNER, null);
     }//GEN-LAST:event_idleSpinnerStateChanged
 
+    private void notifySoundActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_notifySoundActionPerformed
+        giveFeedback(ConfigurationPanelEnum.NOTIFY_WITH_SOUND, evt);
+    }//GEN-LAST:event_notifySoundActionPerformed
+
     @Override
     public void addFeedbackListener(FeedbackListener<ConfigurationPanelEnum, AWTEvent> listener) {
         listeners.add(listener);
@@ -481,6 +496,8 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                 return importPanel;
             case IDLE_SPINNER:
                 return idleSpinner;
+            case NOTIFY_WITH_SOUND:
+                return notifySound;
             default:
                 return null;
         }
@@ -515,6 +532,7 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
     private javax.swing.JSpinner minutesLock;
     private javax.swing.JToggleButton notifyLockButton;
     private javax.swing.JToggleButton notifyMinLeftButton;
+    private javax.swing.JCheckBox notifySound;
     private javax.swing.JLabel proportionLabel;
     private javax.swing.JSlider proportionSlider;
     private javax.swing.JSpinner toHours;
