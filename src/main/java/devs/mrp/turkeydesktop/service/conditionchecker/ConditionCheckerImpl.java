@@ -54,6 +54,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
     private ChainHandler<LongWrapper> idleHandler = new IdleChainCommander().getHandlerChain();
     private ExternalGroupService externalGroupService = ExternalGroupServiceFactory.getService();
     private ImportReader importReader = ImportReaderFactory.getReader();
+    private static long avoidMessageFlood = 1000*150; // if the idle time surpases 2+ minutes stop flooding notifications
     
     private Logger logger = Logger.getLogger(ConditionCheckerImpl.class.getName());
 
@@ -196,10 +197,17 @@ public class ConditionCheckerImpl implements ConditionChecker {
         return currentIdle.getValue() >= idleCondition;
     }
     
+    private boolean avoidIdleFlood() {
+        Long idleCondition = Long.valueOf(configService.findById(ConfigurationEnum.IDLE).getValue());
+        LongWrapper currentIdle = new LongWrapper();
+        idleHandler.receiveRequest("idle", currentIdle);
+        return currentIdle.getValue() >= idleCondition + avoidMessageFlood;
+    }
+    
     @Override
     public boolean isIdleWithToast() {
         boolean idle = isIdle();
-        if (idle) {
+        if (idle && !avoidIdleFlood()) {
             Toaster.sendToast(localeMessages.getString("idleMsg"));
         }
         return idle;

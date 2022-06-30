@@ -18,7 +18,7 @@ import java.util.Map;
 public class VoiceNotificator {
     private static final ChainHandler<String> speaker = new VoiceNotificatorChainCommander().getHandlerChain();
     private static final Map<String,Long> messagesTimestamp = new HashMap<>();
-    private static final long sleep = 1000*60; // 1 minute in milliseconds between toasts of same message
+    private static final long sleep = 1000*59; // 1 minute in milliseconds between toasts of same message
     private static final IConfigElementService config = FConfigElementService.getService();
     
     public static void speakMessage(String msg) {

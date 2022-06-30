@@ -6,6 +6,10 @@
 package devs.mrp.turkeydesktop.service.toaster;
 
 import devs.mrp.turkeydesktop.common.ChainHandler;
+import devs.mrp.turkeydesktop.database.config.FConfigElementService;
+import devs.mrp.turkeydesktop.database.config.IConfigElementService;
+import devs.mrp.turkeydesktop.service.toaster.voice.VoiceNotificator;
+import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +22,7 @@ public class Toaster {
     private static final ChainHandler<String> toaster = new ToasterChainCommander().getHandlerChain();
     private static final Map<String,Long> messagesTimestamp = new HashMap<>();
     private static final long sleep = 1000*60; // 1 minute in milliseconds between toasts of same message
+    private static final IConfigElementService config = FConfigElementService.getService();
     
     public static void sendToast(String msg) {
         long now = System.currentTimeMillis();
@@ -26,6 +31,9 @@ public class Toaster {
         }
         messagesTimestamp.put(msg, now);
         toaster.receiveRequest(null, msg);
+        if ("true".equals(config.findById(ConfigurationEnum.SPEAK).getValue())) {
+            VoiceNotificator.speakMessage(msg);
+        }
     }
     
 }

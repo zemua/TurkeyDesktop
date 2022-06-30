@@ -5,7 +5,6 @@
  */
 package devs.mrp.turkeydesktop.view.configuration;
 
-import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.common.RemovableLabel;
 import devs.mrp.turkeydesktop.common.TimeConverter;
@@ -23,6 +22,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -150,6 +150,15 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                         logger.log(Level.SEVERE, "error handling response", e);
                         exit();
                     }
+                    break;
+                case NOTIFY_WITH_SOUND:
+                    try {
+                        handleNotifySound();
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE, "error handling response", e);
+                        exit();
+                    }
+                    break;
                 default:
                     break;
             }
@@ -166,6 +175,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
             setupExport();
             refreshImportPanel();
             setupIdle();
+            setupNotifySound();
         } catch (Exception e) {
             logger.log(Level.SEVERE, "error showing panel", e);
             exit();
@@ -243,6 +253,12 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         }
         JSpinner spinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.IDLE_SPINNER, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         spinner.setValue(TimeConverter.getMinutes(idleMinutes));
+    }
+    
+    private void setupNotifySound() throws Exception {
+        boolean checked = Boolean.valueOf(configService.configElement(ConfigurationEnum.SPEAK).getValue());
+        JCheckBox check = (JCheckBox) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_WITH_SOUND, JCheckBox.class).orElseThrow(() -> new Exception("wrong object"));
+        check.setSelected(checked);
     }
     
     // HANDLE EVENTS IN THE UI
@@ -443,6 +459,18 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
             configService.add(el);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error getting values from spinners to db", e);
+        }
+    }
+    
+    private void handleNotifySound() throws Exception {
+        JCheckBox check = (JCheckBox) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_WITH_SOUND, JCheckBox.class).orElseThrow(() -> new Exception("wrong object"));
+        try {
+            ConfigElement el = new ConfigElement();
+            el.setKey(ConfigurationEnum.SPEAK);
+            el.setValue(String.valueOf(check.isSelected()));
+            configService.add(el);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error getting values from notify with sound checkbox", e);
         }
     }
 
