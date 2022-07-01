@@ -197,7 +197,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
         return currentIdle.getValue() >= idleCondition;
     }
     
-    private boolean avoidIdleFlood() {
+    private boolean isIdleFlood() {
         Long idleCondition = Long.valueOf(configService.findById(ConfigurationEnum.IDLE).getValue());
         LongWrapper currentIdle = new LongWrapper();
         idleHandler.receiveRequest("idle", currentIdle);
@@ -207,7 +207,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
     @Override
     public boolean isIdleWithToast() {
         boolean idle = isIdle();
-        if (idle && !avoidIdleFlood()) {
+        if (idle && !isIdleFlood()) {
             Toaster.sendToast(localeMessages.getString("idleMsg"));
         }
         return idle;

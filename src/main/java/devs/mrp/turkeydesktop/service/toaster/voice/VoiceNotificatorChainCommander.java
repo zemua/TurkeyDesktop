@@ -18,7 +18,7 @@ public class VoiceNotificatorChainCommander implements ChainCommander {
     
     @Override
     public ChainHandler getHandlerChain() {
-        linuxHandler = new VoiceNotificatorChainHandlerMacos(); // TODO change type
+        linuxHandler = new VoiceNotificatorChainHandlerLinux();
         macosHandler = new VoiceNotificatorChainHandlerMacos();
         
         linuxHandler.setNextHandler(macosHandler);

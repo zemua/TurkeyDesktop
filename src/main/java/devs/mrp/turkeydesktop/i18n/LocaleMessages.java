@@ -48,4 +48,11 @@ public class LocaleMessages {
     public String getString(String s) {
         return messages.getString(s);
     }
+    
+    public String language() {
+        if (currentLocale != null) {
+            currentLocale.getLanguage();
+        }
+        return Locale.getDefault().getLanguage();
+    }
 }
