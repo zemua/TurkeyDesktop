@@ -27,7 +27,6 @@ public class VoiceNotificatorChainHandlerLinux extends ChainHandler<String> {
 
     @Override
     protected void handle(String data) {
-        String lang = locale.language();
         try {
             String[] cmd = {"spd-say", "-l", locale.language(), data};
             r.exec(cmd);
