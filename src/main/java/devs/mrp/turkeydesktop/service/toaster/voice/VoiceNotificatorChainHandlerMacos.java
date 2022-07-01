@@ -29,7 +29,7 @@ public class VoiceNotificatorChainHandlerMacos extends ChainHandler<String> {
         String message = String.format("say \"%s\"", data);
         String[] sender = {"osascript", "-e", message};
         try {
-            Process p = r.exec(sender);
+            r.exec(sender);
         } catch (IOException ex) {
             Logger.getLogger(ToasterChainHandlerMacos.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -26,7 +26,7 @@ public class VoiceNotificator {
         if (messagesTimestamp.containsKey(msg) && messagesTimestamp.get(msg) > now - sleep) {
             return;
         }
-        if (!config.findById(ConfigurationEnum.SPEAK).getValue().equals("true")) {
+        if (!"true".equals(config.findById(ConfigurationEnum.SPEAK).getValue())) {
             return;
         }
         messagesTimestamp.put(msg, now);
