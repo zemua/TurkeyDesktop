@@ -215,4 +215,28 @@ public class ConditionCheckerImpl implements ConditionChecker {
         return idle;
     }
 
+    @Override
+    public void notifyCloseToConditionsRefresh() {
+        if (closeToConditionsRefresh()) {
+            Toaster.sendToast(localeMessages.getString("conditionsRefreshSoon"));
+        }
+    }
+    
+    public boolean closeToConditionsRefresh() {
+        Boolean notify = Boolean.valueOf(configService.configElement(ConfigurationEnum.NOTIFY_CHANGE_OF_DAY).getValue());
+        if (!notify) {
+            return false;
+        }
+        Long changeOfDay = TimeConverter.hoursToMilis(Long.valueOf(configService.findById(ConfigurationEnum.CHANGE_OF_DAY).getValue()));
+
+        Long minutesNotice = Long.valueOf(configService.findById(ConfigurationEnum.NOTIFY_CHANGE_OF_DAY_MINUTES).getValue());
+        Long hourNow = TimeConverter.epochToMilisOnGivenDay(System.currentTimeMillis());
+        if (hourNow < changeOfDay) {
+            return changeOfDay - hourNow < 60 * 1000 * minutesNotice;
+        } else if (hourNow > changeOfDay) {
+            return changeOfDay + TimeConverter.hoursToMilis(24) - hourNow < 60 * 1000 * minutesNotice;
+        }
+        return false;
+    }
+
 }

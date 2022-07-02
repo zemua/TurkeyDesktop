@@ -167,6 +167,22 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                         exit();
                     }
                     break;
+                case NOTIFY_CHANGE_OF_DAY:
+                    try {
+                        handleNotifyChangeOfDay();
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE, "error handling response", e);
+                        exit();
+                    }
+                    break;
+                case NOTIFY_CHANGE_OF_DAY_MINUTES:
+                    try {
+                        handleNotifyChangeOfDayMinutes();
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE, "error handling response", e);
+                        exit();
+                    }
+                    break;
                 default:
                     break;
             }
@@ -185,6 +201,8 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
             setupIdle();
             setupNotifySound();
             setupChangeOfDay();
+            setupChangeOfDayNotification();
+            setupChangeOfDayNotificationMinutes();
         } catch (Exception e) {
             logger.log(Level.SEVERE, "error showing panel", e);
             exit();
@@ -274,6 +292,18 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         int hours = Integer.valueOf(configService.configElement(ConfigurationEnum.CHANGE_OF_DAY).getValue());
         JSpinner spinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.CHANGE_OF_DAY, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         spinner.setValue(hours);
+    }
+    
+    private void setupChangeOfDayNotification() throws Exception {
+        boolean notify = Boolean.valueOf(configService.configElement(ConfigurationEnum.NOTIFY_CHANGE_OF_DAY).getValue());
+        JToggleButton notifyButton = (JToggleButton) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_CHANGE_OF_DAY, JToggleButton.class).orElseThrow(() -> new Exception("wrong object"));
+        notifyButton.setSelected(notify);
+    }
+    
+    private void setupChangeOfDayNotificationMinutes() throws Exception {
+        int notifyMinutes = Integer.valueOf(configService.configElement(ConfigurationEnum.NOTIFY_CHANGE_OF_DAY_MINUTES).getValue());
+        JSpinner minSpin = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_CHANGE_OF_DAY_MINUTES, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        minSpin.setValue(notifyMinutes);
     }
     
     // HANDLE EVENTS IN THE UI
@@ -497,13 +527,34 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
             el.setValue(String.valueOf(spinner.getValue()));
             configService.add(el);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error getting values from notify with sound checkbox", e);
+            logger.log(Level.SEVERE, "Error getting values from change of day spinner", e);
         }
     }
 
     @Override
     protected void doBeforeExit() {
         // blank
+    }
+
+    private void handleNotifyChangeOfDay() throws Exception {
+        JToggleButton notifyToggle = (JToggleButton) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_CHANGE_OF_DAY, JToggleButton.class).orElseThrow(() -> new Exception("wrong object"));
+        boolean checked = notifyToggle.isSelected();
+        ConfigElement el = new ConfigElement();
+        el.setKey(ConfigurationEnum.NOTIFY_CHANGE_OF_DAY);
+        el.setValue(String.valueOf(checked));
+        configService.add(el);
+    }
+
+    private void handleNotifyChangeOfDayMinutes() throws Exception {
+        JSpinner spinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_CHANGE_OF_DAY_MINUTES, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        try {
+            ConfigElement el = new ConfigElement();
+            el.setKey(ConfigurationEnum.NOTIFY_CHANGE_OF_DAY_MINUTES);
+            el.setValue(String.valueOf(spinner.getValue()));
+            configService.add(el);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error getting values from change of day spinner", e);
+        }
     }
 
 }

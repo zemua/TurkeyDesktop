@@ -69,6 +69,9 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         jLabel13 = new javax.swing.JLabel();
         midnightSpinner = new javax.swing.JSpinner();
         jLabel14 = new javax.swing.JLabel();
+        notifyChangeOfDayToggle = new javax.swing.JToggleButton();
+        notifyChangeOfDaySpinner = new javax.swing.JSpinner();
+        jLabel15 = new javax.swing.JLabel();
         backButton = new javax.swing.JButton();
 
         jScrollPane1.setHorizontalScrollBar(null);
@@ -236,6 +239,22 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
 
         jLabel14.setText(bundle.getString("hoursAfterMidnight")); // NOI18N
 
+        notifyChangeOfDayToggle.setText(bundle.getString("notify")); // NOI18N
+        notifyChangeOfDayToggle.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                notifyChangeOfDayToggleStateChanged(evt);
+            }
+        });
+
+        notifyChangeOfDaySpinner.setModel(new javax.swing.SpinnerNumberModel(10, 1, 60, 1));
+        notifyChangeOfDaySpinner.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                notifyChangeOfDaySpinnerStateChanged(evt);
+            }
+        });
+
+        jLabel15.setText(bundle.getString("minutesBeforeChangeOfDay")); // NOI18N
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -315,7 +334,14 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(midnightSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel14)))
+                        .addComponent(jLabel14))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(notifyChangeOfDayToggle)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(notifyChangeOfDaySpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel15)))
                 .addContainerGap(263, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -371,6 +397,11 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                     .addComponent(jLabel13)
                     .addComponent(midnightSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel14))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(notifyChangeOfDayToggle)
+                    .addComponent(notifyChangeOfDaySpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel15))
                 .addContainerGap())
         );
 
@@ -483,6 +514,14 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         giveFeedback(ConfigurationPanelEnum.CHANGE_OF_DAY, null);
     }//GEN-LAST:event_midnightSpinnerStateChanged
 
+    private void notifyChangeOfDayToggleStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_notifyChangeOfDayToggleStateChanged
+        giveFeedback(ConfigurationPanelEnum.NOTIFY_CHANGE_OF_DAY, null);
+    }//GEN-LAST:event_notifyChangeOfDayToggleStateChanged
+
+    private void notifyChangeOfDaySpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_notifyChangeOfDaySpinnerStateChanged
+        giveFeedback(ConfigurationPanelEnum.NOTIFY_CHANGE_OF_DAY_MINUTES, null);
+    }//GEN-LAST:event_notifyChangeOfDaySpinnerStateChanged
+
     @Override
     public void addFeedbackListener(FeedbackListener<ConfigurationPanelEnum, AWTEvent> listener) {
         listeners.add(listener);
@@ -530,6 +569,10 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                 return notifySound;
             case CHANGE_OF_DAY:
                 return midnightSpinner;
+            case NOTIFY_CHANGE_OF_DAY:
+                return notifyChangeOfDayToggle;
+            case NOTIFY_CHANGE_OF_DAY_MINUTES:
+                return notifyChangeOfDaySpinner;
             default:
                 return null;
         }
@@ -550,6 +593,7 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -565,6 +609,8 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
     private javax.swing.JSpinner midnightSpinner;
     private javax.swing.JSpinner minLeftToNotify;
     private javax.swing.JSpinner minutesLock;
+    private javax.swing.JSpinner notifyChangeOfDaySpinner;
+    private javax.swing.JToggleButton notifyChangeOfDayToggle;
     private javax.swing.JToggleButton notifyLockButton;
     private javax.swing.JToggleButton notifyMinLeftButton;
     private javax.swing.JCheckBox notifySound;
