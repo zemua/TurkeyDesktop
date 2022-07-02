@@ -4,10 +4,12 @@
  */
 package devs.mrp.turkeydesktop.common;
 
+import javax.swing.JFrame;
+
 /**
  *
  * @author zemua
  */
 public interface ConfirmationWithDelay {
-    public void show(String title, String msg, String cancel, String confirm, Runnable runnable);
+    public void show(JFrame parent, String msg, String cancel, String confirm, Runnable runnablePositive, Runnable runnableNegative, int secondsDelay);
 }
