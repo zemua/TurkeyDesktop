@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.database.group.GroupService;
+import java.time.LocalDateTime;
 
 /**
  *
@@ -64,15 +65,16 @@ public class ConditionCheckerImpl implements ConditionChecker {
     @Override
     public boolean isConditionMet(Condition condition) {
         long timeSpent = timeLogService.timeSpentOnGroupForFrame(condition.getTargetId(),
-                TimeConverter.beginningOfOffsetDays(condition.getLastDaysCondition()),
-                TimeConverter.endOfToday());
+                TimeConverter.beginningOfOffsetDaysConsideringDayChange(condition.getLastDaysCondition()),
+                TimeConverter.endOfTodayConsideringDayChange());
         long external = externalTimeFromCondition(condition);
         return timeSpent+external >= condition.getUsageTimeCondition();
     }
     
     private long externalTimeFromCondition(Condition condition) {
-        LocalDate to = LocalDate.now();
-        LocalDate from = LocalDate.now().minusDays(condition.getLastDaysCondition());
+        Long changeOfDay = Long.valueOf(configService.configElement(ConfigurationEnum.CHANGE_OF_DAY).getValue());
+        LocalDate to = LocalDateTime.now().minusHours(changeOfDay).toLocalDate();
+        LocalDate from = LocalDateTime.now().minusHours(changeOfDay).minusDays(condition.getLastDaysCondition()).toLocalDate();
         List<ExternalGroup> externals = externalGroupService.findByGroup(condition.getTargetId());
         return externals.stream()
                 .map(ExternalGroup::getFile)
