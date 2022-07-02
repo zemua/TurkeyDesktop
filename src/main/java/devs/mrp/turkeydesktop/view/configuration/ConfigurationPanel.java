@@ -37,7 +37,6 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         jScrollPane1 = new javax.swing.JScrollPane();
         jPanel1 = new javax.swing.JPanel();
         proportionLabel = new javax.swing.JLabel();
-        proportionSlider = new javax.swing.JSlider();
         lockDownButton = new javax.swing.JToggleButton();
         jLabel1 = new javax.swing.JLabel();
         fromHours = new javax.swing.JSpinner();
@@ -72,31 +71,13 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         notifyChangeOfDayToggle = new javax.swing.JToggleButton();
         notifyChangeOfDaySpinner = new javax.swing.JSpinner();
         jLabel15 = new javax.swing.JLabel();
+        proportionSlider = new javax.swing.JSpinner();
         backButton = new javax.swing.JButton();
 
         jScrollPane1.setHorizontalScrollBar(null);
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
         proportionLabel.setText(bundle.getString("proportion")); // NOI18N
-
-        proportionSlider.setMajorTickSpacing(1);
-        proportionSlider.setMaximum(10);
-        proportionSlider.setMinimum(1);
-        proportionSlider.setMinorTickSpacing(1);
-        proportionSlider.setPaintLabels(true);
-        proportionSlider.setPaintTicks(true);
-        proportionSlider.setSnapToTicks(true);
-        proportionSlider.setValue(Integer.parseInt(ConfigurationEnum.PROPORTION.getDefault()));
-        proportionSlider.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                proportionSliderStateChanged(evt);
-            }
-        });
-        proportionSlider.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-            public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                proportionSliderPropertyChange(evt);
-            }
-        });
 
         lockDownButton.setText(bundle.getString("lockdown")); // NOI18N
         lockDownButton.addActionListener(new java.awt.event.ActionListener() {
@@ -255,6 +236,13 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
 
         jLabel15.setText(bundle.getString("minutesBeforeChangeOfDay")); // NOI18N
 
+        proportionSlider.setModel(new javax.swing.SpinnerNumberModel(4, 1, 10, 1));
+        proportionSlider.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                proportionSliderStateChanged(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -264,8 +252,8 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(12, 12, 12)
                         .addComponent(proportionLabel)
-                        .addGap(12, 12, 12)
-                        .addComponent(proportionSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addComponent(proportionSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(lockDownButton))
@@ -347,11 +335,11 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(12, 12, 12)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(9, 9, 9)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(proportionLabel)
                     .addComponent(proportionSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lockDownButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -442,14 +430,6 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         giveFeedback(ConfigurationPanelEnum.BACK, evt);
     }//GEN-LAST:event_backButtonActionPerformed
 
-    private void proportionSliderPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_proportionSliderPropertyChange
-        //giveFeedback(ConfigurationPanelEnum.PROPORTION, null);
-    }//GEN-LAST:event_proportionSliderPropertyChange
-
-    private void proportionSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_proportionSliderStateChanged
-        giveFeedback(ConfigurationPanelEnum.PROPORTION, null);
-    }//GEN-LAST:event_proportionSliderStateChanged
-
     private void lockDownButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lockDownButtonActionPerformed
         giveFeedback(ConfigurationPanelEnum.LOCKDOWN, evt);
     }//GEN-LAST:event_lockDownButtonActionPerformed
@@ -521,6 +501,10 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
     private void notifyChangeOfDaySpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_notifyChangeOfDaySpinnerStateChanged
         giveFeedback(ConfigurationPanelEnum.NOTIFY_CHANGE_OF_DAY_MINUTES, null);
     }//GEN-LAST:event_notifyChangeOfDaySpinnerStateChanged
+
+    private void proportionSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_proportionSliderStateChanged
+        giveFeedback(ConfigurationPanelEnum.PROPORTION, null);
+    }//GEN-LAST:event_proportionSliderStateChanged
 
     @Override
     public void addFeedbackListener(FeedbackListener<ConfigurationPanelEnum, AWTEvent> listener) {
@@ -615,7 +599,7 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
     private javax.swing.JToggleButton notifyMinLeftButton;
     private javax.swing.JCheckBox notifySound;
     private javax.swing.JLabel proportionLabel;
-    private javax.swing.JSlider proportionSlider;
+    private javax.swing.JSpinner proportionSlider;
     private javax.swing.JSpinner toHours;
     private javax.swing.JSpinner toMinutes;
     // End of variables declaration//GEN-END:variables

@@ -5,9 +5,11 @@
  */
 package devs.mrp.turkeydesktop.view.configuration;
 
+import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
 import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.common.RemovableLabel;
 import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.FConfigElementService;
 import devs.mrp.turkeydesktop.database.config.IConfigElementService;
@@ -42,9 +44,12 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     private ImportService importService = ImportServiceFactory.getService();
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
     private Logger logger = Logger.getLogger(ConfigurationHandler.class.getName());
+    private JFrame frame;
+    private ConfirmationWithDelay popupMaker = new ConfirmationWithDelayFactory();
 
     public ConfigurationHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
         super(frame, caller);
+        this.frame = frame;
     }
 
     @Override
@@ -211,7 +216,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
 
     private void setupProportion() {
         int proportion = Integer.valueOf(configService.configElement(ConfigurationEnum.PROPORTION).getValue());
-        JSlider slider = (JSlider) this.getPanel().getProperty(ConfigurationPanelEnum.PROPORTION);
+        JSpinner slider = (JSpinner) this.getPanel().getProperty(ConfigurationPanelEnum.PROPORTION);
         slider.setValue(proportion);
     }
 
@@ -309,12 +314,30 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     // HANDLE EVENTS IN THE UI
 
     private void handleNewProportion() {
-        JSlider slider = (JSlider) this.getPanel().getProperty(ConfigurationPanelEnum.PROPORTION);
-        int proportion = slider.getValue();
-        ConfigElement el = new ConfigElement();
-        el.setKey(ConfigurationEnum.PROPORTION);
-        el.setValue(String.valueOf(proportion));
-        configService.add(el);
+        JSpinner slider = (JSpinner) this.getPanel().getProperty(ConfigurationPanelEnum.PROPORTION);
+        int proportion = (Integer)slider.getValue();
+        if (proportion < 4) {
+            slider.setEnabled(false);
+            popupMaker.show(frame, "this is the msg", "cancel", "confirm", () -> {
+                // runnable for positive button
+                ConfigElement el = new ConfigElement();
+                el.setKey(ConfigurationEnum.PROPORTION);
+                el.setValue(String.valueOf(proportion));
+                configService.add(el);
+                slider.setEnabled(true);
+                slider.setValue(proportion);
+            }, () -> {
+                // runnable for negative button
+                int savedProportion = Integer.valueOf(configService.configElement(ConfigurationEnum.PROPORTION).getValue());
+                slider.setEnabled(true);
+                slider.setValue(savedProportion);
+            }, 30);
+        } else {
+            ConfigElement el = new ConfigElement();
+            el.setKey(ConfigurationEnum.PROPORTION);
+            el.setValue(String.valueOf(proportion));
+            configService.add(el);
+        }
     }
 
     private void handleLockdownStatusChange() throws Exception {
