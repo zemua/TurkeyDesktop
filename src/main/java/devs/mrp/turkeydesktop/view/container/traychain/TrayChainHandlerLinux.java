@@ -14,7 +14,6 @@ import dorkbox.systemTray.SystemTray;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 
@@ -57,7 +56,7 @@ public class TrayChainHandlerLinux extends TrayChainBaseHandler {
 
         tray.installShutdownHook();
         tray.setImage(imageHandler.getResource(ImagesEnum.TURKEY));
-        tray.setStatus("Running");
+        tray.setStatus(localeMessages.getString("running"));
 
         JMenuItem openItem = new JMenuItem(localeMessages.getString("open"));
         openItem.addActionListener(new ActionListener() {
