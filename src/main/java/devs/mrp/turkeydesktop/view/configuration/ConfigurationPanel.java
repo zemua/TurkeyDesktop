@@ -66,6 +66,9 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         jLabel11 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
         notifySound = new javax.swing.JCheckBox();
+        jLabel13 = new javax.swing.JLabel();
+        midnightSpinner = new javax.swing.JSpinner();
+        jLabel14 = new javax.swing.JLabel();
         backButton = new javax.swing.JButton();
 
         jScrollPane1.setHorizontalScrollBar(null);
@@ -222,6 +225,17 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
             }
         });
 
+        jLabel13.setText(bundle.getString("changeOfDay")); // NOI18N
+
+        midnightSpinner.setModel(new javax.swing.SpinnerNumberModel(3, 0, 6, 1));
+        midnightSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                midnightSpinnerStateChanged(evt);
+            }
+        });
+
+        jLabel14.setText(bundle.getString("hoursAfterMidnight")); // NOI18N
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -294,7 +308,14 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel11)
                         .addGap(18, 18, 18)
-                        .addComponent(jLabel12)))
+                        .addComponent(jLabel12))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel13)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(midnightSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel14)))
                 .addContainerGap(263, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -345,6 +366,11 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                     .addComponent(idleSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel11)
                     .addComponent(jLabel12))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel13)
+                    .addComponent(midnightSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel14))
                 .addContainerGap())
         );
 
@@ -453,6 +479,10 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
         giveFeedback(ConfigurationPanelEnum.NOTIFY_WITH_SOUND, evt);
     }//GEN-LAST:event_notifySoundActionPerformed
 
+    private void midnightSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_midnightSpinnerStateChanged
+        giveFeedback(ConfigurationPanelEnum.CHANGE_OF_DAY, null);
+    }//GEN-LAST:event_midnightSpinnerStateChanged
+
     @Override
     public void addFeedbackListener(FeedbackListener<ConfigurationPanelEnum, AWTEvent> listener) {
         listeners.add(listener);
@@ -498,6 +528,8 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
                 return idleSpinner;
             case NOTIFY_WITH_SOUND:
                 return notifySound;
+            case CHANGE_OF_DAY:
+                return midnightSpinner;
             default:
                 return null;
         }
@@ -516,6 +548,8 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -528,6 +562,7 @@ public class ConfigurationPanel extends FeedbackerPanelWithFetcher<Configuration
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JToggleButton lockDownButton;
+    private javax.swing.JSpinner midnightSpinner;
     private javax.swing.JSpinner minLeftToNotify;
     private javax.swing.JSpinner minutesLock;
     private javax.swing.JToggleButton notifyLockButton;

@@ -159,6 +159,14 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                         exit();
                     }
                     break;
+                case CHANGE_OF_DAY:
+                    try {
+                        handleChangeOfDay();
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE, "error handling response", e);
+                        exit();
+                    }
+                    break;
                 default:
                     break;
             }
@@ -176,6 +184,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
             refreshImportPanel();
             setupIdle();
             setupNotifySound();
+            setupChangeOfDay();
         } catch (Exception e) {
             logger.log(Level.SEVERE, "error showing panel", e);
             exit();
@@ -259,6 +268,12 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         boolean checked = Boolean.valueOf(configService.configElement(ConfigurationEnum.SPEAK).getValue());
         JCheckBox check = (JCheckBox) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_WITH_SOUND, JCheckBox.class).orElseThrow(() -> new Exception("wrong object"));
         check.setSelected(checked);
+    }
+    
+    private void setupChangeOfDay() throws Exception {
+        int hours = Integer.valueOf(configService.configElement(ConfigurationEnum.CHANGE_OF_DAY).getValue());
+        JSpinner spinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.CHANGE_OF_DAY, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        spinner.setValue(hours);
     }
     
     // HANDLE EVENTS IN THE UI
@@ -468,6 +483,18 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
             ConfigElement el = new ConfigElement();
             el.setKey(ConfigurationEnum.SPEAK);
             el.setValue(String.valueOf(check.isSelected()));
+            configService.add(el);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error getting values from notify with sound checkbox", e);
+        }
+    }
+    
+    private void handleChangeOfDay() throws Exception {
+        JSpinner spinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.CHANGE_OF_DAY, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        try {
+            ConfigElement el = new ConfigElement();
+            el.setKey(ConfigurationEnum.CHANGE_OF_DAY);
+            el.setValue(String.valueOf(spinner.getValue()));
             configService.add(el);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error getting values from notify with sound checkbox", e);
