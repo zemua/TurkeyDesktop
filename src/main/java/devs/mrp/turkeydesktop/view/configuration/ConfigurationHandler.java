@@ -316,7 +316,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     private void handleNewProportion() {
         JSpinner slider = (JSpinner) this.getPanel().getProperty(ConfigurationPanelEnum.PROPORTION);
         int proportion = (Integer)slider.getValue();
-        if (proportion < 4) {
+        int savedProportion = Integer.valueOf(configService.configElement(ConfigurationEnum.PROPORTION).getValue());
+        // if we are decreasing and target value is lower than 4...
+        if (proportion < 4 && proportion < savedProportion) {
             slider.setEnabled(false);
             popupMaker.show(frame,
                     localeMessages.getString("areYouSureYouShouldDoThis"),
@@ -333,7 +335,6 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
             },
                     () -> {
                 // runnable for negative button
-                int savedProportion = Integer.valueOf(configService.configElement(ConfigurationEnum.PROPORTION).getValue());
                 slider.setEnabled(true);
                 slider.setValue(savedProportion);
             }, 30);
