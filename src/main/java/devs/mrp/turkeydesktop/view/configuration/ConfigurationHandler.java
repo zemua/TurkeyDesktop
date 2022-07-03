@@ -46,6 +46,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     private JFrame frame;
     private ConfirmationWithDelay popupMaker = new ConfirmationWithDelayFactory();
     public static final int SENSITIVE_WAITING_SECONDS = 30;
+    private boolean lockDownFromStarted = false; // flag to know when the fields have finished loading to trigger events
 
     public ConfigurationHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
         super(frame, caller);
@@ -236,6 +237,8 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         JSpinner toMin = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_TO_MIN, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         toHour.setValue(TimeConverter.getHours(to));
         toMin.setValue(TimeConverter.getMinutes(to));
+        
+        lockDownFromStarted = true;
     }
 
     private void setupLockDownNotification() throws Exception {
@@ -375,15 +378,61 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
 
     private void handleLockdownFromChange() throws Exception {
+        if (!lockDownFromStarted) {
+            return;
+        }
         JSpinner lockDownHourSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_FROM_HOUR, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         JSpinner lockDownMinSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_FROM_MIN, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        JSpinner toHourSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_TO_HOUR, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        JSpinner toMinSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_TO_MIN, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        long savedTime = Long.valueOf(configService.configElement(ConfigurationEnum.LOCKDOWN_FROM).getValue());
         try {
             Long time = TimeConverter.minutesToMilis((Long) lockDownMinSpinner.getValue());
             time += TimeConverter.hoursToMilis((Long) lockDownHourSpinner.getValue());
-            ConfigElement el = new ConfigElement();
-            el.setKey(ConfigurationEnum.LOCKDOWN_FROM);
-            el.setValue(String.valueOf(time));
-            configService.add(el);
+            final long targetTimeForDb = time; // to use inside the lambda has to be final
+            Long toTime = TimeConverter.minutesToMilis((Long) toMinSpinner.getValue());
+            toTime += TimeConverter.hoursToMilis((Long) toHourSpinner.getValue());
+            
+            long savedToTime = toTime;
+            if (toTime < time) {
+                // for example start time 23:00 and end time at 5:00 then make 5:00 -> 29:00
+                toTime = toTime + TimeConverter.hoursToMilis(24);
+            }
+            if (savedToTime < savedTime) {
+                // for example start time 23:00 and end time at 5:00 then make 5:00 -> 29:00
+                savedToTime = savedToTime + TimeConverter.hoursToMilis(24);
+            }
+            
+            long diffNow = toTime - time;
+            long savedDiff = savedToTime - savedTime;
+            
+            if (diffNow < savedDiff) { // if the lockdown frame is being decreased
+                lockDownHourSpinner.setEnabled(false);
+                lockDownMinSpinner.setEnabled(false);
+                popupMaker.show(frame, localeMessages.getString("areYouSureYouShouldDoThis"),
+                    localeMessages.getString("cancel"),
+                    localeMessages.getString("confirm"),
+                    () -> {
+                        // positive runnable
+                        ConfigElement el = new ConfigElement();
+                        el.setKey(ConfigurationEnum.LOCKDOWN_FROM);
+                        el.setValue(String.valueOf(targetTimeForDb));
+                        configService.add(el);
+                        lockDownHourSpinner.setEnabled(true);
+                        lockDownMinSpinner.setEnabled(true);
+                    }, () -> {
+                        // negative runnable
+                        lockDownMinSpinner.setValue(TimeConverter.getMinutes(savedTime));
+                        lockDownHourSpinner.setValue(TimeConverter.getHours(savedTime));
+                        lockDownHourSpinner.setEnabled(true);
+                        lockDownMinSpinner.setEnabled(true);
+                    }, SENSITIVE_WAITING_SECONDS);
+            } else {
+                ConfigElement el = new ConfigElement();
+                el.setKey(ConfigurationEnum.LOCKDOWN_FROM);
+                el.setValue(String.valueOf(targetTimeForDb));
+                configService.add(el);
+            }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error getting values from spinners to db", e);
         }
