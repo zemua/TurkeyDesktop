@@ -46,7 +46,10 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     private JFrame frame;
     private ConfirmationWithDelay popupMaker = new ConfirmationWithDelayFactory();
     public static final int SENSITIVE_WAITING_SECONDS = 30;
-    private boolean lockDownFromStarted = false; // flag to know when the fields have finished loading to trigger events
+    
+    // Flags to know when the UI has been loaded and we can start processing triggers
+    private boolean proportionStarted = false;
+    private boolean lockDownStarted = false;
 
     public ConfigurationHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
         super(frame, caller);
@@ -219,6 +222,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         int proportion = Integer.valueOf(configService.configElement(ConfigurationEnum.PROPORTION).getValue());
         JSpinner slider = (JSpinner) this.getPanel().getProperty(ConfigurationPanelEnum.PROPORTION);
         slider.setValue(proportion);
+        proportionStarted = true;
     }
 
     private void setupLockDown() throws Exception {
@@ -238,7 +242,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         toHour.setValue(TimeConverter.getHours(to));
         toMin.setValue(TimeConverter.getMinutes(to));
         
-        lockDownFromStarted = true;
+        lockDownStarted = true;
     }
 
     private void setupLockDownNotification() throws Exception {
@@ -317,6 +321,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     // HANDLE EVENTS IN THE UI
 
     private void handleNewProportion() {
+        if (!proportionStarted) {
+            return;
+        }
         JSpinner slider = (JSpinner) this.getPanel().getProperty(ConfigurationPanelEnum.PROPORTION);
         int proportion = (Integer)slider.getValue();
         int savedProportion = Integer.valueOf(configService.configElement(ConfigurationEnum.PROPORTION).getValue());
@@ -350,6 +357,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
 
     private void handleLockdownStatusChange() throws Exception {
+        if (!lockDownStarted) {
+            return;
+        }
         JToggleButton lockDownButton = (JToggleButton) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN, JToggleButton.class).orElseThrow(() -> new Exception("wrong object"));
         boolean checked = lockDownButton.isSelected();
         if (!checked) {
@@ -378,7 +388,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
 
     private void handleLockdownFromChange() throws Exception {
-        if (!lockDownFromStarted) {
+        if (!lockDownStarted) {
             return;
         }
         JSpinner lockDownHourSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_FROM_HOUR, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
@@ -439,6 +449,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
 
     private void handleLockdownToChange() throws Exception {
+        if (!lockDownStarted) {
+            return;
+        }
         JSpinner lockDownHourSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_TO_HOUR, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         JSpinner lockDownMinSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_TO_MIN, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         try {
