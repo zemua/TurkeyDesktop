@@ -50,6 +50,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     // Flags to know when the UI has been loaded and we can start processing triggers
     private boolean proportionStarted = false;
     private boolean lockDownStarted = false;
+    private boolean lockDownNotificationStarted = false;
 
     public ConfigurationHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
         super(frame, caller);
@@ -256,6 +257,8 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         }
         JSpinner minSpin = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_NOTIFY_MIN, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         minSpin.setValue(TimeConverter.getMinutes(notifyMinutes));
+        
+        lockDownNotificationStarted = true;
     }
 
     private void setupMinLeftNotification() throws Exception {
@@ -452,21 +455,67 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         if (!lockDownStarted) {
             return;
         }
-        JSpinner lockDownHourSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_TO_HOUR, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
-        JSpinner lockDownMinSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_TO_MIN, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        JSpinner fromHourSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_FROM_HOUR, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        JSpinner fromMinSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_FROM_MIN, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        JSpinner toHourSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_TO_HOUR, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        JSpinner toMinSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_TO_MIN, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        final long savedToTimeFinal = Long.valueOf(configService.configElement(ConfigurationEnum.LOCKDOWN_TO).getValue());
         try {
-            Long time = TimeConverter.minutesToMilis((Long) lockDownMinSpinner.getValue());
-            time += TimeConverter.hoursToMilis((Long) lockDownHourSpinner.getValue());
-            ConfigElement el = new ConfigElement();
-            el.setKey(ConfigurationEnum.LOCKDOWN_TO);
-            el.setValue(String.valueOf(time));
-            configService.add(el);
+            Long fromTime = TimeConverter.minutesToMilis((Long) fromMinSpinner.getValue());
+            fromTime += TimeConverter.hoursToMilis((Long) fromHourSpinner.getValue());
+            Long toTime = TimeConverter.minutesToMilis((Long) toMinSpinner.getValue());
+            toTime += TimeConverter.hoursToMilis((Long) toHourSpinner.getValue());
+            final long targetTimeForDb = toTime; // to use inside the lambda has to be final
+            
+            if (toTime < fromTime) {
+                // for example start time 23:00 and end time at 5:00 then make 5:00 -> 29:00
+                toTime = toTime + TimeConverter.hoursToMilis(24);
+            }
+            long savedToTime = savedToTimeFinal;
+            if (savedToTime < fromTime) {
+                // for example start time 23:00 and end time at 5:00 then make 5:00 -> 29:00
+                savedToTime = savedToTime + TimeConverter.hoursToMilis(24);
+            }
+            
+            long diffNow = toTime - fromTime;
+            long savedDiff = savedToTime - fromTime;
+            
+            if (diffNow < savedDiff) { // if the lockdown frame is being decreased
+                toHourSpinner.setEnabled(false);
+                toMinSpinner.setEnabled(false);
+                popupMaker.show(frame, localeMessages.getString("areYouSureYouShouldDoThis"),
+                    localeMessages.getString("cancel"),
+                    localeMessages.getString("confirm"),
+                    () -> {
+                        // positive runnable
+                        ConfigElement el = new ConfigElement();
+                        el.setKey(ConfigurationEnum.LOCKDOWN_TO);
+                        el.setValue(String.valueOf(targetTimeForDb));
+                        configService.add(el);
+                        toHourSpinner.setEnabled(true);
+                        toMinSpinner.setEnabled(true);
+                    }, () -> {
+                        // negative runnable
+                        toMinSpinner.setValue(TimeConverter.getMinutes(savedToTimeFinal));
+                        toHourSpinner.setValue(TimeConverter.getHours(savedToTimeFinal));
+                        toHourSpinner.setEnabled(true);
+                        toMinSpinner.setEnabled(true);
+                    }, SENSITIVE_WAITING_SECONDS);
+            } else {
+                ConfigElement el = new ConfigElement();
+                el.setKey(ConfigurationEnum.LOCKDOWN_TO);
+                el.setValue(String.valueOf(targetTimeForDb));
+                configService.add(el);
+            }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error getting values from spinners to db", e);
         }
     }
 
     private void handleLockDownNotificationChange() throws Exception {
+        if (!lockDownNotificationStarted) {
+            return;
+        }
         JToggleButton lockDownNotification = (JToggleButton) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_NOTIFY, JToggleButton.class).orElseThrow(() -> new Exception("wrong object"));
         boolean checked = lockDownNotification.isSelected();
         ConfigElement el = new ConfigElement();
@@ -476,6 +525,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
 
     private void handleLockDownMinutesNotificationChange() throws Exception {
+        if (!lockDownNotificationStarted) {
+            return;
+        }
         JSpinner lockDownMinSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_NOTIFY_MIN, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         try {
             Long time = TimeConverter.minutesToMilis((Long) lockDownMinSpinner.getValue());
