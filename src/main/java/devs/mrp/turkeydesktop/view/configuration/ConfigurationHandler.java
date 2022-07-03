@@ -29,7 +29,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -46,6 +45,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     private Logger logger = Logger.getLogger(ConfigurationHandler.class.getName());
     private JFrame frame;
     private ConfirmationWithDelay popupMaker = new ConfirmationWithDelayFactory();
+    public static final int SENSITIVE_WAITING_SECONDS = 30;
 
     public ConfigurationHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
         super(frame, caller);
@@ -337,7 +337,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                 // runnable for negative button
                 slider.setEnabled(true);
                 slider.setValue(savedProportion);
-            }, 30);
+            }, SENSITIVE_WAITING_SECONDS);
         } else {
             ConfigElement el = new ConfigElement();
             el.setKey(ConfigurationEnum.PROPORTION);
@@ -349,10 +349,29 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     private void handleLockdownStatusChange() throws Exception {
         JToggleButton lockDownButton = (JToggleButton) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN, JToggleButton.class).orElseThrow(() -> new Exception("wrong object"));
         boolean checked = lockDownButton.isSelected();
-        ConfigElement el = new ConfigElement();
-        el.setKey(ConfigurationEnum.LOCKDOWN);
-        el.setValue(String.valueOf(checked));
-        configService.add(el);
+        if (!checked) {
+            lockDownButton.setEnabled(false);
+            popupMaker.show(frame, localeMessages.getString("areYouSureYouShouldDoThis"),
+                    localeMessages.getString("cancel"),
+                    localeMessages.getString("confirm"),
+                    () -> {
+                        // runnable positive
+                        ConfigElement el = new ConfigElement();
+                        el.setKey(ConfigurationEnum.LOCKDOWN);
+                        el.setValue(String.valueOf(false));
+                        configService.add(el);
+                        lockDownButton.setEnabled(true);
+                    }, () -> {
+                        // runnable negative
+                        lockDownButton.setSelected(true);
+                        lockDownButton.setEnabled(true);
+                    }, SENSITIVE_WAITING_SECONDS);
+        } else {
+            ConfigElement el = new ConfigElement();
+            el.setKey(ConfigurationEnum.LOCKDOWN);
+            el.setValue(String.valueOf(checked));
+            configService.add(el);
+        }
     }
 
     private void handleLockdownFromChange() throws Exception {
