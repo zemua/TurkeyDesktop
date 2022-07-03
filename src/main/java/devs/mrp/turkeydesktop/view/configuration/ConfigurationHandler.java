@@ -51,6 +51,14 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     private boolean proportionStarted = false;
     private boolean lockDownStarted = false;
     private boolean lockDownNotificationStarted = false;
+    private boolean minLeftNotificationStarted = false;
+    private boolean exportStarted = false;
+    private boolean importStarted = false;
+    private boolean idleStarted = false;
+    private boolean notifySoundStarted = false;
+    private boolean changeOfDayStarted = false;
+    private boolean changeOfDayNotificationStarted = false;
+    private boolean changeOfDayNotificationMinutesStarted = false;
 
     public ConfigurationHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
         super(frame, caller);
@@ -272,6 +280,8 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         }
         JSpinner minSpin = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_MIN_LEFT_QTY, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         minSpin.setValue(TimeConverter.getMinutes(notifyMinutes));
+        
+        minLeftNotificationStarted = true;
     }
     
     private void setupExport() throws Exception {
@@ -286,6 +296,8 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         JButton button = (JButton) getObjectFromPanel(ConfigurationPanelEnum.EXPORT_BUTTON, JButton.class).orElseThrow(() -> new Exception("wrong object"));
         int size = 25;
         button.setText(pathName.length() > size ? pathName.substring(pathName.length()-size) : pathName);
+        
+        exportStarted = true;
     }
     
     private void setupIdle() throws Exception {
@@ -295,30 +307,40 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         }
         JSpinner spinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.IDLE_SPINNER, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         spinner.setValue(TimeConverter.getMinutes(idleMinutes));
+        
+        idleStarted = true;
     }
     
     private void setupNotifySound() throws Exception {
         boolean checked = Boolean.valueOf(configService.configElement(ConfigurationEnum.SPEAK).getValue());
         JCheckBox check = (JCheckBox) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_WITH_SOUND, JCheckBox.class).orElseThrow(() -> new Exception("wrong object"));
         check.setSelected(checked);
+        
+        notifySoundStarted = true;
     }
     
     private void setupChangeOfDay() throws Exception {
         int hours = Integer.valueOf(configService.configElement(ConfigurationEnum.CHANGE_OF_DAY).getValue());
         JSpinner spinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.CHANGE_OF_DAY, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         spinner.setValue(hours);
+        
+        changeOfDayStarted = true;
     }
     
     private void setupChangeOfDayNotification() throws Exception {
         boolean notify = Boolean.valueOf(configService.configElement(ConfigurationEnum.NOTIFY_CHANGE_OF_DAY).getValue());
         JToggleButton notifyButton = (JToggleButton) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_CHANGE_OF_DAY, JToggleButton.class).orElseThrow(() -> new Exception("wrong object"));
         notifyButton.setSelected(notify);
+        
+        changeOfDayNotificationStarted = true;
     }
     
     private void setupChangeOfDayNotificationMinutes() throws Exception {
         int notifyMinutes = Integer.valueOf(configService.configElement(ConfigurationEnum.NOTIFY_CHANGE_OF_DAY_MINUTES).getValue());
         JSpinner minSpin = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_CHANGE_OF_DAY_MINUTES, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         minSpin.setValue(notifyMinutes);
+        
+        changeOfDayNotificationMinutesStarted = true;
     }
     
     // HANDLE EVENTS IN THE UI
@@ -541,6 +563,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
 
     private void handleMinLeftNotificationChange() throws Exception {
+        if (!minLeftNotificationStarted) {
+            return;
+        }
         JToggleButton minLeftNotification = (JToggleButton) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_MIN_LEFT, JToggleButton.class).orElseThrow(() -> new Exception("wrong object"));
         boolean checked = minLeftNotification.isSelected();
         ConfigElement el = new ConfigElement();
@@ -550,6 +575,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
 
     private void handleMinLeftQtyNotificationChange() throws Exception {
+        if (!minLeftNotificationStarted) {
+            return;
+        }
         JSpinner minLeftQty = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_MIN_LEFT_QTY, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         try {
             Long time = TimeConverter.minutesToMilis((Long) minLeftQty.getValue());
@@ -563,6 +591,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
 
     private void handleExportToggle() throws Exception {
+        if (!exportStarted) {
+            return;
+        }
         JToggleButton exportToggle = (JToggleButton) getObjectFromPanel(ConfigurationPanelEnum.EXPORT_TOGGLE, JToggleButton.class).orElseThrow(() -> new Exception("wrong object"));
         boolean checked = exportToggle.isSelected();
         ConfigElement el = new ConfigElement();
@@ -572,6 +603,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
 
     private void handleExportButton() throws Exception {
+        if (!exportStarted) {
+            return;
+        }
         JButton exportButton = (JButton) getObjectFromPanel(ConfigurationPanelEnum.EXPORT_BUTTON, JButton.class).orElseThrow(() -> new Exception("wrong object"));
         JFileChooser chooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Plain text files .txt only", "txt");
@@ -598,6 +632,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
     
     private void handleImportButton() throws Exception {
+        if (!importStarted) {
+            return;
+        }
         JPanel importPanel = (JPanel) getObjectFromPanel(ConfigurationPanelEnum.IMPORT_PANEL, JPanel.class).orElseThrow(() -> new Exception("wrong object"));
         JFileChooser chooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Plain text files .txt only", "txt");
@@ -654,9 +691,14 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                 .forEach(label -> importPanel.add(label));
         importPanel.revalidate();
         importPanel.repaint();
+        
+        importStarted = true;
     }
     
     private void handleIdleChange() throws Exception {
+        if (!idleStarted) {
+            return;
+        }
         JSpinner spinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.IDLE_SPINNER, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         try {
             Long time = TimeConverter.minutesToMilis((Long) spinner.getValue());
@@ -670,6 +712,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
     
     private void handleNotifySound() throws Exception {
+        if (!notifySoundStarted) {
+            return;
+        }
         JCheckBox check = (JCheckBox) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_WITH_SOUND, JCheckBox.class).orElseThrow(() -> new Exception("wrong object"));
         try {
             ConfigElement el = new ConfigElement();
@@ -682,6 +727,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
     
     private void handleChangeOfDay() throws Exception {
+        if (!changeOfDayStarted) {
+            return;
+        }
         JSpinner spinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.CHANGE_OF_DAY, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         try {
             ConfigElement el = new ConfigElement();
@@ -699,6 +747,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
 
     private void handleNotifyChangeOfDay() throws Exception {
+        if (!changeOfDayNotificationStarted) {
+            return;
+        }
         JToggleButton notifyToggle = (JToggleButton) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_CHANGE_OF_DAY, JToggleButton.class).orElseThrow(() -> new Exception("wrong object"));
         boolean checked = notifyToggle.isSelected();
         ConfigElement el = new ConfigElement();
@@ -708,6 +759,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
 
     private void handleNotifyChangeOfDayMinutes() throws Exception {
+        if (!changeOfDayNotificationMinutesStarted) {
+            return;
+        }
         JSpinner spinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_CHANGE_OF_DAY_MINUTES, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         try {
             ConfigElement el = new ConfigElement();
