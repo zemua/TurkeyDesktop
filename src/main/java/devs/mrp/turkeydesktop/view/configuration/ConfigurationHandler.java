@@ -318,7 +318,11 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         int proportion = (Integer)slider.getValue();
         if (proportion < 4) {
             slider.setEnabled(false);
-            popupMaker.show(frame, "this is the msg", "cancel", "confirm", () -> {
+            popupMaker.show(frame,
+                    localeMessages.getString("areYouSureYouShouldDoThis"),
+                    localeMessages.getString("cancel"),
+                    localeMessages.getString("confirm"),
+                    () -> {
                 // runnable for positive button
                 ConfigElement el = new ConfigElement();
                 el.setKey(ConfigurationEnum.PROPORTION);
@@ -326,7 +330,8 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                 configService.add(el);
                 slider.setEnabled(true);
                 slider.setValue(proportion);
-            }, () -> {
+            },
+                    () -> {
                 // runnable for negative button
                 int savedProportion = Integer.valueOf(configService.configElement(ConfigurationEnum.PROPORTION).getValue());
                 slider.setEnabled(true);

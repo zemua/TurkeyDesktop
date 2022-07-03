@@ -6,6 +6,7 @@ package devs.mrp.turkeydesktop.common.impl;
 
 import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
 import java.awt.BorderLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import static java.lang.Thread.sleep;
@@ -107,7 +108,8 @@ public class ConfirmationWithDelayImpl extends JFrame implements ActionListener,
         panel.add(cancelButton, BorderLayout.WEST);
         panel.add(acceptButton, BorderLayout.EAST);
         
-        popup = factory.getPopup(frame, panel, 180, 100);
+        Point location = frame.getLocation();
+        popup = factory.getPopup(frame, panel, location.x, location.y);
         return acceptButton;
     }
     
