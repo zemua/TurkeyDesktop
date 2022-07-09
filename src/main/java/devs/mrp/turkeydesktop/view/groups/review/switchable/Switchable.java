@@ -62,4 +62,8 @@ public class Switchable extends JPanel implements Feedbacker<String, Boolean> {
         });
     }
     
+    public void setSelected(boolean selected) {
+        this.check.setSelected(selected);
+    }
+    
 }
