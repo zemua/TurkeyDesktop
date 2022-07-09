@@ -5,6 +5,9 @@
  */
 package devs.mrp.turkeydesktop.common;
 
+import devs.mrp.turkeydesktop.database.config.FConfigElementService;
+import devs.mrp.turkeydesktop.database.config.IConfigElementService;
+import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,6 +23,8 @@ import java.util.concurrent.TimeUnit;
  * @author miguel
  */
 public class TimeConverter {
+    
+    private static IConfigElementService configService = FConfigElementService.getService();
 
     public static String millisToHMS(long millis) {
         return String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(millis),
@@ -99,8 +104,20 @@ public class TimeConverter {
         return millisToEndOfDay(System.currentTimeMillis());
     }
     
+    public static long endOfTodayConsideringDayChange() {
+        Long changeOfDayMilis = hoursToMilis(Long.valueOf(configService.configElement(ConfigurationEnum.CHANGE_OF_DAY).getValue()));
+        return endOfToday()+changeOfDayMilis;
+    }
+    
     public static long beginningOfOffsetDays(long offsetDays) {
         LocalDateTime start = LocalDate.now().atStartOfDay().minusDays(offsetDays);
+        ZonedDateTime zdt = start.atZone(ZoneId.systemDefault());
+        return zdt.toInstant().toEpochMilli();
+    }
+    
+    public static long beginningOfOffsetDaysConsideringDayChange(long offsetDays) {
+        Long changeOfDay = Long.valueOf(configService.configElement(ConfigurationEnum.CHANGE_OF_DAY).getValue());
+        LocalDateTime start = LocalDateTime.now().minusHours(changeOfDay).toLocalDate().atStartOfDay().minusDays(offsetDays).plusHours(changeOfDay);
         ZonedDateTime zdt = start.atZone(ZoneId.systemDefault());
         return zdt.toInstant().toEpochMilli();
     }

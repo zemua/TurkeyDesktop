@@ -5,8 +5,10 @@
  */
 package devs.mrp.turkeydesktop.view.groups.review;
 
+import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
 import devs.mrp.turkeydesktop.common.RemovableLabel;
 import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.FConditionService;
 import devs.mrp.turkeydesktop.database.conditions.IConditionService;
@@ -46,7 +48,6 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElementService;
-import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacade;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -59,6 +60,8 @@ import devs.mrp.turkeydesktop.database.group.GroupService;
  */
 public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent>> {
 
+    private ConfirmationWithDelay popupMaker = new ConfirmationWithDelayFactory();
+    
     private static final Logger logger = Logger.getLogger(GroupReviewHandler.class.getName());
     private final LocaleMessages localeMessages = LocaleMessages.getInstance();
 
@@ -297,10 +300,24 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private void setProcessSwitchableListener(Switchable switchable, String name, GroupAssignation.ElementType processOrTitle) {
         switchable.addFeedbackListener((processOrTitleId, feedback) -> {
             if (!feedback) { // if the checkbox was unchecked with this event
-                if (processOrTitle.equals(GroupAssignation.ElementType.PROCESS)) {
-                    groupAssignationService.deleteByProcessId(processOrTitleId);
+                if (Group.GroupType.NEGATIVE.equals(this.group.getType())) {
+                    popupMaker.show(this.getFrame(), () -> {
+                        // positive
+                        if (processOrTitle.equals(GroupAssignation.ElementType.PROCESS)) {
+                            groupAssignationService.deleteByProcessId(processOrTitleId);
+                        } else {
+                            groupAssignationService.deleteByTitleId(processOrTitleId);
+                        }
+                    }, () -> {
+                        // negative
+                        switchable.setSelected(true);
+                    });
                 } else {
-                    groupAssignationService.deleteByTitleId(processOrTitleId);
+                    if (processOrTitle.equals(GroupAssignation.ElementType.PROCESS)) {
+                        groupAssignationService.deleteByProcessId(processOrTitleId);
+                    } else {
+                        groupAssignationService.deleteByTitleId(processOrTitleId);
+                    }
                 }
             } else { // if the checkbox was cheked with this event
                 GroupAssignation ga = new GroupAssignation();
@@ -382,7 +399,13 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                     element.addFeedbackListener((tipo, feedback) -> {
                         switch (feedback) {
                             case DELETE:
-                                removeCondition(tipo.getConditionId());
+                                popupMaker.show(this.getFrame(), () -> {
+                                    // positive
+                                    removeCondition(tipo.getConditionId());
+                                }, () -> {
+                                    // negative
+                                    // do nothing, intentionally left blank
+                                });
                                 break;
                             default:
                                 break;

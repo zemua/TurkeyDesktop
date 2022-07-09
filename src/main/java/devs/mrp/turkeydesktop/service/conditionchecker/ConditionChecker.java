@@ -6,7 +6,6 @@
 package devs.mrp.turkeydesktop.service.conditionchecker;
 
 import devs.mrp.turkeydesktop.database.conditions.Condition;
-import devs.mrp.turkeydesktop.database.group.Group;
 import java.util.List;
 
 /**
@@ -24,5 +23,6 @@ public interface ConditionChecker {
     public long timeRemaining();
     public boolean isIdle();
     public boolean isIdleWithToast();
+    public void notifyCloseToConditionsRefresh();
     
 }

@@ -5,10 +5,11 @@
  */
 package devs.mrp.turkeydesktop.view.configuration;
 
-import devs.mrp.turkeydesktop.common.FeedbackListener;
+import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
 import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.common.RemovableLabel;
 import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.FConfigElementService;
 import devs.mrp.turkeydesktop.database.config.IConfigElementService;
@@ -23,11 +24,11 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -42,9 +43,26 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     private ImportService importService = ImportServiceFactory.getService();
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
     private Logger logger = Logger.getLogger(ConfigurationHandler.class.getName());
+    private JFrame frame;
+    private ConfirmationWithDelay popupMaker = new ConfirmationWithDelayFactory();
+    public static final int SENSITIVE_WAITING_SECONDS = 30;
+    
+    // Flags to know when the UI has been loaded and we can start processing triggers
+    private boolean proportionStarted = false;
+    private boolean lockDownStarted = false;
+    private boolean lockDownNotificationStarted = false;
+    private boolean minLeftNotificationStarted = false;
+    private boolean exportStarted = false;
+    private boolean importStarted = false;
+    private boolean idleStarted = false;
+    private boolean notifySoundStarted = false;
+    private boolean changeOfDayStarted = false;
+    private boolean changeOfDayNotificationStarted = false;
+    private boolean changeOfDayNotificationMinutesStarted = false;
 
     public ConfigurationHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
         super(frame, caller);
+        this.frame = frame;
     }
 
     @Override
@@ -150,6 +168,39 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                         logger.log(Level.SEVERE, "error handling response", e);
                         exit();
                     }
+                    break;
+                case NOTIFY_WITH_SOUND:
+                    try {
+                        handleNotifySound();
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE, "error handling response", e);
+                        exit();
+                    }
+                    break;
+                case CHANGE_OF_DAY:
+                    try {
+                        handleChangeOfDay();
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE, "error handling response", e);
+                        exit();
+                    }
+                    break;
+                case NOTIFY_CHANGE_OF_DAY:
+                    try {
+                        handleNotifyChangeOfDay();
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE, "error handling response", e);
+                        exit();
+                    }
+                    break;
+                case NOTIFY_CHANGE_OF_DAY_MINUTES:
+                    try {
+                        handleNotifyChangeOfDayMinutes();
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE, "error handling response", e);
+                        exit();
+                    }
+                    break;
                 default:
                     break;
             }
@@ -166,6 +217,10 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
             setupExport();
             refreshImportPanel();
             setupIdle();
+            setupNotifySound();
+            setupChangeOfDay();
+            setupChangeOfDayNotification();
+            setupChangeOfDayNotificationMinutes();
         } catch (Exception e) {
             logger.log(Level.SEVERE, "error showing panel", e);
             exit();
@@ -174,8 +229,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
 
     private void setupProportion() {
         int proportion = Integer.valueOf(configService.configElement(ConfigurationEnum.PROPORTION).getValue());
-        JSlider slider = (JSlider) this.getPanel().getProperty(ConfigurationPanelEnum.PROPORTION);
+        JSpinner slider = (JSpinner) this.getPanel().getProperty(ConfigurationPanelEnum.PROPORTION);
         slider.setValue(proportion);
+        proportionStarted = true;
     }
 
     private void setupLockDown() throws Exception {
@@ -194,6 +250,8 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         JSpinner toMin = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_TO_MIN, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         toHour.setValue(TimeConverter.getHours(to));
         toMin.setValue(TimeConverter.getMinutes(to));
+        
+        lockDownStarted = true;
     }
 
     private void setupLockDownNotification() throws Exception {
@@ -207,6 +265,8 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         }
         JSpinner minSpin = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_NOTIFY_MIN, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         minSpin.setValue(TimeConverter.getMinutes(notifyMinutes));
+        
+        lockDownNotificationStarted = true;
     }
 
     private void setupMinLeftNotification() throws Exception {
@@ -220,6 +280,8 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         }
         JSpinner minSpin = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_MIN_LEFT_QTY, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         minSpin.setValue(TimeConverter.getMinutes(notifyMinutes));
+        
+        minLeftNotificationStarted = true;
     }
     
     private void setupExport() throws Exception {
@@ -234,6 +296,8 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         JButton button = (JButton) getObjectFromPanel(ConfigurationPanelEnum.EXPORT_BUTTON, JButton.class).orElseThrow(() -> new Exception("wrong object"));
         int size = 25;
         button.setText(pathName.length() > size ? pathName.substring(pathName.length()-size) : pathName);
+        
+        exportStarted = true;
     }
     
     private void setupIdle() throws Exception {
@@ -243,59 +307,237 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         }
         JSpinner spinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.IDLE_SPINNER, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         spinner.setValue(TimeConverter.getMinutes(idleMinutes));
+        
+        idleStarted = true;
+    }
+    
+    private void setupNotifySound() throws Exception {
+        boolean checked = Boolean.valueOf(configService.configElement(ConfigurationEnum.SPEAK).getValue());
+        JCheckBox check = (JCheckBox) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_WITH_SOUND, JCheckBox.class).orElseThrow(() -> new Exception("wrong object"));
+        check.setSelected(checked);
+        
+        notifySoundStarted = true;
+    }
+    
+    private void setupChangeOfDay() throws Exception {
+        int hours = Integer.valueOf(configService.configElement(ConfigurationEnum.CHANGE_OF_DAY).getValue());
+        JSpinner spinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.CHANGE_OF_DAY, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        spinner.setValue(hours);
+        
+        changeOfDayStarted = true;
+    }
+    
+    private void setupChangeOfDayNotification() throws Exception {
+        boolean notify = Boolean.valueOf(configService.configElement(ConfigurationEnum.NOTIFY_CHANGE_OF_DAY).getValue());
+        JToggleButton notifyButton = (JToggleButton) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_CHANGE_OF_DAY, JToggleButton.class).orElseThrow(() -> new Exception("wrong object"));
+        notifyButton.setSelected(notify);
+        
+        changeOfDayNotificationStarted = true;
+    }
+    
+    private void setupChangeOfDayNotificationMinutes() throws Exception {
+        int notifyMinutes = Integer.valueOf(configService.configElement(ConfigurationEnum.NOTIFY_CHANGE_OF_DAY_MINUTES).getValue());
+        JSpinner minSpin = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_CHANGE_OF_DAY_MINUTES, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        minSpin.setValue(notifyMinutes);
+        
+        changeOfDayNotificationMinutesStarted = true;
     }
     
     // HANDLE EVENTS IN THE UI
 
     private void handleNewProportion() {
-        JSlider slider = (JSlider) this.getPanel().getProperty(ConfigurationPanelEnum.PROPORTION);
-        int proportion = slider.getValue();
-        ConfigElement el = new ConfigElement();
-        el.setKey(ConfigurationEnum.PROPORTION);
-        el.setValue(String.valueOf(proportion));
-        configService.add(el);
+        if (!proportionStarted) {
+            return;
+        }
+        JSpinner slider = (JSpinner) this.getPanel().getProperty(ConfigurationPanelEnum.PROPORTION);
+        int proportion = (Integer)slider.getValue();
+        int savedProportion = Integer.valueOf(configService.configElement(ConfigurationEnum.PROPORTION).getValue());
+        // if we are decreasing and target value is lower than 4...
+        if (proportion < 4 && proportion < savedProportion) {
+            slider.setEnabled(false);
+            popupMaker.show(frame,
+                    localeMessages.getString("areYouSureYouShouldDoThis"),
+                    localeMessages.getString("cancel"),
+                    localeMessages.getString("confirm"),
+                    () -> {
+                // runnable for positive button
+                ConfigElement el = new ConfigElement();
+                el.setKey(ConfigurationEnum.PROPORTION);
+                el.setValue(String.valueOf(proportion));
+                configService.add(el);
+                slider.setEnabled(true);
+                slider.setValue(proportion);
+            },
+                    () -> {
+                // runnable for negative button
+                slider.setEnabled(true);
+                slider.setValue(savedProportion);
+            }, SENSITIVE_WAITING_SECONDS);
+        } else {
+            ConfigElement el = new ConfigElement();
+            el.setKey(ConfigurationEnum.PROPORTION);
+            el.setValue(String.valueOf(proportion));
+            configService.add(el);
+        }
     }
 
     private void handleLockdownStatusChange() throws Exception {
+        if (!lockDownStarted) {
+            return;
+        }
         JToggleButton lockDownButton = (JToggleButton) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN, JToggleButton.class).orElseThrow(() -> new Exception("wrong object"));
         boolean checked = lockDownButton.isSelected();
-        ConfigElement el = new ConfigElement();
-        el.setKey(ConfigurationEnum.LOCKDOWN);
-        el.setValue(String.valueOf(checked));
-        configService.add(el);
+        if (!checked) {
+            lockDownButton.setEnabled(false);
+            popupMaker.show(frame, localeMessages.getString("areYouSureYouShouldDoThis"),
+                    localeMessages.getString("cancel"),
+                    localeMessages.getString("confirm"),
+                    () -> {
+                        // runnable positive
+                        ConfigElement el = new ConfigElement();
+                        el.setKey(ConfigurationEnum.LOCKDOWN);
+                        el.setValue(String.valueOf(false));
+                        configService.add(el);
+                        lockDownButton.setEnabled(true);
+                    }, () -> {
+                        // runnable negative
+                        lockDownButton.setSelected(true);
+                        lockDownButton.setEnabled(true);
+                    }, SENSITIVE_WAITING_SECONDS);
+        } else {
+            ConfigElement el = new ConfigElement();
+            el.setKey(ConfigurationEnum.LOCKDOWN);
+            el.setValue(String.valueOf(checked));
+            configService.add(el);
+        }
     }
 
     private void handleLockdownFromChange() throws Exception {
+        if (!lockDownStarted) {
+            return;
+        }
         JSpinner lockDownHourSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_FROM_HOUR, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         JSpinner lockDownMinSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_FROM_MIN, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        JSpinner toHourSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_TO_HOUR, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        JSpinner toMinSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_TO_MIN, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        long savedTime = Long.valueOf(configService.configElement(ConfigurationEnum.LOCKDOWN_FROM).getValue());
         try {
             Long time = TimeConverter.minutesToMilis((Long) lockDownMinSpinner.getValue());
             time += TimeConverter.hoursToMilis((Long) lockDownHourSpinner.getValue());
-            ConfigElement el = new ConfigElement();
-            el.setKey(ConfigurationEnum.LOCKDOWN_FROM);
-            el.setValue(String.valueOf(time));
-            configService.add(el);
+            final long targetTimeForDb = time; // to use inside the lambda has to be final
+            Long toTime = TimeConverter.minutesToMilis((Long) toMinSpinner.getValue());
+            toTime += TimeConverter.hoursToMilis((Long) toHourSpinner.getValue());
+            
+            long savedToTime = toTime;
+            if (toTime < time) {
+                // for example start time 23:00 and end time at 5:00 then make 5:00 -> 29:00
+                toTime = toTime + TimeConverter.hoursToMilis(24);
+            }
+            if (savedToTime < savedTime) {
+                // for example start time 23:00 and end time at 5:00 then make 5:00 -> 29:00
+                savedToTime = savedToTime + TimeConverter.hoursToMilis(24);
+            }
+            
+            long diffNow = toTime - time;
+            long savedDiff = savedToTime - savedTime;
+            
+            if (diffNow < savedDiff) { // if the lockdown frame is being decreased
+                lockDownHourSpinner.setEnabled(false);
+                lockDownMinSpinner.setEnabled(false);
+                popupMaker.show(frame, localeMessages.getString("areYouSureYouShouldDoThis"),
+                    localeMessages.getString("cancel"),
+                    localeMessages.getString("confirm"),
+                    () -> {
+                        // positive runnable
+                        ConfigElement el = new ConfigElement();
+                        el.setKey(ConfigurationEnum.LOCKDOWN_FROM);
+                        el.setValue(String.valueOf(targetTimeForDb));
+                        configService.add(el);
+                        lockDownHourSpinner.setEnabled(true);
+                        lockDownMinSpinner.setEnabled(true);
+                    }, () -> {
+                        // negative runnable
+                        lockDownMinSpinner.setValue(TimeConverter.getMinutes(savedTime));
+                        lockDownHourSpinner.setValue(TimeConverter.getHours(savedTime));
+                        lockDownHourSpinner.setEnabled(true);
+                        lockDownMinSpinner.setEnabled(true);
+                    }, SENSITIVE_WAITING_SECONDS);
+            } else {
+                ConfigElement el = new ConfigElement();
+                el.setKey(ConfigurationEnum.LOCKDOWN_FROM);
+                el.setValue(String.valueOf(targetTimeForDb));
+                configService.add(el);
+            }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error getting values from spinners to db", e);
         }
     }
 
     private void handleLockdownToChange() throws Exception {
-        JSpinner lockDownHourSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_TO_HOUR, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
-        JSpinner lockDownMinSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_TO_MIN, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        if (!lockDownStarted) {
+            return;
+        }
+        JSpinner fromHourSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_FROM_HOUR, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        JSpinner fromMinSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_FROM_MIN, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        JSpinner toHourSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_TO_HOUR, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        JSpinner toMinSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_TO_MIN, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        final long savedToTimeFinal = Long.valueOf(configService.configElement(ConfigurationEnum.LOCKDOWN_TO).getValue());
         try {
-            Long time = TimeConverter.minutesToMilis((Long) lockDownMinSpinner.getValue());
-            time += TimeConverter.hoursToMilis((Long) lockDownHourSpinner.getValue());
-            ConfigElement el = new ConfigElement();
-            el.setKey(ConfigurationEnum.LOCKDOWN_TO);
-            el.setValue(String.valueOf(time));
-            configService.add(el);
+            Long fromTime = TimeConverter.minutesToMilis((Long) fromMinSpinner.getValue());
+            fromTime += TimeConverter.hoursToMilis((Long) fromHourSpinner.getValue());
+            Long toTime = TimeConverter.minutesToMilis((Long) toMinSpinner.getValue());
+            toTime += TimeConverter.hoursToMilis((Long) toHourSpinner.getValue());
+            final long targetTimeForDb = toTime; // to use inside the lambda has to be final
+            
+            if (toTime < fromTime) {
+                // for example start time 23:00 and end time at 5:00 then make 5:00 -> 29:00
+                toTime = toTime + TimeConverter.hoursToMilis(24);
+            }
+            long savedToTime = savedToTimeFinal;
+            if (savedToTime < fromTime) {
+                // for example start time 23:00 and end time at 5:00 then make 5:00 -> 29:00
+                savedToTime = savedToTime + TimeConverter.hoursToMilis(24);
+            }
+            
+            long diffNow = toTime - fromTime;
+            long savedDiff = savedToTime - fromTime;
+            
+            if (diffNow < savedDiff) { // if the lockdown frame is being decreased
+                toHourSpinner.setEnabled(false);
+                toMinSpinner.setEnabled(false);
+                popupMaker.show(frame, localeMessages.getString("areYouSureYouShouldDoThis"),
+                    localeMessages.getString("cancel"),
+                    localeMessages.getString("confirm"),
+                    () -> {
+                        // positive runnable
+                        ConfigElement el = new ConfigElement();
+                        el.setKey(ConfigurationEnum.LOCKDOWN_TO);
+                        el.setValue(String.valueOf(targetTimeForDb));
+                        configService.add(el);
+                        toHourSpinner.setEnabled(true);
+                        toMinSpinner.setEnabled(true);
+                    }, () -> {
+                        // negative runnable
+                        toMinSpinner.setValue(TimeConverter.getMinutes(savedToTimeFinal));
+                        toHourSpinner.setValue(TimeConverter.getHours(savedToTimeFinal));
+                        toHourSpinner.setEnabled(true);
+                        toMinSpinner.setEnabled(true);
+                    }, SENSITIVE_WAITING_SECONDS);
+            } else {
+                ConfigElement el = new ConfigElement();
+                el.setKey(ConfigurationEnum.LOCKDOWN_TO);
+                el.setValue(String.valueOf(targetTimeForDb));
+                configService.add(el);
+            }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error getting values from spinners to db", e);
         }
     }
 
     private void handleLockDownNotificationChange() throws Exception {
+        if (!lockDownNotificationStarted) {
+            return;
+        }
         JToggleButton lockDownNotification = (JToggleButton) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_NOTIFY, JToggleButton.class).orElseThrow(() -> new Exception("wrong object"));
         boolean checked = lockDownNotification.isSelected();
         ConfigElement el = new ConfigElement();
@@ -305,6 +547,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
 
     private void handleLockDownMinutesNotificationChange() throws Exception {
+        if (!lockDownNotificationStarted) {
+            return;
+        }
         JSpinner lockDownMinSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_NOTIFY_MIN, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         try {
             Long time = TimeConverter.minutesToMilis((Long) lockDownMinSpinner.getValue());
@@ -318,6 +563,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
 
     private void handleMinLeftNotificationChange() throws Exception {
+        if (!minLeftNotificationStarted) {
+            return;
+        }
         JToggleButton minLeftNotification = (JToggleButton) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_MIN_LEFT, JToggleButton.class).orElseThrow(() -> new Exception("wrong object"));
         boolean checked = minLeftNotification.isSelected();
         ConfigElement el = new ConfigElement();
@@ -327,6 +575,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
 
     private void handleMinLeftQtyNotificationChange() throws Exception {
+        if (!minLeftNotificationStarted) {
+            return;
+        }
         JSpinner minLeftQty = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_MIN_LEFT_QTY, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         try {
             Long time = TimeConverter.minutesToMilis((Long) minLeftQty.getValue());
@@ -340,6 +591,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
 
     private void handleExportToggle() throws Exception {
+        if (!exportStarted) {
+            return;
+        }
         JToggleButton exportToggle = (JToggleButton) getObjectFromPanel(ConfigurationPanelEnum.EXPORT_TOGGLE, JToggleButton.class).orElseThrow(() -> new Exception("wrong object"));
         boolean checked = exportToggle.isSelected();
         ConfigElement el = new ConfigElement();
@@ -349,6 +603,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
 
     private void handleExportButton() throws Exception {
+        if (!exportStarted) {
+            return;
+        }
         JButton exportButton = (JButton) getObjectFromPanel(ConfigurationPanelEnum.EXPORT_BUTTON, JButton.class).orElseThrow(() -> new Exception("wrong object"));
         JFileChooser chooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Plain text files .txt only", "txt");
@@ -375,6 +632,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
     
     private void handleImportButton() throws Exception {
+        if (!importStarted) {
+            return;
+        }
         JPanel importPanel = (JPanel) getObjectFromPanel(ConfigurationPanelEnum.IMPORT_PANEL, JPanel.class).orElseThrow(() -> new Exception("wrong object"));
         JFileChooser chooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Plain text files .txt only", "txt");
@@ -431,9 +691,14 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                 .forEach(label -> importPanel.add(label));
         importPanel.revalidate();
         importPanel.repaint();
+        
+        importStarted = true;
     }
     
     private void handleIdleChange() throws Exception {
+        if (!idleStarted) {
+            return;
+        }
         JSpinner spinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.IDLE_SPINNER, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         try {
             Long time = TimeConverter.minutesToMilis((Long) spinner.getValue());
@@ -445,10 +710,67 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
             logger.log(Level.SEVERE, "Error getting values from spinners to db", e);
         }
     }
+    
+    private void handleNotifySound() throws Exception {
+        if (!notifySoundStarted) {
+            return;
+        }
+        JCheckBox check = (JCheckBox) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_WITH_SOUND, JCheckBox.class).orElseThrow(() -> new Exception("wrong object"));
+        try {
+            ConfigElement el = new ConfigElement();
+            el.setKey(ConfigurationEnum.SPEAK);
+            el.setValue(String.valueOf(check.isSelected()));
+            configService.add(el);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error getting values from notify with sound checkbox", e);
+        }
+    }
+    
+    private void handleChangeOfDay() throws Exception {
+        if (!changeOfDayStarted) {
+            return;
+        }
+        JSpinner spinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.CHANGE_OF_DAY, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        try {
+            ConfigElement el = new ConfigElement();
+            el.setKey(ConfigurationEnum.CHANGE_OF_DAY);
+            el.setValue(String.valueOf(spinner.getValue()));
+            configService.add(el);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error getting values from change of day spinner", e);
+        }
+    }
 
     @Override
     protected void doBeforeExit() {
         // blank
+    }
+
+    private void handleNotifyChangeOfDay() throws Exception {
+        if (!changeOfDayNotificationStarted) {
+            return;
+        }
+        JToggleButton notifyToggle = (JToggleButton) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_CHANGE_OF_DAY, JToggleButton.class).orElseThrow(() -> new Exception("wrong object"));
+        boolean checked = notifyToggle.isSelected();
+        ConfigElement el = new ConfigElement();
+        el.setKey(ConfigurationEnum.NOTIFY_CHANGE_OF_DAY);
+        el.setValue(String.valueOf(checked));
+        configService.add(el);
+    }
+
+    private void handleNotifyChangeOfDayMinutes() throws Exception {
+        if (!changeOfDayNotificationMinutesStarted) {
+            return;
+        }
+        JSpinner spinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_CHANGE_OF_DAY_MINUTES, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
+        try {
+            ConfigElement el = new ConfigElement();
+            el.setKey(ConfigurationEnum.NOTIFY_CHANGE_OF_DAY_MINUTES);
+            el.setValue(String.valueOf(spinner.getValue()));
+            configService.add(el);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error getting values from change of day spinner", e);
+        }
     }
 
 }

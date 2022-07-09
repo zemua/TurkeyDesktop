@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.database.group.GroupService;
+import java.time.LocalDateTime;
 
 /**
  *
@@ -54,6 +55,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
     private ChainHandler<LongWrapper> idleHandler = new IdleChainCommander().getHandlerChain();
     private ExternalGroupService externalGroupService = ExternalGroupServiceFactory.getService();
     private ImportReader importReader = ImportReaderFactory.getReader();
+    private static long avoidMessageFlood = 1000*90; // if the idle time surpases 2+ minutes stop flooding notifications
     
     private Logger logger = Logger.getLogger(ConditionCheckerImpl.class.getName());
 
@@ -63,15 +65,16 @@ public class ConditionCheckerImpl implements ConditionChecker {
     @Override
     public boolean isConditionMet(Condition condition) {
         long timeSpent = timeLogService.timeSpentOnGroupForFrame(condition.getTargetId(),
-                TimeConverter.beginningOfOffsetDays(condition.getLastDaysCondition()),
-                TimeConverter.endOfToday());
+                TimeConverter.beginningOfOffsetDaysConsideringDayChange(condition.getLastDaysCondition()),
+                TimeConverter.endOfTodayConsideringDayChange());
         long external = externalTimeFromCondition(condition);
         return timeSpent+external >= condition.getUsageTimeCondition();
     }
     
     private long externalTimeFromCondition(Condition condition) {
-        LocalDate to = LocalDate.now();
-        LocalDate from = LocalDate.now().minusDays(condition.getLastDaysCondition());
+        Long changeOfDay = Long.valueOf(configService.configElement(ConfigurationEnum.CHANGE_OF_DAY).getValue());
+        LocalDate to = LocalDateTime.now().minusHours(changeOfDay).toLocalDate();
+        LocalDate from = LocalDateTime.now().minusHours(changeOfDay).minusDays(condition.getLastDaysCondition()).toLocalDate();
         List<ExternalGroup> externals = externalGroupService.findByGroup(condition.getTargetId());
         return externals.stream()
                 .map(ExternalGroup::getFile)
@@ -196,13 +199,44 @@ public class ConditionCheckerImpl implements ConditionChecker {
         return currentIdle.getValue() >= idleCondition;
     }
     
+    private boolean isIdleFlood() {
+        Long idleCondition = Long.valueOf(configService.findById(ConfigurationEnum.IDLE).getValue());
+        LongWrapper currentIdle = new LongWrapper();
+        idleHandler.receiveRequest("idle", currentIdle);
+        return currentIdle.getValue() >= idleCondition + avoidMessageFlood;
+    }
+    
     @Override
     public boolean isIdleWithToast() {
         boolean idle = isIdle();
-        if (idle) {
+        if (idle && !isIdleFlood()) {
             Toaster.sendToast(localeMessages.getString("idleMsg"));
         }
         return idle;
+    }
+
+    @Override
+    public void notifyCloseToConditionsRefresh() {
+        if (closeToConditionsRefresh()) {
+            Toaster.sendToast(localeMessages.getString("conditionsRefreshSoon"));
+        }
+    }
+    
+    public boolean closeToConditionsRefresh() {
+        Boolean notify = Boolean.valueOf(configService.configElement(ConfigurationEnum.NOTIFY_CHANGE_OF_DAY).getValue());
+        if (!notify) {
+            return false;
+        }
+        Long changeOfDay = TimeConverter.hoursToMilis(Long.valueOf(configService.findById(ConfigurationEnum.CHANGE_OF_DAY).getValue()));
+
+        Long minutesNotice = Long.valueOf(configService.findById(ConfigurationEnum.NOTIFY_CHANGE_OF_DAY_MINUTES).getValue());
+        Long hourNow = TimeConverter.epochToMilisOnGivenDay(System.currentTimeMillis());
+        if (hourNow < changeOfDay) {
+            return changeOfDay - hourNow < 60 * 1000 * minutesNotice;
+        } else if (hourNow > changeOfDay) {
+            return changeOfDay + TimeConverter.hoursToMilis(24) - hourNow < 60 * 1000 * minutesNotice;
+        }
+        return false;
     }
 
 }

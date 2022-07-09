@@ -5,8 +5,10 @@
  */
 package devs.mrp.turkeydesktop.view.categorizeprocesspanel;
 
+import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
 import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.common.Tripla;
+import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeServiceFactory;
 import devs.mrp.turkeydesktop.database.type.TypeServiceFactory;
 import devs.mrp.turkeydesktop.database.type.Type;
@@ -31,6 +33,8 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>> {
 
+    private ConfirmationWithDelay popupMaker = new ConfirmationWithDelayFactory();
+    
     private static final int FILTER_ALL = 0;
     private static final int FILTER_NOT_CATEGORIZED = 1;
     private static final int FILTER_POSITIVE = 2;
@@ -138,10 +142,21 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
     }
     
     private void addCategorization(String process, Type.Types type) {
+        Type saved = typeService.findById(process);
         Type t = new Type();
         t.setProcess(process);
         t.setType(type);
-        typeService.add(t);
+        if (Type.Types.POSITIVE.equals(type) || Type.Types.NEGATIVE.equals(saved.getType())) {
+            popupMaker.show(this.getFrame(), () -> {
+                // runnable positive
+                typeService.add(t);
+            }, () -> {
+                // runnable negative
+                updateItemsInList();
+            });
+        } else {
+            typeService.add(t);
+        }
     }
 
     @Override

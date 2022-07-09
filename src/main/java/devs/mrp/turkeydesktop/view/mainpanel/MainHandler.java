@@ -107,6 +107,9 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
         setTimeOnHeaderLabel();
         this.getPanel().revalidate();
         this.getPanel().updateUI();
+        // For an unknown reason there are some times when the watchdog is stopped during start.
+        // This can re-start it when opening the main screen.
+        WatchDogFactory.getInstance().begin();
     }
     
     private void initTimesHandler() {

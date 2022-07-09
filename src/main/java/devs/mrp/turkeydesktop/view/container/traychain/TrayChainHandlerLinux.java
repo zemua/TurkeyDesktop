@@ -10,11 +10,11 @@ import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.resourcehandler.ImagesEnum;
 import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandler;
 import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandlerFactory;
+import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactory;
 import dorkbox.systemTray.SystemTray;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 
@@ -57,7 +57,7 @@ public class TrayChainHandlerLinux extends TrayChainBaseHandler {
 
         tray.installShutdownHook();
         tray.setImage(imageHandler.getResource(ImagesEnum.TURKEY));
-        tray.setStatus("Running");
+        tray.setStatus(localeMessages.getString("running"));
 
         JMenuItem openItem = new JMenuItem(localeMessages.getString("open"));
         openItem.addActionListener(new ActionListener() {
@@ -68,6 +68,7 @@ public class TrayChainHandlerLinux extends TrayChainBaseHandler {
                 // because fram.toFront() doesnt work
                 frame.setAlwaysOnTop(true);
                 frame.setAlwaysOnTop(false);
+                WatchDogFactory.getInstance().begin(); // way to start watchdog if it gets stuck
             }
         });
         JMenuItem hideItem = new JMenuItem(localeMessages.getString("hide"));
