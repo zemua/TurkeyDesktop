@@ -12,4 +12,5 @@ import javax.swing.JFrame;
  */
 public interface ConfirmationWithDelay {
     public void show(JFrame parent, String msg, String cancel, String confirm, Runnable runnablePositive, Runnable runnableNegative, int secondsDelay);
+    public void show(JFrame parent, Runnable runnablePositive, Runnable runnableNegative);
 }

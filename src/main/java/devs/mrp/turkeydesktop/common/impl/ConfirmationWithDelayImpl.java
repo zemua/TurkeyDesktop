@@ -5,6 +5,7 @@
 package devs.mrp.turkeydesktop.common.impl;
 
 import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
+import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -28,6 +29,8 @@ public class ConfirmationWithDelayImpl extends JFrame implements ActionListener,
     
     private static final Logger LOGGER = Logger.getLogger(ConfirmationWithDelayImpl.class.getName());
     
+    private static final int DEFAULT_WAITING_SECONDS = 30;
+    
     private Popup popup;
     private JFrame frame;
     private JPanel panel;
@@ -35,6 +38,7 @@ public class ConfirmationWithDelayImpl extends JFrame implements ActionListener,
     private Runnable runnablePositive;
     private Runnable runnableNegative;
     private String confirmValue;
+    private LocaleMessages localeMessages = LocaleMessages.getInstance();
     
     ConfirmationWithDelayImpl() {
         // just to restrict to the factory
@@ -48,7 +52,19 @@ public class ConfirmationWithDelayImpl extends JFrame implements ActionListener,
         this.confirmValue = confirm;
         JButton acceptButton = createPopup(msg, cancel, confirm);
         popup.show();
+        frame.setEnabled(false);
         countdown(acceptButton, secondsDelay, confirm);
+    }
+    
+    @Override
+    public void show(JFrame parent, Runnable runnablePositive, Runnable runnableNegative) {
+        this.show(parent,
+                localeMessages.getString("areYouSureYouShouldDoThis"),
+                localeMessages.getString("cancel"),
+                localeMessages.getString("confirm"),
+                runnablePositive,
+                runnableNegative,
+                DEFAULT_WAITING_SECONDS);
     }
 
     @Override
@@ -62,6 +78,7 @@ public class ConfirmationWithDelayImpl extends JFrame implements ActionListener,
             popup.hide();
             runnableNegative.run();
         }
+        frame.setEnabled(true);
     }
     
     private void countdown(JButton button, int seconds, String btnText) {
