@@ -5,7 +5,10 @@
  */
 package devs.mrp.turkeydesktop.view.categorizetitles.element.conditions;
 
+import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
 import devs.mrp.turkeydesktop.common.FeedbackListener;
+import devs.mrp.turkeydesktop.common.RemovableLabel;
+import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.titledlog.TitledLog;
 import devs.mrp.turkeydesktop.database.titles.TitleServiceFactory;
 import devs.mrp.turkeydesktop.database.titles.Title;
@@ -27,6 +30,8 @@ import devs.mrp.turkeydesktop.database.titles.TitleService;
  */
 public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AWTEvent, FeedbackerPanelWithFetcher<TitleConditionsEnum, AWTEvent>> {
 
+    private ConfirmationWithDelay popupMaker = new ConfirmationWithDelayFactory();
+    
     private TitledLog mTitledLog;
     private TitleService titleService = TitleServiceFactory.getService();
     private static final Logger logger = Logger.getLogger(TitleConditionsHandler.class.getName());
@@ -49,7 +54,14 @@ public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AW
                     exit();
                     break;
                 case POSITIVE_BUTTON:
-                    addCondition(((JLabel)getPanel().getProperty(TitleConditionsEnum.NEW_CONDITION_TEXT)).getText(), Title.Type.POSITIVE);
+                    String textForCondition = ((JLabel)getPanel().getProperty(TitleConditionsEnum.NEW_CONDITION_TEXT)).getText();
+                    popupMaker.show(this.getFrame(), () -> {
+                        // positive
+                        addCondition(textForCondition, Title.Type.POSITIVE);
+                    }, () -> {
+                        // negative do nothing
+                        // intentionally empty
+                    });
                     break;
                 case NEGATIVE_BUTTON:
                     addCondition(((JLabel)getPanel().getProperty(TitleConditionsEnum.NEW_CONDITION_TEXT)).getText(), Title.Type.NEGATIVE);
@@ -80,12 +92,18 @@ public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AW
                     TitleCondition label = new TitleCondition(t);
                     conditionsPanel.add(label);
                     label.addFeedbackListener((tipo,feedback) -> {
-                        switch (feedback) {
-                            case DELETE:
+                        if (RemovableLabel.Action.DELETE.equals(feedback)) {
+                            if (Title.Type.NEGATIVE.equals(t.getType())) {
+                                popupMaker.show(this.getFrame(), () -> {
+                                    // positive
+                                    removeCondition(tipo.getSubStr());
+                                }, () -> {
+                                    // negative
+                                    // do nothing, intentionally left blank
+                                });
+                            } else {
                                 removeCondition(tipo.getSubStr());
-                                break;
-                            default:
-                                break;
+                            }
                         }
                     });
                 });
