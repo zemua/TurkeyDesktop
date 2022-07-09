@@ -7,6 +7,7 @@ package devs.mrp.turkeydesktop.common.impl;
 import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -120,6 +121,7 @@ public class ConfirmationWithDelayImpl extends JFrame implements ActionListener,
         acceptButton.addActionListener(this);
         
         panel = new JPanel();
+        panel.setBackground(Color.pink);
         panel.setLayout(new BorderLayout());
         panel.add(label, BorderLayout.NORTH);
         panel.add(cancelButton, BorderLayout.WEST);
