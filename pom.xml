@@ -85,7 +85,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>devs.mrp.turkeydesktop.view.container.MainContainer</mainClass>
+                            <mainClass>devs.mrp.turkeydesktop.view.container.TurkeyDesktop</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -106,7 +106,7 @@
                             </descriptorRefs>
                             <archive>
                                 <manifest>
-                                    <mainClass>devs.mrp.turkeydesktop.view.container.MainContainer</mainClass>
+                                    <mainClass>devs.mrp.turkeydesktop.view.container.TurkeyDesktop</mainClass>
                                 </manifest>
                             </archive>
                         </configuration>

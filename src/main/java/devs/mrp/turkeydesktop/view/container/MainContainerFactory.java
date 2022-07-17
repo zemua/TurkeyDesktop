@@ -13,6 +13,6 @@ import javax.swing.JFrame;
  */
 public class MainContainerFactory {
     public static JFrame getContainer() {
-        return new MainContainer();
+        return new TurkeyDesktop();
     }
 }

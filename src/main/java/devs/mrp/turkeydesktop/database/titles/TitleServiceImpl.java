@@ -5,6 +5,9 @@
  */
 package devs.mrp.turkeydesktop.database.titles;
 
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationDao;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationRepository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -23,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 public class TitleServiceImpl implements TitleService {
 
     private final TitleDao repo = TitleRepository.getInstance();
+    private static final GroupAssignationDao assignationRepo = GroupAssignationRepository.getInstance();
     private static final Logger logger = Logger.getLogger(TitleServiceImpl.class.getName());
 
     private static Map<String, Title> conditionsMap;
@@ -115,8 +119,10 @@ public class TitleServiceImpl implements TitleService {
         if (subStr == null) {
             return -1;
         }
-        conditionsMap.remove(subStr.toLowerCase());
-        return repo.deleteById(subStr.toLowerCase());
+        String lowerCased = subStr.toLowerCase();
+        conditionsMap.remove(lowerCased);
+        assignationRepo.deleteByElementId(GroupAssignation.ElementType.TITLE, lowerCased);
+        return repo.deleteById(lowerCased);
     }
 
     private Title elementFromResultSetEntry(ResultSet set) {

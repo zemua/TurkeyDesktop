@@ -17,7 +17,7 @@ import devs.mrp.turkeydesktop.service.watchdog.WatchDog;
  *
  * @author miguel
  */
-public class MainContainer extends javax.swing.JFrame {
+public class TurkeyDesktop extends javax.swing.JFrame {
 
     private static WatchDog watchDog;
     private static PanelHandler handler;
@@ -25,7 +25,7 @@ public class MainContainer extends javax.swing.JFrame {
     /**
      * Creates new form MainContainer
      */
-    public MainContainer() {
+    public TurkeyDesktop() {
         super();
         initComponents();
         initHandler();
@@ -50,7 +50,6 @@ public class MainContainer extends javax.swing.JFrame {
     private void initComponents() {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(1000, 300));
         setResizable(false);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -84,25 +83,26 @@ public class MainContainer extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MainContainer.class
+            java.util.logging.Logger.getLogger(TurkeyDesktop.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MainContainer.class
+            java.util.logging.Logger.getLogger(TurkeyDesktop.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MainContainer.class
+            java.util.logging.Logger.getLogger(TurkeyDesktop.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MainContainer.class
+            java.util.logging.Logger.getLogger(TurkeyDesktop.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 if (Db.verifyCanGetDb()) {
-                    new MainContainer().setVisible(false);
+                    new TurkeyDesktop().setVisible(false);
                 }
             }
         });
