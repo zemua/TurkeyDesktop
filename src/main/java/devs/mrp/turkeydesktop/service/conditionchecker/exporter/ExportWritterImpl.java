@@ -62,11 +62,11 @@ public class ExportWritterImpl implements ExportWritter {
         }
         StringBuilder fileText = new StringBuilder();
         for (int i = 0; i < export.getDays(); i++) {
-            long to = TimeConverter.endOfOffsetDays(i);
-            long from = TimeConverter.beginningOfOffsetDays(i);
+            long to = TimeConverter.endOfOffsetDaysConsideringDayChange(i);
+            long from = TimeConverter.beginningOfOffsetDaysConsideringDayChange(i);
             long spent = timeLogService.timeSpentOnGroupForFrame(export.getGroup(), from, to);
             LocalDate date = LocalDate.now().minusDays(i);
-            String result = String.format("%d-%d-%d-%d", date.getYear(), date.getMonthValue() - 1, date.getDayOfMonth(), spent); // TODO LocalDate month starts in 1 but in Android is set to start on 0
+            String result = String.format("%d-%d-%d-%d", date.getYear(), date.getMonthValue() - 1, date.getDayOfMonth(), spent); // TODO LocalDate month starts in 1 but in Android app is set to start on 0
             if (i != 0) {
                 fileText.append(System.lineSeparator());
             }

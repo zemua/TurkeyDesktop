@@ -128,6 +128,13 @@ public class TimeConverter {
         return zdt.toInstant().toEpochMilli();
     }
     
+    public static long endOfOffsetDaysConsideringDayChange(long offsetDays) {
+        Long changeOfDay = Long.valueOf(configService.configElement(ConfigurationEnum.CHANGE_OF_DAY).getValue());
+        LocalDateTime end = LocalDateTime.now().minusHours(changeOfDay).toLocalDate().atStartOfDay().plusHours(24).minusDays(offsetDays).plusHours(changeOfDay);
+        ZonedDateTime zdt = end.atZone(ZoneId.systemDefault());
+        return zdt.toInstant().toEpochMilli();
+    }
+    
     public static long epochToMilisOnGivenDay(long epoch) {
         LocalTime time = LocalDateTime.ofInstant(Instant.ofEpochMilli(epoch), ZoneId.systemDefault()).toLocalTime();
         return time.getLong(ChronoField.MILLI_OF_DAY);
