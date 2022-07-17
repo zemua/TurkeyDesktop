@@ -22,5 +22,10 @@ public class ConfirmationWithDelayFactory implements ConfirmationWithDelay {
     public void show(JFrame parent, Runnable runnablePositive, Runnable runnableNegative) {
         new ConfirmationWithDelayImpl().show(parent, runnablePositive, runnableNegative);
     }
+
+    @Override
+    public void show(JFrame parent, Runnable runnablePositive, Runnable runnableNegative, int secondsDelay) {
+        new ConfirmationWithDelayImpl().show(parent, runnablePositive, runnableNegative, secondsDelay);
+    }
     
 }

@@ -67,6 +67,17 @@ public class ConfirmationWithDelayImpl extends JFrame implements ActionListener,
                 runnableNegative,
                 DEFAULT_WAITING_SECONDS);
     }
+    
+    @Override
+    public void show(JFrame parent, Runnable runnablePositive, Runnable runnableNegative, int secondsDelay) {
+        this.show(parent,
+                localeMessages.getString("areYouSureYouShouldDoThis"),
+                localeMessages.getString("cancel"),
+                localeMessages.getString("confirm"),
+                runnablePositive,
+                runnableNegative,
+                secondsDelay);
+    }
 
     @Override
     public void actionPerformed(ActionEvent ae) {

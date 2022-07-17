@@ -6,7 +6,6 @@
 package devs.mrp.turkeydesktop.view.categorizetitles.element.conditions;
 
 import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
-import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.common.RemovableLabel;
 import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.titledlog.TitledLog;
@@ -35,6 +34,7 @@ public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AW
     private TitledLog mTitledLog;
     private TitleService titleService = TitleServiceFactory.getService();
     private static final Logger logger = Logger.getLogger(TitleConditionsHandler.class.getName());
+    private static final int shortWaitingSeconds = 15;
     
     public TitleConditionsHandler(JFrame frame, PanelHandler<?, ?, ?> caller, TitledLog titledLog) {
         super(frame, caller);
@@ -61,7 +61,7 @@ public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AW
                     }, () -> {
                         // negative do nothing
                         // intentionally empty
-                    });
+                    }, shortWaitingSeconds);
                     break;
                 case NEGATIVE_BUTTON:
                     addCondition(((JLabel)getPanel().getProperty(TitleConditionsEnum.NEW_CONDITION_TEXT)).getText(), Title.Type.NEGATIVE);
