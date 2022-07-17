@@ -5,6 +5,9 @@
  */
 package devs.mrp.turkeydesktop.database.type;
 
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationDao;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationRepository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -19,6 +22,7 @@ import java.util.logging.Logger;
 public class TypeServiceImpl implements TypeService {
     
     TypeDao repo = TypeRepository.getInstance();
+    private static final GroupAssignationDao assignationRepo = GroupAssignationRepository.getInstance();
     private static final Logger logger = Logger.getLogger(TypeServiceImpl.class.getName());
 
     @Override
@@ -44,6 +48,11 @@ public class TypeServiceImpl implements TypeService {
         if (element == null || element.getProcess() == null) {
             return -1;
         } else {
+            Type saved = findById(element.getProcess());
+            if (saved != null && saved.getType() != null && !saved.getType().equals(element.getType())) {
+                // if we are changing the type of the process, then remove from any existing groups
+                assignationRepo.deleteByElementId(GroupAssignation.ElementType.PROCESS, element.getProcess());
+            }
             return repo.update(element);
         }
     }
@@ -75,6 +84,7 @@ public class TypeServiceImpl implements TypeService {
 
     @Override
     public long deleteById(String id) {
+        assignationRepo.deleteByElementId(GroupAssignation.ElementType.PROCESS, id);
         return repo.deleteById(id);
     }
     
