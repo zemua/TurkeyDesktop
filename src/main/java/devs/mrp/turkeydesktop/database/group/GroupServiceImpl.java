@@ -89,13 +89,8 @@ public class GroupServiceImpl implements GroupService {
     }
     
     @Override
-    public int setCloseable(long groupId, boolean closeable) {
-        return repo.setCloseable(groupId, closeable);
-    }
-    
-    @Override
-    public int setPreventClose(long groupId, boolean closeable) {
-        return setCloseable(groupId, !closeable);
+    public int setPreventClose(long groupId, boolean preventClose) {
+        return repo.setPreventClose(groupId, preventClose);
     }
     
     private List<Group> elementsFromResultSet(ResultSet set) {
@@ -117,7 +112,7 @@ public class GroupServiceImpl implements GroupService {
             el.setId(set.getLong(Group.ID));
             el.setName(set.getString(Group.NAME));
             el.setType(Group.GroupType.valueOf(set.getString(Group.TYPE)));
-            el.setCloseable(set.getBoolean(Group.CLOSEABLE));
+            el.setPreventClose(set.getBoolean(Group.PREVENT_CLOSE));
         } catch (SQLException ex) {
             logger.log(Level.SEVERE, null, ex);
         }

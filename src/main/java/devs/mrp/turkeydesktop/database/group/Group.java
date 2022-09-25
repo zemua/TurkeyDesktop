@@ -19,37 +19,29 @@ public class Group {
     public static final String ID = "ID";
     public static final String NAME = "NAME";
     public static final String TYPE = "TYPE";
-    public static final String CLOSEABLE = "CLOSEABLE";
+    public static final String PREVENT_CLOSE = "PREVENT_CLOSE";
     
     private long id;
     private String name;
     private GroupType type;
-    private Boolean closeable;
+    private Boolean preventClose;
 
-    public boolean isCloseable() {
+    public boolean isPreventClose() {
         if (GroupType.POSITIVE.equals(type)) {
-            return false;
-        }
-        if (Objects.isNull(closeable)) {
             return true;
         }
-        return closeable;
+        if (Objects.isNull(preventClose)) {
+            return false;
+        }
+        return preventClose;
     }
 
-    public void setCloseable(boolean closeable) {
-        this.closeable = closeable;
+    public void setPreventClose(boolean closeable) {
+        this.preventClose = closeable;
     }
     
     public enum GroupType {
         POSITIVE, NEGATIVE;
-    }
-    
-    public void setPreventClose(boolean preventClose) {
-        setCloseable(!preventClose);
-    }
-    
-    public boolean isPreventClose() {
-        return !isCloseable();
     }
 
     public long getId() {

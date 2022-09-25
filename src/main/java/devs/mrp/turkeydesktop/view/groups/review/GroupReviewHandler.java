@@ -173,7 +173,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             setConditions();
             refreshExternalTime();
             setConfiguration();
-            showHideCloseable();
+            showHideSetPreventClosing();
         } catch (Exception e) {
             // print error and go back
             logger.log(Level.SEVERE, "error setting up UI", e);
@@ -453,7 +453,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         refreshGroupExporter();
     }
     
-    private void showHideCloseable() {
+    private void showHideSetPreventClosing() {
         Optional opt = getObjectFromPanel(GroupReviewEnum.PREVENT_CLOSE, JCheckBox.class);
         if (opt.isEmpty()) {
             return;
@@ -463,6 +463,11 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             checkbox.setVisible(false); // hide for positive groups
         } else {
             checkbox.setVisible(true); // show for others (negative)
+            if (group.isPreventClose()) {
+                checkbox.setSelected(true);
+            } else {
+                checkbox.setSelected(false);
+            }
         }
     }
 
@@ -624,7 +629,8 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                 preventClose.setEnabled(false);
                 popupMaker.show(getFrame(), () ->{
                     // positive runnable
-                    groupService.setPreventClose(group.getId(), true);
+                    group.setPreventClose(true);
+                    groupService.update(group);
                     preventClose.setEnabled(true);
                 }, () -> {
                     // negative runnable
@@ -633,7 +639,8 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                     preventClose.setSelected(false);
                 });
             } else {
-                groupService.setPreventClose(group.getId(), false);
+                group.setPreventClose(false);
+                groupService.update(group);
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error setting prevent close");
