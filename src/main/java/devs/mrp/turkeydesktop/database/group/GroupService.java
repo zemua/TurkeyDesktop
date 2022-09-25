@@ -22,4 +22,5 @@ public interface GroupService {
     public List<Group> findAllNegative();
     
     public int setPreventClose(long groupId, boolean preventClose);
+    public boolean isPreventClose(long groupId);
 }

@@ -93,6 +93,18 @@ public class GroupServiceImpl implements GroupService {
         return repo.setPreventClose(groupId, preventClose);
     }
     
+    @Override
+    public boolean isPreventClose(long groupId) {
+        if (groupId < 1) { // doesn't belong to a group
+            return false;
+        }
+        Group group = findById(groupId);
+        if (group == null) {
+            return false;
+        }
+        return group.isPreventClose();
+    }
+    
     private List<Group> elementsFromResultSet(ResultSet set) {
         List<Group> elements = new ArrayList<>();
         try {
