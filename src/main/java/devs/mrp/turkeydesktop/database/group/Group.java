@@ -19,10 +19,26 @@ public class Group {
     public static final String ID = "ID";
     public static final String NAME = "NAME";
     public static final String TYPE = "TYPE";
+    public static final String CLOSEABLE = "CLOSEABLE";
     
     private long id;
     private String name;
     private GroupType type;
+    private Boolean closeable;
+
+    public boolean isCloseable() {
+        if (GroupType.POSITIVE.equals(type)) {
+            return false;
+        }
+        if (Objects.isNull(closeable)) {
+            return true;
+        }
+        return closeable;
+    }
+
+    public void setCloseable(boolean closeable) {
+        this.closeable = closeable;
+    }
     
     public enum GroupType {
         POSITIVE, NEGATIVE;

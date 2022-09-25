@@ -5,9 +5,6 @@
  */
 package devs.mrp.turkeydesktop.database.group;
 
-import devs.mrp.turkeydesktop.database.config.ConfigElement;
-import devs.mrp.turkeydesktop.database.config.ConfigElementService;
-import devs.mrp.turkeydesktop.database.logs.TimeLogServiceImpl;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -91,6 +88,11 @@ public class GroupServiceImpl implements GroupService {
         return elementsFromResultSet(repo.findAllOfType(Group.GroupType.NEGATIVE));
     }
     
+    @Override
+    public int setCloseable(long groupId, boolean closeable) {
+        return repo.setCloseable(groupId, closeable);
+    }
+    
     private List<Group> elementsFromResultSet(ResultSet set) {
         List<Group> elements = new ArrayList<>();
         try {
@@ -110,6 +112,7 @@ public class GroupServiceImpl implements GroupService {
             el.setId(set.getLong(Group.ID));
             el.setName(set.getString(Group.NAME));
             el.setType(Group.GroupType.valueOf(set.getString(Group.TYPE)));
+            el.setCloseable(set.getBoolean(Group.CLOSEABLE));
         } catch (SQLException ex) {
             logger.log(Level.SEVERE, null, ex);
         }

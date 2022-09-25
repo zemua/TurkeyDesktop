@@ -53,6 +53,8 @@ import java.util.Comparator;
 import java.util.Iterator;
 import org.apache.commons.lang3.StringUtils;
 import devs.mrp.turkeydesktop.database.group.GroupService;
+import java.util.Optional;
+import javax.swing.JCheckBox;
 
 /**
  *
@@ -147,6 +149,13 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                     case TEXT_FILTER:
                         setTitles();
                         setProcesses();
+                        break;
+                    case PREVENT_CLOSE:
+                        try {
+                            handlePreventClose();
+                        } catch (Exception ex) {
+                            logger.log(Level.SEVERE, "error setting prevent close option", ex);
+                        }
                         break;
                     default:
                         break;
@@ -587,6 +596,33 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             text = text.substring(text.length() - 25);
         }
         button.setText(text);
+    }
+    
+    private void handlePreventClose() {
+        Optional opt = getObjectFromPanel(GroupReviewEnum.PREVENT_CLOSE, JCheckBox.class);
+        if (opt.isEmpty()) {
+            return;
+        }
+        JCheckBox checkbox = (JCheckBox) opt.get();
+        boolean checked = checkbox.isSelected();
+        try {
+            if (checked) {
+                checkbox.setEnabled(false);
+                popupMaker.show(getFrame(), () ->{
+                    // positive runnable
+                    // TODO update value in db
+                }, () -> {
+                    // negative runnable
+                    // recover unchecked state
+                    checkbox.setEnabled(true);
+                    checkbox.setSelected(false);
+                });
+            } else {
+                // TODO update value in db
+            }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error setting prevent close");
+        }
     }
 
 }

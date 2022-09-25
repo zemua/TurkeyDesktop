@@ -171,4 +171,27 @@ public class GroupRepository implements GroupDao {
         return rs;
     }
     
+    @Override
+    public int setCloseable(long groupId, boolean closeable) {
+        int affectedRows = 0;
+        try {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s = ? WHERE %s = ?",
+                        Db.GROUPS_TABLE, Group.CLOSEABLE, Group.ID));
+                stm.setBoolean(1, closeable);
+                stm.setLong(2, groupId);
+                affectedRows = stm.executeUpdate();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null ,ex);
+            }
+        } catch (InterruptedException ex) {
+            logger.log(Level.SEVERE, null ,ex);
+        } finally {
+            semaphore.release();
+        }
+        return affectedRows;
+    }
+    
 }
