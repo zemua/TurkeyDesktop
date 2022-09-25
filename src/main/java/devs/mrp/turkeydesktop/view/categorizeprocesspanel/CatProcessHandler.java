@@ -141,12 +141,12 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
         el.addFeedbackListener(mListener);
     }
     
-    private void addCategorization(String process, Type.Types type) {
-        Type saved = typeService.findById(process);
+    private void addCategorization(String process, Type.Types targetType) {
+        Type savedType = typeService.findById(process);
         Type t = new Type();
         t.setProcess(process);
-        t.setType(type);
-        if (Type.Types.POSITIVE.equals(type) || Type.Types.NEGATIVE.equals(saved.getType())) {
+        t.setType(targetType);
+        if (isChangeToLessRestrictive(targetType, savedType)) {
             popupMaker.show(this.getFrame(), () -> {
                 // runnable positive
                 typeService.add(t);
@@ -157,6 +157,12 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
         } else {
             typeService.add(t);
         }
+    }
+    
+    private boolean isChangeToLessRestrictive(Type.Types target, Type saved) {
+        return Type.Types.POSITIVE.equals(target) // if we want to change to positive
+                || Type.Types.NEGATIVE.equals(saved.getType()) // if we are moving away from negative
+                || (Type.Types.DEPENDS.equals(saved.getType()) && !Type.Types.NEGATIVE.equals(target)); // if we are moving away from depends to any other than negative
     }
 
     @Override
