@@ -82,7 +82,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         jLabel11 = new javax.swing.JLabel();
         textFilter = new javax.swing.JTextField();
         jButton3 = new javax.swing.JButton();
-        jCheckBox1 = new javax.swing.JCheckBox();
+        preventClose = new javax.swing.JCheckBox();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
         jButton1.setText(bundle.getString("back")); // NOI18N
@@ -384,7 +384,12 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
             }
         });
 
-        jCheckBox1.setText(bundle.getString("preventClose")); // NOI18N
+        preventClose.setText(bundle.getString("preventClose")); // NOI18N
+        preventClose.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                preventCloseActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -407,7 +412,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton3)
                         .addGap(18, 18, 18)
-                        .addComponent(jCheckBox1)
+                        .addComponent(preventClose)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -422,7 +427,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                     .addComponent(jLabel11)
                     .addComponent(textFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton3)
-                    .addComponent(jCheckBox1))
+                    .addComponent(preventClose))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTabbedPane1)
                 .addContainerGap())
@@ -508,6 +513,10 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         giveFeedback(GroupReviewEnum.TEXT_FILTER, evt);
     }//GEN-LAST:event_textFilterKeyTyped
 
+    private void preventCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_preventCloseActionPerformed
+        giveFeedback(GroupReviewEnum.PREVENT_CLOSE, evt);
+    }//GEN-LAST:event_preventCloseActionPerformed
+
     @Override
     public Object getProperty(GroupReviewEnum property) {
         switch (property) {
@@ -545,6 +554,8 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                 return orderDropdown;
             case TEXT_FILTER:
                 return textFilter;
+            case PREVENT_CLOSE:
+                return preventClose;
             default:
                 return null;
         }
@@ -603,7 +614,6 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
-    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -621,6 +631,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
     private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JSpinner minuteSpinner;
     private javax.swing.JComboBox<String> orderDropdown;
+    private javax.swing.JCheckBox preventClose;
     private javax.swing.JPanel processPanel;
     private javax.swing.JScrollPane scrollExternalTimeTab;
     private javax.swing.JScrollPane scrollProcessPane;

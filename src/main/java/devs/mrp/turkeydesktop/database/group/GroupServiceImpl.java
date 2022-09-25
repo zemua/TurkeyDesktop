@@ -93,6 +93,11 @@ public class GroupServiceImpl implements GroupService {
         return repo.setCloseable(groupId, closeable);
     }
     
+    @Override
+    public int setPreventClose(long groupId, boolean closeable) {
+        return setCloseable(groupId, !closeable);
+    }
+    
     private List<Group> elementsFromResultSet(ResultSet set) {
         List<Group> elements = new ArrayList<>();
         try {

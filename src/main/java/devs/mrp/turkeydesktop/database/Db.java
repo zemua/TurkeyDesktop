@@ -197,7 +197,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
         
         // add closeable boolean to group table
         execute(String.format("ALTER TABLE %s " // table name
-                + "ADD COLUMN %s BOOLEAN", // id
+                + "ADD COLUMN IF NOT EXISTS %s BOOLEAN", // id
                 GROUPS_TABLE, Group.CLOSEABLE));
         
         // REMOVE OLD LOG ENTRIES THAT ARE OF NO USE

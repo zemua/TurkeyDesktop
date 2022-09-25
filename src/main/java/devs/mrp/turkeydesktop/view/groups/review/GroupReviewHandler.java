@@ -617,22 +617,23 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         if (opt.isEmpty()) {
             return;
         }
-        JCheckBox checkbox = (JCheckBox) opt.get();
-        boolean checked = checkbox.isSelected();
+        JCheckBox preventClose = (JCheckBox) opt.get();
+        boolean isPreventClose = preventClose.isSelected();
         try {
-            if (checked) {
-                checkbox.setEnabled(false);
+            if (isPreventClose) {
+                preventClose.setEnabled(false);
                 popupMaker.show(getFrame(), () ->{
                     // positive runnable
-                    // TODO update value in db
+                    groupService.setPreventClose(group.getId(), true);
+                    preventClose.setEnabled(true);
                 }, () -> {
                     // negative runnable
                     // recover unchecked state
-                    checkbox.setEnabled(true);
-                    checkbox.setSelected(false);
+                    preventClose.setEnabled(true);
+                    preventClose.setSelected(false);
                 });
             } else {
-                // TODO update value in db
+                groupService.setPreventClose(group.getId(), false);
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error setting prevent close");

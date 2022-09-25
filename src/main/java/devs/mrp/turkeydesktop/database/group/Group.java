@@ -43,6 +43,14 @@ public class Group {
     public enum GroupType {
         POSITIVE, NEGATIVE;
     }
+    
+    public void setPreventClose(boolean preventClose) {
+        setCloseable(!preventClose);
+    }
+    
+    public boolean isPreventClose() {
+        return !isCloseable();
+    }
 
     public long getId() {
         return id;
