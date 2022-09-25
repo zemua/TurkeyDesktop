@@ -16,4 +16,6 @@ public interface GroupDao extends GeneralDao<Group, Long> {
     
     public ResultSet findAllOfType(Group.GroupType type);
     
+    public int setPreventClose(long groupId, boolean preventClose);
+    
 }

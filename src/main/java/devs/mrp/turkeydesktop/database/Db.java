@@ -195,6 +195,11 @@ public class Db { // TODO create asynchronous listeners to update livedata
                 + "PRIMARY KEY (%s))",
                 CLOSEABLES_TABLE, Closeable.PROCESS_NAME, Closeable.PROCESS_NAME));
         
+        // add closeable boolean to group table
+        execute(String.format("ALTER TABLE %s " // table name
+                + "ADD COLUMN IF NOT EXISTS %s BOOLEAN DEFAULT FALSE", // id
+                GROUPS_TABLE, Group.PREVENT_CLOSE));
+        
         // REMOVE OLD LOG ENTRIES THAT ARE OF NO USE
         execute(String.format("DELETE FROM %s WHERE %s < %s",
                 WATCHDOG_TABLE,

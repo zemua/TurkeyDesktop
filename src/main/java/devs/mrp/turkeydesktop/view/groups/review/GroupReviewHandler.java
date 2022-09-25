@@ -53,6 +53,8 @@ import java.util.Comparator;
 import java.util.Iterator;
 import org.apache.commons.lang3.StringUtils;
 import devs.mrp.turkeydesktop.database.group.GroupService;
+import java.util.Optional;
+import javax.swing.JCheckBox;
 
 /**
  *
@@ -148,6 +150,13 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                         setTitles();
                         setProcesses();
                         break;
+                    case PREVENT_CLOSE:
+                        try {
+                            handlePreventClose();
+                        } catch (Exception ex) {
+                            logger.log(Level.SEVERE, "error setting prevent close option", ex);
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -164,6 +173,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             setConditions();
             refreshExternalTime();
             setConfiguration();
+            showHideSetPreventClosing();
         } catch (Exception e) {
             // print error and go back
             logger.log(Level.SEVERE, "error setting up UI", e);
@@ -442,6 +452,24 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private void setConfiguration() throws Exception {
         refreshGroupExporter();
     }
+    
+    private void showHideSetPreventClosing() {
+        Optional opt = getObjectFromPanel(GroupReviewEnum.PREVENT_CLOSE, JCheckBox.class);
+        if (opt.isEmpty()) {
+            return;
+        }
+        JCheckBox checkbox = (JCheckBox) opt.get();
+        if (Group.GroupType.POSITIVE.equals(group.getType())) {
+            checkbox.setVisible(false); // hide for positive groups
+        } else {
+            checkbox.setVisible(true); // show for others (negative)
+            if (group.isPreventClose()) {
+                checkbox.setSelected(true);
+            } else {
+                checkbox.setSelected(false);
+            }
+        }
+    }
 
     private void saveGroupName() throws Exception {
         Object nameObject = this.getPanel().getProperty(GroupReviewEnum.GROUP_NAME_TEXT);
@@ -587,6 +615,36 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             text = text.substring(text.length() - 25);
         }
         button.setText(text);
+    }
+    
+    private void handlePreventClose() {
+        Optional opt = getObjectFromPanel(GroupReviewEnum.PREVENT_CLOSE, JCheckBox.class);
+        if (opt.isEmpty()) {
+            return;
+        }
+        JCheckBox preventClose = (JCheckBox) opt.get();
+        boolean isPreventClose = preventClose.isSelected();
+        try {
+            if (isPreventClose) {
+                preventClose.setEnabled(false);
+                popupMaker.show(getFrame(), () ->{
+                    // positive runnable
+                    group.setPreventClose(true);
+                    groupService.update(group);
+                    preventClose.setEnabled(true);
+                }, () -> {
+                    // negative runnable
+                    // recover unchecked state
+                    preventClose.setEnabled(true);
+                    preventClose.setSelected(false);
+                });
+            } else {
+                group.setPreventClose(false);
+                groupService.update(group);
+            }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error setting prevent close");
+        }
     }
 
 }

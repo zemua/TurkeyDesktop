@@ -67,11 +67,12 @@ public class GroupRepository implements GroupDao {
             semaphore.acquire();
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=? WHERE %s=? ",
-                        Db.GROUPS_TABLE, Group.NAME, Group.TYPE, Group.ID));
+                stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=?, %s=? WHERE %s=? ",
+                        Db.GROUPS_TABLE, Group.NAME, Group.TYPE, Group.PREVENT_CLOSE, Group.ID));
                 stm.setString(1, element.getName());
                 stm.setString(2, element.getType().toString());
-                stm.setLong(3, element.getId());
+                stm.setBoolean(3, element.isPreventClose());
+                stm.setLong(4, element.getId());
                 result = stm.executeUpdate();
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
@@ -169,6 +170,29 @@ public class GroupRepository implements GroupDao {
             semaphore.release();
         }
         return rs;
+    }
+    
+    @Override
+    public int setPreventClose(long groupId, boolean preventClose) {
+        int affectedRows = 0;
+        try {
+            semaphore.acquire();
+            PreparedStatement stm;
+            try {
+                stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s = ? WHERE %s = ?",
+                        Db.GROUPS_TABLE, Group.PREVENT_CLOSE, Group.ID));
+                stm.setBoolean(1, preventClose);
+                stm.setLong(2, groupId);
+                affectedRows = stm.executeUpdate();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null ,ex);
+            }
+        } catch (InterruptedException ex) {
+            logger.log(Level.SEVERE, null ,ex);
+        } finally {
+            semaphore.release();
+        }
+        return affectedRows;
     }
     
 }

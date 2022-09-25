@@ -5,15 +5,10 @@
  */
 package devs.mrp.turkeydesktop.view;
 
-import devs.mrp.turkeydesktop.service.resourcehandler.ImagesEnum;
-import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandler;
-import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandlerFactory;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
-import java.awt.Image;
 import java.util.Objects;
 import java.util.Optional;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 /**
  *

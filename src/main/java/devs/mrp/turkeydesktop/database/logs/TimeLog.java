@@ -5,6 +5,8 @@
  */
 package devs.mrp.turkeydesktop.database.logs;
 
+import devs.mrp.turkeydesktop.database.group.GroupServiceFactory;
+import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import java.text.MessageFormat;
@@ -38,6 +40,8 @@ public class TimeLog {
     private long groupId;
     private Type.Types type;
     
+    private GroupService groupService = GroupServiceFactory.getService();
+    
     private boolean blockable;
 
     public boolean isBlockable() {
@@ -45,7 +49,17 @@ public class TimeLog {
     }
 
     public void setBlockable(boolean blockable) {
-        this.blockable = blockable;
+        // if we are asked to set as not blockable we just do it
+        if (blockable == false) {
+            this.blockable = blockable;
+            return;
+        }
+        // if we are asked to set is as blockable we check if that is possible
+        if (groupService.isPreventClose(groupId)) {
+            this.blockable = false;
+        } else {
+            this.blockable = blockable;
+        }
     }
 
     public Type.Types getType() {
