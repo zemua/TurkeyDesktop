@@ -173,6 +173,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             setConditions();
             refreshExternalTime();
             setConfiguration();
+            showHideCloseable();
         } catch (Exception e) {
             // print error and go back
             logger.log(Level.SEVERE, "error setting up UI", e);
@@ -450,6 +451,19 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
 
     private void setConfiguration() throws Exception {
         refreshGroupExporter();
+    }
+    
+    private void showHideCloseable() {
+        Optional opt = getObjectFromPanel(GroupReviewEnum.PREVENT_CLOSE, JCheckBox.class);
+        if (opt.isEmpty()) {
+            return;
+        }
+        JCheckBox checkbox = (JCheckBox) opt.get();
+        if (Group.GroupType.POSITIVE.equals(group.getType())) {
+            checkbox.setVisible(false); // hide for positive groups
+        } else {
+            checkbox.setVisible(true); // show for others (negative)
+        }
     }
 
     private void saveGroupName() throws Exception {
