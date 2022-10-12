@@ -101,7 +101,7 @@ public class TurkeyDesktop extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                if (Db.verifyCanGetDb()) {
+                if (Db.getInstance().verifyCanGetDb()) {
                     new TurkeyDesktop().setVisible(false);
                 }
             }

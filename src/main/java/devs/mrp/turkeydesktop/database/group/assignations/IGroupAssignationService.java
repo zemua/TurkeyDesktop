@@ -18,12 +18,12 @@ public interface IGroupAssignationService {
     public void update(GroupAssignation element, LongConsumer consumer);
     public void findAll(Consumer<List<GroupAssignation>> consumer);
     @Deprecated
-    public GroupAssignation findById(long id);
+    public void findById(long id, Consumer<GroupAssignation> consumer);
     @Deprecated
-    public long deleteById(long id);
-    public long deleteByGroupId(long id);
+    public void deleteById(long id, LongConsumer consumer);
+    public void deleteByGroupId(long id, LongConsumer consumer);
     
-    public GroupAssignation findByProcessId(String processId);
+    public void findByProcessId(String processId, Consumer<GroupAssignation> consumer);
     public long deleteByProcessId(String processId);
     public GroupAssignation findByTitleId(String titleId);
     public GroupAssignation findLongestTitleIdContainedIn(String titleId);

@@ -47,7 +47,7 @@ public class GroupAssignationService implements IGroupAssignationService {
                 logger.log(Level.SEVERE, null, ex);
             }
             // else there is no element stored with this id
-            TurkeyAppFactory.getLongWorker(() -> repo.add(element), consumer::accept).execute();
+            TurkeyAppFactory.runLongWorker(() -> repo.add(element), consumer::accept);
         }
     }
 
@@ -56,46 +56,48 @@ public class GroupAssignationService implements IGroupAssignationService {
         if (element == null) {
             longConsumer.accept(-1);
         }
-        TurkeyAppFactory.getLongWorker(() -> repo.update(element), longConsumer::accept).execute();
+        TurkeyAppFactory.runLongWorker(() -> repo.update(element), longConsumer::accept);
     }
 
     @Override
     public void findAll(Consumer<List<GroupAssignation>> consumer) {
-        FGroupAssignationService.getGroupAssignationListWoker(() -> elementsFromResultSet(repo.findAll()), consumer::accept);
+        FGroupAssignationService.runGroupAssignationListWoker(() -> elementsFromResultSet(repo.findAll()), consumer::accept);
     }
 
     @Deprecated
     @Override
-    public GroupAssignation findById(long id) {
-        ResultSet set = repo.findById(id);
-        GroupAssignation element = null;
-        try {
-            if (set.next()) {
-                element = elementFromResultSetEntry(set);
+    public void findById(long id, Consumer<GroupAssignation> consumer) {
+        TurkeyAppFactory.runResultSetWorker(() -> repo.findById(id), result -> {
+            GroupAssignation element = null;
+            try {
+                if (result.next()) {
+                    element = elementFromResultSetEntry(result);
+                }
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
             }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        return element;
+            consumer.accept(element);
+        });
     }
 
     @Deprecated
     @Override
-    public long deleteById(long id) {
-        return repo.deleteById(id);
+    public void deleteById(long id, LongConsumer consumer) {
+        TurkeyAppFactory.runLongWorker(() -> repo.deleteById(id), consumer::accept);
     }
 
     @Override
-    public GroupAssignation findByProcessId(String processId) {
-        ResultSet set = repo.findByElementId(GroupAssignation.ElementType.PROCESS, processId);
-        try {
-            if (set.next()) {
-                return elementFromResultSetEntry(set);
+    public void findByProcessId(String processId, Consumer<GroupAssignation> consumer) {
+        TurkeyAppFactory.runResultSetWorker(() -> repo.findByElementId(GroupAssignation.ElementType.PROCESS, processId), result -> {
+            try {
+                if (result.next()) {
+                    consumer.accept(elementFromResultSetEntry(result));
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(GroupAssignationService.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } catch (SQLException ex) {
-            Logger.getLogger(GroupAssignationService.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
+            consumer.accept(null);
+        });
     }
     
     @Override
@@ -166,8 +168,8 @@ public class GroupAssignationService implements IGroupAssignationService {
     }
 
     @Override
-    public long deleteByGroupId(long id) {
-        return repo.deleteByGroupId(id);
+    public void deleteByGroupId(long id, LongConsumer consumer) {
+        TurkeyAppFactory.runLongWorker(() -> repo.deleteByGroupId(id), consumer::accept);
     }
     
 }

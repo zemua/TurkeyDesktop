@@ -24,8 +24,8 @@ public class FGroupAssignationService {
         return new GroupAssignationService();
     }
     
-    public static SwingWorker<GroupAssignation, Object> getGroupAssignationWorker(Supplier<GroupAssignation> supplier, Consumer<GroupAssignation> consumer) {
-        return new SwingWorker<GroupAssignation, Object>() {
+    public static void runGroupAssignationWorker(Supplier<GroupAssignation> supplier, Consumer<GroupAssignation> consumer) {
+        var worker = new SwingWorker<GroupAssignation, Object>() {
             @Override
             protected GroupAssignation doInBackground() throws Exception {
                 return supplier.get();
@@ -41,10 +41,11 @@ public class FGroupAssignationService {
                 }
             }
         };
+        worker.execute();
     }
     
-    public static SwingWorker<List<GroupAssignation>, Object> getGroupAssignationListWoker(Supplier<List<GroupAssignation>> supplier, Consumer<List<GroupAssignation>> consumer) {
-        return new SwingWorker<List<GroupAssignation>, Object>() {
+    public static void runGroupAssignationListWoker(Supplier<List<GroupAssignation>> supplier, Consumer<List<GroupAssignation>> consumer) {
+        var worker = new SwingWorker<List<GroupAssignation>, Object>() {
             @Override
             protected List<GroupAssignation> doInBackground() throws Exception {
                 return supplier.get();
@@ -60,6 +61,7 @@ public class FGroupAssignationService {
                 }
             }
         };
+        worker.execute();
     }
     
 }

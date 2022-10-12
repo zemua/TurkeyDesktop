@@ -508,7 +508,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         conditionService.deleteByGroupId(group.getId());
         conditionService.deleteByTargetId(group.getId());
         externalGroupService.deleteByGroup(group.getId());
-        groupAssignationService.deleteByGroupId(group.getId());
+        groupAssignationService.deleteByGroupId(group.getId(), r -> {});
         exit();
     }
 

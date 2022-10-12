@@ -4,9 +4,14 @@
  */
 package devs.mrp.turkeydesktop.common;
 
+import java.sql.ResultSet;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import java.util.function.LongConsumer;
 import java.util.function.LongSupplier;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingWorker;
@@ -17,8 +22,8 @@ import javax.swing.SwingWorker;
  */
 public class TurkeyAppFactory {
     
-    public static SwingWorker<Long, Object> getLongWorker(LongSupplier longSupplier, LongConsumer longConsumer) {
-        return new SwingWorker<Long, Object>() {
+    public static void runLongWorker(LongSupplier longSupplier, LongConsumer longConsumer) {
+        var worker = new SwingWorker<Long, Object>() {
             @Override
             protected Long doInBackground() throws Exception {
                 return longSupplier.getAsLong();
@@ -34,15 +39,45 @@ public class TurkeyAppFactory {
                 }
             }
         };
+        worker.execute();
     }
     
-    public static SwingWorker<Object, Object> getWorker(Runnable runnable) {
-        return new SwingWorker<Object, Object>() {
+    public static void runWorker(Runnable runnable) {
+        var worker = new SwingWorker<Object, Object>() {
             @Override
             protected Object doInBackground() throws Exception {
                 runnable.run();
                 return null;
             }
         };
+        worker.execute();
+    }
+    
+    public static void runResultSetWorker(Supplier<ResultSet> supplier, Consumer<ResultSet> consumer) {
+        var worker = new SwingWorker<ResultSet, Object>() {
+            @Override
+            protected ResultSet doInBackground() throws Exception {
+                return supplier.get();
+            }
+            @Override
+            protected void done() {
+                try {
+                    consumer.accept(get());
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(TurkeyAppFactory.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ExecutionException ex) {
+                    Logger.getLogger(TurkeyAppFactory.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        };
+        worker.execute();
+    }
+    
+    public static void runInNewThread(Runnable r) {
+        new Thread(r).start();
+    }
+    
+    public static ExecutorService getSingleThreadExecutor() {
+        return Executors.newSingleThreadExecutor();
     }
 }

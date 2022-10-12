@@ -6,6 +6,7 @@
 package devs.mrp.turkeydesktop.service.watchdog.logger;
 
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
+import java.util.function.Consumer;
 
 /**
  *
@@ -13,6 +14,6 @@ import devs.mrp.turkeydesktop.database.logs.TimeLog;
  */
 public interface DbLogger {
     
-    public TimeLog logEntry(long elapsed, String processPid, String processName, String windowTitle);
+    public void logEntry(long elapsed, String processPid, String processName, String windowTitle, Consumer<TimeLog> consumer);
     
 }

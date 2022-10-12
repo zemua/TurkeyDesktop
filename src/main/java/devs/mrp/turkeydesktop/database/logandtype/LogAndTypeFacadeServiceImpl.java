@@ -37,6 +37,7 @@ import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
 import devs.mrp.turkeydesktop.database.type.TypeService;
+import java.util.function.Consumer;
 
 /**
  *
@@ -84,14 +85,15 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
     }
 
     @Override
-    public TimeLog addTimeLogAdjustingCounted(TimeLog element) {
-        adjustDependingOnType(element);
-        adjustAccumulated(element, element.getCounted());
-        logService.add(element);
-        return element;
+    public void addTimeLogAdjustingCounted(TimeLog element, Consumer<TimeLog> consumer) {
+        adjustDependingOnType(element, result -> {
+            adjustAccumulated(element, element.getCounted());
+            logService.add(element);
+            consumer.accept(element);
+        });
     }
     
-    private TimeLog adjustDependingOnType(TimeLog element) {
+    private void adjustDependingOnType(TimeLog element, Consumer<TimeLog> consumer) {
         Type type = typeService.findById(element.getProcessName());
         boolean lockdown = conditionChecker.isLockDownTime();
         boolean idle = conditionChecker.isIdle();
@@ -106,11 +108,13 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                 element.setType(Type.Types.NEUTRAL);
                 element.setGroupId(-1);
                 element.setCounted(lockdown && !idle ? -1 * proportion * element.getElapsed() : 0);
+                consumer.accept(element);
                 break;
             case UNDEFINED:
                 element.setType(Type.Types.UNDEFINED);
                 element.setGroupId(-1);
                 element.setCounted(lockdown && !idle ? -1 * proportion * element.getElapsed() : 0);
+                consumer.accept(element);
                 break;
             case DEPENDS:
                 element.setType(Type.Types.DEPENDS);
@@ -118,29 +122,33 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                 GroupAssignation assignation = groupAssignationService.findLongestTitleIdContainedIn(element.getWindowTitle());
                 element.setGroupId(assignation != null ? assignation.getGroupId() : -1);
                 if (!lockdown){setCountedDependingOnTitle(element, element.getElapsed(), proportion);} else {setCountedForTitleWhenLockdown(element, proportion);}
+                consumer.accept(element);
                 break;
             case POSITIVE:
                 element.setType(Type.Types.POSITIVE);
-                GroupAssignation positiveAssignation = groupAssignationService.findByProcessId(element.getProcessName());
-                element.setGroupId(positiveAssignation != null ? positiveAssignation.getGroupId() : -1);
-                if (!lockdown) {
-                    element.setCounted(!conditionChecker.isIdleWithToast() && conditionChecker.areConditionsMet(element.getGroupId()) ? Math.abs(element.getElapsed()) : 0);
-                } else if (!conditionChecker.isIdle()) { // when in lockdown, don't disccount points if idle
-                    element.setCounted(-1 * proportion * element.getElapsed());
-                }
+                groupAssignationService.findByProcessId(element.getProcessName(), result -> {
+                    element.setGroupId(result != null ? result.getGroupId() : -1);
+                    if (!lockdown) {
+                        element.setCounted(!conditionChecker.isIdleWithToast() && conditionChecker.areConditionsMet(element.getGroupId()) ? Math.abs(element.getElapsed()) : 0);
+                    } else if (!conditionChecker.isIdle()) { // when in lockdown, don't disccount points if idle
+                        element.setCounted(-1 * proportion * element.getElapsed());
+                    }
+                    consumer.accept(element);
+                });
                 break;
             case NEGATIVE:
                 element.setType(Type.Types.NEGATIVE);
-                GroupAssignation negativeAssignation = groupAssignationService.findByProcessId(element.getProcessName());
-                element.setGroupId(negativeAssignation != null ? negativeAssignation.getGroupId() : -1);
-                element.setCounted(Math.abs(element.getElapsed()) * proportion * (-1));
-                element.setBlockable(true);
+                groupAssignationService.findByProcessId(element.getProcessName(), result -> {
+                    element.setGroupId(result != null ? result.getGroupId() : -1);
+                    element.setCounted(Math.abs(element.getElapsed()) * proportion * (-1));
+                    element.setBlockable(true);
+                    consumer.accept(element);
+                });
                 break;
             default:
+                consumer.accept(element);
                 break;
         }
-        
-        return element;
     }
     
     private TimeLog setCountedForTitleWhenLockdown(TimeLog element, long proportion) {
