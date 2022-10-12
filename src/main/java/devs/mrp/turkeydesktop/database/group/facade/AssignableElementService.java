@@ -6,12 +6,13 @@
 package devs.mrp.turkeydesktop.database.group.facade;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  *
  * @author miguel
  */
 public interface AssignableElementService<TYPE> {
-    public List<AssignableElement<TYPE>> positiveElementsWithAssignation();
-    public List<AssignableElement<TYPE>> negativeElementsWithAssignation();
+    public void positiveElementsWithAssignation(Consumer<List<AssignableElement<TYPE>>> consumer);
+    public void negativeElementsWithAssignation(Consumer<List<AssignableElement<TYPE>>> consumer);
 }

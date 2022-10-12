@@ -5,10 +5,13 @@
  */
 package devs.mrp.turkeydesktop.database.group.assignations;
 
+import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.LongConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
@@ -23,9 +26,9 @@ public class GroupAssignationService implements IGroupAssignationService {
     private static final Logger logger = Logger.getLogger(GroupAssignationService.class.getName());
     
     @Override
-    public long add(GroupAssignation element) {
+    public void add(GroupAssignation element, LongConsumer consumer) {
         if (element == null) {
-            return -1;
+            consumer.accept(-1L);
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
             ResultSet rs = repo.findByElementId(element.getType(), element.getElementId());
@@ -34,30 +37,31 @@ public class GroupAssignationService implements IGroupAssignationService {
                     GroupAssignation group = elementFromResultSetEntry(rs);
                     // if the value stored differs from the one received
                     if (!group.equals(element)) {
-                        return update(element);
+                        update(element, consumer);
                     }
                     // else the value is the same as the one stored
-                    return 0;
+                    consumer.accept(0L);
+                   
                 }
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
             // else there is no element stored with this id
-            return repo.add(element);
+            TurkeyAppFactory.getLongWorker(() -> repo.add(element), consumer::accept).execute();
         }
     }
 
     @Override
-    public long update(GroupAssignation element) {
+    public void update(GroupAssignation element, LongConsumer longConsumer) {
         if (element == null) {
-            return -1;
+            longConsumer.accept(-1);
         }
-        return repo.update(element);
+        TurkeyAppFactory.getLongWorker(() -> repo.update(element), longConsumer::accept).execute();
     }
 
     @Override
-    public List<GroupAssignation> findAll() {
-        return elementsFromResultSet(repo.findAll());
+    public void findAll(Consumer<List<GroupAssignation>> consumer) {
+        FGroupAssignationService.getGroupAssignationListWoker(() -> elementsFromResultSet(repo.findAll()), consumer::accept);
     }
 
     @Deprecated

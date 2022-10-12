@@ -6,15 +6,17 @@
 package devs.mrp.turkeydesktop.database.group.assignations;
 
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.LongConsumer;
 
 /**
  *
  * @author miguel
  */
 public interface IGroupAssignationService {
-    public long add(GroupAssignation element);
-    public long update(GroupAssignation element);
-    public List<GroupAssignation> findAll();
+    public void add(GroupAssignation element, LongConsumer consumer);
+    public void update(GroupAssignation element, LongConsumer consumer);
+    public void findAll(Consumer<List<GroupAssignation>> consumer);
     @Deprecated
     public GroupAssignation findById(long id);
     @Deprecated

@@ -54,6 +54,7 @@ import java.util.Iterator;
 import org.apache.commons.lang3.StringUtils;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import java.util.Optional;
+import java.util.function.Consumer;
 import javax.swing.JCheckBox;
 
 /**
@@ -206,28 +207,33 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         JPanel panel = (JPanel) object;
         panel.removeAll();
 
-        List<AssignableElement> assignables = group.getType().equals(Group.GroupType.POSITIVE)
-                ? assignableProcessService.positiveElementsWithAssignation()
-                : assignableProcessService.negativeElementsWithAssignation();
-        
-        Iterator<AssignableElement> iterator = assignables.iterator();
-        while (iterator.hasNext()) {
-            AssignableElement element = iterator.next();
-            try {
-                if (!getFilterText().isEmpty() && !StringUtils.containsIgnoreCase(element.getElementName(), getFilterText())) {
-                    iterator.remove();
+        Consumer<List<AssignableElement<GroupAssignation.ElementType>>> consumer = result -> {
+            Iterator<AssignableElement<GroupAssignation.ElementType>> iterator = result.iterator();
+            while (iterator.hasNext()) {
+                AssignableElement element = iterator.next();
+                try {
+                    if (!getFilterText().isEmpty() && !StringUtils.containsIgnoreCase(element.getElementName(), getFilterText())) {
+                        iterator.remove();
+                    }
+                } catch (Exception e) {
+                    logger.log(Level.SEVERE, "error getting the text from filter, defaulting to no filter", e);
                 }
-            } catch (Exception e) {
-                logger.log(Level.SEVERE, "error getting the text from filter, defaulting to no filter", e);
+
             }
-            
+
+            Collections.sort(result, getAssignableComparator());
+
+            setSwitchablesFromAssignables(result, panel, GroupAssignation.ElementType.PROCESS);
+            panel.revalidate();
+            panel.updateUI();
+        };
+        
+        if (group.getType().equals(Group.GroupType.POSITIVE)){
+            assignableProcessService.positiveElementsWithAssignation(consumer);
+        } else {
+            assignableProcessService.negativeElementsWithAssignation(consumer);
         }
         
-        Collections.sort(assignables, getAssignableComparator());
-
-        setSwitchablesFromAssignables(assignables, panel, GroupAssignation.ElementType.PROCESS);
-        panel.revalidate();
-        panel.updateUI();
     }
 
     private void setTitles() {
@@ -238,28 +244,32 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         JPanel panel = (JPanel) object;
         panel.removeAll();
 
-        List<AssignableElement> assignables = group.getType().equals(Group.GroupType.POSITIVE)
-                ? assignableTitlesService.positiveElementsWithAssignation()
-                : assignableTitlesService.negativeElementsWithAssignation();
-        
-        Iterator<AssignableElement> iterator = assignables.iterator();
-        while (iterator.hasNext()) {
-            AssignableElement element = iterator.next();
-            try {
-                if (!getFilterText().isEmpty() && !StringUtils.containsIgnoreCase(element.getElementName(), getFilterText())) {
-                    iterator.remove();
+        Consumer<List<AssignableElement<GroupAssignation.ElementType>>> consumer = result -> {
+            Iterator<AssignableElement<GroupAssignation.ElementType>> iterator = result.iterator();
+            while (iterator.hasNext()) {
+                AssignableElement element = iterator.next();
+                try {
+                    if (!getFilterText().isEmpty() && !StringUtils.containsIgnoreCase(element.getElementName(), getFilterText())) {
+                        iterator.remove();
+                    }
+                } catch (Exception e) {
+                    logger.log(Level.SEVERE, "error getting the text from filter, defaulting to no filter", e);
                 }
-            } catch (Exception e) {
-                logger.log(Level.SEVERE, "error getting the text from filter, defaulting to no filter", e);
+
             }
-            
+
+            Collections.sort(result, getAssignableComparator());
+
+            setSwitchablesFromAssignables(result, panel, GroupAssignation.ElementType.TITLE);
+            panel.revalidate();
+            panel.updateUI();
+        };
+        if (group.getType().equals(Group.GroupType.POSITIVE)) {
+            assignableTitlesService.positiveElementsWithAssignation(consumer);
+        } else {
+            assignableTitlesService.negativeElementsWithAssignation(consumer);
         }
         
-        Collections.sort(assignables, getAssignableComparator());
-
-        setSwitchablesFromAssignables(assignables, panel, GroupAssignation.ElementType.TITLE);
-        panel.revalidate();
-        panel.updateUI();
     }
     
     private String getFilterText() throws Exception {
@@ -289,7 +299,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         return comparator;
     }
 
-    private void setSwitchablesFromAssignables(List<AssignableElement> assignables, JPanel panel, GroupAssignation.ElementType type) {
+    private void setSwitchablesFromAssignables(List<AssignableElement<GroupAssignation.ElementType>> assignables, JPanel panel, GroupAssignation.ElementType type) {
         assignables.forEach(a -> {
             Switchable switchable = new Switchable(a.getElementName(),
                     assignableBelongsToGroup(a), // checked if it belongs to this group
@@ -334,7 +344,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                 ga.setElementId(name);
                 ga.setGroupId(group.getId());
                 ga.setType(processOrTitle);
-                groupAssignationService.add(ga);
+                groupAssignationService.add(ga, r -> {});
             }
         });
     }

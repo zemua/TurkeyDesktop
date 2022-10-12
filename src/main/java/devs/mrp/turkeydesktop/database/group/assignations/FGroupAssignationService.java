@@ -5,6 +5,15 @@
  */
 package devs.mrp.turkeydesktop.database.group.assignations;
 
+import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.SwingWorker;
+
 /**
  *
  * @author miguel
@@ -13,6 +22,44 @@ public class FGroupAssignationService {
     
     public static IGroupAssignationService getService() {
         return new GroupAssignationService();
+    }
+    
+    public static SwingWorker<GroupAssignation, Object> getGroupAssignationWorker(Supplier<GroupAssignation> supplier, Consumer<GroupAssignation> consumer) {
+        return new SwingWorker<GroupAssignation, Object>() {
+            @Override
+            protected GroupAssignation doInBackground() throws Exception {
+                return supplier.get();
+            }
+            @Override
+            protected void done() {
+                try {
+                    consumer.accept(get());
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(TurkeyAppFactory.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ExecutionException ex) {
+                    Logger.getLogger(TurkeyAppFactory.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        };
+    }
+    
+    public static SwingWorker<List<GroupAssignation>, Object> getGroupAssignationListWoker(Supplier<List<GroupAssignation>> supplier, Consumer<List<GroupAssignation>> consumer) {
+        return new SwingWorker<List<GroupAssignation>, Object>() {
+            @Override
+            protected List<GroupAssignation> doInBackground() throws Exception {
+                return supplier.get();
+            }
+            @Override
+            protected void done() {
+                try {
+                    consumer.accept(get());
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(TurkeyAppFactory.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ExecutionException ex) {
+                    Logger.getLogger(TurkeyAppFactory.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        };
     }
     
 }
