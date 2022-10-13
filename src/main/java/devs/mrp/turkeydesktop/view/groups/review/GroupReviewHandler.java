@@ -324,9 +324,9 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                     popupMaker.show(this.getFrame(), () -> {
                         // positive
                         if (processOrTitle.equals(GroupAssignation.ElementType.PROCESS)) {
-                            groupAssignationService.deleteByProcessId(processOrTitleId);
+                            groupAssignationService.deleteByProcessId(processOrTitleId, r -> {});
                         } else {
-                            groupAssignationService.deleteByTitleId(processOrTitleId);
+                            groupAssignationService.deleteByTitleId(processOrTitleId, r -> {});
                         }
                     }, () -> {
                         // negative
@@ -334,9 +334,9 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                     });
                 } else {
                     if (processOrTitle.equals(GroupAssignation.ElementType.PROCESS)) {
-                        groupAssignationService.deleteByProcessId(processOrTitleId);
+                        groupAssignationService.deleteByProcessId(processOrTitleId, r -> {});
                     } else {
-                        groupAssignationService.deleteByTitleId(processOrTitleId);
+                        groupAssignationService.deleteByTitleId(processOrTitleId, r -> {});
                     }
                 }
             } else { // if the checkbox was cheked with this event

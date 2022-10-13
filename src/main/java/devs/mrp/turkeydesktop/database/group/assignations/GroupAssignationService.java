@@ -101,45 +101,49 @@ public class GroupAssignationService implements IGroupAssignationService {
     }
     
     @Override
-    public long deleteByProcessId(String processId) {
-        return repo.deleteByElementId(GroupAssignation.ElementType.PROCESS, processId);
+    public void deleteByProcessId(String processId, LongConsumer consumer) {
+        TurkeyAppFactory.runLongWorker(() -> repo.deleteByElementId(GroupAssignation.ElementType.PROCESS, processId), consumer);
     }
 
     @Override
-    public GroupAssignation findByTitleId(String titleId) {
-        ResultSet set = repo.findByElementId(GroupAssignation.ElementType.TITLE, titleId);
-        try {
-            if (set.next()) {
-                return elementFromResultSetEntry(set);
+    public void findByTitleId(String titleId, Consumer<GroupAssignation> consumer) {
+        TurkeyAppFactory.runResultSetWorker(() -> repo.findByElementId(GroupAssignation.ElementType.TITLE, titleId), set -> {
+            try {
+                if (set.next()) {
+                    consumer.accept(elementFromResultSetEntry(set));
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(GroupAssignationService.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } catch (SQLException ex) {
-            Logger.getLogger(GroupAssignationService.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
+            consumer.accept(null);
+        });
     }
     
     @Override
-    public GroupAssignation findLongestTitleIdContainedIn(String titleId) {
-        List<GroupAssignation> titleAssignations = elementsFromResultSet(repo.findAllOfType(GroupAssignation.ElementType.TITLE));
-        return titleAssignations.stream()
-                .filter(ga -> StringUtils.containsIgnoreCase(titleId, ga.getElementId()))
-                .max((ga1, ga2) -> Integer.compare(ga1.getElementId().length(), ga2.getElementId().length()))
-                .orElse(null);
+    public void findLongestTitleIdContainedIn(String titleId, Consumer<GroupAssignation> consumer) {
+        FGroupAssignationService.runGroupAssignationListWoker(() -> elementsFromResultSet(repo.findAllOfType(GroupAssignation.ElementType.TITLE)), titleAssignations -> {
+            FGroupAssignationService.runGroupAssignationWorker(() -> 
+                    titleAssignations.stream()
+                        .filter(ga -> StringUtils.containsIgnoreCase(titleId, ga.getElementId()))
+                        .max((ga1, ga2) -> Integer.compare(ga1.getElementId().length(), ga2.getElementId().length()))
+                        .orElse(null),
+                    consumer);
+        });
     }
     
     @Override
-    public long deleteByTitleId(String titleId) {
-        return repo.deleteByElementId(GroupAssignation.ElementType.TITLE, titleId);
+    public void deleteByTitleId(String titleId, LongConsumer consumer) {
+        TurkeyAppFactory.runLongWorker(() -> repo.deleteByElementId(GroupAssignation.ElementType.TITLE, titleId), consumer);
     }
 
     @Override
-    public List<GroupAssignation> findProcessesOfGroup(Long groupId) {
-        return elementsFromResultSet(repo.findAllElementTypeOfGroup(GroupAssignation.ElementType.PROCESS, groupId));
+    public void findProcessesOfGroup(Long groupId, Consumer<List<GroupAssignation>> consumer) {
+        FGroupAssignationService.runGroupAssignationListWoker(() -> elementsFromResultSet(repo.findAllElementTypeOfGroup(GroupAssignation.ElementType.PROCESS, groupId)), consumer);
     }
 
     @Override
-    public List<GroupAssignation> findTitlesOfGroup(Long groupId) {
-        return elementsFromResultSet(repo.findAllElementTypeOfGroup(GroupAssignation.ElementType.TITLE, groupId));
+    public void findTitlesOfGroup(Long groupId, Consumer<List<GroupAssignation>> consumer) {
+        FGroupAssignationService.runGroupAssignationWorker(() -> elementsFromResultSet(repo.findAllElementTypeOfGroup(GroupAssignation.ElementType.TITLE, groupId)), consumer);
     }
     
     private List<GroupAssignation> elementsFromResultSet(ResultSet set) {

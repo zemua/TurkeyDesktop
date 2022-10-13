@@ -24,10 +24,10 @@ public interface IGroupAssignationService {
     public void deleteByGroupId(long id, LongConsumer consumer);
     
     public void findByProcessId(String processId, Consumer<GroupAssignation> consumer);
-    public long deleteByProcessId(String processId);
-    public GroupAssignation findByTitleId(String titleId);
-    public GroupAssignation findLongestTitleIdContainedIn(String titleId);
-    public long deleteByTitleId(String titleId);
-    public List<GroupAssignation> findProcessesOfGroup(Long groupId);
-    public List<GroupAssignation> findTitlesOfGroup(Long groupId);
+    public void deleteByProcessId(String processId, LongConsumer consumer);
+    public void findByTitleId(String titleId, Consumer<GroupAssignation> consumer);
+    public void findLongestTitleIdContainedIn(String titleId, Consumer<GroupAssignation> consumer);
+    public void deleteByTitleId(String titleId, LongConsumer consumer);
+    public void findProcessesOfGroup(Long groupId, Consumer<List<GroupAssignation>> consumer);
+    public void findTitlesOfGroup(Long groupId, Consumer<List<GroupAssignation>> consumer);
 }

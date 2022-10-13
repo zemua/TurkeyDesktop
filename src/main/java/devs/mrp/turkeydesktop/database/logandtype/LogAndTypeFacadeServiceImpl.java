@@ -14,7 +14,6 @@ import devs.mrp.turkeydesktop.database.conditions.IConditionService;
 import devs.mrp.turkeydesktop.database.config.FConfigElementService;
 import devs.mrp.turkeydesktop.database.config.IConfigElementService;
 import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
 import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
@@ -119,10 +118,11 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
             case DEPENDS:
                 element.setType(Type.Types.DEPENDS);
                 // If title is "hello to you" and we have records "hello" in group1 and "hello to" in group2 the group2 will be chosen
-                GroupAssignation assignation = groupAssignationService.findLongestTitleIdContainedIn(element.getWindowTitle());
-                element.setGroupId(assignation != null ? assignation.getGroupId() : -1);
-                if (!lockdown){setCountedDependingOnTitle(element, element.getElapsed(), proportion);} else {setCountedForTitleWhenLockdown(element, proportion);}
-                consumer.accept(element);
+                groupAssignationService.findLongestTitleIdContainedIn(element.getWindowTitle(), assignation -> {
+                    element.setGroupId(assignation != null ? assignation.getGroupId() : -1);
+                    if (!lockdown){setCountedDependingOnTitle(element, element.getElapsed(), proportion);} else {setCountedForTitleWhenLockdown(element, proportion);}
+                    consumer.accept(element);
+                });
                 break;
             case POSITIVE:
                 element.setType(Type.Types.POSITIVE);
