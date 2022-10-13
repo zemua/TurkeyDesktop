@@ -43,14 +43,7 @@ public class TurkeyAppFactory {
     }
     
     public static void runWorker(Runnable runnable) {
-        var worker = new SwingWorker<Object, Object>() {
-            @Override
-            protected Object doInBackground() throws Exception {
-                runnable.run();
-                return null;
-            }
-        };
-        worker.execute();
+        runInNewThread(runnable);
     }
     
     public static void runResultSetWorker(Supplier<ResultSet> supplier, Consumer<ResultSet> consumer) {
@@ -79,5 +72,25 @@ public class TurkeyAppFactory {
     
     public static ExecutorService getSingleThreadExecutor() {
         return Executors.newSingleThreadExecutor();
+    }
+    
+    public static void runBooleanWorker(Supplier<Boolean> supplier, Consumer<Boolean> consumer) {
+        var worker = new SwingWorker<Boolean, Object>() {
+            @Override
+            protected Boolean doInBackground() throws Exception {
+                return supplier.get();
+            }
+            @Override
+            protected void done() {
+                try {
+                    consumer.accept(get());
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(TurkeyAppFactory.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ExecutionException ex) {
+                    Logger.getLogger(TurkeyAppFactory.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        };
+        worker.execute();
     }
 }

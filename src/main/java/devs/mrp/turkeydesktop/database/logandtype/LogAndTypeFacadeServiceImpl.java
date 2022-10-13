@@ -120,8 +120,11 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                 // If title is "hello to you" and we have records "hello" in group1 and "hello to" in group2 the group2 will be chosen
                 groupAssignationService.findLongestTitleIdContainedIn(element.getWindowTitle(), assignation -> {
                     element.setGroupId(assignation != null ? assignation.getGroupId() : -1);
-                    if (!lockdown){setCountedDependingOnTitle(element, element.getElapsed(), proportion);} else {setCountedForTitleWhenLockdown(element, proportion);}
-                    consumer.accept(element);
+                    if (!lockdown){
+                        setCountedDependingOnTitle(element, element.getElapsed(), proportion, r -> consumer.accept(element));
+                    } else {
+                        setCountedForTitleWhenLockdown(element, proportion, r -> consumer.accept(element));
+                    }
                 });
                 break;
             case POSITIVE:
@@ -151,33 +154,39 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
         }
     }
     
-    private TimeLog setCountedForTitleWhenLockdown(TimeLog element, long proportion) {
+    private void setCountedForTitleWhenLockdown(TimeLog element, long proportion, Consumer<TimeLog> consumer) {
         var title = titleService.findLongestContainedBy(element.getWindowTitle().toLowerCase());
         if (title != null && title.getType().equals(Title.Type.NEGATIVE)) {
-            element.setBlockable(closeableService.canBeClosed(element.getProcessName()));
-            element.setCounted(-1 * proportion * element.getElapsed());
+            closeableService.canBeClosed(element.getProcessName(), b -> {
+                element.setBlockable(b);
+                element.setCounted(-1 * proportion * element.getElapsed());
+                consumer.accept(element);
+            });
         } else if (!conditionChecker.isIdle()) { // when not negative, don't disccount points if idle
             element.setCounted(-1 * proportion * element.getElapsed());
+            consumer.accept(element);
         } else {
             element.setCounted(0);
+            consumer.accept(element);
         }
-        return element;
     }
     
-    private TimeLog setCountedDependingOnTitle(TimeLog element, long elapsed, int proportion) {
+    private void setCountedDependingOnTitle(TimeLog element, long elapsed, int proportion, Consumer<TimeLog> consumer) {
         var title = titleService.findLongestContainedBy(element.getWindowTitle().toLowerCase());
         if (title == null) {
             element.setCounted(0);
-            return element;
+            consumer.accept(element);
         }
         boolean isPositive = title.getType().equals(Title.Type.POSITIVE);
         if (isPositive && (conditionChecker.isIdleWithToast() || !conditionChecker.areConditionsMet(element.getGroupId()))) {
             element.setCounted(0);
-            return element;
+            consumer.accept(element);
         }
         element.setCounted(isPositive ? Math.abs(elapsed) : - Math.abs(elapsed) * proportion);
-        element.setBlockable(closeableService.canBeClosed(element.getProcessName()));
-        return element;
+        closeableService.canBeClosed(element.getProcessName(), b -> {
+            element.setBlockable(b);
+            consumer.accept(element);
+        });
     }
     
     private TimeLog adjustAccumulated(TimeLog element, long counted) {
