@@ -11,8 +11,9 @@ import devs.mrp.turkeydesktop.database.conditions.IConditionService;
 import devs.mrp.turkeydesktop.database.group.GroupServiceFactory;
 import devs.mrp.turkeydesktop.database.group.Group;
 import java.util.List;
-import java.util.stream.Collectors;
 import devs.mrp.turkeydesktop.database.group.GroupService;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -30,11 +31,13 @@ public class GroupConditionFacadeService implements IGroupConditionFacadeService
     }
 
     @Override
-    public List<GroupConditionFacade> findByGroupId(long groupId) {
-        return conditionService.findByGroupId(groupId)
-                .stream()
+    public void findByGroupId(long groupId, Consumer<List<GroupConditionFacade>> consumer) {
+        conditionService.findByGroupId(groupId, result -> {
+            var output = result.stream()
                 .map(condition -> toFacade(condition))
                 .collect(Collectors.toList());
+            consumer.accept(output);
+        });
     }
     
     private GroupConditionFacade toFacade(Condition condition) {

@@ -132,11 +132,14 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                 groupAssignationService.findByProcessId(element.getProcessName(), result -> {
                     element.setGroupId(result != null ? result.getGroupId() : -1);
                     if (!lockdown) {
-                        element.setCounted(!conditionChecker.isIdleWithToast() && conditionChecker.areConditionsMet(element.getGroupId()) ? Math.abs(element.getElapsed()) : 0);
+                        conditionChecker.areConditionsMet(element.getGroupId(), areMet -> {
+                            element.setCounted(!conditionChecker.isIdleWithToast() && areMet ? Math.abs(element.getElapsed()) : 0);
+                            consumer.accept(element);
+                        });
                     } else if (!conditionChecker.isIdle()) { // when in lockdown, don't disccount points if idle
                         element.setCounted(-1 * proportion * element.getElapsed());
+                        consumer.accept(element);
                     }
-                    consumer.accept(element);
                 });
                 break;
             case NEGATIVE:
@@ -176,16 +179,20 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
         if (title == null) {
             element.setCounted(0);
             consumer.accept(element);
+            return;
         }
         boolean isPositive = title.getType().equals(Title.Type.POSITIVE);
-        if (isPositive && (conditionChecker.isIdleWithToast() || !conditionChecker.areConditionsMet(element.getGroupId()))) {
-            element.setCounted(0);
-            consumer.accept(element);
-        }
-        element.setCounted(isPositive ? Math.abs(elapsed) : - Math.abs(elapsed) * proportion);
-        closeableService.canBeClosed(element.getProcessName(), b -> {
-            element.setBlockable(b);
-            consumer.accept(element);
+        conditionChecker.areConditionsMet(element.getGroupId(), areMet -> {
+            if (isPositive && (conditionChecker.isIdleWithToast() || !areMet)) {
+                element.setCounted(0);
+                consumer.accept(element);
+            } else {
+                element.setCounted(isPositive ? Math.abs(elapsed) : - Math.abs(elapsed) * proportion);
+                closeableService.canBeClosed(element.getProcessName(), b -> {
+                    element.setBlockable(b);
+                    consumer.accept(element);
+                });
+            }
         });
     }
     

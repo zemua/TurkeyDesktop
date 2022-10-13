@@ -6,6 +6,7 @@
 package devs.mrp.turkeydesktop.database.groupcondition;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  *
@@ -14,6 +15,6 @@ import java.util.List;
 public interface IGroupConditionFacadeService {
     
     public GroupConditionFacade findByConditionId(long conditionId);
-    public List<GroupConditionFacade> findByGroupId(long groupId);
+    public void findByGroupId(long groupId, Consumer<List<GroupConditionFacade>> consumer);
     
 }

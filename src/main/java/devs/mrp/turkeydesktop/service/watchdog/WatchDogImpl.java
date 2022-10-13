@@ -162,34 +162,35 @@ public class WatchDogImpl implements WatchDog {
         // insert entry to db
         dbLogger.logEntry(elapsed, processChecker.currentProcessPid(), processChecker.currentProcessName(), processChecker.currentWindowTitle(), entry -> {
             singleThreadExecutor.submit(() -> {
-                boolean conditionsMet = conditionChecker.areConditionsMet(entry.getGroupId());
-                boolean isLockDown = conditionChecker.isLockDownTime();
-                conditionChecker.notifyCloseToConditionsRefresh();
-                if (entry.isBlockable() && (conditionChecker.timeRemaining() <= 0 || !conditionsMet || isLockDown)) {
-                    killerHandler.receiveRequest(null, processChecker.currentProcessPid());
-                    Toaster.sendToast(localeMessages.getString("killingProcess"));
-                }
+                conditionChecker.areConditionsMet(entry.getGroupId(), conditionsMet -> {
+                    boolean isLockDown = conditionChecker.isLockDownTime();
+                    conditionChecker.notifyCloseToConditionsRefresh();
+                    if (entry.isBlockable() && (conditionChecker.timeRemaining() <= 0 || !conditionsMet || isLockDown)) {
+                        killerHandler.receiveRequest(null, processChecker.currentProcessPid());
+                        Toaster.sendToast(localeMessages.getString("killingProcess"));
+                    }
 
-                if (!conditionsMet) {
-                    Toaster.sendToast(localeMessages.getString("conditionsNotMetFor") + " " + groupService.findById(entry.getGroupId()).getName());
-                }
+                    if (!conditionsMet) {
+                        Toaster.sendToast(localeMessages.getString("conditionsNotMetFor") + " " + groupService.findById(entry.getGroupId()).getName());
+                    }
 
-                if (entry.getCounted() < 0 && conditionChecker.isTimeRunningOut()) {
-                    Toaster.sendToast(localeMessages.getString("timeRunningOut"));
-                }
+                    if (entry.getCounted() < 0 && conditionChecker.isTimeRunningOut()) {
+                        Toaster.sendToast(localeMessages.getString("timeRunningOut"));
+                    }
 
-                try {
-                    FileHandler.exportAccumulated(entry.getAccumulated());
-                } catch (IOException e) {
-                    logger.log(Level.SEVERE, "Error exporting accumulated time to file", e);
-                }
+                    try {
+                        FileHandler.exportAccumulated(entry.getAccumulated());
+                    } catch (IOException e) {
+                        logger.log(Level.SEVERE, "Error exporting accumulated time to file", e);
+                    }
 
-                exportWritter.exportChanged();
+                    exportWritter.exportChanged();
 
-                giveFeedback("Entry logged", entry);
+                    giveFeedback("Entry logged", entry);
 
-                updateTrayIcon(isLockDown, entry.getCounted());
-                trayHandler.requestChangeTimeLeft("time", conditionChecker.timeRemaining());
+                    updateTrayIcon(isLockDown, entry.getCounted());
+                    trayHandler.requestChangeTimeLeft("time", conditionChecker.timeRemaining());
+                });
             });
         });
     }

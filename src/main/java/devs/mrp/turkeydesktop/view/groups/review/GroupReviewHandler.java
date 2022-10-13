@@ -412,8 +412,8 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
 
     private void fillConditionsInPanel(JPanel panel) {
         panel.removeAll();
-        groupConditionFacadeService.findByGroupId(group.getId())
-                .forEach(cond -> {
+        groupConditionFacadeService.findByGroupId(group.getId(), groupConditions -> {
+            groupConditions.forEach(cond -> {
                     ConditionElement element = new ConditionElement(cond);
                     panel.add(element);
                     element.addFeedbackListener((tipo, feedback) -> {
@@ -432,6 +432,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                         }
                     });
                 });
+        });
         panel.revalidate();
         panel.updateUI();
     }
@@ -446,7 +447,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         condition.setUsageTimeCondition(TimeConverter.hoursToMilis((Long) hourSpinner.getValue()) + TimeConverter.minutesToMilis((Long) minuteSpinner.getValue()));
         condition.setLastDaysCondition((long) daySpinner.getValue());
 
-        conditionService.add(condition);
+        conditionService.add(condition, r -> {});
         fillConditionFields();
     }
 

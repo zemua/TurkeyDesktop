@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import java.time.LocalDateTime;
+import java.util.function.Consumer;
 
 /**
  *
@@ -90,12 +91,13 @@ public class ConditionCheckerImpl implements ConditionChecker {
     }
 
     @Override
-    public boolean areConditionsMet(long groupId) {
+    public void areConditionsMet(long groupId, Consumer<Boolean> consumer) {
         if (groupId <= 0) {
-            return true;
+            consumer.accept(true);
         }
-        List<Condition> conditions = conditionService.findByGroupId(groupId);
-        return areConditionsMet(conditions);
+        conditionService.findByGroupId(groupId, conditions -> {
+            consumer.accept(areConditionsMet(conditions));
+        });
     }
 
     @Override

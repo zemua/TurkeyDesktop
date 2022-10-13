@@ -7,6 +7,7 @@ package devs.mrp.turkeydesktop.service.conditionchecker;
 
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  *
@@ -16,7 +17,7 @@ public interface ConditionChecker {
     
     public boolean isConditionMet(Condition condition);
     public boolean areConditionsMet(List<Condition> conditions);
-    public boolean areConditionsMet(long groupId);
+    public void areConditionsMet(long groupId, Consumer<Boolean> consumer);
     public boolean isLockDownTime();
     public boolean isLockDownTime(Long now);
     public boolean isTimeRunningOut();

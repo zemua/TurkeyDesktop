@@ -5,10 +5,13 @@
  */
 package devs.mrp.turkeydesktop.database.conditions;
 
+import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.LongConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,9 +25,9 @@ public class ConditionService implements IConditionService {
     private static final Logger logger = Logger.getLogger(ConditionService.class.getName());
     
     @Override
-    public long add(Condition element) {
+    public void add(Condition element, LongConsumer consumer) {
         if (element == null) {
-            return -1;
+            consumer.accept(-1);
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
             ResultSet rs = repo.findById(element.getId());
@@ -33,30 +36,30 @@ public class ConditionService implements IConditionService {
                     Condition condition = elementFromResultSetEntry(rs);
                     // if the value stored differs from the one received
                     if (!condition.equals(element)) {
-                        return update(element);
+                        update(element, consumer);
                     }
                     // else the value is the same as the one stored
-                    return 0;
+                    consumer.accept(0);
                 }
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
             // else there is no element stored with this id
-            return repo.add(element);
+            TurkeyAppFactory.runLongWorker(() -> repo.add(element), consumer);
         }
     }
 
     @Override
-    public long update(Condition element) {
+    public void update(Condition element, LongConsumer consumer) {
         if (element == null) {
-            return -1;
+            consumer.accept(-1);
         }
-        return repo.update(element);
+        TurkeyAppFactory.runLongWorker(() -> repo.update(element), consumer);
     }
 
     @Override
-    public List<Condition> findAll() {
-        return elementsFromResultSet(repo.findAll());
+    public void findAll(Consumer<List<Condition>> consumer) {
+        FConditionService.runConditionListWorker(() -> elementsFromResultSet(repo.findAll()), consumer);
     }
 
     @Override
@@ -74,8 +77,8 @@ public class ConditionService implements IConditionService {
     }
     
     @Override
-    public List<Condition> findByGroupId(Long groupId) {
-        return elementsFromResultSet(repo.findByGroupId(groupId));
+    public void findByGroupId(Long groupId, Consumer<List<Condition>> consumer) {
+        FConditionService.runConditionListWorker(() -> elementsFromResultSet(repo.findByGroupId(groupId)), consumer);
     }
 
     @Override
