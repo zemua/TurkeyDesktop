@@ -81,7 +81,9 @@ public class Db { // TODO create asynchronous listeners to update livedata
         } catch (SQLException ex) {
             Logger.getLogger(Db.class.getName()).log(Level.SEVERE, "error trying to stablish db connection", ex);
             try {
-                con.close();
+                if(con != null) {
+                    con.close();
+                }
             } catch (SQLException ex1) {
                 Logger.getLogger(Db.class.getName()).log(Level.SEVERE, "error trying to close db connection", ex1);
             }
