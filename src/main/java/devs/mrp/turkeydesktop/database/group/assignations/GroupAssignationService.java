@@ -143,7 +143,7 @@ public class GroupAssignationService implements IGroupAssignationService {
 
     @Override
     public void findTitlesOfGroup(Long groupId, Consumer<List<GroupAssignation>> consumer) {
-        FGroupAssignationService.runGroupAssignationWorker(() -> elementsFromResultSet(repo.findAllElementTypeOfGroup(GroupAssignation.ElementType.TITLE, groupId)), consumer);
+        FGroupAssignationService.runGroupAssignationListWoker(() -> elementsFromResultSet(repo.findAllElementTypeOfGroup(GroupAssignation.ElementType.TITLE, groupId)), consumer);
     }
     
     private List<GroupAssignation> elementsFromResultSet(ResultSet set) {
