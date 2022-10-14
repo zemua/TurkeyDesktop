@@ -37,15 +37,17 @@ public class ConditionService implements IConditionService {
                     // if the value stored differs from the one received
                     if (!condition.equals(element)) {
                         update(element, consumer);
+                    } else {
+                        // else the value is the same as the one stored
+                        consumer.accept(0);
                     }
-                    // else the value is the same as the one stored
-                    consumer.accept(0);
+                } else {
+                    // else there is no element stored with this id
+                    TurkeyAppFactory.runLongWorker(() -> repo.add(element), consumer);
                 }
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-            // else there is no element stored with this id
-            TurkeyAppFactory.runLongWorker(() -> repo.add(element), consumer);
         }
     }
 
@@ -53,8 +55,9 @@ public class ConditionService implements IConditionService {
     public void update(Condition element, LongConsumer consumer) {
         if (element == null) {
             consumer.accept(-1);
+        } else {
+            TurkeyAppFactory.runLongWorker(() -> repo.update(element), consumer);
         }
-        TurkeyAppFactory.runLongWorker(() -> repo.update(element), consumer);
     }
 
     @Override

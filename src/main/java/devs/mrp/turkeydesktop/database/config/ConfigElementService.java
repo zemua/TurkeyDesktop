@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.config;
 
+import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.LongConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -39,26 +41,29 @@ public class ConfigElementService implements IConfigElementService {
     }
 
     @Override
-    public long add(ConfigElement element) {
+    public void add(ConfigElement element, LongConsumer consumer) {
         if (element == null || element.getKey() == null || element.getValue().length() > 150) {
-            return -1;
+            consumer.accept(-1);
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            ResultSet rs = repo.findById(element.getKey().toString());
-            try {
-                if (rs.next()) {
-                    if (configMap.containsKey(element.getKey()) && configMap.get(element.getKey()) != element.getValue()) {
+            TurkeyAppFactory.runResultSetWorker(() -> repo.findById(element.getKey().toString()), rs -> {
+                try {
+                    if (rs.next()) {
+                        if (configMap.containsKey(element.getKey()) && configMap.get(element.getKey()) != element.getValue()) {
+                            configMap.put(element.getKey(), element.getValue());
+                            TurkeyAppFactory.runLongWorker(() -> update(element), consumer);
+                        } else {
+                            // else the value is the same as the one stored
+                            consumer.accept(0);
+                        }
+                    } else {
                         configMap.put(element.getKey(), element.getValue());
-                        return update(element);
+                        TurkeyAppFactory.runLongWorker(() -> repo.add(element), consumer);
                     }
-                    // else the value is the same as the one stored
-                    return 0;
+                } catch (SQLException ex) {
+                    logger.log(Level.SEVERE, null, ex);
                 }
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
-            configMap.put(element.getKey(), element.getValue());
-            return repo.add(element);
+            });
         }
     }
 

@@ -34,11 +34,12 @@ public class CloseableServiceImpl implements CloseableService {
             try{
                 if (rs.next()){
                     consumer.accept(0);
+                } else {
+                    TurkeyAppFactory.runLongWorker(() -> repo.add(new Closeable(element)), consumer);
                 }
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-            TurkeyAppFactory.runLongWorker(() -> repo.add(new Closeable(element)), consumer);
         }
     }
 
@@ -68,11 +69,12 @@ public class CloseableServiceImpl implements CloseableService {
             try {
                 if (set.next()) {
                     consumer.accept(false);
+                } else {
+                    consumer.accept(true);
                 }
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-            consumer.accept(true);
         });
     }
 

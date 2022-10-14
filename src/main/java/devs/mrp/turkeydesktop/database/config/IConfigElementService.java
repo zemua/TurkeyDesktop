@@ -7,6 +7,7 @@ package devs.mrp.turkeydesktop.database.config;
 
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.util.List;
+import java.util.function.LongConsumer;
 
 /**
  *
@@ -14,7 +15,7 @@ import java.util.List;
  */
 public interface IConfigElementService {
     
-    public long add(ConfigElement element);
+    public void add(ConfigElement element, LongConsumer consumer);
     public long update(ConfigElement element);
     public List<ConfigElement> findAll();
     public ConfigElement findById(ConfigurationEnum key);
