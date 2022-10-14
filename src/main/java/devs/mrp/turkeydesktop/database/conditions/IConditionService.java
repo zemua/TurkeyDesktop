@@ -18,8 +18,8 @@ public interface IConditionService {
     public void update(Condition element, LongConsumer consumer);
     public void findAll(Consumer<List<Condition>> consumer);
     public void findByGroupId(Long groupId, Consumer<List<Condition>> consumer);
-    public Condition findById(Long id);
-    public long deleteById(Long id);
-    public long deleteByGroupId(long id);
-    public long deleteByTargetId(long id);
+    public void findById(Long id, Consumer<Condition> consumer);
+    public void deleteById(Long id, LongConsumer consumer);
+    public void deleteByGroupId(long id, LongConsumer consumer);
+    public void deleteByTargetId(long id, LongConsumer consumer);
 }

@@ -14,7 +14,7 @@ import java.util.function.Consumer;
  */
 public interface IGroupConditionFacadeService {
     
-    public GroupConditionFacade findByConditionId(long conditionId);
+    public void findByConditionId(long conditionId, Consumer<GroupConditionFacade> consumer);
     public void findByGroupId(long groupId, Consumer<List<GroupConditionFacade>> consumer);
     
 }

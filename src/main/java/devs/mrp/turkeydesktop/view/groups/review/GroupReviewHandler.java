@@ -452,7 +452,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     }
 
     private void removeCondition(long id) {
-        conditionService.deleteById(id);
+        conditionService.deleteById(id, r -> {});
         try {
             fillConditionFields();
         } catch (Exception e) {
@@ -506,8 +506,8 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             return;
         }
         groupService.deleteById(group.getId());
-        conditionService.deleteByGroupId(group.getId());
-        conditionService.deleteByTargetId(group.getId());
+        conditionService.deleteByGroupId(group.getId(), r -> {});
+        conditionService.deleteByTargetId(group.getId(), r -> {});
         externalGroupService.deleteByGroup(group.getId());
         groupAssignationService.deleteByGroupId(group.getId(), r -> {});
         exit();

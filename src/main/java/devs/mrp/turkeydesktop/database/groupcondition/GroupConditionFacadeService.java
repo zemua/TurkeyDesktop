@@ -25,9 +25,10 @@ public class GroupConditionFacadeService implements IGroupConditionFacadeService
     private final GroupService groupService = GroupServiceFactory.getService();
     
     @Override
-    public GroupConditionFacade findByConditionId(long conditionId) {
-        Condition condition = conditionService.findById(conditionId);
-        return toFacade(condition);
+    public void findByConditionId(long conditionId, Consumer<GroupConditionFacade> consumer) {
+        conditionService.findById(conditionId, condition -> {
+            consumer.accept(toFacade(condition));
+        });
     }
 
     @Override

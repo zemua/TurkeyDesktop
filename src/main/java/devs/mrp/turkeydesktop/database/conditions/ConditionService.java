@@ -63,17 +63,18 @@ public class ConditionService implements IConditionService {
     }
 
     @Override
-    public Condition findById(Long id) {
-        ResultSet set = repo.findById(id);
-        Condition element = null;
-        try {
-            if (set.next()) {
-                element = elementFromResultSetEntry(set);
+    public void findById(Long id, Consumer<Condition> consumer) {
+        TurkeyAppFactory.runResultSetWorker(() -> repo.findById(id), set -> {
+            Condition element = null;
+            try {
+                if (set.next()) {
+                    element = elementFromResultSetEntry(set);
+                }
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
             }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        return element;
+            consumer.accept(element);
+        });
     }
     
     @Override
@@ -82,18 +83,18 @@ public class ConditionService implements IConditionService {
     }
 
     @Override
-    public long deleteById(Long id) {
-        return repo.deleteById(id);
+    public void deleteById(Long id, LongConsumer consumer) {
+        TurkeyAppFactory.runLongWorker(() -> repo.deleteById(id), consumer);
     }
     
     @Override
-    public long deleteByGroupId(long id) {
-        return repo.deleteByGroupId(id);
+    public void deleteByGroupId(long id, LongConsumer consumer) {
+        TurkeyAppFactory.runLongWorker(() -> repo.deleteByGroupId(id), consumer);
     }
     
     @Override
-    public long deleteByTargetId(long id) {
-        return repo.deleteByTargetId(id);
+    public void deleteByTargetId(long id, LongConsumer consumer) {
+        TurkeyAppFactory.runLongWorker(() -> repo.deleteByTargetId(id), consumer);
     }
     
     private List<Condition> elementsFromResultSet(ResultSet set) {
