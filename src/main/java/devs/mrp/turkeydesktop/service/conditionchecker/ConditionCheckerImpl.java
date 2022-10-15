@@ -41,6 +41,7 @@ import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import java.time.LocalDateTime;
 import java.util.function.Consumer;
+import java.util.function.LongConsumer;
 
 /**
  *
@@ -127,47 +128,71 @@ public class ConditionCheckerImpl implements ConditionChecker {
         return isLockDown;
     }
     
-    private boolean lockDownActivated() {
-        return Boolean.valueOf(configService.findById(ConfigurationEnum.LOCKDOWN).getValue());
+    private void lockDownActivated(Consumer<Boolean> consumer) {
+        configService.findById(ConfigurationEnum.LOCKDOWN, c -> {
+            consumer.accept(Boolean.valueOf(c.getValue()));
+        });
     }
 
-    private Long lockDownStart() {
-        return Long.valueOf(configService.findById(ConfigurationEnum.LOCKDOWN_FROM).getValue());
+    private void lockDownStart(LongConsumer consumer) {
+        configService.findById(ConfigurationEnum.LOCKDOWN_FROM, c -> {
+            consumer.accept(Long.valueOf(c.getValue()));
+        });
     }
 
-    private Long lockDownEnd() {
-        return Long.valueOf(configService.findById(ConfigurationEnum.LOCKDOWN_TO).getValue());
+    private void lockDownEnd(LongConsumer consumer) {
+        configService.findById(ConfigurationEnum.LOCKDOWN_TO, c -> {
+            consumer.accept(Long.valueOf(c.getValue()));
+        });
     }
 
-    private boolean closeToLock(Long hourNow, Long from) {
-        if (!lockDownActivated()) {
-            return false;
-        }
-        // if no notice is activated
-        if (!Boolean.valueOf(configService.findById(ConfigurationEnum.LOCK_NOTIFY).getValue())) {
-            return false;
-        }
-        // if start equals end
-        if (lockDownStart().equals(lockDownEnd())) {
-            return false;
-        }
-        Long minutesNotice = TimeConverter.getMinutes(Long.valueOf(configService.findById(ConfigurationEnum.LOCK_NOTIFY_MINUTES).getValue()));
-        if (hourNow < from) {
-            return from - hourNow < 60 * 1000 * minutesNotice;
-        } else if (hourNow > from) {
-            return from + TimeConverter.hoursToMilis(24) - hourNow < 60 * 1000 * minutesNotice;
-        }
-        return false;
+    private void closeToLock(Long hourNow, Long from, Consumer<Boolean> consumer) {
+        lockDownActivated(lockDownActivated -> {
+            if (!lockDownActivated) {
+                consumer.accept(false);
+                return;
+            }
+            configService.findById(ConfigurationEnum.LOCK_NOTIFY, lockNotify -> {
+                if (!Boolean.valueOf(lockNotify.getValue())) {
+                    consumer.accept(false);
+                    return;
+                }
+                lockDownStart(lockDownStart -> {
+                    lockDownEnd(lockDownEnd -> {
+                        if (lockDownStart == lockDownEnd) {
+                            consumer.accept(false);
+                            return;
+                        }
+                        configService.findById(ConfigurationEnum.LOCK_NOTIFY_MINUTES, lockNotifyMinutes -> {
+                            Long minutesNotice = TimeConverter.getMinutes(Long.valueOf(lockNotifyMinutes.getValue()));
+                            if (hourNow < from) {
+                                consumer.accept(from - hourNow < 60 * 1000 * minutesNotice);
+                                return;
+                            } else if (hourNow > from) {
+                                consumer.accept(from + TimeConverter.hoursToMilis(24) - hourNow < 60 * 1000 * minutesNotice);
+                                return;
+                            }
+                            consumer.accept(false);
+                        });
+                    });
+                });
+            });
+        });
     }
 
     @Override
-    public boolean isTimeRunningOut() {
-        Boolean notify = Boolean.valueOf(configService.findById(ConfigurationEnum.MIN_LEFT_BUTTON).getValue());
-        if (!notify) {
-            return false;
-        }
-        Long notification = Long.valueOf(configService.findById(ConfigurationEnum.MIN_LEFT_QTY).getValue());
-        return notification >= timeRemaining();
+    public void isTimeRunningOut(Consumer<Boolean> consumer) {
+        configService.findById(ConfigurationEnum.MIN_LEFT_BUTTON, minLeftButton -> {
+            Boolean notify = Boolean.valueOf(minLeftButton.getValue());
+            if (!notify) {
+                consumer.accept(false);
+                return;
+            }
+            configService.findById(ConfigurationEnum.MIN_LEFT_QTY, minLeftQty -> {
+                Long notification = Long.valueOf(minLeftQty.getValue());
+                consumer.accept(notification >= timeRemaining());
+            });
+        });
     }
 
     @Override

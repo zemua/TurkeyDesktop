@@ -26,10 +26,13 @@ public class VoiceNotificator {
         if (messagesTimestamp.containsKey(msg) && messagesTimestamp.get(msg) > now - sleep) {
             return;
         }
-        if (!"true".equals(config.findById(ConfigurationEnum.SPEAK).getValue())) {
-            return;
-        }
-        messagesTimestamp.put(msg, now);
-        speaker.receiveRequest(null, msg);
+        config.findById(ConfigurationEnum.SPEAK, c -> {
+            if (!"true".equals(c.getValue())) {
+                return;
+            }
+            messagesTimestamp.put(msg, now);
+            speaker.receiveRequest(null, msg);
+        });
+        
     }
 }

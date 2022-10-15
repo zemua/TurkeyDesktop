@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.LongConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,7 +37,7 @@ public class ConfigElementService implements IConfigElementService {
     private void initConfigMap() {
         if (configMap == null) {
             configMap = new HashMap<>();
-            findAll(); // it assigns values to the hashmap inside the function
+            findAll(r -> {}); // it assigns values to the hashmap inside the function
         }
     }
 
@@ -51,7 +52,7 @@ public class ConfigElementService implements IConfigElementService {
                     if (rs.next()) {
                         if (configMap.containsKey(element.getKey()) && configMap.get(element.getKey()) != element.getValue()) {
                             configMap.put(element.getKey(), element.getValue());
-                            TurkeyAppFactory.runLongWorker(() -> update(element), consumer);
+                            update(element, consumer);
                         } else {
                             // else the value is the same as the one stored
                             consumer.accept(0);
@@ -68,55 +69,58 @@ public class ConfigElementService implements IConfigElementService {
     }
 
     @Override
-    public long update(ConfigElement element) {
+    public void update(ConfigElement element, LongConsumer consumer) {
         if (element == null || element.getKey() == null || element.getValue().length() > 150) {
-            return -1;
+            consumer.accept(-1);
+            return;
         }
         configMap.put(element.getKey(), element.getValue());
-        return repo.update(element);
+        TurkeyAppFactory.runLongWorker(() -> repo.update(element), consumer);
     }
 
     @Override
-    public List<ConfigElement> findAll() {
+    public void findAll(Consumer<List<ConfigElement>> consumer) {
         List<ConfigElement> elements = new ArrayList<>();
-        ResultSet set = repo.findAll();
-        try {
-            while (set.next()) {
-                ConfigElement el = elementFromResultSetEntry(set);
-                elements.add(el);
+        TurkeyAppFactory.runResultSetWorker(() -> repo.findAll(), set -> {
+            try {
+                while (set.next()) {
+                    ConfigElement el = elementFromResultSetEntry(set);
+                    elements.add(el);
+                }
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
             }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        configMap.clear();
-        elements.forEach(e -> configMap.put(e.getKey(), e.getValue()));
-        return elements;
+            configMap = elements.stream().collect(Collectors.toMap(ConfigElement::getKey, ConfigElement::getValue));
+            consumer.accept(elements);
+        });
     }
 
     @Override
-    public ConfigElement findById(ConfigurationEnum key) {
-        ResultSet set = repo.findById(key.toString());
-        ConfigElement element = null;
-        try {
-            if (set.next()) {
-                element = elementFromResultSetEntry(set);
-                configMap.put(element.getKey(), element.getValue());
-            } else {
-                element = configElement(key);
+    public void findById(ConfigurationEnum key, Consumer<ConfigElement> consumer) {
+        TurkeyAppFactory.runResultSetWorker(() -> repo.findById(key.toString()), set -> {
+            ConfigElement element = null;
+            try {
+                if (set.next()) {
+                    element = elementFromResultSetEntry(set);
+                    configMap.put(element.getKey(), element.getValue());
+                } else {
+                    element = configElement(key);
+                }
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
             }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        return element;
+            consumer.accept(element);
+        });
     }
 
     @Override
-    public long deleteById(ConfigurationEnum key) {
+    public void deleteById(ConfigurationEnum key, LongConsumer consumer) {
         if (key == null) {
-            return -1;
+            consumer.accept(-1);
+            return;
         }
         configMap.remove(key);
-        return repo.deleteById(key.toString());
+        TurkeyAppFactory.runLongWorker(() -> repo.deleteById(key.toString()), consumer);
     }
 
     private ConfigElement elementFromResultSetEntry(ResultSet set) {

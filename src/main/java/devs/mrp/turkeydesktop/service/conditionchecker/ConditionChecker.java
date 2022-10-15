@@ -20,7 +20,7 @@ public interface ConditionChecker {
     public void areConditionsMet(long groupId, Consumer<Boolean> consumer);
     public boolean isLockDownTime();
     public boolean isLockDownTime(Long now);
-    public boolean isTimeRunningOut();
+    public void isTimeRunningOut(Consumer<Boolean> consumer);
     public long timeRemaining();
     public boolean isIdle();
     public boolean isIdleWithToast();
