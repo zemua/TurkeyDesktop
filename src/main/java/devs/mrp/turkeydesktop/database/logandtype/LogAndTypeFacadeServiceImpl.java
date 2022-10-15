@@ -93,68 +93,82 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
     }
     
     private void adjustDependingOnType(TimeLog element, Consumer<TimeLog> consumer) {
-        Type type = typeService.findById(element.getProcessName());
-        boolean lockdown = conditionChecker.isLockDownTime();
-        boolean idle = conditionChecker.isIdle();
-        int proportion = Integer.valueOf(configService.configElement(ConfigurationEnum.PROPORTION).getValue());
-        if (type == null || type.getType() == null) {
-            type = new Type();
-            type.setType(Type.Types.UNDEFINED);
-        }
-        element.setBlockable(false);
-        switch (type.getType()){ // TODO make chain of responsibility to handle each case in a more clean way
-            case NEUTRAL:
-                element.setType(Type.Types.NEUTRAL);
-                element.setGroupId(-1);
-                element.setCounted(lockdown && !idle ? -1 * proportion * element.getElapsed() : 0);
-                consumer.accept(element);
-                break;
-            case UNDEFINED:
-                element.setType(Type.Types.UNDEFINED);
-                element.setGroupId(-1);
-                element.setCounted(lockdown && !idle ? -1 * proportion * element.getElapsed() : 0);
-                consumer.accept(element);
-                break;
-            case DEPENDS:
-                element.setType(Type.Types.DEPENDS);
-                // If title is "hello to you" and we have records "hello" in group1 and "hello to" in group2 the group2 will be chosen
-                groupAssignationService.findLongestTitleIdContainedIn(element.getWindowTitle(), assignation -> {
-                    element.setGroupId(assignation != null ? assignation.getGroupId() : -1);
-                    if (!lockdown){
-                        setCountedDependingOnTitle(element, element.getElapsed(), proportion, r -> consumer.accept(element));
-                    } else {
-                        setCountedForTitleWhenLockdown(element, proportion, r -> consumer.accept(element));
+        Type myType = typeService.findById(element.getProcessName());
+        conditionChecker.isLockDownTime(lockdown -> {
+            conditionChecker.isIdle(idle -> {
+                configService.configElement(ConfigurationEnum.PROPORTION, proportionResult -> {
+                    int proportion = Integer.valueOf(proportionResult.getValue());
+                    Type type = myType;
+                    if (type == null || type.getType() == null) {
+                        type = new Type();
+                        type.setType(Type.Types.UNDEFINED);
                     }
-                });
-                break;
-            case POSITIVE:
-                element.setType(Type.Types.POSITIVE);
-                groupAssignationService.findByProcessId(element.getProcessName(), result -> {
-                    element.setGroupId(result != null ? result.getGroupId() : -1);
-                    if (!lockdown) {
-                        conditionChecker.areConditionsMet(element.getGroupId(), areMet -> {
-                            element.setCounted(!conditionChecker.isIdleWithToast() && areMet ? Math.abs(element.getElapsed()) : 0);
+                    element.setBlockable(false);
+                    switch (type.getType()){ // TODO make chain of responsibility to handle each case in a more clean way
+                        case NEUTRAL:
+                            element.setType(Type.Types.NEUTRAL);
+                            element.setGroupId(-1);
+                            element.setCounted(lockdown && !idle ? -1 * proportion * element.getElapsed() : 0);
                             consumer.accept(element);
-                        });
-                    } else if (!conditionChecker.isIdle()) { // when in lockdown, don't disccount points if idle
-                        element.setCounted(-1 * proportion * element.getElapsed());
-                        consumer.accept(element);
+                            break;
+                        case UNDEFINED:
+                            element.setType(Type.Types.UNDEFINED);
+                            element.setGroupId(-1);
+                            element.setCounted(lockdown && !idle ? -1 * proportion * element.getElapsed() : 0);
+                            consumer.accept(element);
+                            break;
+                        case DEPENDS:
+                            element.setType(Type.Types.DEPENDS);
+                            // If title is "hello to you" and we have records "hello" in group1 and "hello to" in group2 the group2 will be chosen
+                            groupAssignationService.findLongestTitleIdContainedIn(element.getWindowTitle(), assignation -> {
+                                element.setGroupId(assignation != null ? assignation.getGroupId() : -1);
+                                if (!lockdown){
+                                    setCountedDependingOnTitle(element, element.getElapsed(), proportion, r -> consumer.accept(element));
+                                } else {
+                                    setCountedForTitleWhenLockdown(element, proportion, r -> consumer.accept(element));
+                                }
+                            });
+                            break;
+                        case POSITIVE:
+                            element.setType(Type.Types.POSITIVE);
+                            groupAssignationService.findByProcessId(element.getProcessName(), result -> {
+                                element.setGroupId(result != null ? result.getGroupId() : -1);
+                                if (!lockdown) {
+                                    conditionChecker.areConditionsMet(element.getGroupId(), areMet -> {
+                                        conditionChecker.isIdleWithToast(isIdle -> {
+                                            element.setCounted(!isIdle && areMet ? Math.abs(element.getElapsed()) : 0);
+                                            consumer.accept(element);
+                                        });
+                                    });
+                                } else { // when in lockdown, don't disccount points if idle
+                                    conditionChecker.isIdle(isIdle -> {
+                                        if (!isIdle) {
+                                            element.setCounted(-1 * proportion * element.getElapsed());
+                                            consumer.accept(element);
+                                        } else {
+                                            element.setCounted(0);
+                                            consumer.accept(element);
+                                        }
+                                    });
+                                }
+                            });
+                            break;
+                        case NEGATIVE:
+                            element.setType(Type.Types.NEGATIVE);
+                            groupAssignationService.findByProcessId(element.getProcessName(), result -> {
+                                element.setGroupId(result != null ? result.getGroupId() : -1);
+                                element.setCounted(Math.abs(element.getElapsed()) * proportion * (-1));
+                                element.setBlockable(true);
+                                consumer.accept(element);
+                            });
+                            break;
+                        default:
+                            consumer.accept(element);
+                            break;
                     }
                 });
-                break;
-            case NEGATIVE:
-                element.setType(Type.Types.NEGATIVE);
-                groupAssignationService.findByProcessId(element.getProcessName(), result -> {
-                    element.setGroupId(result != null ? result.getGroupId() : -1);
-                    element.setCounted(Math.abs(element.getElapsed()) * proportion * (-1));
-                    element.setBlockable(true);
-                    consumer.accept(element);
-                });
-                break;
-            default:
-                consumer.accept(element);
-                break;
-        }
+            });
+        });
     }
     
     private void setCountedForTitleWhenLockdown(TimeLog element, long proportion, Consumer<TimeLog> consumer) {
@@ -165,12 +179,16 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                 element.setCounted(-1 * proportion * element.getElapsed());
                 consumer.accept(element);
             });
-        } else if (!conditionChecker.isIdle()) { // when not negative, don't disccount points if idle
-            element.setCounted(-1 * proportion * element.getElapsed());
-            consumer.accept(element);
-        } else {
-            element.setCounted(0);
-            consumer.accept(element);
+        } else { // when not negative, don't disccount points if idle
+            conditionChecker.isIdle(isIdle -> {
+                if (!isIdle) {
+                    element.setCounted(-1 * proportion * element.getElapsed());
+                    consumer.accept(element);
+                } else {
+                    element.setCounted(0);
+                    consumer.accept(element);
+                }
+            });
         }
     }
     
@@ -183,16 +201,19 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
         }
         boolean isPositive = title.getType().equals(Title.Type.POSITIVE);
         conditionChecker.areConditionsMet(element.getGroupId(), areMet -> {
-            if (isPositive && (conditionChecker.isIdleWithToast() || !areMet)) {
-                element.setCounted(0);
-                consumer.accept(element);
-            } else {
-                element.setCounted(isPositive ? Math.abs(elapsed) : - Math.abs(elapsed) * proportion);
-                closeableService.canBeClosed(element.getProcessName(), b -> {
-                    element.setBlockable(b);
+            conditionChecker.isIdleWithToast(isIdle -> {
+                if (isPositive && (isIdle || !areMet)) {
+                    element.setCounted(0);
                     consumer.accept(element);
-                });
-            }
+                } else {
+                    element.setCounted(isPositive ? Math.abs(elapsed) : - Math.abs(elapsed) * proportion);
+                    closeableService.canBeClosed(element.getProcessName(), b -> {
+                        element.setBlockable(b);
+                        consumer.accept(element);
+                    });
+                }
+            });
+            
         });
     }
     

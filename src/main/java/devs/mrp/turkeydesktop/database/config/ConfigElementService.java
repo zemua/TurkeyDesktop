@@ -94,22 +94,28 @@ public class ConfigElementService implements IConfigElementService {
             consumer.accept(elements);
         });
     }
+    
+    private class ConfigElementWrapper {
+        ConfigElement element;
+    }
 
     @Override
     public void findById(ConfigurationEnum key, Consumer<ConfigElement> consumer) {
         TurkeyAppFactory.runResultSetWorker(() -> repo.findById(key.toString()), set -> {
-            ConfigElement element = null;
+            ConfigElementWrapper e = new ConfigElementWrapper();
             try {
                 if (set.next()) {
-                    element = elementFromResultSetEntry(set);
-                    configMap.put(element.getKey(), element.getValue());
+                    e.element = elementFromResultSetEntry(set);
+                    configMap.put(e.element.getKey(), e.element.getValue());
                 } else {
-                    element = configElement(key);
+                    configElement(key, result -> {
+                        e.element = result;
+                    });
                 }
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-            consumer.accept(element);
+            consumer.accept(e.element);
         });
     }
 
@@ -135,8 +141,8 @@ public class ConfigElementService implements IConfigElementService {
     }
 
     @Override
-    public List<ConfigElement> allConfigElements() {
-        return configMap.entrySet().stream()
+    public void allConfigElements(Consumer<List<ConfigElement>> consumer) {
+        var result = configMap.entrySet().stream()
                 .map(e -> {
                     ConfigElement el = new ConfigElement();
                     el.setKey(e.getKey());
@@ -144,10 +150,11 @@ public class ConfigElementService implements IConfigElementService {
                     return el;
                 })
                 .collect(Collectors.toList());
+        consumer.accept(result);
     }
 
     @Override
-    public ConfigElement configElement(ConfigurationEnum key) {
+    public void configElement(ConfigurationEnum key, Consumer<ConfigElement> consumer) {
         ConfigElement el = new ConfigElement();
         el.setKey(key);
         if (configMap.containsKey(key)) {
@@ -155,7 +162,7 @@ public class ConfigElementService implements IConfigElementService {
         } else {
             el.setValue(key.getDefault());
         }
-        return el;
+        consumer.accept(el);
     }
 
 }

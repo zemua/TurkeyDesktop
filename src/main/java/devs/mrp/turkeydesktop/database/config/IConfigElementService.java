@@ -22,7 +22,7 @@ public interface IConfigElementService {
     public void findById(ConfigurationEnum key, Consumer<ConfigElement> consumer);
     public void deleteById(ConfigurationEnum key, LongConsumer consumer);
     
-    public List<ConfigElement> allConfigElements();
-    public ConfigElement configElement(ConfigurationEnum key);
+    public void allConfigElements(Consumer<List<ConfigElement>> consumer);
+    public void configElement(ConfigurationEnum key, Consumer<ConfigElement> consumer);
     
 }
