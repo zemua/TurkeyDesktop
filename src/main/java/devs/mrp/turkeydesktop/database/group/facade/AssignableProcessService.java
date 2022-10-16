@@ -27,20 +27,20 @@ public class AssignableProcessService extends AssignableAbstractService implemen
     @Override
     public void positiveElementsWithAssignation(Consumer<List<AssignableElement<Type.Types>>> consumer) {
         getAssignationsMap(GroupAssignation.ElementType.PROCESS, result -> {
-            consumer.accept(elementsWithAssignation(result, Type.Types.POSITIVE));
+            elementsWithAssignation(result, Type.Types.POSITIVE, consumer);
         });
     }
 
     @Override
     public void negativeElementsWithAssignation(Consumer<List<AssignableElement<Type.Types>>> consumer) {
         getAssignationsMap(GroupAssignation.ElementType.PROCESS, result -> {
-            consumer.accept(elementsWithAssignation(result, Type.Types.NEGATIVE));
+            elementsWithAssignation(result, Type.Types.NEGATIVE, consumer);
         });
     }
     
-    private List<AssignableElement<Type.Types>> elementsWithAssignation(Map<String, GroupAssignation> assignables, Type.Types positiveOrNegative) {
-        return typeService.findAll()
-                .stream()
+    private void elementsWithAssignation(Map<String, GroupAssignation> assignables, Type.Types positiveOrNegative, Consumer<List<AssignableElement<Type.Types>>> consumer) {
+        typeService.findAll(result -> {
+            var computed = result.stream()
                 .filter(t -> t.getType().equals(positiveOrNegative))
                 .map(t -> {
                     AssignableElement<Type.Types> element = new AssignableElement<>();
@@ -57,6 +57,8 @@ public class AssignableProcessService extends AssignableAbstractService implemen
                     return element;
                 })
                 .collect(Collectors.toList());
+            consumer.accept(computed);
+        });
     }
     
 }
