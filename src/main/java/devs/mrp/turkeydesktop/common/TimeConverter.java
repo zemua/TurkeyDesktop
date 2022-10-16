@@ -17,6 +17,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.Formatter;
 import java.util.concurrent.TimeUnit;
+import java.util.function.LongConsumer;
 
 /**
  *
@@ -104,9 +105,11 @@ public class TimeConverter {
         return millisToEndOfDay(System.currentTimeMillis());
     }
     
-    public static long endOfTodayConsideringDayChange() {
-        Long changeOfDayMilis = hoursToMilis(Long.valueOf(configService.configElement(ConfigurationEnum.CHANGE_OF_DAY).getValue()));
-        return endOfToday()+changeOfDayMilis;
+    public static void endOfTodayConsideringDayChange(LongConsumer consumer) {
+        configService.configElement(ConfigurationEnum.CHANGE_OF_DAY, changeOfDayResult -> {
+            Long changeOfDayMilis = hoursToMilis(Long.valueOf(changeOfDayResult.getValue()));
+            consumer.accept(endOfToday()+changeOfDayMilis);
+        });
     }
     
     public static long beginningOfOffsetDays(long offsetDays) {
@@ -115,11 +118,13 @@ public class TimeConverter {
         return zdt.toInstant().toEpochMilli();
     }
     
-    public static long beginningOfOffsetDaysConsideringDayChange(long offsetDays) {
-        Long changeOfDay = Long.valueOf(configService.configElement(ConfigurationEnum.CHANGE_OF_DAY).getValue());
-        LocalDateTime start = LocalDateTime.now().minusHours(changeOfDay).toLocalDate().atStartOfDay().minusDays(offsetDays).plusHours(changeOfDay);
-        ZonedDateTime zdt = start.atZone(ZoneId.systemDefault());
-        return zdt.toInstant().toEpochMilli();
+    public static void beginningOfOffsetDaysConsideringDayChange(long offsetDays, LongConsumer consumer) {
+        configService.configElement(ConfigurationEnum.CHANGE_OF_DAY, changeOfDayResult -> {
+            Long changeOfDay = Long.valueOf(changeOfDayResult.getValue());
+            LocalDateTime start = LocalDateTime.now().minusHours(changeOfDay).toLocalDate().atStartOfDay().minusDays(offsetDays).plusHours(changeOfDay);
+            ZonedDateTime zdt = start.atZone(ZoneId.systemDefault());
+            consumer.accept(zdt.toInstant().toEpochMilli());
+        });
     }
     
     public static long endOfOffsetDays(long offsetDays) {
@@ -128,11 +133,13 @@ public class TimeConverter {
         return zdt.toInstant().toEpochMilli();
     }
     
-    public static long endOfOffsetDaysConsideringDayChange(long offsetDays) {
-        Long changeOfDay = Long.valueOf(configService.configElement(ConfigurationEnum.CHANGE_OF_DAY).getValue());
-        LocalDateTime end = LocalDateTime.now().minusHours(changeOfDay).toLocalDate().atStartOfDay().plusHours(24).minusDays(offsetDays).plusHours(changeOfDay);
-        ZonedDateTime zdt = end.atZone(ZoneId.systemDefault());
-        return zdt.toInstant().toEpochMilli();
+    public static void endOfOffsetDaysConsideringDayChange(long offsetDays, LongConsumer consumer) {
+        configService.configElement(ConfigurationEnum.CHANGE_OF_DAY, changeOfDayResult -> {
+            Long changeOfDay = Long.valueOf(changeOfDayResult.getValue());
+            LocalDateTime end = LocalDateTime.now().minusHours(changeOfDay).toLocalDate().atStartOfDay().plusHours(24).minusDays(offsetDays).plusHours(changeOfDay);
+            ZonedDateTime zdt = end.atZone(ZoneId.systemDefault());
+            consumer.accept(zdt.toInstant().toEpochMilli());
+        });
     }
     
     public static long epochToMilisOnGivenDay(long epoch) {

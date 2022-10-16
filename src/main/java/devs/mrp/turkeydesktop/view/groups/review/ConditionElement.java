@@ -7,6 +7,9 @@ package devs.mrp.turkeydesktop.view.groups.review;
 
 import devs.mrp.turkeydesktop.common.RemovableLabel;
 import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacade;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 /**
@@ -22,6 +25,20 @@ public class ConditionElement extends RemovableLabel<GroupConditionFacade> {
     @Override
     protected String getNameFromElement(GroupConditionFacade facade) {
         return facade.toString();
+    }
+    
+    @Override
+    protected void initializeLabel() {
+        element.toString(stringResult -> {
+            label = new JLabel();
+            label.setText(stringResult);
+            label.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent evt) {
+                    showButton();
+                }
+            });
+        });
     }
 
     @Override

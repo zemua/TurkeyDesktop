@@ -18,6 +18,8 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -83,10 +85,18 @@ public class FileHandler {
             return;
         }
         lastExport = now;
-        String exportPath = configService.configElement(ConfigurationEnum.EXPORT_PATH).getValue();
-        if (!StringUtils.EMPTY.equals(exportPath) && Boolean.valueOf(configService.configElement(ConfigurationEnum.EXPORT_TOGGLE).getValue())) {
-            exportToFile(createFileIfNotExists(new File(exportPath), "txt"), String.valueOf(time));
-        }
+        configService.configElement(ConfigurationEnum.EXPORT_PATH, configElementResult -> {
+            String exportPath = configElementResult.getValue();
+            configService.configElement(ConfigurationEnum.EXPORT_TOGGLE, exportToggleResult -> {
+                if (!StringUtils.EMPTY.equals(exportPath) && Boolean.valueOf(exportToggleResult.getValue())) {
+                    try {
+                        exportToFile(createFileIfNotExists(new File(exportPath), "txt"), String.valueOf(time));
+                    } catch (IOException ex) {
+                        Logger.getLogger(FileHandler.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+        });
     }
     
     private static void exportToFile(File file, String text) throws IOException {

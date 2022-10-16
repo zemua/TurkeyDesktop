@@ -5,7 +5,6 @@
  */
 package devs.mrp.turkeydesktop.service.conditionchecker;
 
-import devs.mrp.turkeydesktop.common.BooleanWrapper;
 import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.common.TimeConverter;
@@ -41,8 +40,10 @@ import java.util.stream.Collectors;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.LongConsumer;
 
@@ -69,12 +70,17 @@ public class ConditionCheckerImpl implements ConditionChecker {
 
     @Override
     public void isConditionMet(Condition condition, Consumer<Boolean> consumer) {
-        long timeSpent = timeLogService.timeSpentOnGroupForFrame(condition.getTargetId(),
-                TimeConverter.beginningOfOffsetDaysConsideringDayChange(condition.getLastDaysCondition()),
-                TimeConverter.endOfTodayConsideringDayChange());
-        externalTimeFromCondition(condition, external -> {
-            consumer.accept(timeSpent+external >= condition.getUsageTimeCondition());
+        TimeConverter.beginningOfOffsetDaysConsideringDayChange(condition.getLastDaysCondition(), beginningResult -> {
+            TimeConverter.endOfTodayConsideringDayChange(endResult -> {
+                long timeSpent = timeLogService.timeSpentOnGroupForFrame(condition.getTargetId(),
+                        beginningResult,
+                        endResult);
+                externalTimeFromCondition(condition, external -> {
+                    consumer.accept(timeSpent+external >= condition.getUsageTimeCondition());
+                });
+            });
         });
+        
     }
     
     private void externalTimeFromCondition(Condition condition, LongConsumer consumer) {
@@ -93,17 +99,16 @@ public class ConditionCheckerImpl implements ConditionChecker {
 
     @Override
     public void areConditionsMet(List<Condition> conditions, Consumer<Boolean> consumer) {
-        Set<Condition> processed = new HashSet<>();
-        BooleanWrapper areMet = new BooleanWrapper();
-        areMet.setValue(true);
+        Set<Condition> processed = Collections.synchronizedSet(new HashSet<>());
+        AtomicBoolean areMet = new AtomicBoolean(true);
         conditions.forEach(condition -> {
             isConditionMet(condition, isMet -> {
                 if (!isMet) {
-                    areMet.setValue(false);
+                    areMet.set(false);
                 }
                 processed.add(condition);
                 if(processed.size() == conditions.size()) {
-                    consumer.accept(areMet.getValue());
+                    consumer.accept(areMet.get());
                 }
             });
         });

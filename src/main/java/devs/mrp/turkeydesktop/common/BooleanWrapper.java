@@ -9,8 +9,10 @@ package devs.mrp.turkeydesktop.common;
  * @author ncm55070
  */
 public class BooleanWrapper {
-    boolean value;
+    
+    private volatile boolean value;
 
+    
     public boolean getValue() {
         return value;
     }

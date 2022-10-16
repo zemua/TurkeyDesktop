@@ -27,8 +27,8 @@ public abstract class RemovableLabel<ELEMENT> extends JPanel implements Feedback
     private LocaleMessages locale = LocaleMessages.getInstance();
     private List<FeedbackListener<ELEMENT, RemovableLabel.Action>> listeners = new ArrayList<>();
     
-    private ELEMENT element;
-    private JLabel label;
+    protected ELEMENT element;
+    protected JLabel label;
     private JButton button;
     
     public enum Action {
@@ -55,7 +55,7 @@ public abstract class RemovableLabel<ELEMENT> extends JPanel implements Feedback
     
     protected abstract String getNameFromElement(ELEMENT element);
     
-    private void initializeLabel() {
+    protected void initializeLabel() {
         label = new JLabel();
         label.setText(getNameFromElement(element));
         label.addMouseListener(new MouseAdapter() {
@@ -78,7 +78,7 @@ public abstract class RemovableLabel<ELEMENT> extends JPanel implements Feedback
         });
     }
     
-    private void showButton() {
+    protected void showButton() {
         button.setEnabled(true);
         button.setVisible(true);
         // hide back the button in 3 seconds
