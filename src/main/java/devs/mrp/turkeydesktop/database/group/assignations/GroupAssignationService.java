@@ -31,23 +31,24 @@ public class GroupAssignationService implements IGroupAssignationService {
             consumer.accept(-1L);
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            ResultSet rs = repo.findByElementId(element.getType(), element.getElementId());
-            try {
-                if (rs.next()) {
-                    GroupAssignation group = elementFromResultSetEntry(rs);
-                    // if the value stored differs from the one received
-                    if (!group.equals(element)) {
-                        update(element, consumer);
+            TurkeyAppFactory.runResultSetWorker(() -> repo.findByElementId(element.getType(), element.getElementId()), rs -> {
+                try {
+                    if (rs.next()) {
+                        GroupAssignation group = elementFromResultSetEntry(rs);
+                        // if the value stored differs from the one received
+                        if (!group.equals(element)) {
+                            update(element, consumer);
+                        }
+                        // else the value is the same as the one stored
+                        consumer.accept(0L);
+
                     }
-                    // else the value is the same as the one stored
-                    consumer.accept(0L);
-                   
+                } catch (SQLException ex) {
+                    logger.log(Level.SEVERE, null, ex);
                 }
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
-            // else there is no element stored with this id
-            TurkeyAppFactory.runLongWorker(() -> repo.add(element), consumer::accept);
+                // else there is no element stored with this id
+                TurkeyAppFactory.runLongWorker(() -> repo.add(element), consumer::accept);
+            });
         }
     }
 
