@@ -8,6 +8,8 @@ package devs.mrp.turkeydesktop.database.logs;
 import devs.mrp.turkeydesktop.common.Dupla;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.LongConsumer;
 
 /**
  *
@@ -15,14 +17,14 @@ import java.util.List;
  */
 public interface TimeLogService {
     
-    public long add(TimeLog element);
-    public long update(TimeLog element);
-    public List<TimeLog> findLast24H();
-    public TimeLog findById(long id);
-    public long deleteById(long id);
-    public List<Dupla<String, Long>> findProcessTimeFromTo(Date from, Date to);
-    public List<Dupla<String, Long>> logsGroupedByTitle(Date from, Date to);
-    public long timeSpentOnGroupForFrame(long groupId, long from, long to);
-    public TimeLog findMostRecent();
+    public void add(TimeLog element, LongConsumer consumer);
+    public void update(TimeLog element, LongConsumer consumer);
+    public void findLast24H(Consumer<List<TimeLog>> consumer);
+    public void findById(long id, Consumer<TimeLog> consumer);
+    public void deleteById(long id, LongConsumer consumer);
+    public void findProcessTimeFromTo(Date from, Date to, Consumer<List<Dupla<String,Long>>> consumer);
+    public void logsGroupedByTitle(Date from, Date to, Consumer<List<Dupla<String, Long>>> consumer);
+    public void timeSpentOnGroupForFrame(long groupId, long from, long to, LongConsumer consumer);
+    public void findMostRecent(Consumer<TimeLog> consumer);
     
 }

@@ -76,27 +76,28 @@ public class ExportWritterImpl implements ExportWritter {
             int j = i;
             TimeConverter.endOfOffsetDaysConsideringDayChange(j, to -> {
                 TimeConverter.beginningOfOffsetDaysConsideringDayChange(j, from -> {
-                    long spent = timeLogService.timeSpentOnGroupForFrame(export.getGroup(), from, to);
-                    LocalDate date = LocalDate.now().minusDays(j);
-                    String result = String.format("%d-%d-%d-%d", date.getYear(), date.getMonthValue() - 1, date.getDayOfMonth(), spent); // TODO LocalDate month starts in 1 but in Android app is set to start on 0
-                    
-                    Map.Entry<LocalDate, String> entry = new AbstractMap.SimpleEntry<>(date, result);
-                    processed.add(entry);
-                    
-                    if (processed.size() == export.getDays()){
-                        processed.sort((e1, e2) -> e1.getKey().compareTo(e2.getKey()));
-                        for (int k = 0; k < processed.size(); k++) {
-                            if (k != 0) {
-                                fileText.append(System.lineSeparator());
+                    timeLogService.timeSpentOnGroupForFrame(export.getGroup(), from, to, spent -> {
+                        LocalDate date = LocalDate.now().minusDays(j);
+                        String result = String.format("%d-%d-%d-%d", date.getYear(), date.getMonthValue() - 1, date.getDayOfMonth(), spent); // TODO LocalDate month starts in 1 but in Android app is set to start on 0
+
+                        Map.Entry<LocalDate, String> entry = new AbstractMap.SimpleEntry<>(date, result);
+                        processed.add(entry);
+
+                        if (processed.size() == export.getDays()){
+                            processed.sort((e1, e2) -> e1.getKey().compareTo(e2.getKey()));
+                            for (int k = 0; k < processed.size(); k++) {
+                                if (k != 0) {
+                                    fileText.append(System.lineSeparator());
+                                }
+                                fileText.append(processed.get(k).getValue());
                             }
-                            fileText.append(processed.get(k).getValue());
+                            try {
+                                FileHandler.writeToTxt(file, fileText.toString());
+                            } catch (IOException ex) {
+                                logger.log(Level.SEVERE, "error exporting group time to file", ex);
+                            }
                         }
-                        try {
-                            FileHandler.writeToTxt(file, fileText.toString());
-                        } catch (IOException ex) {
-                            logger.log(Level.SEVERE, "error exporting group time to file", ex);
-                        }
-                    }
+                    });
                 });
             });
         }

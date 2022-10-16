@@ -87,9 +87,10 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
     @Override
     public void addTimeLogAdjustingCounted(TimeLog element, Consumer<TimeLog> consumer) {
         adjustDependingOnType(element, result -> {
-            adjustAccumulated(element, element.getCounted());
-            logService.add(element);
-            consumer.accept(element);
+            adjustAccumulated(element, element.getCounted(), updatedElement -> {
+                logService.add(updatedElement,r -> {});
+                consumer.accept(updatedElement);
+            });
         });
     }
     
@@ -218,18 +219,19 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
         });
     }
     
-    private TimeLog adjustAccumulated(TimeLog element, long counted) {
-        TimeLog last = logService.findMostRecent();
-        long lastAccumulated = 0;
-        if (last != null) {
-            lastAccumulated = last.getAccumulated();
-        }
-        long accumulated;
-        accumulated = lastAccumulated + counted;
-        // TODO add to accumulated imported value
-        element.setAccumulated(accumulated);
-        //LOGGER.log(Level.INFO, "accumulated: " + accumulated);
-        return element;
+    private void adjustAccumulated(TimeLog element, long counted, Consumer<TimeLog> consumer) {
+        logService.findMostRecent(last -> {
+            long lastAccumulated = 0;
+            if (last != null) {
+                lastAccumulated = last.getAccumulated();
+            }
+            long accumulated;
+            accumulated = lastAccumulated + counted;
+            // TODO add to accumulated imported value
+            element.setAccumulated(accumulated);
+            //LOGGER.log(Level.INFO, "accumulated: " + accumulated);
+            consumer.accept(element);
+        });
     }
 
 }

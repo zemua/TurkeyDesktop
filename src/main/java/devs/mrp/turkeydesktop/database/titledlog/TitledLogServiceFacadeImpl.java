@@ -8,7 +8,6 @@ package devs.mrp.turkeydesktop.database.titledlog;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
-import devs.mrp.turkeydesktop.database.logs.TimeLogServiceImpl;
 import devs.mrp.turkeydesktop.database.titles.TitleServiceFactory;
 import devs.mrp.turkeydesktop.database.titles.Title;
 import java.sql.ResultSet;
@@ -21,6 +20,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
+import java.util.function.Consumer;
 
 /**
  *
@@ -34,8 +34,9 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
     private static final Logger logger = Logger.getLogger(TitledLogServiceFacadeImpl.class.getName());
 
     @Override
-    public List<TitledLog> getLogsWithTitleConditions(Date from, Date to) {
-        return logService.logsGroupedByTitle(from, to).stream()
+    public void getLogsWithTitleConditions(Date from, Date to, Consumer<List<TitledLog>> consumer) {
+        logService.logsGroupedByTitle(from, to, result -> {
+            var computed = result.stream()
                 .map(e -> {
                     TitledLog tl = new TitledLog();
                     tl.setTitle(e.getValue1());
@@ -46,6 +47,8 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
                     return tl;
                 })
                 .collect(Collectors.toList());
+            consumer.accept(computed);
+        });
     }
 
     @Override

@@ -5,7 +5,6 @@
  */
 package devs.mrp.turkeydesktop.view.times;
 
-import devs.mrp.turkeydesktop.common.Dupla;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
@@ -57,7 +56,9 @@ public class TimesHandler extends PanelHandler<TimesEnum, AWTEvent, FeedbackerPa
     
     @Override
     protected void doExtraBeforeShow() {
-        attachRecordsToLogger(logService.findLast24H());
+        logService.findLast24H(res -> {
+            attachRecordsToLogger(res);
+        });
     }
     
     private void initCaller() {
@@ -72,8 +73,9 @@ public class TimesHandler extends PanelHandler<TimesEnum, AWTEvent, FeedbackerPa
     private void updateLogs(Date from, Date to) {
         JTextArea log = (JTextArea)this.getPanel().getProperty(TimesEnum.LOGGER);
         log.setText("");
-        List<Dupla<String,Long>> times = logService.findProcessTimeFromTo(from, to);
-        times.forEach(t -> log.append(String.format(localeMessages.getString("processTimeLog"), t.getValue1(), TimeConverter.millisToHMS(t.getValue2()))));
+        logService.findProcessTimeFromTo(from, to, times -> {
+            times.forEach(t -> log.append(String.format(localeMessages.getString("processTimeLog"), t.getValue1(), TimeConverter.millisToHMS(t.getValue2()))));
+        });
     }
     
     private Date getFrom() {

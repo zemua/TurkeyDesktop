@@ -20,7 +20,6 @@ import devs.mrp.turkeydesktop.database.group.external.ExternalGroupServiceFactor
 import devs.mrp.turkeydesktop.database.imports.ImportService;
 import devs.mrp.turkeydesktop.database.imports.ImportServiceFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
-import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.conditionchecker.idle.IdleChainCommander;
 import devs.mrp.turkeydesktop.service.conditionchecker.idle.LongWrapper;
@@ -72,11 +71,10 @@ public class ConditionCheckerImpl implements ConditionChecker {
     public void isConditionMet(Condition condition, Consumer<Boolean> consumer) {
         TimeConverter.beginningOfOffsetDaysConsideringDayChange(condition.getLastDaysCondition(), beginningResult -> {
             TimeConverter.endOfTodayConsideringDayChange(endResult -> {
-                long timeSpent = timeLogService.timeSpentOnGroupForFrame(condition.getTargetId(),
-                        beginningResult,
-                        endResult);
-                externalTimeFromCondition(condition, external -> {
-                    consumer.accept(timeSpent+external >= condition.getUsageTimeCondition());
+                timeLogService.timeSpentOnGroupForFrame(condition.getTargetId(), beginningResult, endResult, timeSpent -> {
+                    externalTimeFromCondition(condition, external -> {
+                        consumer.accept(timeSpent+external >= condition.getUsageTimeCondition());
+                    });
                 });
             });
         });
@@ -251,11 +249,12 @@ public class ConditionCheckerImpl implements ConditionChecker {
                     .filter(s -> !s.isBlank()) // filter blanks
                     .filter(s -> NUMBER_PATTERN.matcher(s).matches()) // filter non numbers positive or negative
                     .collect(Collectors.summingLong(Long::valueOf)); // convert to long and sum up
-            TimeLog tl = timeLogService.findMostRecent();
-            Long accumulated = tl != null ? tl.getAccumulated() : 0;
-            configService.findById(ConfigurationEnum.PROPORTION, foundProportion -> {
-                Long proportion = Long.valueOf(foundProportion.getValue());
-                consumer.accept((accumulated + totalImported)/proportion);
+            timeLogService.findMostRecent(tl -> {
+                Long accumulated = tl != null ? tl.getAccumulated() : 0;
+                configService.findById(ConfigurationEnum.PROPORTION, foundProportion -> {
+                    Long proportion = Long.valueOf(foundProportion.getValue());
+                    consumer.accept((accumulated + totalImported)/proportion);
+                });
             });
         });
     }
