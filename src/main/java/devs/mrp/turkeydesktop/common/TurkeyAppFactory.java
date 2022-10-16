@@ -9,6 +9,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
+import java.util.function.IntSupplier;
 import java.util.function.LongConsumer;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
@@ -32,6 +34,26 @@ public class TurkeyAppFactory {
             protected void done() {
                 try {
                     longConsumer.accept(get());
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(TurkeyAppFactory.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ExecutionException ex) {
+                    Logger.getLogger(TurkeyAppFactory.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        };
+        worker.execute();
+    }
+    
+    public static void runIntWorker(IntSupplier intSupplier, IntConsumer intConsumer) {
+        var worker = new SwingWorker<Integer, Object>() {
+            @Override
+            protected Integer doInBackground() throws Exception {
+                return intSupplier.getAsInt();
+            }
+            @Override
+            protected void done() {
+                try {
+                    intConsumer.accept(get());
                 } catch (InterruptedException ex) {
                     Logger.getLogger(TurkeyAppFactory.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (ExecutionException ex) {

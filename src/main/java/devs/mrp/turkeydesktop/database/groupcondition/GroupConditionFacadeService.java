@@ -9,11 +9,11 @@ import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.FConditionService;
 import devs.mrp.turkeydesktop.database.conditions.IConditionService;
 import devs.mrp.turkeydesktop.database.group.GroupServiceFactory;
-import devs.mrp.turkeydesktop.database.group.Group;
 import java.util.List;
 import devs.mrp.turkeydesktop.database.group.GroupService;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -27,32 +27,41 @@ public class GroupConditionFacadeService implements IGroupConditionFacadeService
     @Override
     public void findByConditionId(long conditionId, Consumer<GroupConditionFacade> consumer) {
         conditionService.findById(conditionId, condition -> {
-            consumer.accept(toFacade(condition));
+            toFacade(condition, facade -> {
+                consumer.accept(facade);
+            });
         });
     }
 
     @Override
     public void findByGroupId(long groupId, Consumer<List<GroupConditionFacade>> consumer) {
+        List<GroupConditionFacade> list = Collections.synchronizedList(new ArrayList<>());
         conditionService.findByGroupId(groupId, result -> {
-            var output = result.stream()
-                .map(condition -> toFacade(condition))
-                .collect(Collectors.toList());
-            consumer.accept(output);
+            result.forEach(con -> {
+                toFacade(con, facade -> {
+                    list.add(facade);
+                    if (list.size() == result.size()) {
+                        consumer.accept(list);
+                    }
+                });
+            });
         });
     }
     
-    private GroupConditionFacade toFacade(Condition condition) {
-        Group origin = groupService.findById(condition.getGroupId());
-        Group target = groupService.findById(condition.getTargetId());
-        GroupConditionFacade facade = new GroupConditionFacade();
-        facade.setConditionId(condition.getId());
-        facade.setGroupId(condition.getGroupId());
-        facade.setGroupName(origin.getName());
-        facade.setTargetId(condition.getTargetId());
-        facade.setTargetName(target.getName());
-        facade.setLastDaysCondition(condition.getLastDaysCondition());
-        facade.setUsageTimeCondition(condition.getUsageTimeCondition());
-        return facade;
+    private void toFacade(Condition condition, Consumer<GroupConditionFacade> consumer) {
+        groupService.findById(condition.getGroupId(), origin -> {
+            groupService.findById(condition.getTargetId(), target -> {
+                GroupConditionFacade facade = new GroupConditionFacade();
+                facade.setConditionId(condition.getId());
+                facade.setGroupId(condition.getGroupId());
+                facade.setGroupName(origin.getName());
+                facade.setTargetId(condition.getTargetId());
+                facade.setTargetName(target.getName());
+                facade.setLastDaysCondition(condition.getLastDaysCondition());
+                facade.setUsageTimeCondition(condition.getUsageTimeCondition());
+                consumer.accept(facade);
+            });
+        });
     }
     
 }

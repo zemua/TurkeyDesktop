@@ -6,21 +6,24 @@
 package devs.mrp.turkeydesktop.database.group;
 
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.IntConsumer;
+import java.util.function.LongConsumer;
 
 /**
  *
  * @author miguel
  */
 public interface GroupService {
-    public long add(Group element);
-    public long update(Group element);
-    public List<Group> findAll();
-    public Group findById(long id);
-    public long deleteById(long id);
+    public void add(Group element, LongConsumer consumer);
+    public void update(Group element, LongConsumer consumer);
+    public void findAll(Consumer<List<Group>> consumer);
+    public void findById(long id, Consumer<Group> consumer);
+    public void deleteById(long id, LongConsumer consumer);
     
-    public List<Group> findAllPositive();
-    public List<Group> findAllNegative();
+    public void findAllPositive(Consumer<List<Group>> consumer);
+    public void findAllNegative(Consumer<List<Group>> consumer);
     
-    public int setPreventClose(long groupId, boolean preventClose);
-    public boolean isPreventClose(long groupId);
+    public void setPreventClose(long groupId, boolean preventClose, IntConsumer consumer);
+    public void isPreventClose(long groupId, Consumer<Boolean> consumer);
 }

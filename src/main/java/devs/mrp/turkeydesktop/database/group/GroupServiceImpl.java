@@ -5,10 +5,14 @@
  */
 package devs.mrp.turkeydesktop.database.group;
 
+import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.IntConsumer;
+import java.util.function.LongConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,87 +26,102 @@ public class GroupServiceImpl implements GroupService {
     private static final Logger logger = Logger.getLogger(GroupServiceImpl.class.getName());
     
     @Override
-    public long add(Group element) {
+    public void add(Group element, LongConsumer consumer) {
         if (element == null) {
-            return -1;
+            consumer.accept(-1);
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            ResultSet rs = repo.findById(element.getId());
-            try {
-                if (rs.next()) {
-                    Group group = elementFromResultSetEntry(rs);
-                    // if the value stored differs from the one received
-                    if (!group.equals(element)) {
-                        return update(element);
+            TurkeyAppFactory.runResultSetWorker(() -> repo.findById(element.getId()), rs -> {
+                try {
+                    if (rs.next()) {
+                        Group group = elementFromResultSetEntry(rs);
+                        // if the value stored differs from the one received
+                        if (!group.equals(element)) {
+                            update(element, consumer);
+                        } else {
+                            // else the value is the same as the one stored
+                            consumer.accept(0);
+                        }
+                    } else {
+                        // else there is no element stored with this id
+                        TurkeyAppFactory.runLongWorker(() -> repo.add(element), consumer);
                     }
-                    // else the value is the same as the one stored
-                    return 0;
+                } catch (SQLException ex) {
+                    logger.log(Level.SEVERE, null, ex);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void update(Group element, LongConsumer consumer) {
+        if (element == null) {
+            consumer.accept(-1);
+        } else {
+            TurkeyAppFactory.runLongWorker(() -> repo.update(element), consumer);
+        }
+    }
+
+    @Override
+    public void findAll(Consumer<List<Group>> consumer) {
+        TurkeyAppFactory.runResultSetWorker(() -> repo.findAll(), allResult -> {
+            consumer.accept(elementsFromResultSet(allResult));
+        });
+        
+    }
+
+    @Override
+    public void findById(long id, Consumer<Group> consumer) {
+        TurkeyAppFactory.runResultSetWorker(() -> repo.findById(id), set -> {
+            Group element = null;
+            try {
+                if (set.next()) {
+                    element = elementFromResultSetEntry(set);
                 }
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-            // else there is no element stored with this id
-            return repo.add(element);
-        }
+            consumer.accept(element);
+        });
     }
 
     @Override
-    public long update(Group element) {
-        if (element == null) {
-            return -1;
-        }
-        return repo.update(element);
+    public void deleteById(long id, LongConsumer consumer) {
+        TurkeyAppFactory.runLongWorker(() -> repo.deleteById(id), consumer);
     }
 
     @Override
-    public List<Group> findAll() {
-        return elementsFromResultSet(repo.findAll());
+    public void findAllPositive(Consumer<List<Group>> consumer) {
+        TurkeyAppFactory.runResultSetWorker(() -> repo.findAllOfType(Group.GroupType.POSITIVE), allResult -> {
+            consumer.accept(elementsFromResultSet(allResult));
+        });
     }
 
     @Override
-    public Group findById(long id) {
-        ResultSet set = repo.findById(id);
-        Group element = null;
-        try {
-            if (set.next()) {
-                element = elementFromResultSetEntry(set);
-            }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        return element;
-    }
-
-    @Override
-    public long deleteById(long id) {
-        return repo.deleteById(id);
-    }
-
-    @Override
-    public List<Group> findAllPositive() {
-        return elementsFromResultSet(repo.findAllOfType(Group.GroupType.POSITIVE));
-    }
-
-    @Override
-    public List<Group> findAllNegative() {
-        return elementsFromResultSet(repo.findAllOfType(Group.GroupType.NEGATIVE));
+    public void findAllNegative(Consumer<List<Group>> consumer) {
+        TurkeyAppFactory.runResultSetWorker(() -> repo.findAllOfType(Group.GroupType.NEGATIVE), negatives -> {
+            consumer.accept(elementsFromResultSet(negatives));
+        });
     }
     
     @Override
-    public int setPreventClose(long groupId, boolean preventClose) {
-        return repo.setPreventClose(groupId, preventClose);
+    public void setPreventClose(long groupId, boolean preventClose, IntConsumer consumer) {
+        TurkeyAppFactory.runIntWorker(() -> repo.setPreventClose(groupId, preventClose), consumer);
     }
     
     @Override
-    public boolean isPreventClose(long groupId) {
+    public void isPreventClose(long groupId, Consumer<Boolean> consumer) {
         if (groupId < 1) { // doesn't belong to a group
-            return false;
+            consumer.accept(false);
+            return;
         }
-        Group group = findById(groupId);
-        if (group == null) {
-            return false;
-        }
-        return group.isPreventClose();
+        findById(groupId, group -> {
+            if (group == null) {
+                consumer.accept(false);
+            } else {
+                consumer.accept(group.isPreventClose());
+            }
+        });
     }
     
     private List<Group> elementsFromResultSet(ResultSet set) {

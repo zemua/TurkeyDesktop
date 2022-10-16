@@ -399,15 +399,19 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             throw new Exception("error getting some fields for condition");
         }
         targetComboBox.removeAllItems();
-        comboItems().forEach(item -> targetComboBox.addItem(item));
+        comboItems(items -> {
+            items.forEach(item -> targetComboBox.addItem(item));
+        });
     }
 
     @SuppressWarnings("unchecked")
-    private List<Group> comboItems() {
-        return groupService.findAllPositive()
-                .stream()
+    private void comboItems(Consumer<List<Group>> consumer) {
+        groupService.findAllPositive(positiveResult -> {
+            var res = positiveResult.stream()
                 .filter(g -> g.getId() != group.getId())
                 .collect(Collectors.toList());
+            consumer.accept(res);
+        });
     }
 
     private void fillConditionsInPanel(JPanel panel) {
@@ -492,7 +496,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             return;
         }
         group.setName(field.getText());
-        groupService.update(group);
+        groupService.update(group, r -> {});
         setGroupLabelName(group.getName());
     }
 
@@ -505,7 +509,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         if (!field.getText().equals("delete")) {
             return;
         }
-        groupService.deleteById(group.getId());
+        groupService.deleteById(group.getId(), r -> {});
         conditionService.deleteByGroupId(group.getId(), r -> {});
         conditionService.deleteByTargetId(group.getId(), r -> {});
         externalGroupService.deleteByGroup(group.getId());
@@ -641,7 +645,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                 popupMaker.show(getFrame(), () ->{
                     // positive runnable
                     group.setPreventClose(true);
-                    groupService.update(group);
+                    groupService.update(group, r -> {});
                     preventClose.setEnabled(true);
                 }, () -> {
                     // negative runnable
@@ -651,7 +655,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                 });
             } else {
                 group.setPreventClose(false);
-                groupService.update(group);
+                groupService.update(group, r -> {});
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error setting prevent close");
