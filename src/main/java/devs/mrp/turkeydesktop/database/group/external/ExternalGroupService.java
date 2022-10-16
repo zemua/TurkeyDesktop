@@ -6,18 +6,20 @@
 package devs.mrp.turkeydesktop.database.group.external;
 
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.LongConsumer;
 
 /**
  *
  * @author miguel
  */
 public interface ExternalGroupService {
-    public long add(ExternalGroup element);
-    public long update(ExternalGroup element);
-    public List<ExternalGroup> findAll();
-    public ExternalGroup findById(long id);
-    public long deleteById(long id);
-    public List<ExternalGroup> findByGroup(Long id);
-    public List<ExternalGroup> findByFile(String file);
-    public long deleteByGroup(Long id);
+    public void add(ExternalGroup element, LongConsumer consumer);
+    public void update(ExternalGroup element, LongConsumer consumer);
+    public void findAll(Consumer<List<ExternalGroup>> consumer);
+    public void findById(long id, Consumer<ExternalGroup> consumer);
+    public void deleteById(long id, LongConsumer consumer);
+    public void findByGroup(Long id, Consumer<List<ExternalGroup>> consumer);
+    public void findByFile(String file, Consumer<List<ExternalGroup>> consumer);
+    public void deleteByGroup(Long id, LongConsumer consumer);
 }

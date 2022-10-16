@@ -88,12 +88,13 @@ public class ConditionCheckerImpl implements ConditionChecker {
             Long changeOfDay = Long.valueOf(changeOfDayResult.getValue());
             LocalDate to = LocalDateTime.now().minusHours(changeOfDay).toLocalDate();
             LocalDate from = LocalDateTime.now().minusHours(changeOfDay).minusDays(condition.getLastDaysCondition()).toLocalDate();
-            List<ExternalGroup> externals = externalGroupService.findByGroup(condition.getTargetId());
-            var res = externals.stream()
-                    .map(ExternalGroup::getFile)
-                    .map(file -> importReader.getTotalSpentFromFileBetweenDates(file, from, to))
-                    .collect(Collectors.summingLong(l -> l));
-            consumer.accept(res);
+            externalGroupService.findByGroup(condition.getTargetId(), externals -> {
+                var res = externals.stream()
+                        .map(ExternalGroup::getFile)
+                        .map(file -> importReader.getTotalSpentFromFileBetweenDates(file, from, to))
+                        .collect(Collectors.summingLong(l -> l));
+                consumer.accept(res);
+            });
         });
     }
 

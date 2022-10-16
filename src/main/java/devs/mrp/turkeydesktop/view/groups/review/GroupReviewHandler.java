@@ -512,7 +512,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         groupService.deleteById(group.getId(), r -> {});
         conditionService.deleteByGroupId(group.getId(), r -> {});
         conditionService.deleteByTargetId(group.getId(), r -> {});
-        externalGroupService.deleteByGroup(group.getId());
+        externalGroupService.deleteByGroup(group.getId(), r -> {});
         groupAssignationService.deleteByGroupId(group.getId(), r -> {});
         exit();
     }
@@ -538,14 +538,15 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         ExternalGroup externalGroup = new ExternalGroup();
         externalGroup.setGroup(this.group.getId());
         externalGroup.setFile(file.getPath());
-        externalGroupService.add(externalGroup);
+        externalGroupService.add(externalGroup, r -> {});
         refreshExternalTime();
     }
 
     private void refreshExternalTime() throws Exception {
         JPanel panel = (JPanel) getObjectFromPanel(GroupReviewEnum.EXTERNAL_TIME_PANEL, JPanel.class).orElseThrow(() -> new Exception("wrong object"));
         panel.removeAll();
-        externalGroupService.findByGroup(this.group.getId()).stream()
+        externalGroupService.findByGroup(this.group.getId(), groupResult -> {
+            groupResult.stream()
                 .map(externalGroup -> {
                     RemovableLabel<ExternalGroup> label = new RemovableLabel<>(externalGroup) {
                         @Override
@@ -569,7 +570,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                     };
                     label.addFeedbackListener((ExternalGroup tipo, RemovableLabel.Action feedback) -> {
                         if (feedback.equals(RemovableLabel.Action.DELETE)) {
-                            externalGroupService.deleteById(tipo.getId());
+                            externalGroupService.deleteById(tipo.getId(), r -> {});
                             try {
                                 refreshExternalTime();
                             } catch (Exception e) {
@@ -579,8 +580,9 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                     });
                     return label;
                 }).forEach(label -> panel.add(label));
-        panel.revalidate();
-        panel.repaint();
+            panel.revalidate();
+            panel.repaint();
+        });
     }
 
     private void selectFileGroupExporter() throws Exception {
@@ -602,34 +604,40 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         exportedGroup.setDays((Long) daysSpinner.getValue());
         exportedGroup.setFile(file.getPath());
         exportedGroup.setGroup(this.group.getId());
-        exportedGroupService.add(exportedGroup);
+        exportedGroupService.add(exportedGroup, r -> {});
         refreshGroupExporter();
     }
 
     private void updateGroupExporterDays() throws Exception {
         JSpinner daysSpinner = (JSpinner) getObjectFromPanel(GroupReviewEnum.EXPORT_GROUP_DAYS, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
-        ExportedGroup existing = exportedGroupService.findById(this.group.getId());
-        if (Objects.isNull(existing)) {
-            return;
-        }
-        existing.setDays((Long) daysSpinner.getValue());
-        exportedGroupService.add(existing);
-        refreshGroupExporter();
+        exportedGroupService.findById(this.group.getId(), existing -> {
+            if (Objects.isNull(existing)) {
+                return;
+            }
+            existing.setDays((Long) daysSpinner.getValue());
+            exportedGroupService.add(existing, r -> {});
+            try {
+                refreshGroupExporter();
+            } catch (Exception ex) {
+                Logger.getLogger(GroupReviewHandler.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
     }
 
     private void refreshGroupExporter() throws Exception {
         JSpinner daysSpinner = (JSpinner) getObjectFromPanel(GroupReviewEnum.EXPORT_GROUP_DAYS, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         JButton button = (JButton) getObjectFromPanel(GroupReviewEnum.EXPORT_GROUP_TARGET, JButton.class).orElseThrow(() -> new Exception("wrong object"));
-        ExportedGroup existing = exportedGroupService.findById(this.group.getId());
-        if (Objects.isNull(existing)) {
-            return;
-        }
-        daysSpinner.setValue(existing.getDays());
-        String text = existing.getFile();
-        if (text.length() > 25) {
-            text = text.substring(text.length() - 25);
-        }
-        button.setText(text);
+        exportedGroupService.findById(this.group.getId(), existing -> {
+            if (Objects.isNull(existing)) {
+                return;
+            }
+            daysSpinner.setValue(existing.getDays());
+            String text = existing.getFile();
+            if (text.length() > 25) {
+                text = text.substring(text.length() - 25);
+            }
+            button.setText(text);
+        });
     }
     
     private void handlePreventClose() {

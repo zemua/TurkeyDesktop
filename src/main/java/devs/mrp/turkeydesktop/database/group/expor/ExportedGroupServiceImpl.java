@@ -5,10 +5,13 @@
  */
 package devs.mrp.turkeydesktop.database.group.expor;
 
+import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.LongConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,81 +25,92 @@ public class ExportedGroupServiceImpl implements ExportedGroupService {
     private static final Logger logger = Logger.getLogger(ExportedGroupServiceImpl.class.getName());
 
     @Override
-    public long add(ExportedGroup element) {
+    public void add(ExportedGroup element, LongConsumer consumer) {
         if (element == null) {
-            return -1;
+            consumer.accept(-1);
         } else if (element.getFile() != null && element.getFile().length() > 500) {
             logger.log(Level.SEVERE, "File path cannot be longer than 500 characters");
-            return -1;
+            consumer.accept(-1);
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            ResultSet rs = repo.findById(element.getGroup());
-            try {
-                if (rs.next()) {
-                    ExportedGroup group = elementFromResultSetEntry(rs);
-                    // if the value stored differs from the one received
-                    if (!group.equals(element)) {
-                        return update(element);
+            TurkeyAppFactory.runResultSetWorker(() -> repo.findById(element.getGroup()), rs -> {
+                try {
+                    if (rs.next()) {
+                        ExportedGroup group = elementFromResultSetEntry(rs);
+                        // if the value stored differs from the one received
+                        if (!group.equals(element)) {
+                            update(element, consumer);
+                        } else {
+                            // else the value is the same as the one stored
+                            consumer.accept(0);
+                        }
+                    } else {
+                        // else there is no element stored with this id
+                        TurkeyAppFactory.runLongWorker(() -> repo.add(element), consumer);
                     }
-                    // else the value is the same as the one stored
-                    return 0;
+                } catch (SQLException ex) {
+                    logger.log(Level.SEVERE, null, ex);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void update(ExportedGroup element, LongConsumer consumer) {
+        if (element == null) {
+            consumer.accept(-1);
+        } else if (element.getFile() != null && element.getFile().length() > 500) {
+            logger.log(Level.SEVERE, "File path cannot be longer than 500 characters");
+            consumer.accept(-1);
+        } else {
+            TurkeyAppFactory.runLongWorker(() -> repo.update(element), consumer);
+        }
+    }
+
+    @Override
+    public void findAll(Consumer<List<ExportedGroup>> consumer) {
+        TurkeyAppFactory.runResultSetWorker(() -> repo.findAll(), all -> {
+            consumer.accept(elementsFromResultSet(all));
+        });
+    }
+
+    @Override
+    public void findById(long id, Consumer<ExportedGroup> consumer) {
+        TurkeyAppFactory.runResultSetWorker(() -> repo.findById(id), set -> {
+            ExportedGroup element = null;
+            try {
+                if (set.next()) {
+                    element = elementFromResultSetEntry(set);
                 }
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-            // else there is no element stored with this id
-            return repo.add(element);
-        }
+            consumer.accept(element);
+        });
     }
 
     @Override
-    public long update(ExportedGroup element) {
-        if (element == null) {
-            return -1;
-        } else if (element.getFile() != null && element.getFile().length() > 500) {
-            logger.log(Level.SEVERE, "File path cannot be longer than 500 characters");
-            return -1;
-        }
-        return repo.update(element);
+    public void deleteById(long id, LongConsumer consumer) {
+        TurkeyAppFactory.runLongWorker(() -> repo.deleteById(id), consumer);
     }
 
     @Override
-    public List<ExportedGroup> findAll() {
-        return elementsFromResultSet(repo.findAll());
+    public void findByGroup(long id, Consumer<List<ExportedGroup>> consumer) {
+        TurkeyAppFactory.runResultSetWorker(() -> repo.findByGroup(id), results -> {
+            consumer.accept(elementsFromResultSet(results));
+        });
     }
 
     @Override
-    public ExportedGroup findById(long id) {
-        ResultSet set = repo.findById(id);
-        ExportedGroup element = null;
-        try {
-            if (set.next()) {
-                element = elementFromResultSetEntry(set);
-            }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        return element;
+    public void findByFileAndGroup(long groupId, String file, Consumer<List<ExportedGroup>> consumer) {
+        TurkeyAppFactory.runResultSetWorker(() -> repo.findByGroupAndFile(groupId, file), set -> {
+            consumer.accept(elementsFromResultSet(set));
+        });
     }
 
     @Override
-    public long deleteById(long id) {
-        return repo.deleteById(id);
-    }
-
-    @Override
-    public List<ExportedGroup> findByGroup(long id) {
-        return elementsFromResultSet(repo.findByGroup(id));
-    }
-
-    @Override
-    public List<ExportedGroup> findByFileAndGroup(long groupId, String file) {
-        return elementsFromResultSet(repo.findByGroupAndFile(groupId, file));
-    }
-
-    @Override
-    public long deleteByGroup(long id) {
-        return repo.deleteByGroup(id);
+    public void deleteByGroup(long id, LongConsumer consumer) {
+        TurkeyAppFactory.runLongWorker(() -> repo.deleteByGroup(id), consumer);
     }
 
     private List<ExportedGroup> elementsFromResultSet(ResultSet set) {

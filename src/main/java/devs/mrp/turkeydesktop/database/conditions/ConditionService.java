@@ -30,24 +30,25 @@ public class ConditionService implements IConditionService {
             consumer.accept(-1);
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            ResultSet rs = repo.findById(element.getId());
-            try {
-                if (rs.next()) {
-                    Condition condition = elementFromResultSetEntry(rs);
-                    // if the value stored differs from the one received
-                    if (!condition.equals(element)) {
-                        update(element, consumer);
+            TurkeyAppFactory.runResultSetWorker(() -> repo.findById(element.getId()), rs -> {
+                try {
+                    if (rs.next()) {
+                        Condition condition = elementFromResultSetEntry(rs);
+                        // if the value stored differs from the one received
+                        if (!condition.equals(element)) {
+                            update(element, consumer);
+                        } else {
+                            // else the value is the same as the one stored
+                            consumer.accept(0);
+                        }
                     } else {
-                        // else the value is the same as the one stored
-                        consumer.accept(0);
+                        // else there is no element stored with this id
+                        TurkeyAppFactory.runLongWorker(() -> repo.add(element), consumer);
                     }
-                } else {
-                    // else there is no element stored with this id
-                    TurkeyAppFactory.runLongWorker(() -> repo.add(element), consumer);
+                } catch (SQLException ex) {
+                    logger.log(Level.SEVERE, null, ex);
                 }
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
+            });
         }
     }
 

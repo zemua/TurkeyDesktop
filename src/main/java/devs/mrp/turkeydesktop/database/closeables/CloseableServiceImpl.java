@@ -30,16 +30,17 @@ public class CloseableServiceImpl implements CloseableService {
             consumer.accept(-1);
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            ResultSet rs = repo.findById(element);
-            try{
-                if (rs.next()){
-                    consumer.accept(0);
-                } else {
-                    TurkeyAppFactory.runLongWorker(() -> repo.add(new Closeable(element)), consumer);
+            TurkeyAppFactory.runResultSetWorker(() -> repo.findById(element), rs -> {
+                try{
+                    if (rs.next()){
+                        consumer.accept(0);
+                    } else {
+                        TurkeyAppFactory.runLongWorker(() -> repo.add(new Closeable(element)), consumer);
+                    }
+                } catch (SQLException ex) {
+                    logger.log(Level.SEVERE, null, ex);
                 }
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
+            });
         }
     }
 
