@@ -16,5 +16,5 @@ import java.util.function.Consumer;
 public interface TitledLogServiceFacade {
     
     public void getLogsWithTitleConditions(Date from, Date to, Consumer<List<TitledLog>> consumer);
-    public List<TitledLog> getLogsDependablesWithTitleConditions(Date from, Date to);
+    public void getLogsDependablesWithTitleConditions(Date from, Date to, Consumer<List<TitledLog>> consumer);
 }

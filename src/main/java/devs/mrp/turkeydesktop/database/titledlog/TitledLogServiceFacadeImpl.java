@@ -6,6 +6,7 @@
 package devs.mrp.turkeydesktop.database.titledlog;
 
 import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.titles.TitleServiceFactory;
@@ -52,20 +53,21 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
     }
 
     @Override
-    public List<TitledLog> getLogsDependablesWithTitleConditions(Date from, Date to) {
+    public void getLogsDependablesWithTitleConditions(Date from, Date to, Consumer<List<TitledLog>> consumer) {
         List<TitledLog> logList = new ArrayList<>();
         long fromMillis = TimeConverter.millisToBeginningOfDay(from.getTime());
         long toMillis = TimeConverter.millisToEndOfDay(to.getTime());
-        ResultSet set = titleFacade.getTimeFrameOfDependablesGroupedByProcess(fromMillis, toMillis);
-        try {
-            while (set.next()) {
-                TitledLog titledLog = titledLogFromResultSetEntry(set);
-                logList.add(titledLog);
+        TurkeyAppFactory.runResultSetWorker(() -> titleFacade.getTimeFrameOfDependablesGroupedByProcess(fromMillis, toMillis), set -> {
+            try {
+                while (set.next()) {
+                    TitledLog titledLog = titledLogFromResultSetEntry(set);
+                    logList.add(titledLog);
+                }
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
             }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        return logList;
+            consumer.accept(logList);
+        });
     }
     
     private TitledLog titledLogFromResultSetEntry(ResultSet entry) {
