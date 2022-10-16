@@ -5,11 +5,13 @@
  */
 package devs.mrp.turkeydesktop.database.imports;
 
+import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.LongConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,47 +25,54 @@ public class ImportServiceImpl implements ImportService {
     private static final Logger logger = Logger.getLogger(ImportServiceImpl.class.getName());
 
     @Override
-    public long add(String path) {
-        if (!exists(path)){
-            return repo.add(path);
-        }
-        return 0;
-    }
-
-    @Override
-    public List<String> findAll() {
-        List<String> elements = new ArrayList<>();
-        ResultSet set = repo.findAll();
-        try {
-            while (set.next()) {
-                elements.add(set.getString(ConfigurationEnum.IMPORT_PATH.toString()));
+    public void add(String path, LongConsumer consumer) {
+        exists(path, existsResult -> {
+            if (!existsResult){
+                TurkeyAppFactory.runLongWorker(() -> repo.add(path), consumer);
+            } else {
+                consumer.accept(0);
             }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        return elements;
+        });
     }
 
     @Override
-    public boolean exists(String path) {
+    public void findAll(Consumer<List<String>> consumer) {
+        TurkeyAppFactory.runResultSetWorker(() -> repo.findAll(), set -> {
+            List<String> elements = new ArrayList<>();
+            try {
+                while (set.next()) {
+                    elements.add(set.getString(ConfigurationEnum.IMPORT_PATH.toString()));
+                }
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
+            consumer.accept(elements);
+        });
+    }
+
+    @Override
+    public void exists(String path, Consumer<Boolean> consumer) {
         if (path == null || "".equals(path) || path.length() > 500) {
-            return false;
+            consumer.accept(false);
+            return;
         }
-        ResultSet rs = repo.findById(path);
-        try {
-            return rs.next();
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-            return false;
-        }
+        TurkeyAppFactory.runResultSetWorker(() -> repo.findById(path), rs -> {
+            try {
+                consumer.accept(rs.next());
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
+                consumer.accept(false);
+            }
+        });
     }
 
     @Override
-    public long deleteById(String path) {
+    public void deleteById(String path, LongConsumer consumer) {
         if (path == null) {
-            return -1;
+            consumer.accept(-1);
+            return;
         }
-        return repo.deleteById(path);
+        TurkeyAppFactory.runLongWorker(() -> repo.deleteById(path), consumer);
     }
 
 }

@@ -689,46 +689,48 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
             importPanel.repaint();
             return;
         }
-        importService.add(file.getPath());
+        importService.add(file.getPath(), r -> {});
         refreshImportPanel();
     }
     
     private void refreshImportPanel() throws Exception {
         JPanel importPanel = (JPanel) getObjectFromPanel(ConfigurationPanelEnum.IMPORT_PANEL, JPanel.class).orElseThrow(() -> new Exception("wrong object"));
         importPanel.removeAll();
-        importService.findAll().stream()
-                .map(path -> {
-                    RemovableLabel<String> label = new RemovableLabel<>(path) {
-                        @Override
-                        protected String getNameFromElement(String element) {
-                            return element;
-                        }
-                        @Override
-                        protected void initializeOtherElements() {
-                            // ¯\_ (ツ)_/¯
-                        }
-                        @Override
-                        protected void addOtherItems(JPanel panel) {
-                            // ¯\_ (ツ)_/¯
-                        }
-                    };
-                    label.addFeedbackListener((String tipo, RemovableLabel.Action feedback) -> {
-                        if (feedback.equals(RemovableLabel.Action.DELETE)) {
-                            importService.deleteById(tipo);
-                            try {
-                                refreshImportPanel();
-                            } catch (Exception e) {
-                                logger.log(Level.SEVERE, "could not refresh import panel after path deletion", e);
+        importService.findAll(allResult -> {
+            allResult.stream()
+                    .map(path -> {
+                        RemovableLabel<String> label = new RemovableLabel<>(path) {
+                            @Override
+                            protected String getNameFromElement(String element) {
+                                return element;
                             }
-                        }
-                    });
-                    return label;
-                })
-                .forEach(label -> importPanel.add(label));
-        importPanel.revalidate();
-        importPanel.repaint();
-        
-        importStarted = true;
+                            @Override
+                            protected void initializeOtherElements() {
+                                // ¯\_ (ツ)_/¯
+                            }
+                            @Override
+                            protected void addOtherItems(JPanel panel) {
+                                // ¯\_ (ツ)_/¯
+                            }
+                        };
+                        label.addFeedbackListener((String tipo, RemovableLabel.Action feedback) -> {
+                            if (feedback.equals(RemovableLabel.Action.DELETE)) {
+                                importService.deleteById(tipo, r -> {});
+                                try {
+                                    refreshImportPanel();
+                                } catch (Exception e) {
+                                    logger.log(Level.SEVERE, "could not refresh import panel after path deletion", e);
+                                }
+                            }
+                        });
+                        return label;
+                    })
+                    .forEach(label -> importPanel.add(label));
+            importPanel.revalidate();
+            importPanel.repaint();
+
+            importStarted = true;
+        });
     }
     
     private void handleIdleChange() throws Exception {

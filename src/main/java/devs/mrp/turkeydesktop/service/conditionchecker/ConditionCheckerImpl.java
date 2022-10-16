@@ -236,26 +236,27 @@ public class ConditionCheckerImpl implements ConditionChecker {
 
     @Override
     public void timeRemaining(LongConsumer consumer) {
-        Long totalImported = importService.findAll()
-                .stream()
-                .map(path -> {
-                    String firstLine = "";
-                    try {
-                        firstLine = FileHandler.readFirstLineFromFile(new File(path));
-                    } catch (IOException e) {
-                        logger.log(Level.SEVERE, "Cannot read from file " + path, e);
-                    }
-                    return firstLine;
-                })
-                .filter(Objects::nonNull) // filter nulls
-                .filter(s -> !s.isBlank()) // filter blanks
-                .filter(s -> NUMBER_PATTERN.matcher(s).matches()) // filter non numbers positive or negative
-                .collect(Collectors.summingLong(Long::valueOf)); // convert to long and sum up
-        TimeLog tl = timeLogService.findMostRecent();
-        Long accumulated = tl != null ? tl.getAccumulated() : 0;
-        configService.findById(ConfigurationEnum.PROPORTION, foundProportion -> {
-            Long proportion = Long.valueOf(foundProportion.getValue());
-            consumer.accept((accumulated + totalImported)/proportion);
+        importService.findAll(allResult -> {
+            Long totalImported = allResult.stream()
+                    .map(path -> {
+                        String firstLine = "";
+                        try {
+                            firstLine = FileHandler.readFirstLineFromFile(new File(path));
+                        } catch (IOException e) {
+                            logger.log(Level.SEVERE, "Cannot read from file " + path, e);
+                        }
+                        return firstLine;
+                    })
+                    .filter(Objects::nonNull) // filter nulls
+                    .filter(s -> !s.isBlank()) // filter blanks
+                    .filter(s -> NUMBER_PATTERN.matcher(s).matches()) // filter non numbers positive or negative
+                    .collect(Collectors.summingLong(Long::valueOf)); // convert to long and sum up
+            TimeLog tl = timeLogService.findMostRecent();
+            Long accumulated = tl != null ? tl.getAccumulated() : 0;
+            configService.findById(ConfigurationEnum.PROPORTION, foundProportion -> {
+                Long proportion = Long.valueOf(foundProportion.getValue());
+                consumer.accept((accumulated + totalImported)/proportion);
+            });
         });
     }
     

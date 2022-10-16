@@ -7,6 +7,7 @@ package devs.mrp.turkeydesktop.database.logandtype;
 
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.Tripla;
+import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
 import devs.mrp.turkeydesktop.database.closeables.CloseableService;
 import devs.mrp.turkeydesktop.database.closeables.CloseableServiceFactory;
 import devs.mrp.turkeydesktop.database.conditions.FConditionService;
@@ -25,7 +26,6 @@ import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.database.type.TypeRepository;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -60,27 +60,28 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
     private static final Logger LOGGER = Logger.getLogger(LogAndTypeFacadeServiceImpl.class.getName());
 
     @Override
-    public List<Tripla<String, Long, Type.Types>> getTypedLogGroupedByProcess(Date from, Date to) {
+    public void getTypedLogGroupedByProcess(Date from, Date to, Consumer<List<Tripla<String, Long, Type.Types>>> consumer) {
         // Set from to hour 0 of the day
         long fromMilis = TimeConverter.millisToBeginningOfDay(from.getTime());
         // Set "to" to the last second of the day
         long toMilis = TimeConverter.millisToEndOfDay(to.getTime());
         // use calendar objects to get milliseconds
         List<Tripla<String, Long, Type.Types>> typedTimes = new ArrayList<>();
-        ResultSet set = repo.getTypedLogGroupedByProcess(fromMilis, toMilis);
-        try {
-            while (set.next()) {
-                Tripla<String, Long, Type.Types> tripla = new Tripla<>();
-                tripla.setValue1(set.getString(TimeLog.PROCESS_NAME));
-                tripla.setValue2(set.getLong(3));
-                String type = set.getString(Type.TYPE);
-                tripla.setValue3(type != null ? Type.Types.valueOf(type) : Type.Types.UNDEFINED);
-                typedTimes.add(tripla);
+        TurkeyAppFactory.runResultSetWorker(() -> repo.getTypedLogGroupedByProcess(fromMilis, toMilis), set -> {
+            try {
+                while (set.next()) {
+                    Tripla<String, Long, Type.Types> tripla = new Tripla<>();
+                    tripla.setValue1(set.getString(TimeLog.PROCESS_NAME));
+                    tripla.setValue2(set.getLong(3));
+                    String type = set.getString(Type.TYPE);
+                    tripla.setValue3(type != null ? Type.Types.valueOf(type) : Type.Types.UNDEFINED);
+                    typedTimes.add(tripla);
+                }
+            } catch (SQLException ex) {
+                LOGGER.log(Level.SEVERE, null, ex);
             }
-        } catch (SQLException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
-        }
-        return typedTimes;
+            consumer.accept(typedTimes);
+        });
     }
 
     @Override

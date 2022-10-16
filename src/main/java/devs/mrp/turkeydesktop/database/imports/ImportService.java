@@ -6,14 +6,16 @@
 package devs.mrp.turkeydesktop.database.imports;
 
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.LongConsumer;
 
 /**
  *
  * @author miguel
  */
 public interface ImportService {
-    public long add(String path);
-    public List<String> findAll();
-    public boolean exists(String path);
-    public long deleteById(String path);
+    public void add(String path, LongConsumer consumer);
+    public void findAll(Consumer<List<String>> consumer);
+    public void exists(String path, Consumer<Boolean> consumer);
+    public void deleteById(String path, LongConsumer consumer);
 }

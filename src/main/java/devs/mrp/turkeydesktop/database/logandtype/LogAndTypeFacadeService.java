@@ -18,7 +18,7 @@ import java.util.function.Consumer;
  */
 public interface LogAndTypeFacadeService {
     
-    public List<Tripla<String, Long, Type.Types>> getTypedLogGroupedByProcess(Date from, Date to);
+    public void getTypedLogGroupedByProcess(Date from, Date to, Consumer<List<Tripla<String, Long, Type.Types>>> consumer);
     
     public void addTimeLogAdjustingCounted(TimeLog element, Consumer<TimeLog> consumer);
 }

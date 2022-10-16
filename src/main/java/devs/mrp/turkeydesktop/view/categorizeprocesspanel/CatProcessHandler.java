@@ -7,7 +7,6 @@ package devs.mrp.turkeydesktop.view.categorizeprocesspanel;
 
 import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
 import devs.mrp.turkeydesktop.common.FeedbackListener;
-import devs.mrp.turkeydesktop.common.Tripla;
 import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeServiceFactory;
 import devs.mrp.turkeydesktop.database.type.TypeServiceFactory;
@@ -17,7 +16,6 @@ import devs.mrp.turkeydesktop.view.categorizeprocesspanel.list.CategorizerElemen
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.util.Date;
-import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -86,20 +84,21 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
         JPanel panel = (JPanel)this.getPanel().getProperty(CatProcessEnum.LIST_PANEL);
         if (panel == null) {return;}
         panel.removeAll(); // clear in case it has been filled before
-        List<Tripla<String, Long, Type.Types>> triplas = typedService.getTypedLogGroupedByProcess(from, to);
-        triplas.sort((c1,c2) -> c2.getValue2().compareTo(c1.getValue2()));
-        triplas.stream()
-                .filter(c -> textFromFilter().isEmpty() ? true : StringUtils.containsIgnoreCase(c.getValue1(), textFromFilter()))
-                .forEach(t -> {
-            if (ifPassFilter(t.getValue3(), filter)) {
-                CategorizerElement element = new CategorizerElement(panel.getWidth(), panel.getHeight());
-                element.init(t.getValue1(), t.getValue3());
-                panel.add(element);
-                setRadioListener(element);
-            }
+        typedService.getTypedLogGroupedByProcess(from, to, triplas -> {
+            triplas.sort((c1,c2) -> c2.getValue2().compareTo(c1.getValue2()));
+            triplas.stream()
+                    .filter(c -> textFromFilter().isEmpty() ? true : StringUtils.containsIgnoreCase(c.getValue1(), textFromFilter()))
+                    .forEach(t -> {
+                if (ifPassFilter(t.getValue3(), filter)) {
+                    CategorizerElement element = new CategorizerElement(panel.getWidth(), panel.getHeight());
+                    element.init(t.getValue1(), t.getValue3());
+                    panel.add(element);
+                    setRadioListener(element);
+                }
+            });
+            panel.updateUI();
+            panel.revalidate();
         });
-        panel.updateUI();
-        panel.revalidate();
     }
     
     private String textFromFilter() {
