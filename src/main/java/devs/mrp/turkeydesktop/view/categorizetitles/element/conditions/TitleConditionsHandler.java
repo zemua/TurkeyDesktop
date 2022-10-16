@@ -14,7 +14,6 @@ import devs.mrp.turkeydesktop.database.titles.Title;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
-import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -87,40 +86,41 @@ public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AW
         JPanel conditionsPanel = (JPanel)getPanel().getProperty(TitleConditionsEnum.CONDITIONS_PANEL);
         conditionsPanel.removeAll();
         String title = ((JTextComponent)getPanel().getProperty(TitleConditionsEnum.TITLE)).getText();
-        List<Title> titles = titleService.findContainedByAndNegativeFirst(title);
-        titles.stream().forEach(t -> {
-                    TitleCondition label = new TitleCondition(t);
-                    conditionsPanel.add(label);
-                    label.addFeedbackListener((tipo,feedback) -> {
-                        if (RemovableLabel.Action.DELETE.equals(feedback)) {
-                            if (Title.Type.NEGATIVE.equals(t.getType())) {
-                                popupMaker.show(this.getFrame(), () -> {
-                                    // positive
+        titleService.findContainedByAndNegativeFirst(title, titles -> {
+            titles.stream().forEach(t -> {
+                        TitleCondition label = new TitleCondition(t);
+                        conditionsPanel.add(label);
+                        label.addFeedbackListener((tipo,feedback) -> {
+                            if (RemovableLabel.Action.DELETE.equals(feedback)) {
+                                if (Title.Type.NEGATIVE.equals(t.getType())) {
+                                    popupMaker.show(this.getFrame(), () -> {
+                                        // positive
+                                        removeCondition(tipo.getSubStr());
+                                    }, () -> {
+                                        // negative
+                                        // do nothing, intentionally left blank
+                                    });
+                                } else {
                                     removeCondition(tipo.getSubStr());
-                                }, () -> {
-                                    // negative
-                                    // do nothing, intentionally left blank
-                                });
-                            } else {
-                                removeCondition(tipo.getSubStr());
+                                }
                             }
-                        }
+                        });
                     });
-                });
-        conditionsPanel.revalidate();
-        conditionsPanel.updateUI();
+            conditionsPanel.revalidate();
+            conditionsPanel.updateUI();
+        });
     }
     
     private void addCondition(String substr, Title.Type type) {
         Title title = new Title();
         title.setSubStr(substr);
         title.setType(type);
-        titleService.save(title);
+        titleService.save(title, r -> {});
         fillConditions();
     }
     
     private void removeCondition(String substr) {
-        titleService.deleteBySubString(substr);
+        titleService.deleteBySubString(substr, r -> {});
         fillConditions();
         
     }

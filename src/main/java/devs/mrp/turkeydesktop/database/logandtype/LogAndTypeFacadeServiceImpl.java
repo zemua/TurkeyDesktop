@@ -174,48 +174,50 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
     }
     
     private void setCountedForTitleWhenLockdown(TimeLog element, long proportion, Consumer<TimeLog> consumer) {
-        var title = titleService.findLongestContainedBy(element.getWindowTitle().toLowerCase());
-        if (title != null && title.getType().equals(Title.Type.NEGATIVE)) {
-            closeableService.canBeClosed(element.getProcessName(), b -> {
-                element.setBlockable(b);
-                element.setCounted(-1 * proportion * element.getElapsed());
-                consumer.accept(element);
-            });
-        } else { // when not negative, don't disccount points if idle
-            conditionChecker.isIdle(isIdle -> {
-                if (!isIdle) {
+        titleService.findLongestContainedBy(element.getWindowTitle().toLowerCase(), title -> {
+            if (title != null && title.getType().equals(Title.Type.NEGATIVE)) {
+                closeableService.canBeClosed(element.getProcessName(), b -> {
+                    element.setBlockable(b);
                     element.setCounted(-1 * proportion * element.getElapsed());
                     consumer.accept(element);
-                } else {
-                    element.setCounted(0);
-                    consumer.accept(element);
-                }
-            });
-        }
+                });
+            } else { // when not negative, don't disccount points if idle
+                conditionChecker.isIdle(isIdle -> {
+                    if (!isIdle) {
+                        element.setCounted(-1 * proportion * element.getElapsed());
+                        consumer.accept(element);
+                    } else {
+                        element.setCounted(0);
+                        consumer.accept(element);
+                    }
+                });
+            }
+        });
     }
     
     private void setCountedDependingOnTitle(TimeLog element, long elapsed, int proportion, Consumer<TimeLog> consumer) {
-        var title = titleService.findLongestContainedBy(element.getWindowTitle().toLowerCase());
-        if (title == null) {
-            element.setCounted(0);
-            consumer.accept(element);
-            return;
-        }
-        boolean isPositive = title.getType().equals(Title.Type.POSITIVE);
-        conditionChecker.areConditionsMet(element.getGroupId(), areMet -> {
-            conditionChecker.isIdleWithToast(isIdle -> {
-                if (isPositive && (isIdle || !areMet)) {
-                    element.setCounted(0);
-                    consumer.accept(element);
-                } else {
-                    element.setCounted(isPositive ? Math.abs(elapsed) : - Math.abs(elapsed) * proportion);
-                    closeableService.canBeClosed(element.getProcessName(), b -> {
-                        element.setBlockable(b);
+        titleService.findLongestContainedBy(element.getWindowTitle().toLowerCase(), title -> {
+            if (title == null) {
+                element.setCounted(0);
+                consumer.accept(element);
+                return;
+            }
+            boolean isPositive = title.getType().equals(Title.Type.POSITIVE);
+            conditionChecker.areConditionsMet(element.getGroupId(), areMet -> {
+                conditionChecker.isIdleWithToast(isIdle -> {
+                    if (isPositive && (isIdle || !areMet)) {
+                        element.setCounted(0);
                         consumer.accept(element);
-                    });
-                }
+                    } else {
+                        element.setCounted(isPositive ? Math.abs(elapsed) : - Math.abs(elapsed) * proportion);
+                        closeableService.canBeClosed(element.getProcessName(), b -> {
+                            element.setBlockable(b);
+                            consumer.accept(element);
+                        });
+                    }
+                });
+
             });
-            
         });
     }
     

@@ -25,20 +25,20 @@ public class AssignableTitleServiceImpl extends AssignableAbstractService implem
     @Override
     public void positiveElementsWithAssignation(Consumer<List<AssignableElement<Title.Type>>> consumer) {
         getAssignationsMap(GroupAssignation.ElementType.TITLE, result -> {
-            consumer.accept(elementsWithAssignation(result, Title.Type.POSITIVE));
+            elementsWithAssignation(result, Title.Type.POSITIVE, consumer);
         });
     }
 
     @Override
     public void negativeElementsWithAssignation(Consumer<List<AssignableElement<Title.Type>>> consumer) {
         getAssignationsMap(GroupAssignation.ElementType.TITLE, result -> {
-            consumer.accept(elementsWithAssignation(result, Title.Type.NEGATIVE));
+            elementsWithAssignation(result, Title.Type.NEGATIVE, consumer);
         });
     }
     
-    private List<AssignableElement<Title.Type>> elementsWithAssignation(Map<String, GroupAssignation> assignables, Title.Type positiveOrNegative) {
-        return titleService.findAll()
-                .stream()
+    private void elementsWithAssignation(Map<String, GroupAssignation> assignables, Title.Type positiveOrNegative, Consumer<List<AssignableElement<Title.Type>>> consumer) {
+        titleService.findAll(allResult -> {
+            var result = allResult.stream()
                 .filter(t -> t.getType().equals(positiveOrNegative))
                 .map(t -> {
                     AssignableElement<Title.Type> element = new AssignableElement<>();
@@ -55,6 +55,8 @@ public class AssignableTitleServiceImpl extends AssignableAbstractService implem
                     return element;
                 })
                 .collect(Collectors.toList());
+            consumer.accept(result);
+        });
     }
     
 }

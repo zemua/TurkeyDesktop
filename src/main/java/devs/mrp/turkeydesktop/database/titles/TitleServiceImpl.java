@@ -5,15 +5,18 @@
  */
 package devs.mrp.turkeydesktop.database.titles;
 
+import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationDao;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationRepository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+import java.util.function.LongConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -37,30 +40,31 @@ public class TitleServiceImpl implements TitleService {
 
     private void initConditionsMap() {
         if (conditionsMap == null) {
-            conditionsMap = new HashMap<>();
-            retrieveAll(); // it assigns values to the hashmap inside the function
+            conditionsMap = new ConcurrentHashMap<>();
+            retrieveAll(r -> {}); // it assigns values to the hashmap inside the function
         }
     }
 
     @Override
-    public long save(Title element) {
+    public void save(Title element, LongConsumer consumer) {
         if (element == null) {
-            return -1;
+            consumer.accept(-1);
         } else {
             element.setSubStr(element.getSubStr().toLowerCase());
             if (conditionsMap.containsKey(element.getSubStr())) {
                 if (conditionsMap.get(element.getSubStr()).getType() != element.getType()) {
                     // we have this value but is different, so we update
                     conditionsMap.put(element.getSubStr(), element);
-                    return update(element);
+                    consumer.accept(update(element));
                 } else {
                     // else the value is the same as the one stored
-                    return 0;
+                    consumer.accept(0);
                 }
+            } else {
+                // we don't have this value so we add new
+                conditionsMap.put(element.getSubStr(), element);
+                TurkeyAppFactory.runLongWorker(() -> repo.add(element), consumer);
             }
-            // we don't have this value so we add new
-            conditionsMap.put(element.getSubStr(), element);
-            return repo.add(element);
         }
     }
 
@@ -74,55 +78,60 @@ public class TitleServiceImpl implements TitleService {
         }
     }
 
-    private List<Title> retrieveAll() {
-        List<Title> elements = new ArrayList<>();
-        ResultSet set = repo.findAll();
-        try {
-            while (set.next()) {
-                Title el = elementFromResultSetEntry(set);
-                elements.add(el);
-            }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        conditionsMap.clear();
-        elements.forEach(e -> conditionsMap.put(e.getSubStr(), e));
-        return elements;
+    private void retrieveAll(Consumer<List<Title>> consumer) {
+        TurkeyAppFactory.runResultSetWorker(() -> repo.findAll(), set -> {
+            TurkeyAppFactory.runWorker(() -> {
+                List<Title> elements = new ArrayList<>();
+                try {
+                    while (set.next()) {
+                        Title el = elementFromResultSetEntry(set);
+                        elements.add(el);
+                    }
+                } catch (SQLException ex) {
+                    logger.log(Level.SEVERE, null, ex);
+                }
+                conditionsMap.clear();
+                elements.forEach(e -> conditionsMap.put(e.getSubStr(), e));
+                consumer.accept(elements);
+            });
+        });
     }
 
     @Override
-    public List<Title> findAll() {
-        return conditionsMap.entrySet().stream()
+    public void findAll(Consumer<List<Title>> consumer) {
+        TitleServiceFactory.runTitleListWorker(() -> conditionsMap.entrySet().stream()
                 .map(e -> {
                     Title el = new Title();
                     el.setSubStr(e.getKey());
                     el.setType(e.getValue().getType());
                     return el;
                 })
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()), consumer);
     }
 
     @Override
-    public Title findBySubString(String subStr) {
+    public void findBySubString(String subStr, Consumer<Title> consumer) {
         String lowerCaseSubStr = subStr.toLowerCase();
         if (conditionsMap.containsKey(lowerCaseSubStr)) {
             Title el = new Title();
             el.setSubStr(lowerCaseSubStr);
             el.setType(conditionsMap.get(lowerCaseSubStr).getType());
-            return el;
+            consumer.accept(el);
+        } else {
+            consumer.accept(null);
         }
-        return null;
     }
 
     @Override
-    public long deleteBySubString(String subStr) {
+    public void deleteBySubString(String subStr, LongConsumer consumer) {
         if (subStr == null) {
-            return -1;
+            consumer.accept(-1);
+        } else {
+            String lowerCased = subStr.toLowerCase();
+            conditionsMap.remove(lowerCased);
+            assignationRepo.deleteByElementId(GroupAssignation.ElementType.TITLE, lowerCased);
+            TurkeyAppFactory.runLongWorker(() -> repo.deleteById(lowerCased), consumer);
         }
-        String lowerCased = subStr.toLowerCase();
-        conditionsMap.remove(lowerCased);
-        assignationRepo.deleteByElementId(GroupAssignation.ElementType.TITLE, lowerCased);
-        return repo.deleteById(lowerCased);
     }
 
     private Title elementFromResultSetEntry(ResultSet set) {
@@ -137,29 +146,31 @@ public class TitleServiceImpl implements TitleService {
     }
 
     @Override
-    public List<Title> findContainedByAndNegativeFirst(String title) {
-        return conditionsMap.entrySet().stream()
+    public void findContainedByAndNegativeFirst(String title, Consumer<List<Title>> consumer) {
+        TitleServiceFactory.runTitleListWorker(() -> conditionsMap.entrySet().stream()
                 .filter(e -> StringUtils.containsIgnoreCase(title, e.getKey()))
                 .map(e -> e.getValue())
                 .sorted((e1, e2) -> e2.getType().compareTo(e1.getType())) // "NEGATIVE" before "POSITIVE" in natural order
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()), consumer);
     }
     
     @Override
-    public Title findLongestContainedBy(String title) {
-        return conditionsMap.entrySet().stream()
+    public void findLongestContainedBy(String title, Consumer<Title> consumer) {
+        TitleServiceFactory.runTitleWorker(() -> conditionsMap.entrySet().stream()
                 .filter(e -> StringUtils.containsIgnoreCase(title, e.getKey()))
                 .max((e1, e2) -> Long.compare(e1.getKey().length(), e2.getKey().length()))
                 .map(e -> e.getValue())
-                .orElse(null);
+                .orElse(null),
+                consumer);
     }
 
     @Override
-    public long countTypesOf(Title.Type type, String title) {
-        return conditionsMap.entrySet().stream()
+    public void countTypesOf(Title.Type type, String title, LongConsumer consumer) {
+        TurkeyAppFactory.runLongWorker(() -> conditionsMap.entrySet().stream()
                 .filter(e -> StringUtils.containsIgnoreCase(title, e.getKey()))
                 .filter(e -> e.getValue().getType().equals(type))
-                .count();
+                .count(),
+                consumer);
     }
 
 }

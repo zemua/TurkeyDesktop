@@ -18,9 +18,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 /**
@@ -37,18 +37,25 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
     @Override
     public void getLogsWithTitleConditions(Date from, Date to, Consumer<List<TitledLog>> consumer) {
         logService.logsGroupedByTitle(from, to, result -> {
-            var computed = result.stream()
-                .map(e -> {
-                    TitledLog tl = new TitledLog();
-                    tl.setTitle(e.getValue1());
-                    tl.setElapsed(e.getValue2());
-                    tl.setConditions(titleService.findContainedByAndNegativeFirst(e.getValue1()));
-                    tl.setQtyPositives(titleService.countTypesOf(Title.Type.POSITIVE, e.getValue1()));
-                    tl.setQtyNegatives(titleService.countTypesOf(Title.Type.NEGATIVE, e.getValue1()));
-                    return tl;
-                })
-                .collect(Collectors.toList());
-            consumer.accept(computed);
+            List<TitledLog> logs = new ArrayList<>();
+            result.stream().forEach(e -> {
+                TitledLog tl = new TitledLog();
+                tl.setTitle(e.getValue1());
+                tl.setElapsed(e.getValue2());
+                titleService.countTypesOf(Title.Type.POSITIVE, e.getValue1(), qtyPos -> {
+                    tl.setQtyPositives(qtyPos);
+                    titleService.countTypesOf(Title.Type.NEGATIVE, e.getValue1(), qtyNeg -> {
+                        tl.setQtyNegatives(qtyNeg);
+                        titleService.findContainedByAndNegativeFirst(e.getValue1(), cond -> {
+                            tl.setConditions(cond);
+                            logs.add(tl);
+                            if (logs.size() == result.size()) {
+                                consumer.accept(logs);
+                            }
+                        });
+                    });
+                });
+            });
         });
     }
 
@@ -59,30 +66,49 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
         long toMillis = TimeConverter.millisToEndOfDay(to.getTime());
         TurkeyAppFactory.runResultSetWorker(() -> titleFacade.getTimeFrameOfDependablesGroupedByProcess(fromMillis, toMillis), set -> {
             try {
+                AtomicInteger read = new AtomicInteger(0);
                 while (set.next()) {
-                    TitledLog titledLog = titledLogFromResultSetEntry(set);
-                    logList.add(titledLog);
+                    read.addAndGet(1);
+                    titledLogFromResultSetEntry(set, titledLog -> {
+                        logList.add(titledLog);
+                        if (read.get() == logList.size()) {
+                            try {
+                                if (set.isLast()) {
+                                    consumer.accept(logList);
+                                }
+                            } catch (SQLException ex) {
+                                Logger.getLogger(TitledLogServiceFacadeImpl.class.getName()).log(Level.SEVERE, null, ex);
+                                consumer.accept(logList);
+                            }
+                        }
+                    });
                 }
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-            consumer.accept(logList);
         });
     }
     
-    private TitledLog titledLogFromResultSetEntry(ResultSet entry) {
+    private void titledLogFromResultSetEntry(ResultSet entry, Consumer<TitledLog> consumer) {
         TitledLog log = new TitledLog();
         try {
             String title = entry.getString(TimeLog.WINDOW_TITLE);
             log.setTitle(title);
             log.setElapsed(entry.getLong(2));
-            log.setConditions(titleService.findContainedByAndNegativeFirst(title));
-            log.setQtyPositives(titleService.countTypesOf(Title.Type.POSITIVE, title));
-            log.setQtyNegatives(titleService.countTypesOf(Title.Type.NEGATIVE, title));
+            titleService.countTypesOf(Title.Type.POSITIVE, title, qtyPos -> {
+                log.setQtyPositives(qtyPos);
+                titleService.countTypesOf(Title.Type.NEGATIVE, title, qtyNeg -> {
+                    log.setQtyNegatives(qtyNeg);
+                    titleService.findContainedByAndNegativeFirst(title, contained -> {
+                        log.setConditions(contained);
+                        consumer.accept(log);
+                    });
+                });
+            });
         } catch (SQLException ex) {
             logger.log(Level.SEVERE, null, ex);
+            consumer.accept(log);
         }
-        return log;
     }
     
 }
