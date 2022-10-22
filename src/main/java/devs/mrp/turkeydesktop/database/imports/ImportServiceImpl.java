@@ -5,7 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.imports;
 
-import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
+import devs.mrp.turkeydesktop.common.WorkerFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public class ImportServiceImpl implements ImportService {
     public void add(String path, LongConsumer consumer) {
         exists(path, existsResult -> {
             if (!existsResult){
-                TurkeyAppFactory.runLongWorker(() -> repo.add(path), consumer);
+                WorkerFactory.runLongWorker(() -> repo.add(path), consumer);
             } else {
                 consumer.accept(0);
             }
@@ -37,7 +37,7 @@ public class ImportServiceImpl implements ImportService {
 
     @Override
     public void findAll(Consumer<List<String>> consumer) {
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findAll(), set -> {
+        WorkerFactory.runResultSetWorker(() -> repo.findAll(), set -> {
             List<String> elements = new ArrayList<>();
             try {
                 while (set.next()) {
@@ -56,7 +56,7 @@ public class ImportServiceImpl implements ImportService {
             consumer.accept(false);
             return;
         }
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findById(path), rs -> {
+        WorkerFactory.runResultSetWorker(() -> repo.findById(path), rs -> {
             try {
                 consumer.accept(rs.next());
             } catch (SQLException ex) {
@@ -72,7 +72,7 @@ public class ImportServiceImpl implements ImportService {
             consumer.accept(-1);
             return;
         }
-        TurkeyAppFactory.runLongWorker(() -> repo.deleteById(path), consumer);
+        WorkerFactory.runLongWorker(() -> repo.deleteById(path), consumer);
     }
 
 }

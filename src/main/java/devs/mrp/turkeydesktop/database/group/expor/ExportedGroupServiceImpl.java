@@ -5,7 +5,8 @@
  */
 package devs.mrp.turkeydesktop.database.group.expor;
 
-import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
+import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
+import devs.mrp.turkeydesktop.common.WorkerFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -25,7 +26,8 @@ public class ExportedGroupServiceImpl implements ExportedGroupService {
     private static final Logger logger = Logger.getLogger(ExportedGroupServiceImpl.class.getName());
 
     @Override
-    public void add(ExportedGroup element, LongConsumer consumer) {
+    public void add(ExportedGroup element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null) {
             consumer.accept(-1);
         } else if (element.getFile() != null && element.getFile().length() > 500) {
@@ -33,7 +35,7 @@ public class ExportedGroupServiceImpl implements ExportedGroupService {
             consumer.accept(-1);
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            TurkeyAppFactory.runResultSetWorker(() -> repo.findById(element.getGroup()), rs -> {
+            WorkerFactory.runResultSetWorker(() -> repo.findById(element.getGroup()), rs -> {
                 try {
                     if (rs.next()) {
                         ExportedGroup group = elementFromResultSetEntry(rs);
@@ -46,7 +48,7 @@ public class ExportedGroupServiceImpl implements ExportedGroupService {
                         }
                     } else {
                         // else there is no element stored with this id
-                        TurkeyAppFactory.runLongWorker(() -> repo.add(element), consumer);
+                        WorkerFactory.runLongWorker(() -> repo.add(element), consumer);
                     }
                 } catch (SQLException ex) {
                     logger.log(Level.SEVERE, null, ex);
@@ -56,27 +58,30 @@ public class ExportedGroupServiceImpl implements ExportedGroupService {
     }
 
     @Override
-    public void update(ExportedGroup element, LongConsumer consumer) {
+    public void update(ExportedGroup element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null) {
             consumer.accept(-1);
         } else if (element.getFile() != null && element.getFile().length() > 500) {
             logger.log(Level.SEVERE, "File path cannot be longer than 500 characters");
             consumer.accept(-1);
         } else {
-            TurkeyAppFactory.runLongWorker(() -> repo.update(element), consumer);
+            WorkerFactory.runLongWorker(() -> repo.update(element), consumer);
         }
     }
 
     @Override
-    public void findAll(Consumer<List<ExportedGroup>> consumer) {
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findAll(), all -> {
+    public void findAll(Consumer<List<ExportedGroup>> c) {
+        Consumer<List<ExportedGroup>> consumer = ExportedGroupServiceFactory.exportedGroupListConsumer(c);
+        WorkerFactory.runResultSetWorker(() -> repo.findAll(), all -> {
             consumer.accept(elementsFromResultSet(all));
         });
     }
 
     @Override
-    public void findById(long id, Consumer<ExportedGroup> consumer) {
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findById(id), set -> {
+    public void findById(long id, Consumer<ExportedGroup> c) {
+        Consumer<ExportedGroup> consumer = ExportedGroupServiceFactory.exportedGroupConsumer(c);
+        WorkerFactory.runResultSetWorker(() -> repo.findById(id), set -> {
             ExportedGroup element = null;
             try {
                 if (set.next()) {
@@ -90,27 +95,31 @@ public class ExportedGroupServiceImpl implements ExportedGroupService {
     }
 
     @Override
-    public void deleteById(long id, LongConsumer consumer) {
-        TurkeyAppFactory.runLongWorker(() -> repo.deleteById(id), consumer);
+    public void deleteById(long id, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
+        WorkerFactory.runLongWorker(() -> repo.deleteById(id), consumer);
     }
 
     @Override
-    public void findByGroup(long id, Consumer<List<ExportedGroup>> consumer) {
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findByGroup(id), results -> {
+    public void findByGroup(long id, Consumer<List<ExportedGroup>> c) {
+        Consumer<List<ExportedGroup>> consumer = ExportedGroupServiceFactory.exportedGroupListConsumer(c);
+        WorkerFactory.runResultSetWorker(() -> repo.findByGroup(id), results -> {
             consumer.accept(elementsFromResultSet(results));
         });
     }
 
     @Override
-    public void findByFileAndGroup(long groupId, String file, Consumer<List<ExportedGroup>> consumer) {
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findByGroupAndFile(groupId, file), set -> {
+    public void findByFileAndGroup(long groupId, String file, Consumer<List<ExportedGroup>> c) {
+        Consumer<List<ExportedGroup>> consumer = ExportedGroupServiceFactory.exportedGroupListConsumer(c);
+        WorkerFactory.runResultSetWorker(() -> repo.findByGroupAndFile(groupId, file), set -> {
             consumer.accept(elementsFromResultSet(set));
         });
     }
 
     @Override
-    public void deleteByGroup(long id, LongConsumer consumer) {
-        TurkeyAppFactory.runLongWorker(() -> repo.deleteByGroup(id), consumer);
+    public void deleteByGroup(long id, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
+        WorkerFactory.runLongWorker(() -> repo.deleteByGroup(id), consumer);
     }
 
     private List<ExportedGroup> elementsFromResultSet(ResultSet set) {

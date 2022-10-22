@@ -5,7 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.group.external;
 
-import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
+import devs.mrp.turkeydesktop.common.WorkerFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -33,19 +33,19 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
             consumer.accept(-1);
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            TurkeyAppFactory.runResultSetWorker(() -> repo.findById(element.getId()), rs -> {
+            WorkerFactory.runResultSetWorker(() -> repo.findById(element.getId()), rs -> {
                 try {
                     if (rs.next()) {
                         updateOrKeep(element, rs, consumer);
                     } else {
                         // if no element by that id, try with same group and file
-                        TurkeyAppFactory.runResultSetWorker(() -> repo.findByGroupAndFile(element.getGroup(), element.getFile()), rs2 -> {
+                        WorkerFactory.runResultSetWorker(() -> repo.findByGroupAndFile(element.getGroup(), element.getFile()), rs2 -> {
                             try {
                                 if (rs2.next()) {
                                     updateOrKeep(element, rs2, consumer);
                                 } else {
                                     // else there is no element stored with this id
-                                    TurkeyAppFactory.runLongWorker(() -> repo.add(element), consumer);
+                                    WorkerFactory.runLongWorker(() -> repo.add(element), consumer);
                                 }
                             } catch (SQLException ex) {
                                 Logger.getLogger(ExternalGroupServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
@@ -79,20 +79,20 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
             logger.log(Level.SEVERE, "File path cannot be longer than 500 characters");
             consumer.accept(-1);
         } else {
-            TurkeyAppFactory.runLongWorker(() -> repo.update(element), consumer);
+            WorkerFactory.runLongWorker(() -> repo.update(element), consumer);
         }
     }
 
     @Override
     public void findAll(Consumer<List<ExternalGroup>> consumer) {
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findAll(), rs -> {
+        WorkerFactory.runResultSetWorker(() -> repo.findAll(), rs -> {
             consumer.accept(elementsFromResultSet(rs));
         });
     }
 
     @Override
     public void findById(long id, Consumer<ExternalGroup> consumer) {
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findById(id), set -> {
+        WorkerFactory.runResultSetWorker(() -> repo.findById(id), set -> {
             ExternalGroup element = null;
             try {
                 if (set.next()) {
@@ -107,7 +107,7 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
 
     @Override
     public void deleteById(long id, LongConsumer consumer) {
-        TurkeyAppFactory.runLongWorker(() -> repo.deleteById(id), consumer);
+        WorkerFactory.runLongWorker(() -> repo.deleteById(id), consumer);
     }
 
     private List<ExternalGroup> elementsFromResultSet(ResultSet set) {
@@ -137,21 +137,21 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
 
     @Override
     public void findByGroup(Long id, Consumer<List<ExternalGroup>> consumer) {
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findByGroup(id), rs -> {
+        WorkerFactory.runResultSetWorker(() -> repo.findByGroup(id), rs -> {
             consumer.accept(elementsFromResultSet(rs));
         });
     }
 
     @Override
     public void findByFile(String file, Consumer<List<ExternalGroup>> consumer) {
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findByFile(file), rs -> {
+        WorkerFactory.runResultSetWorker(() -> repo.findByFile(file), rs -> {
             consumer.accept(elementsFromResultSet(rs));
         });
     }
 
     @Override
     public void deleteByGroup(Long id, LongConsumer consumer) {
-        TurkeyAppFactory.runLongWorker(() -> repo.deleteByGroup(id), consumer);
+        WorkerFactory.runLongWorker(() -> repo.deleteByGroup(id), consumer);
     }
 
 }

@@ -7,7 +7,7 @@ package devs.mrp.turkeydesktop.database.config;
 
 import devs.mrp.turkeydesktop.common.SingleConsumer;
 import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
-import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
+import devs.mrp.turkeydesktop.common.WorkerFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -50,7 +50,7 @@ public class ConfigElementService implements IConfigElementService {
             consumer.accept(-1);
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            TurkeyAppFactory.runResultSetWorker(() -> repo.findById(element.getKey().toString()), rs -> {
+            WorkerFactory.runResultSetWorker(() -> repo.findById(element.getKey().toString()), rs -> {
                 try {
                     if (rs.next()) {
                         if (configMap.containsKey(element.getKey()) && configMap.get(element.getKey()) != element.getValue()) {
@@ -62,7 +62,7 @@ public class ConfigElementService implements IConfigElementService {
                         }
                     } else {
                         configMap.put(element.getKey(), element.getValue());
-                        TurkeyAppFactory.runLongWorker(() -> repo.add(element), consumer);
+                        WorkerFactory.runLongWorker(() -> repo.add(element), consumer);
                     }
                 } catch (SQLException ex) {
                     logger.log(Level.SEVERE, null, ex);
@@ -79,14 +79,14 @@ public class ConfigElementService implements IConfigElementService {
             return;
         }
         configMap.put(element.getKey(), element.getValue());
-        TurkeyAppFactory.runLongWorker(() -> repo.update(element), consumer);
+        WorkerFactory.runLongWorker(() -> repo.update(element), consumer);
     }
 
     @Override
     public void findAll(Consumer<List<ConfigElement>> c) {
         Consumer<List<ConfigElement>> consumer = new SingleConsumer<>(c);
         List<ConfigElement> elements = new ArrayList<>();
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findAll(), set -> {
+        WorkerFactory.runResultSetWorker(() -> repo.findAll(), set -> {
             try {
                 while (set.next()) {
                     ConfigElement el = elementFromResultSetEntry(set);
@@ -107,7 +107,7 @@ public class ConfigElementService implements IConfigElementService {
     @Override
     public void findById(ConfigurationEnum key, Consumer<ConfigElement> c) {
         Consumer<ConfigElement> consumer = new SingleConsumer<>(c);
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findById(key.toString()), set -> {
+        WorkerFactory.runResultSetWorker(() -> repo.findById(key.toString()), set -> {
             ConfigElementWrapper e = new ConfigElementWrapper();
             try {
                 if (set.next()) {
@@ -133,7 +133,7 @@ public class ConfigElementService implements IConfigElementService {
             return;
         }
         configMap.remove(key);
-        TurkeyAppFactory.runLongWorker(() -> repo.deleteById(key.toString()), consumer);
+        WorkerFactory.runLongWorker(() -> repo.deleteById(key.toString()), consumer);
     }
 
     private ConfigElement elementFromResultSetEntry(ResultSet set) {

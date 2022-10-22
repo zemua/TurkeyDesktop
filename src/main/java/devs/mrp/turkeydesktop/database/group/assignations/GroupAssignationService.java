@@ -6,7 +6,7 @@
 package devs.mrp.turkeydesktop.database.group.assignations;
 
 import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
-import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
+import devs.mrp.turkeydesktop.common.WorkerFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class GroupAssignationService implements IGroupAssignationService {
             consumer.accept(-1L);
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            TurkeyAppFactory.runResultSetWorker(() -> repo.findByElementId(element.getType(), element.getElementId()), rs -> {
+            WorkerFactory.runResultSetWorker(() -> repo.findByElementId(element.getType(), element.getElementId()), rs -> {
                 try {
                     if (rs.next()) {
                         GroupAssignation group = elementFromResultSetEntry(rs);
@@ -46,7 +46,7 @@ public class GroupAssignationService implements IGroupAssignationService {
                         }
                     } else {
                         // else there is no element stored with this id
-                        TurkeyAppFactory.runLongWorker(() -> repo.add(element), consumer::accept);
+                        WorkerFactory.runLongWorker(() -> repo.add(element), consumer::accept);
                     }
                 } catch (SQLException ex) {
                     logger.log(Level.SEVERE, null, ex);
@@ -61,7 +61,7 @@ public class GroupAssignationService implements IGroupAssignationService {
         if (element == null) {
             longConsumer.accept(-1);
         } else {
-            TurkeyAppFactory.runLongWorker(() -> repo.update(element), longConsumer::accept);
+            WorkerFactory.runLongWorker(() -> repo.update(element), longConsumer::accept);
         }
     }
 
@@ -75,7 +75,7 @@ public class GroupAssignationService implements IGroupAssignationService {
     @Override
     public void findById(long id, Consumer<GroupAssignation> c) {
         Consumer<GroupAssignation> consumer = FGroupAssignationService.groupAssignationConsumer(c);
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findById(id), result -> {
+        WorkerFactory.runResultSetWorker(() -> repo.findById(id), result -> {
             GroupAssignation element = null;
             try {
                 if (result.next()) {
@@ -92,13 +92,13 @@ public class GroupAssignationService implements IGroupAssignationService {
     @Override
     public void deleteById(long id, LongConsumer c) {
         LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        TurkeyAppFactory.runLongWorker(() -> repo.deleteById(id), consumer::accept);
+        WorkerFactory.runLongWorker(() -> repo.deleteById(id), consumer::accept);
     }
 
     @Override
     public void findByProcessId(String processId, Consumer<GroupAssignation> c) {
         Consumer<GroupAssignation> consumer = FGroupAssignationService.groupAssignationConsumer(c);
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findByElementId(GroupAssignation.ElementType.PROCESS, processId), result -> {
+        WorkerFactory.runResultSetWorker(() -> repo.findByElementId(GroupAssignation.ElementType.PROCESS, processId), result -> {
             try {
                 if (result.next()) {
                     consumer.accept(elementFromResultSetEntry(result));
@@ -114,13 +114,13 @@ public class GroupAssignationService implements IGroupAssignationService {
     @Override
     public void deleteByProcessId(String processId, LongConsumer c) {
         LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        TurkeyAppFactory.runLongWorker(() -> repo.deleteByElementId(GroupAssignation.ElementType.PROCESS, processId), consumer);
+        WorkerFactory.runLongWorker(() -> repo.deleteByElementId(GroupAssignation.ElementType.PROCESS, processId), consumer);
     }
 
     @Override
     public void findByTitleId(String titleId, Consumer<GroupAssignation> c) {
         Consumer<GroupAssignation> consumer = FGroupAssignationService.groupAssignationConsumer(c);
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findByElementId(GroupAssignation.ElementType.TITLE, titleId), set -> {
+        WorkerFactory.runResultSetWorker(() -> repo.findByElementId(GroupAssignation.ElementType.TITLE, titleId), set -> {
             try {
                 if (set.next()) {
                     consumer.accept(elementFromResultSetEntry(set));
@@ -149,7 +149,7 @@ public class GroupAssignationService implements IGroupAssignationService {
     @Override
     public void deleteByTitleId(String titleId, LongConsumer c) {
         LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        TurkeyAppFactory.runLongWorker(() -> repo.deleteByElementId(GroupAssignation.ElementType.TITLE, titleId), consumer);
+        WorkerFactory.runLongWorker(() -> repo.deleteByElementId(GroupAssignation.ElementType.TITLE, titleId), consumer);
     }
 
     @Override
@@ -192,7 +192,7 @@ public class GroupAssignationService implements IGroupAssignationService {
     @Override
     public void deleteByGroupId(long id, LongConsumer c) {
         LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        TurkeyAppFactory.runLongWorker(() -> repo.deleteByGroupId(id), consumer::accept);
+        WorkerFactory.runLongWorker(() -> repo.deleteByGroupId(id), consumer::accept);
     }
     
 }

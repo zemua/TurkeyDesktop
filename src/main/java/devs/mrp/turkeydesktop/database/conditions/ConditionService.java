@@ -7,7 +7,7 @@ package devs.mrp.turkeydesktop.database.conditions;
 
 import devs.mrp.turkeydesktop.common.SingleConsumer;
 import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
-import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
+import devs.mrp.turkeydesktop.common.WorkerFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class ConditionService implements IConditionService {
             consumer.accept(-1);
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            TurkeyAppFactory.runResultSetWorker(() -> repo.findById(element.getId()), rs -> {
+            WorkerFactory.runResultSetWorker(() -> repo.findById(element.getId()), rs -> {
                 try {
                     if (rs.next()) {
                         Condition condition = elementFromResultSetEntry(rs);
@@ -46,7 +46,7 @@ public class ConditionService implements IConditionService {
                         }
                     } else {
                         // else there is no element stored with this id
-                        TurkeyAppFactory.runLongWorker(() -> repo.add(element), consumer);
+                        WorkerFactory.runLongWorker(() -> repo.add(element), consumer);
                     }
                 } catch (SQLException ex) {
                     logger.log(Level.SEVERE, null, ex);
@@ -61,7 +61,7 @@ public class ConditionService implements IConditionService {
         if (element == null) {
             consumer.accept(-1);
         } else {
-            TurkeyAppFactory.runLongWorker(() -> repo.update(element), consumer);
+            WorkerFactory.runLongWorker(() -> repo.update(element), consumer);
         }
     }
 
@@ -74,7 +74,7 @@ public class ConditionService implements IConditionService {
     @Override
     public void findById(Long id, Consumer<Condition> c) {
         Consumer<Condition> consumer = new SingleConsumer<>(c);
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findById(id), set -> {
+        WorkerFactory.runResultSetWorker(() -> repo.findById(id), set -> {
             Condition element = null;
             try {
                 if (set.next()) {
@@ -96,19 +96,19 @@ public class ConditionService implements IConditionService {
     @Override
     public void deleteById(Long id, LongConsumer c) {
         LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        TurkeyAppFactory.runLongWorker(() -> repo.deleteById(id), consumer);
+        WorkerFactory.runLongWorker(() -> repo.deleteById(id), consumer);
     }
     
     @Override
     public void deleteByGroupId(long id, LongConsumer c) {
         LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        TurkeyAppFactory.runLongWorker(() -> repo.deleteByGroupId(id), consumer);
+        WorkerFactory.runLongWorker(() -> repo.deleteByGroupId(id), consumer);
     }
     
     @Override
     public void deleteByTargetId(long id, LongConsumer c) {
         LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        TurkeyAppFactory.runLongWorker(() -> repo.deleteByTargetId(id), consumer);
+        WorkerFactory.runLongWorker(() -> repo.deleteByTargetId(id), consumer);
     }
     
     private List<Condition> elementsFromResultSet(ResultSet set) {

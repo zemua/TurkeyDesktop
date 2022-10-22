@@ -6,7 +6,7 @@
 package devs.mrp.turkeydesktop.database.closeables;
 
 import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
-import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
+import devs.mrp.turkeydesktop.common.WorkerFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -32,12 +32,12 @@ public class CloseableServiceImpl implements CloseableService {
             consumer.accept(-1);
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            TurkeyAppFactory.runResultSetWorker(() -> repo.findById(element), rs -> {
+            WorkerFactory.runResultSetWorker(() -> repo.findById(element), rs -> {
                 try{
                     if (rs.next()){
                         consumer.accept(0);
                     } else {
-                        TurkeyAppFactory.runLongWorker(() -> repo.add(new Closeable(element)), consumer);
+                        WorkerFactory.runLongWorker(() -> repo.add(new Closeable(element)), consumer);
                     }
                 } catch (SQLException ex) {
                     logger.log(Level.SEVERE, null, ex);
@@ -55,7 +55,7 @@ public class CloseableServiceImpl implements CloseableService {
     @Override
     public void findById(String id, Consumer<Closeable> c) {
         Consumer<Closeable> consumer = CloseableServiceFactory.singleConsumer(c);
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findById(id), set -> {
+        WorkerFactory.runResultSetWorker(() -> repo.findById(id), set -> {
             Closeable closeable = new Closeable();
             try {
                 if (set.next()) {
@@ -71,7 +71,7 @@ public class CloseableServiceImpl implements CloseableService {
     @Override
     public void canBeClosed(String process, Consumer<Boolean> c) {
         Consumer<Boolean> consumer = SingleConsumerFactory.getBooleanConsumer(c);
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findById(process), set -> {
+        WorkerFactory.runResultSetWorker(() -> repo.findById(process), set -> {
             try {
                 if (set.next()) {
                     consumer.accept(false);
@@ -87,7 +87,7 @@ public class CloseableServiceImpl implements CloseableService {
     @Override
     public void deleteById(String id, LongConsumer c) {
         LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        TurkeyAppFactory.runLongWorker(() -> repo.deleteById(id), consumer);
+        WorkerFactory.runLongWorker(() -> repo.deleteById(id), consumer);
     }
     
     private List<Closeable> listFromResultSet(ResultSet set) {

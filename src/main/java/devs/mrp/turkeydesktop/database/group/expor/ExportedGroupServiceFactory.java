@@ -6,6 +6,7 @@
 package devs.mrp.turkeydesktop.database.group.expor;
 
 import devs.mrp.turkeydesktop.common.GenericWorker;
+import devs.mrp.turkeydesktop.common.SingleConsumer;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -26,6 +27,14 @@ public class ExportedGroupServiceFactory {
     
     public static void runExportedGroupListWorker(Supplier<List<ExportedGroup>> supplier, Consumer<List<ExportedGroup>> consumer) {
         new GenericWorker<List<ExportedGroup>>().runWorker(supplier, consumer);
+    }
+    
+    public static Consumer<ExportedGroup> exportedGroupConsumer(Consumer<ExportedGroup> consumer) {
+        return new SingleConsumer<>(consumer);
+    }
+    
+    public static Consumer<List<ExportedGroup>> exportedGroupListConsumer(Consumer<List<ExportedGroup>> consumer) {
+        return new SingleConsumer<>(consumer);
     }
     
 }

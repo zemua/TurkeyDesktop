@@ -22,7 +22,7 @@ import javax.swing.SwingWorker;
  *
  * @author ncm55070
  */
-public class TurkeyAppFactory {
+public class WorkerFactory {
     
     public static void runLongWorker(LongSupplier longSupplier, LongConsumer longConsumer) {
         var worker = new SwingWorker<Long, Object>() {
@@ -35,9 +35,9 @@ public class TurkeyAppFactory {
                 try {
                     longConsumer.accept(get());
                 } catch (InterruptedException ex) {
-                    Logger.getLogger(TurkeyAppFactory.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(WorkerFactory.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (ExecutionException ex) {
-                    Logger.getLogger(TurkeyAppFactory.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(WorkerFactory.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };
@@ -55,9 +55,9 @@ public class TurkeyAppFactory {
                 try {
                     intConsumer.accept(get());
                 } catch (InterruptedException ex) {
-                    Logger.getLogger(TurkeyAppFactory.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(WorkerFactory.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (ExecutionException ex) {
-                    Logger.getLogger(TurkeyAppFactory.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(WorkerFactory.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };
@@ -79,9 +79,9 @@ public class TurkeyAppFactory {
                 try {
                     consumer.accept(get());
                 } catch (InterruptedException ex) {
-                    Logger.getLogger(TurkeyAppFactory.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(WorkerFactory.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (ExecutionException ex) {
-                    Logger.getLogger(TurkeyAppFactory.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(WorkerFactory.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };
@@ -107,9 +107,9 @@ public class TurkeyAppFactory {
                 try {
                     consumer.accept(get());
                 } catch (InterruptedException ex) {
-                    Logger.getLogger(TurkeyAppFactory.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(WorkerFactory.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (ExecutionException ex) {
-                    Logger.getLogger(TurkeyAppFactory.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(WorkerFactory.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };

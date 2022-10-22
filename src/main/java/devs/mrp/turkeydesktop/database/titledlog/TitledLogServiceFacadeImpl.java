@@ -6,7 +6,7 @@
 package devs.mrp.turkeydesktop.database.titledlog;
 
 import devs.mrp.turkeydesktop.common.TimeConverter;
-import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
+import devs.mrp.turkeydesktop.common.WorkerFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.titles.TitleServiceFactory;
@@ -64,7 +64,7 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
         List<TitledLog> logList = new ArrayList<>();
         long fromMillis = TimeConverter.millisToBeginningOfDay(from.getTime());
         long toMillis = TimeConverter.millisToEndOfDay(to.getTime());
-        TurkeyAppFactory.runResultSetWorker(() -> titleFacade.getTimeFrameOfDependablesGroupedByProcess(fromMillis, toMillis), set -> {
+        WorkerFactory.runResultSetWorker(() -> titleFacade.getTimeFrameOfDependablesGroupedByProcess(fromMillis, toMillis), set -> {
             try {
                 AtomicInteger read = new AtomicInteger(0);
                 while (set.next()) {

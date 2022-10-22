@@ -5,7 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.titles;
 
-import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
+import devs.mrp.turkeydesktop.common.WorkerFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationDao;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationRepository;
@@ -63,7 +63,7 @@ public class TitleServiceImpl implements TitleService {
             } else {
                 // we don't have this value so we add new
                 conditionsMap.put(element.getSubStr(), element);
-                TurkeyAppFactory.runLongWorker(() -> repo.add(element), consumer);
+                WorkerFactory.runLongWorker(() -> repo.add(element), consumer);
             }
         }
     }
@@ -79,8 +79,8 @@ public class TitleServiceImpl implements TitleService {
     }
 
     private void retrieveAll(Consumer<List<Title>> consumer) {
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findAll(), set -> {
-            TurkeyAppFactory.runWorker(() -> {
+        WorkerFactory.runResultSetWorker(() -> repo.findAll(), set -> {
+            WorkerFactory.runWorker(() -> {
                 List<Title> elements = new ArrayList<>();
                 try {
                     while (set.next()) {
@@ -130,7 +130,7 @@ public class TitleServiceImpl implements TitleService {
             String lowerCased = subStr.toLowerCase();
             conditionsMap.remove(lowerCased);
             assignationRepo.deleteByElementId(GroupAssignation.ElementType.TITLE, lowerCased);
-            TurkeyAppFactory.runLongWorker(() -> repo.deleteById(lowerCased), consumer);
+            WorkerFactory.runLongWorker(() -> repo.deleteById(lowerCased), consumer);
         }
     }
 
@@ -166,7 +166,7 @@ public class TitleServiceImpl implements TitleService {
 
     @Override
     public void countTypesOf(Title.Type type, String title, LongConsumer consumer) {
-        TurkeyAppFactory.runLongWorker(() -> conditionsMap.entrySet().stream()
+        WorkerFactory.runLongWorker(() -> conditionsMap.entrySet().stream()
                 .filter(e -> StringUtils.containsIgnoreCase(title, e.getKey()))
                 .filter(e -> e.getValue().getType().equals(type))
                 .count(),

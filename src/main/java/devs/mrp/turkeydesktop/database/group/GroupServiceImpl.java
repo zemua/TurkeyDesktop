@@ -6,7 +6,7 @@
 package devs.mrp.turkeydesktop.database.group;
 
 import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
-import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
+import devs.mrp.turkeydesktop.common.WorkerFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class GroupServiceImpl implements GroupService {
             consumer.accept(-1);
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            TurkeyAppFactory.runResultSetWorker(() -> repo.findById(element.getId()), rs -> {
+            WorkerFactory.runResultSetWorker(() -> repo.findById(element.getId()), rs -> {
                 try {
                     if (rs.next()) {
                         Group group = elementFromResultSetEntry(rs);
@@ -46,7 +46,7 @@ public class GroupServiceImpl implements GroupService {
                         }
                     } else {
                         // else there is no element stored with this id
-                        TurkeyAppFactory.runLongWorker(() -> repo.add(element), consumer);
+                        WorkerFactory.runLongWorker(() -> repo.add(element), consumer);
                     }
                 } catch (SQLException ex) {
                     logger.log(Level.SEVERE, null, ex);
@@ -61,14 +61,14 @@ public class GroupServiceImpl implements GroupService {
         if (element == null) {
             consumer.accept(-1);
         } else {
-            TurkeyAppFactory.runLongWorker(() -> repo.update(element), consumer);
+            WorkerFactory.runLongWorker(() -> repo.update(element), consumer);
         }
     }
 
     @Override
     public void findAll(Consumer<List<Group>> c) {
         Consumer<List<Group>> consumer = GroupServiceFactory.groupListConsumer(c);
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findAll(), allResult -> {
+        WorkerFactory.runResultSetWorker(() -> repo.findAll(), allResult -> {
             consumer.accept(elementsFromResultSet(allResult));
         });
         
@@ -77,7 +77,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public void findById(long id, Consumer<Group> c) {
         Consumer<Group> consumer = GroupServiceFactory.groupConsumer(c);
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findById(id), set -> {
+        WorkerFactory.runResultSetWorker(() -> repo.findById(id), set -> {
             Group element = null;
             try {
                 if (set.next()) {
@@ -93,13 +93,13 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public void deleteById(long id, LongConsumer c) {
         LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        TurkeyAppFactory.runLongWorker(() -> repo.deleteById(id), consumer);
+        WorkerFactory.runLongWorker(() -> repo.deleteById(id), consumer);
     }
 
     @Override
     public void findAllPositive(Consumer<List<Group>> c) {
         Consumer<List<Group>> consumer = GroupServiceFactory.groupListConsumer(c);
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findAllOfType(Group.GroupType.POSITIVE), allResult -> {
+        WorkerFactory.runResultSetWorker(() -> repo.findAllOfType(Group.GroupType.POSITIVE), allResult -> {
             consumer.accept(elementsFromResultSet(allResult));
         });
     }
@@ -107,7 +107,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public void findAllNegative(Consumer<List<Group>> c) {
         Consumer<List<Group>> consumer = GroupServiceFactory.groupListConsumer(c);
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findAllOfType(Group.GroupType.NEGATIVE), negatives -> {
+        WorkerFactory.runResultSetWorker(() -> repo.findAllOfType(Group.GroupType.NEGATIVE), negatives -> {
             consumer.accept(elementsFromResultSet(negatives));
         });
     }
@@ -115,7 +115,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public void setPreventClose(long groupId, boolean preventClose, IntConsumer c) {
         IntConsumer consumer = SingleConsumerFactory.getIntConsumer(c);
-        TurkeyAppFactory.runIntWorker(() -> repo.setPreventClose(groupId, preventClose), consumer);
+        WorkerFactory.runIntWorker(() -> repo.setPreventClose(groupId, preventClose), consumer);
     }
     
     @Override

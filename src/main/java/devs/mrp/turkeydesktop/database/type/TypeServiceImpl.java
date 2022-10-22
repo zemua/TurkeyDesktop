@@ -5,7 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.type;
 
-import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
+import devs.mrp.turkeydesktop.common.WorkerFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationDao;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationRepository;
@@ -39,7 +39,7 @@ public class TypeServiceImpl implements TypeService {
                 if (rs.next()){
                     update(element, consumer);
                 } else {
-                    TurkeyAppFactory.runLongWorker(() -> repo.add(element), consumer);
+                    WorkerFactory.runLongWorker(() -> repo.add(element), consumer);
                 }
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
@@ -55,32 +55,32 @@ public class TypeServiceImpl implements TypeService {
             findById(element.getProcess(), saved -> {
                 if (saved != null && saved.getType() != null && !saved.getType().equals(element.getType())) {
                     // if we are changing the type of the process, then remove from any existing groups
-                    TurkeyAppFactory.runWorker(() -> {
+                    WorkerFactory.runWorker(() -> {
                         assignationRepo.deleteByElementId(GroupAssignation.ElementType.PROCESS, element.getProcess());
                     });
                 }
-                TurkeyAppFactory.runLongWorker(() -> repo.update(element), consumer);
+                WorkerFactory.runLongWorker(() -> repo.update(element), consumer);
             });
         }
     }
 
     @Override
     public void findAll(Consumer<List<Type>> consumer) {
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findAll(), set -> {
+        WorkerFactory.runResultSetWorker(() -> repo.findAll(), set -> {
             consumer.accept(listFromResultSet(set));
         });
     }
     
     @Override
     public void findByType(Type.Types type, Consumer<List<Type>> consumer) {
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findByType(type.toString()), res -> {
+        WorkerFactory.runResultSetWorker(() -> repo.findByType(type.toString()), res -> {
             consumer.accept(listFromResultSet(res));
         });
     }
 
     @Override
     public void findById(String id, Consumer<Type> consumer) {
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findById(id), set -> {
+        WorkerFactory.runResultSetWorker(() -> repo.findById(id), set -> {
             Type type = new Type();
             try {
                 if (set.next()) {
@@ -96,8 +96,8 @@ public class TypeServiceImpl implements TypeService {
 
     @Override
     public void deleteById(String id, LongConsumer consumer) {
-        TurkeyAppFactory.runWorker(() -> assignationRepo.deleteByElementId(GroupAssignation.ElementType.PROCESS, id));
-        TurkeyAppFactory.runLongWorker(() -> repo.deleteById(id), consumer);
+        WorkerFactory.runWorker(() -> assignationRepo.deleteByElementId(GroupAssignation.ElementType.PROCESS, id));
+        WorkerFactory.runLongWorker(() -> repo.deleteById(id), consumer);
     }
     
     private List<Type> listFromResultSet(ResultSet set) {

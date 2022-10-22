@@ -7,7 +7,7 @@ package devs.mrp.turkeydesktop.service.conditionchecker.exporter;
 
 import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.common.TimeConverter;
-import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
+import devs.mrp.turkeydesktop.common.WorkerFactory;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroup;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupService;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupServiceFactory;
@@ -56,7 +56,7 @@ public class ExportWritterImpl implements ExportWritter {
 
     private void doExports() {
         exportedGroupService.findAll(all -> {
-            TurkeyAppFactory.runInNewThread(() -> {
+            WorkerFactory.runInNewThread(() -> {
                 all.stream()
                     .forEach(e -> processFile(e));
             });

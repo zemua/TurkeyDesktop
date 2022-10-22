@@ -6,7 +6,7 @@
 package devs.mrp.turkeydesktop.database.group.assignations;
 
 import devs.mrp.turkeydesktop.common.SingleConsumer;
-import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
+import devs.mrp.turkeydesktop.common.WorkerFactory;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
@@ -36,9 +36,9 @@ public class FGroupAssignationService {
                 try {
                     consumer.accept(get());
                 } catch (InterruptedException ex) {
-                    Logger.getLogger(TurkeyAppFactory.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(WorkerFactory.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (ExecutionException ex) {
-                    Logger.getLogger(TurkeyAppFactory.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(WorkerFactory.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };
@@ -56,9 +56,9 @@ public class FGroupAssignationService {
                 try {
                     consumer.accept(get());
                 } catch (InterruptedException ex) {
-                    Logger.getLogger(TurkeyAppFactory.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(WorkerFactory.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (ExecutionException ex) {
-                    Logger.getLogger(TurkeyAppFactory.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(WorkerFactory.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };

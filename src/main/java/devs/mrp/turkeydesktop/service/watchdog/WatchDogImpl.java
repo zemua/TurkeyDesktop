@@ -8,7 +8,7 @@ package devs.mrp.turkeydesktop.service.watchdog;
 import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.common.FileHandler;
-import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
+import devs.mrp.turkeydesktop.common.WorkerFactory;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.database.group.GroupServiceFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
@@ -70,9 +70,9 @@ public class WatchDogImpl implements WatchDog {
     private ResourceHandler<Image,ImagesEnum> imageHandler = ResourceHandlerFactory.getImagesHandler();
     private GroupService groupService = GroupServiceFactory.getService();
     
-    private ExecutorService singleThreadExecutor = TurkeyAppFactory.getSingleThreadExecutor();
+    private ExecutorService singleThreadExecutor = WorkerFactory.getSingleThreadExecutor();
     
-    private ExecutorService loopedExecutor = TurkeyAppFactory.getSingleThreadExecutor();
+    private ExecutorService loopedExecutor = WorkerFactory.getSingleThreadExecutor();
     Future<?> loopFuture = null;
 
     private WatchDogImpl() {

@@ -7,7 +7,7 @@ package devs.mrp.turkeydesktop.database.logandtype;
 
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.Tripla;
-import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
+import devs.mrp.turkeydesktop.common.WorkerFactory;
 import devs.mrp.turkeydesktop.database.closeables.CloseableService;
 import devs.mrp.turkeydesktop.database.closeables.CloseableServiceFactory;
 import devs.mrp.turkeydesktop.database.conditions.FConditionService;
@@ -67,7 +67,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
         long toMilis = TimeConverter.millisToEndOfDay(to.getTime());
         // use calendar objects to get milliseconds
         List<Tripla<String, Long, Type.Types>> typedTimes = new ArrayList<>();
-        TurkeyAppFactory.runResultSetWorker(() -> repo.getTypedLogGroupedByProcess(fromMilis, toMilis), set -> {
+        WorkerFactory.runResultSetWorker(() -> repo.getTypedLogGroupedByProcess(fromMilis, toMilis), set -> {
             try {
                 while (set.next()) {
                     Tripla<String, Long, Type.Types> tripla = new Tripla<>();

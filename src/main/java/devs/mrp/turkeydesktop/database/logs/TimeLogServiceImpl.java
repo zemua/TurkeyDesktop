@@ -7,7 +7,7 @@ package devs.mrp.turkeydesktop.database.logs;
 
 import devs.mrp.turkeydesktop.common.Dupla;
 import devs.mrp.turkeydesktop.common.TimeConverter;
-import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
+import devs.mrp.turkeydesktop.common.WorkerFactory;
 import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.type.Type;
 import java.sql.ResultSet;
@@ -43,7 +43,7 @@ public class TimeLogServiceImpl implements TimeLogService {
                 logger.log(Level.SEVERE, String.format("Window title too long: %s", element.getWindowTitle()));
                 element.setWindowTitle(element.getWindowTitle().substring(0, 499));
             }
-            TurkeyAppFactory.runLongWorker(() -> repo.add(element), consumer);
+            WorkerFactory.runLongWorker(() -> repo.add(element), consumer);
         }
     }
 
@@ -56,13 +56,13 @@ public class TimeLogServiceImpl implements TimeLogService {
                 logger.log(Level.SEVERE, String.format("Window title too long: %s", element.getWindowTitle()));
                 element.setWindowTitle(element.getWindowTitle().substring(0, 499));
             }
-            TurkeyAppFactory.runLongWorker(() -> repo.update(element), consumer);
+            WorkerFactory.runLongWorker(() -> repo.update(element), consumer);
         }
     }
 
     @Override
     public void findLast24H(Consumer<List<TimeLog>> consumer) {
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findAll(), res -> {
+        WorkerFactory.runResultSetWorker(() -> repo.findAll(), res -> {
             consumer.accept(listFromResultSet(res));
         });
     }
@@ -75,7 +75,7 @@ public class TimeLogServiceImpl implements TimeLogService {
         long toMilis = TimeConverter.millisToEndOfDay(to.getTime());
         // use calendar objects to get milliseconds
         List<Dupla<String,Long>> times = new ArrayList<>();
-        TurkeyAppFactory.runResultSetWorker(() -> repo.getTimeFrameGroupedByProcess(fromMilis, toMilis), set -> {
+        WorkerFactory.runResultSetWorker(() -> repo.getTimeFrameGroupedByProcess(fromMilis, toMilis), set -> {
             try {
                 while (set.next()) {
                     Dupla<String,Long> dupla = new Dupla<>();
@@ -92,7 +92,7 @@ public class TimeLogServiceImpl implements TimeLogService {
 
     @Override
     public void findById(long id, Consumer<TimeLog> consumer) {
-        TurkeyAppFactory.runResultSetWorker(() -> repo.findById(id), set -> {
+        WorkerFactory.runResultSetWorker(() -> repo.findById(id), set -> {
             TimeLog timeLog = null;
             try {
                 if (set.next()) {
@@ -107,7 +107,7 @@ public class TimeLogServiceImpl implements TimeLogService {
 
     @Override
     public void deleteById(long id, LongConsumer consumer) {
-        TurkeyAppFactory.runLongWorker(() -> repo.deleteById(id), consumer);
+        WorkerFactory.runLongWorker(() -> repo.deleteById(id), consumer);
     }
 
     private List<TimeLog> listFromResultSet(ResultSet set) {
@@ -125,7 +125,7 @@ public class TimeLogServiceImpl implements TimeLogService {
 
     @Override
     public void findMostRecent(Consumer<TimeLog> consumer) {
-        TurkeyAppFactory.runResultSetWorker(() -> repo.getMostRecent(), set -> {
+        WorkerFactory.runResultSetWorker(() -> repo.getMostRecent(), set -> {
             TimeLog entry = null;
             try {
                 if (set.next()) {
@@ -166,7 +166,7 @@ public class TimeLogServiceImpl implements TimeLogService {
         // Set 'to' to the last second of the day
         long toMilis = TimeConverter.millisToEndOfDay(to.getTime());
         // use calendar objects to get milliseconds
-        TurkeyAppFactory.runResultSetWorker(() -> repo.getGroupedByTitle(fromMilis, toMilis), set -> {
+        WorkerFactory.runResultSetWorker(() -> repo.getGroupedByTitle(fromMilis, toMilis), set -> {
             List<Dupla<String, Long>> groupedTimes = new ArrayList<>();
             try {
                 while (set.next()) {
@@ -184,7 +184,7 @@ public class TimeLogServiceImpl implements TimeLogService {
     
     @Override
     public void timeSpentOnGroupForFrame(long groupId, long from, long to, LongConsumer consumer) {
-        TurkeyAppFactory.runResultSetWorker(() -> repo.getTimeFrameOfGroup(groupId, from, to), set -> {
+        WorkerFactory.runResultSetWorker(() -> repo.getTimeFrameOfGroup(groupId, from, to), set -> {
             long spent = 0;
             try {
                 if (set.next()) {
