@@ -23,20 +23,23 @@ public class AssignableTitleServiceImpl extends AssignableAbstractService implem
     private final TitleService titleService = TitleServiceFactory.getService();
     
     @Override
-    public void positiveElementsWithAssignation(Consumer<List<AssignableElement<Title.Type>>> consumer) {
+    public void positiveElementsWithAssignation(Consumer<List<AssignableElement<Title.Type>>> c) {
+        var consumer = AssignableElementServiceFactory.getConsumer(c);
         getAssignationsMap(GroupAssignation.ElementType.TITLE, result -> {
             elementsWithAssignation(result, Title.Type.POSITIVE, consumer);
         });
     }
 
     @Override
-    public void negativeElementsWithAssignation(Consumer<List<AssignableElement<Title.Type>>> consumer) {
+    public void negativeElementsWithAssignation(Consumer<List<AssignableElement<Title.Type>>> c) {
+        var consumer = AssignableElementServiceFactory.getConsumer(c);
         getAssignationsMap(GroupAssignation.ElementType.TITLE, result -> {
             elementsWithAssignation(result, Title.Type.NEGATIVE, consumer);
         });
     }
     
-    private void elementsWithAssignation(Map<String, GroupAssignation> assignables, Title.Type positiveOrNegative, Consumer<List<AssignableElement<Title.Type>>> consumer) {
+    private void elementsWithAssignation(Map<String, GroupAssignation> assignables, Title.Type positiveOrNegative, Consumer<List<AssignableElement<Title.Type>>> c) {
+        var consumer = AssignableElementServiceFactory.getConsumer(c);
         titleService.findAll(allResult -> {
             var result = allResult.stream()
                 .filter(t -> t.getType().equals(positiveOrNegative))

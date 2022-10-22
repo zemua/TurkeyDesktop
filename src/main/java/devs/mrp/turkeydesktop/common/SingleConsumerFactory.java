@@ -5,6 +5,7 @@
 package devs.mrp.turkeydesktop.common;
 
 import java.sql.ResultSet;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.function.LongConsumer;
@@ -36,6 +37,10 @@ public class SingleConsumerFactory {
     }
     
     public static Consumer<Boolean> getBooleanConsumer(Consumer<Boolean> consumer) {
+        return new SingleConsumer<>(consumer);
+    }
+    
+    public static Consumer<List<String>> getStringListConsumer(Consumer<List<String>> consumer) {
         return new SingleConsumer<>(consumer);
     }
     

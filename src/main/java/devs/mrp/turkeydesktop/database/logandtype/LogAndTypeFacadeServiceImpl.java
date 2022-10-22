@@ -60,7 +60,8 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
     private static final Logger LOGGER = Logger.getLogger(LogAndTypeFacadeServiceImpl.class.getName());
 
     @Override
-    public void getTypedLogGroupedByProcess(Date from, Date to, Consumer<List<Tripla<String, Long, Type.Types>>> consumer) {
+    public void getTypedLogGroupedByProcess(Date from, Date to, Consumer<List<Tripla<String, Long, Type.Types>>> c) {
+        var consumer = LogAndTypeServiceFactory.getTriplaConsumer(c);
         // Set from to hour 0 of the day
         long fromMilis = TimeConverter.millisToBeginningOfDay(from.getTime());
         // Set "to" to the last second of the day
@@ -85,7 +86,8 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
     }
 
     @Override
-    public void addTimeLogAdjustingCounted(TimeLog element, Consumer<TimeLog> consumer) {
+    public void addTimeLogAdjustingCounted(TimeLog element, Consumer<TimeLog> c) {
+        Consumer<TimeLog> consumer = LogAndTypeServiceFactory.getConsumer(c);
         adjustDependingOnType(element, result -> {
             adjustAccumulated(element, element.getCounted(), updatedElement -> {
                 logService.add(updatedElement,r -> consumer.accept(updatedElement));
@@ -93,7 +95,8 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
         });
     }
     
-    private void adjustDependingOnType(TimeLog element, Consumer<TimeLog> consumer) {
+    private void adjustDependingOnType(TimeLog element, Consumer<TimeLog> c) {
+        Consumer<TimeLog> consumer = LogAndTypeServiceFactory.getConsumer(c);
         typeService.findById(element.getProcessName(), myType -> {
             conditionChecker.isLockDownTime(lockdown -> {
                 conditionChecker.isIdle(idle -> {
@@ -173,7 +176,8 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
         });
     }
     
-    private void setCountedForTitleWhenLockdown(TimeLog element, long proportion, Consumer<TimeLog> consumer) {
+    private void setCountedForTitleWhenLockdown(TimeLog element, long proportion, Consumer<TimeLog> c) {
+        Consumer<TimeLog> consumer = LogAndTypeServiceFactory.getConsumer(c);
         titleService.findLongestContainedBy(element.getWindowTitle().toLowerCase(), title -> {
             if (title != null && title.getType().equals(Title.Type.NEGATIVE)) {
                 closeableService.canBeClosed(element.getProcessName(), b -> {
@@ -195,7 +199,8 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
         });
     }
     
-    private void setCountedDependingOnTitle(TimeLog element, long elapsed, int proportion, Consumer<TimeLog> consumer) {
+    private void setCountedDependingOnTitle(TimeLog element, long elapsed, int proportion, Consumer<TimeLog> c) {
+        Consumer<TimeLog> consumer = LogAndTypeServiceFactory.getConsumer(c);
         titleService.findLongestContainedBy(element.getWindowTitle().toLowerCase(), title -> {
             if (title == null) {
                 element.setCounted(0);
@@ -221,7 +226,8 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
         });
     }
     
-    private void adjustAccumulated(TimeLog element, long counted, Consumer<TimeLog> consumer) {
+    private void adjustAccumulated(TimeLog element, long counted, Consumer<TimeLog> c) {
+        Consumer<TimeLog> consumer = LogAndTypeServiceFactory.getConsumer(c);
         logService.findMostRecent(last -> {
             long lastAccumulated = 0;
             if (last != null) {

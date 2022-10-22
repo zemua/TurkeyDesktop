@@ -6,6 +6,7 @@
 package devs.mrp.turkeydesktop.database.logs;
 
 import devs.mrp.turkeydesktop.common.Dupla;
+import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.WorkerFactory;
 import devs.mrp.turkeydesktop.database.group.Group;
@@ -35,7 +36,8 @@ public class TimeLogServiceImpl implements TimeLogService {
      */
     @Deprecated
     @Override
-    public void add(TimeLog element, LongConsumer consumer) {
+    public void add(TimeLog element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null) {
             consumer.accept(-1);
         } else {
@@ -48,7 +50,8 @@ public class TimeLogServiceImpl implements TimeLogService {
     }
 
     @Override
-    public void update(TimeLog element, LongConsumer consumer) {
+    public void update(TimeLog element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null || element.getId() <= 0) {
             consumer.accept(-1);
         } else {
@@ -61,14 +64,16 @@ public class TimeLogServiceImpl implements TimeLogService {
     }
 
     @Override
-    public void findLast24H(Consumer<List<TimeLog>> consumer) {
+    public void findLast24H(Consumer<List<TimeLog>> c) {
+        var consumer = TimeLogServiceFactory.getListConsumer(c);
         WorkerFactory.runResultSetWorker(() -> repo.findAll(), res -> {
             consumer.accept(listFromResultSet(res));
         });
     }
     
     @Override
-    public void findProcessTimeFromTo(Date from, Date to, Consumer<List<Dupla<String,Long>>> consumer) {
+    public void findProcessTimeFromTo(Date from, Date to, Consumer<List<Dupla<String,Long>>> c) {
+        var consumer = TimeLogServiceFactory.getListDuplaConsumer(c);
         // Set from to hour 0 of the day
         long fromMilis = TimeConverter.millisToBeginningOfDay(from.getTime());
         // Set "to" to the last second of the day
@@ -91,7 +96,8 @@ public class TimeLogServiceImpl implements TimeLogService {
     }
 
     @Override
-    public void findById(long id, Consumer<TimeLog> consumer) {
+    public void findById(long id, Consumer<TimeLog> c) {
+        var consumer = TimeLogServiceFactory.getConsumer(c);
         WorkerFactory.runResultSetWorker(() -> repo.findById(id), set -> {
             TimeLog timeLog = null;
             try {
@@ -106,7 +112,8 @@ public class TimeLogServiceImpl implements TimeLogService {
     }
 
     @Override
-    public void deleteById(long id, LongConsumer consumer) {
+    public void deleteById(long id, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         WorkerFactory.runLongWorker(() -> repo.deleteById(id), consumer);
     }
 
@@ -124,7 +131,8 @@ public class TimeLogServiceImpl implements TimeLogService {
     }
 
     @Override
-    public void findMostRecent(Consumer<TimeLog> consumer) {
+    public void findMostRecent(Consumer<TimeLog> c) {
+        var consumer = TimeLogServiceFactory.getConsumer(c);
         WorkerFactory.runResultSetWorker(() -> repo.getMostRecent(), set -> {
             TimeLog entry = null;
             try {
@@ -160,7 +168,8 @@ public class TimeLogServiceImpl implements TimeLogService {
     }
 
     @Override
-    public void logsGroupedByTitle(Date from, Date to, Consumer<List<Dupla<String, Long>>> consumer) {
+    public void logsGroupedByTitle(Date from, Date to, Consumer<List<Dupla<String, Long>>> c) {
+        var consumer = TimeLogServiceFactory.getListDuplaConsumer(c);
         // Set from to hour 0 of the day
         long fromMilis = TimeConverter.millisToBeginningOfDay(from.getTime());
         // Set 'to' to the last second of the day
@@ -183,7 +192,8 @@ public class TimeLogServiceImpl implements TimeLogService {
     }
     
     @Override
-    public void timeSpentOnGroupForFrame(long groupId, long from, long to, LongConsumer consumer) {
+    public void timeSpentOnGroupForFrame(long groupId, long from, long to, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         WorkerFactory.runResultSetWorker(() -> repo.getTimeFrameOfGroup(groupId, from, to), set -> {
             long spent = 0;
             try {

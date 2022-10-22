@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.imports;
 
+import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
 import devs.mrp.turkeydesktop.common.WorkerFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.sql.SQLException;
@@ -25,7 +26,8 @@ public class ImportServiceImpl implements ImportService {
     private static final Logger logger = Logger.getLogger(ImportServiceImpl.class.getName());
 
     @Override
-    public void add(String path, LongConsumer consumer) {
+    public void add(String path, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         exists(path, existsResult -> {
             if (!existsResult){
                 WorkerFactory.runLongWorker(() -> repo.add(path), consumer);
@@ -36,7 +38,8 @@ public class ImportServiceImpl implements ImportService {
     }
 
     @Override
-    public void findAll(Consumer<List<String>> consumer) {
+    public void findAll(Consumer<List<String>> c) {
+        Consumer<List<String>> consumer = SingleConsumerFactory.getStringListConsumer(c);
         WorkerFactory.runResultSetWorker(() -> repo.findAll(), set -> {
             List<String> elements = new ArrayList<>();
             try {
@@ -51,7 +54,8 @@ public class ImportServiceImpl implements ImportService {
     }
 
     @Override
-    public void exists(String path, Consumer<Boolean> consumer) {
+    public void exists(String path, Consumer<Boolean> c) {
+        Consumer<Boolean> consumer = SingleConsumerFactory.getBooleanConsumer(c);
         if (path == null || "".equals(path) || path.length() > 500) {
             consumer.accept(false);
             return;
@@ -67,7 +71,8 @@ public class ImportServiceImpl implements ImportService {
     }
 
     @Override
-    public void deleteById(String path, LongConsumer consumer) {
+    public void deleteById(String path, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (path == null) {
             consumer.accept(-1);
             return;

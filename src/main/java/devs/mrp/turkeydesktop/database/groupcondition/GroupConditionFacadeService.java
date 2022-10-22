@@ -25,7 +25,8 @@ public class GroupConditionFacadeService implements IGroupConditionFacadeService
     private final GroupService groupService = GroupServiceFactory.getService();
     
     @Override
-    public void findByConditionId(long conditionId, Consumer<GroupConditionFacade> consumer) {
+    public void findByConditionId(long conditionId, Consumer<GroupConditionFacade> c) {
+        var consumer = FGroupConditionFacadeService.getConsumer(c);
         conditionService.findById(conditionId, condition -> {
             toFacade(condition, facade -> {
                 consumer.accept(facade);
@@ -34,7 +35,8 @@ public class GroupConditionFacadeService implements IGroupConditionFacadeService
     }
 
     @Override
-    public void findByGroupId(long groupId, Consumer<List<GroupConditionFacade>> consumer) {
+    public void findByGroupId(long groupId, Consumer<List<GroupConditionFacade>> c) {
+        var consumer = FGroupConditionFacadeService.getListConsumer(c);
         List<GroupConditionFacade> list = Collections.synchronizedList(new ArrayList<>());
         conditionService.findByGroupId(groupId, result -> {
             result.forEach(con -> {
@@ -48,7 +50,8 @@ public class GroupConditionFacadeService implements IGroupConditionFacadeService
         });
     }
     
-    private void toFacade(Condition condition, Consumer<GroupConditionFacade> consumer) {
+    private void toFacade(Condition condition, Consumer<GroupConditionFacade> c) {
+        var consumer = FGroupConditionFacadeService.getConsumer(c);
         groupService.findById(condition.getGroupId(), origin -> {
             groupService.findById(condition.getTargetId(), target -> {
                 GroupConditionFacade facade = new GroupConditionFacade();

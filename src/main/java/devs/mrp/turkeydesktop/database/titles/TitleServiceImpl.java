@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.titles;
 
+import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
 import devs.mrp.turkeydesktop.common.WorkerFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationDao;
@@ -46,7 +47,8 @@ public class TitleServiceImpl implements TitleService {
     }
 
     @Override
-    public void save(Title element, LongConsumer consumer) {
+    public void save(Title element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null) {
             consumer.accept(-1);
         } else {
@@ -78,7 +80,8 @@ public class TitleServiceImpl implements TitleService {
         }
     }
 
-    private void retrieveAll(Consumer<List<Title>> consumer) {
+    private void retrieveAll(Consumer<List<Title>> c) {
+        var consumer = TitleServiceFactory.getListConsumer(c);
         WorkerFactory.runResultSetWorker(() -> repo.findAll(), set -> {
             WorkerFactory.runWorker(() -> {
                 List<Title> elements = new ArrayList<>();
@@ -98,7 +101,8 @@ public class TitleServiceImpl implements TitleService {
     }
 
     @Override
-    public void findAll(Consumer<List<Title>> consumer) {
+    public void findAll(Consumer<List<Title>> c) {
+        var consumer = TitleServiceFactory.getListConsumer(c);
         TitleServiceFactory.runTitleListWorker(() -> conditionsMap.entrySet().stream()
                 .map(e -> {
                     Title el = new Title();
@@ -110,7 +114,8 @@ public class TitleServiceImpl implements TitleService {
     }
 
     @Override
-    public void findBySubString(String subStr, Consumer<Title> consumer) {
+    public void findBySubString(String subStr, Consumer<Title> c) {
+        var consumer = TitleServiceFactory.getConsumer(c);
         String lowerCaseSubStr = subStr.toLowerCase();
         if (conditionsMap.containsKey(lowerCaseSubStr)) {
             Title el = new Title();
@@ -123,7 +128,8 @@ public class TitleServiceImpl implements TitleService {
     }
 
     @Override
-    public void deleteBySubString(String subStr, LongConsumer consumer) {
+    public void deleteBySubString(String subStr, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (subStr == null) {
             consumer.accept(-1);
         } else {
@@ -146,7 +152,8 @@ public class TitleServiceImpl implements TitleService {
     }
 
     @Override
-    public void findContainedByAndNegativeFirst(String title, Consumer<List<Title>> consumer) {
+    public void findContainedByAndNegativeFirst(String title, Consumer<List<Title>> c) {
+        var consumer = TitleServiceFactory.getListConsumer(c);
         TitleServiceFactory.runTitleListWorker(() -> conditionsMap.entrySet().stream()
                 .filter(e -> StringUtils.containsIgnoreCase(title, e.getKey()))
                 .map(e -> e.getValue())
@@ -155,7 +162,8 @@ public class TitleServiceImpl implements TitleService {
     }
     
     @Override
-    public void findLongestContainedBy(String title, Consumer<Title> consumer) {
+    public void findLongestContainedBy(String title, Consumer<Title> c) {
+        var consumer = TitleServiceFactory.getConsumer(c);
         TitleServiceFactory.runTitleWorker(() -> conditionsMap.entrySet().stream()
                 .filter(e -> StringUtils.containsIgnoreCase(title, e.getKey()))
                 .max((e1, e2) -> Long.compare(e1.getKey().length(), e2.getKey().length()))
@@ -165,7 +173,8 @@ public class TitleServiceImpl implements TitleService {
     }
 
     @Override
-    public void countTypesOf(Title.Type type, String title, LongConsumer consumer) {
+    public void countTypesOf(Title.Type type, String title, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         WorkerFactory.runLongWorker(() -> conditionsMap.entrySet().stream()
                 .filter(e -> StringUtils.containsIgnoreCase(title, e.getKey()))
                 .filter(e -> e.getValue().getType().equals(type))

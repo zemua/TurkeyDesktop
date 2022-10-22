@@ -35,7 +35,8 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
     private static final Logger logger = Logger.getLogger(TitledLogServiceFacadeImpl.class.getName());
 
     @Override
-    public void getLogsWithTitleConditions(Date from, Date to, Consumer<List<TitledLog>> consumer) {
+    public void getLogsWithTitleConditions(Date from, Date to, Consumer<List<TitledLog>> c) {
+        var consumer = TitledLogServiceFacadeFactory.getListConsumer(c);
         logService.logsGroupedByTitle(from, to, result -> {
             List<TitledLog> logs = new ArrayList<>();
             result.stream().forEach(e -> {
@@ -60,7 +61,8 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
     }
 
     @Override
-    public void getLogsDependablesWithTitleConditions(Date from, Date to, Consumer<List<TitledLog>> consumer) {
+    public void getLogsDependablesWithTitleConditions(Date from, Date to, Consumer<List<TitledLog>> c) {
+        var consumer = TitledLogServiceFacadeFactory.getListConsumer(c);
         List<TitledLog> logList = new ArrayList<>();
         long fromMillis = TimeConverter.millisToBeginningOfDay(from.getTime());
         long toMillis = TimeConverter.millisToEndOfDay(to.getTime());
@@ -89,7 +91,8 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
         });
     }
     
-    private void titledLogFromResultSetEntry(ResultSet entry, Consumer<TitledLog> consumer) {
+    private void titledLogFromResultSetEntry(ResultSet entry, Consumer<TitledLog> c) {
+        var consumer = TitledLogServiceFacadeFactory.getConsumer(c);
         TitledLog log = new TitledLog();
         try {
             String title = entry.getString(TimeLog.WINDOW_TITLE);

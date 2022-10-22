@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.type;
 
+import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
 import devs.mrp.turkeydesktop.common.WorkerFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationDao;
@@ -29,7 +30,8 @@ public class TypeServiceImpl implements TypeService {
     private static final Logger logger = Logger.getLogger(TypeServiceImpl.class.getName());
 
     @Override
-    public void add(Type element, LongConsumer consumer) {
+    public void add(Type element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null) {
             consumer.accept(-1);
         } else {
@@ -48,7 +50,8 @@ public class TypeServiceImpl implements TypeService {
     }
 
     @Override
-    public void update(Type element, LongConsumer consumer) {
+    public void update(Type element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null || element.getProcess() == null) {
             consumer.accept(-1);
         } else {
@@ -65,21 +68,24 @@ public class TypeServiceImpl implements TypeService {
     }
 
     @Override
-    public void findAll(Consumer<List<Type>> consumer) {
+    public void findAll(Consumer<List<Type>> c) {
+        var consumer = TypeServiceFactory.getListConsumer(c);
         WorkerFactory.runResultSetWorker(() -> repo.findAll(), set -> {
             consumer.accept(listFromResultSet(set));
         });
     }
     
     @Override
-    public void findByType(Type.Types type, Consumer<List<Type>> consumer) {
+    public void findByType(Type.Types type, Consumer<List<Type>> c) {
+        var consumer = TypeServiceFactory.getListConsumer(c);
         WorkerFactory.runResultSetWorker(() -> repo.findByType(type.toString()), res -> {
             consumer.accept(listFromResultSet(res));
         });
     }
 
     @Override
-    public void findById(String id, Consumer<Type> consumer) {
+    public void findById(String id, Consumer<Type> c) {
+        var consumer = TypeServiceFactory.getConsumer(c);
         WorkerFactory.runResultSetWorker(() -> repo.findById(id), set -> {
             Type type = new Type();
             try {
@@ -95,7 +101,8 @@ public class TypeServiceImpl implements TypeService {
     }
 
     @Override
-    public void deleteById(String id, LongConsumer consumer) {
+    public void deleteById(String id, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         WorkerFactory.runWorker(() -> assignationRepo.deleteByElementId(GroupAssignation.ElementType.PROCESS, id));
         WorkerFactory.runLongWorker(() -> repo.deleteById(id), consumer);
     }

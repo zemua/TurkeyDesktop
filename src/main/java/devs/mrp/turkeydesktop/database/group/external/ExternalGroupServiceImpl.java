@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.group.external;
 
+import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
 import devs.mrp.turkeydesktop.common.WorkerFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,7 +26,8 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     private static final Logger logger = Logger.getLogger(ExternalGroupServiceImpl.class.getName());
 
     @Override
-    public void add(ExternalGroup element, LongConsumer consumer) {
+    public void add(ExternalGroup element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null) {
             consumer.accept(-1);
         } else if (element.getFile() != null && element.getFile().length() > 500) {
@@ -59,7 +61,8 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
         }
     }
 
-    private void updateOrKeep(ExternalGroup element, ResultSet rs, LongConsumer consumer) {
+    private void updateOrKeep(ExternalGroup element, ResultSet rs, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         ExternalGroup group = elementFromResultSetEntry(rs);
         // if the value stored differs from the one received
         if (!group.equals(element)) {
@@ -72,7 +75,8 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     }
 
     @Override
-    public void update(ExternalGroup element, LongConsumer consumer) {
+    public void update(ExternalGroup element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null) {
             consumer.accept(-1);
         } else if (element.getFile() != null && element.getFile().length() > 500) {
@@ -84,14 +88,16 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     }
 
     @Override
-    public void findAll(Consumer<List<ExternalGroup>> consumer) {
+    public void findAll(Consumer<List<ExternalGroup>> c) {
+        Consumer<List<ExternalGroup>> consumer = ExternalGroupServiceFactory.externalGroupListConsumer(c);
         WorkerFactory.runResultSetWorker(() -> repo.findAll(), rs -> {
             consumer.accept(elementsFromResultSet(rs));
         });
     }
 
     @Override
-    public void findById(long id, Consumer<ExternalGroup> consumer) {
+    public void findById(long id, Consumer<ExternalGroup> c) {
+        Consumer<ExternalGroup> consumer = ExternalGroupServiceFactory.externalGroupConsumer(c);
         WorkerFactory.runResultSetWorker(() -> repo.findById(id), set -> {
             ExternalGroup element = null;
             try {
@@ -106,7 +112,8 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     }
 
     @Override
-    public void deleteById(long id, LongConsumer consumer) {
+    public void deleteById(long id, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         WorkerFactory.runLongWorker(() -> repo.deleteById(id), consumer);
     }
 
@@ -136,21 +143,24 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     }
 
     @Override
-    public void findByGroup(Long id, Consumer<List<ExternalGroup>> consumer) {
+    public void findByGroup(Long id, Consumer<List<ExternalGroup>> c) {
+        Consumer<List<ExternalGroup>> consumer = ExternalGroupServiceFactory.externalGroupListConsumer(c);
         WorkerFactory.runResultSetWorker(() -> repo.findByGroup(id), rs -> {
             consumer.accept(elementsFromResultSet(rs));
         });
     }
 
     @Override
-    public void findByFile(String file, Consumer<List<ExternalGroup>> consumer) {
+    public void findByFile(String file, Consumer<List<ExternalGroup>> c) {
+        Consumer<List<ExternalGroup>> consumer = ExternalGroupServiceFactory.externalGroupListConsumer(c);
         WorkerFactory.runResultSetWorker(() -> repo.findByFile(file), rs -> {
             consumer.accept(elementsFromResultSet(rs));
         });
     }
 
     @Override
-    public void deleteByGroup(Long id, LongConsumer consumer) {
+    public void deleteByGroup(Long id, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         WorkerFactory.runLongWorker(() -> repo.deleteByGroup(id), consumer);
     }
 
