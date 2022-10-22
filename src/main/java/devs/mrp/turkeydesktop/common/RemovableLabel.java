@@ -24,12 +24,12 @@ import javax.swing.SwingWorker;
  */
 public abstract class RemovableLabel<ELEMENT> extends JPanel implements Feedbacker<ELEMENT, RemovableLabel.Action> {
     
-    private LocaleMessages locale = LocaleMessages.getInstance();
+    protected final LocaleMessages locale = LocaleMessages.getInstance();
     private List<FeedbackListener<ELEMENT, RemovableLabel.Action>> listeners = new ArrayList<>();
     
     protected ELEMENT element;
     protected JLabel label;
-    private JButton button;
+    protected JButton button;
     
     public enum Action {
         DELETE;
@@ -65,7 +65,7 @@ public abstract class RemovableLabel<ELEMENT> extends JPanel implements Feedback
         });
     }
     
-    private void initializeButton() {
+    protected void initializeButton() {
         button = new JButton();
         button.setText(locale.getString("remove"));
         button.setEnabled(false);
@@ -105,7 +105,7 @@ public abstract class RemovableLabel<ELEMENT> extends JPanel implements Feedback
     
     protected abstract void initializeOtherElements();
     
-    private void initializePanel() {
+    protected void initializePanel() {
         this.setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.LINE_AXIS));
         this.setAlignmentX(Component.LEFT_ALIGNMENT);
         this.add(label);
