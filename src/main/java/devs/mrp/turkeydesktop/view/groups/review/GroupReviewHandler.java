@@ -451,8 +451,13 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         condition.setUsageTimeCondition(TimeConverter.hoursToMilis((Long) hourSpinner.getValue()) + TimeConverter.minutesToMilis((Long) minuteSpinner.getValue()));
         condition.setLastDaysCondition((long) daySpinner.getValue());
 
-        conditionService.add(condition, r -> {});
-        fillConditionFields();
+        conditionService.add(condition, r -> {
+            try {
+                fillConditionFields();
+            } catch (Exception ex) {
+                Logger.getLogger(GroupReviewHandler.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
     }
 
     private void removeCondition(long id) {
@@ -496,8 +501,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             return;
         }
         group.setName(field.getText());
-        groupService.update(group, r -> {});
-        setGroupLabelName(group.getName());
+        groupService.update(group, r -> setGroupLabelName(group.getName()));
     }
 
     private void deleteGroup() throws Exception {
@@ -509,12 +513,11 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         if (!field.getText().equals("delete")) {
             return;
         }
-        groupService.deleteById(group.getId(), r -> {});
         conditionService.deleteByGroupId(group.getId(), r -> {});
         conditionService.deleteByTargetId(group.getId(), r -> {});
         externalGroupService.deleteByGroup(group.getId(), r -> {});
         groupAssignationService.deleteByGroupId(group.getId(), r -> {});
-        exit();
+        groupService.deleteById(group.getId(), r -> exit());
     }
 
     private void addExternalTime() throws Exception {
@@ -538,8 +541,13 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         ExternalGroup externalGroup = new ExternalGroup();
         externalGroup.setGroup(this.group.getId());
         externalGroup.setFile(file.getPath());
-        externalGroupService.add(externalGroup, r -> {});
-        refreshExternalTime();
+        externalGroupService.add(externalGroup, r -> {
+            try {
+                refreshExternalTime();
+            } catch (Exception ex) {
+                Logger.getLogger(GroupReviewHandler.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
     }
 
     private void refreshExternalTime() throws Exception {
@@ -604,8 +612,13 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         exportedGroup.setDays((Long) daysSpinner.getValue());
         exportedGroup.setFile(file.getPath());
         exportedGroup.setGroup(this.group.getId());
-        exportedGroupService.add(exportedGroup, r -> {});
-        refreshGroupExporter();
+        exportedGroupService.add(exportedGroup, r -> {
+            try {
+                refreshGroupExporter();
+            } catch (Exception ex) {
+                Logger.getLogger(GroupReviewHandler.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
     }
 
     private void updateGroupExporterDays() throws Exception {
@@ -615,12 +628,14 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                 return;
             }
             existing.setDays((Long) daysSpinner.getValue());
-            exportedGroupService.add(existing, r -> {});
-            try {
-                refreshGroupExporter();
-            } catch (Exception ex) {
-                Logger.getLogger(GroupReviewHandler.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            exportedGroupService.add(existing, r -> {
+                try {
+                    refreshGroupExporter();
+                } catch (Exception ex) {
+                    Logger.getLogger(GroupReviewHandler.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            });
+            
         });
     }
 
