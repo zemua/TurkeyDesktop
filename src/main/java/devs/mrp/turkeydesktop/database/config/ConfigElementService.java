@@ -5,6 +5,8 @@
  */
 package devs.mrp.turkeydesktop.database.config;
 
+import devs.mrp.turkeydesktop.common.SingleConsumer;
+import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
 import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.sql.ResultSet;
@@ -42,7 +44,8 @@ public class ConfigElementService implements IConfigElementService {
     }
 
     @Override
-    public void add(ConfigElement element, LongConsumer consumer) {
+    public void add(ConfigElement element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null || element.getKey() == null || element.getValue().length() > 150) {
             consumer.accept(-1);
         } else {
@@ -69,7 +72,8 @@ public class ConfigElementService implements IConfigElementService {
     }
 
     @Override
-    public void update(ConfigElement element, LongConsumer consumer) {
+    public void update(ConfigElement element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null || element.getKey() == null || element.getValue().length() > 150) {
             consumer.accept(-1);
             return;
@@ -79,7 +83,8 @@ public class ConfigElementService implements IConfigElementService {
     }
 
     @Override
-    public void findAll(Consumer<List<ConfigElement>> consumer) {
+    public void findAll(Consumer<List<ConfigElement>> c) {
+        Consumer<List<ConfigElement>> consumer = new SingleConsumer<>(c);
         List<ConfigElement> elements = new ArrayList<>();
         TurkeyAppFactory.runResultSetWorker(() -> repo.findAll(), set -> {
             try {
@@ -100,7 +105,8 @@ public class ConfigElementService implements IConfigElementService {
     }
 
     @Override
-    public void findById(ConfigurationEnum key, Consumer<ConfigElement> consumer) {
+    public void findById(ConfigurationEnum key, Consumer<ConfigElement> c) {
+        Consumer<ConfigElement> consumer = new SingleConsumer<>(c);
         TurkeyAppFactory.runResultSetWorker(() -> repo.findById(key.toString()), set -> {
             ConfigElementWrapper e = new ConfigElementWrapper();
             try {
@@ -120,7 +126,8 @@ public class ConfigElementService implements IConfigElementService {
     }
 
     @Override
-    public void deleteById(ConfigurationEnum key, LongConsumer consumer) {
+    public void deleteById(ConfigurationEnum key, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (key == null) {
             consumer.accept(-1);
             return;
@@ -141,7 +148,8 @@ public class ConfigElementService implements IConfigElementService {
     }
 
     @Override
-    public void allConfigElements(Consumer<List<ConfigElement>> consumer) {
+    public void allConfigElements(Consumer<List<ConfigElement>> c) {
+        Consumer<List<ConfigElement>> consumer = new SingleConsumer<>(c);
         var result = configMap.entrySet().stream()
                 .map(e -> {
                     ConfigElement el = new ConfigElement();
@@ -154,7 +162,8 @@ public class ConfigElementService implements IConfigElementService {
     }
 
     @Override
-    public void configElement(ConfigurationEnum key, Consumer<ConfigElement> consumer) {
+    public void configElement(ConfigurationEnum key, Consumer<ConfigElement> c) {
+        Consumer<ConfigElement> consumer = new SingleConsumer<>(c);
         ConfigElement el = new ConfigElement();
         el.setKey(key);
         if (configMap.containsKey(key)) {

@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.group.assignations;
 
+import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
 import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,7 +27,8 @@ public class GroupAssignationService implements IGroupAssignationService {
     private static final Logger logger = Logger.getLogger(GroupAssignationService.class.getName());
     
     @Override
-    public void add(GroupAssignation element, LongConsumer consumer) {
+    public void add(GroupAssignation element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null) {
             consumer.accept(-1L);
         } else {
@@ -54,7 +56,8 @@ public class GroupAssignationService implements IGroupAssignationService {
     }
 
     @Override
-    public void update(GroupAssignation element, LongConsumer longConsumer) {
+    public void update(GroupAssignation element, LongConsumer c) {
+        LongConsumer longConsumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null) {
             longConsumer.accept(-1);
         } else {
@@ -63,13 +66,15 @@ public class GroupAssignationService implements IGroupAssignationService {
     }
 
     @Override
-    public void findAll(Consumer<List<GroupAssignation>> consumer) {
+    public void findAll(Consumer<List<GroupAssignation>> c) {
+        Consumer<List<GroupAssignation>> consumer = FGroupAssignationService.groupAssignationListConsumer(c);
         FGroupAssignationService.runGroupAssignationListWoker(() -> elementsFromResultSet(repo.findAll()), consumer::accept);
     }
 
     @Deprecated
     @Override
-    public void findById(long id, Consumer<GroupAssignation> consumer) {
+    public void findById(long id, Consumer<GroupAssignation> c) {
+        Consumer<GroupAssignation> consumer = FGroupAssignationService.groupAssignationConsumer(c);
         TurkeyAppFactory.runResultSetWorker(() -> repo.findById(id), result -> {
             GroupAssignation element = null;
             try {
@@ -85,12 +90,14 @@ public class GroupAssignationService implements IGroupAssignationService {
 
     @Deprecated
     @Override
-    public void deleteById(long id, LongConsumer consumer) {
+    public void deleteById(long id, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         TurkeyAppFactory.runLongWorker(() -> repo.deleteById(id), consumer::accept);
     }
 
     @Override
-    public void findByProcessId(String processId, Consumer<GroupAssignation> consumer) {
+    public void findByProcessId(String processId, Consumer<GroupAssignation> c) {
+        Consumer<GroupAssignation> consumer = FGroupAssignationService.groupAssignationConsumer(c);
         TurkeyAppFactory.runResultSetWorker(() -> repo.findByElementId(GroupAssignation.ElementType.PROCESS, processId), result -> {
             try {
                 if (result.next()) {
@@ -105,12 +112,14 @@ public class GroupAssignationService implements IGroupAssignationService {
     }
     
     @Override
-    public void deleteByProcessId(String processId, LongConsumer consumer) {
+    public void deleteByProcessId(String processId, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         TurkeyAppFactory.runLongWorker(() -> repo.deleteByElementId(GroupAssignation.ElementType.PROCESS, processId), consumer);
     }
 
     @Override
-    public void findByTitleId(String titleId, Consumer<GroupAssignation> consumer) {
+    public void findByTitleId(String titleId, Consumer<GroupAssignation> c) {
+        Consumer<GroupAssignation> consumer = FGroupAssignationService.groupAssignationConsumer(c);
         TurkeyAppFactory.runResultSetWorker(() -> repo.findByElementId(GroupAssignation.ElementType.TITLE, titleId), set -> {
             try {
                 if (set.next()) {
@@ -125,7 +134,8 @@ public class GroupAssignationService implements IGroupAssignationService {
     }
     
     @Override
-    public void findLongestTitleIdContainedIn(String titleId, Consumer<GroupAssignation> consumer) {
+    public void findLongestTitleIdContainedIn(String titleId, Consumer<GroupAssignation> c) {
+        Consumer<GroupAssignation> consumer = FGroupAssignationService.groupAssignationConsumer(c);
         FGroupAssignationService.runGroupAssignationListWoker(() -> elementsFromResultSet(repo.findAllOfType(GroupAssignation.ElementType.TITLE)), titleAssignations -> {
             FGroupAssignationService.runGroupAssignationWorker(() -> 
                     titleAssignations.stream()
@@ -137,17 +147,20 @@ public class GroupAssignationService implements IGroupAssignationService {
     }
     
     @Override
-    public void deleteByTitleId(String titleId, LongConsumer consumer) {
+    public void deleteByTitleId(String titleId, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         TurkeyAppFactory.runLongWorker(() -> repo.deleteByElementId(GroupAssignation.ElementType.TITLE, titleId), consumer);
     }
 
     @Override
-    public void findProcessesOfGroup(Long groupId, Consumer<List<GroupAssignation>> consumer) {
+    public void findProcessesOfGroup(Long groupId, Consumer<List<GroupAssignation>> c) {
+        Consumer<List<GroupAssignation>> consumer = FGroupAssignationService.groupAssignationListConsumer(c);
         FGroupAssignationService.runGroupAssignationListWoker(() -> elementsFromResultSet(repo.findAllElementTypeOfGroup(GroupAssignation.ElementType.PROCESS, groupId)), consumer);
     }
 
     @Override
-    public void findTitlesOfGroup(Long groupId, Consumer<List<GroupAssignation>> consumer) {
+    public void findTitlesOfGroup(Long groupId, Consumer<List<GroupAssignation>> c) {
+        Consumer<List<GroupAssignation>> consumer = FGroupAssignationService.groupAssignationListConsumer(c);
         FGroupAssignationService.runGroupAssignationListWoker(() -> elementsFromResultSet(repo.findAllElementTypeOfGroup(GroupAssignation.ElementType.TITLE, groupId)), consumer);
     }
     
@@ -177,7 +190,8 @@ public class GroupAssignationService implements IGroupAssignationService {
     }
 
     @Override
-    public void deleteByGroupId(long id, LongConsumer consumer) {
+    public void deleteByGroupId(long id, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         TurkeyAppFactory.runLongWorker(() -> repo.deleteByGroupId(id), consumer::accept);
     }
     

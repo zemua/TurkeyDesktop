@@ -5,6 +5,8 @@
  */
 package devs.mrp.turkeydesktop.database.conditions;
 
+import devs.mrp.turkeydesktop.common.SingleConsumer;
+import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
 import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,7 +27,8 @@ public class ConditionService implements IConditionService {
     private static final Logger logger = Logger.getLogger(ConditionService.class.getName());
     
     @Override
-    public void add(Condition element, LongConsumer consumer) {
+    public void add(Condition element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null) {
             consumer.accept(-1);
         } else {
@@ -53,7 +56,8 @@ public class ConditionService implements IConditionService {
     }
 
     @Override
-    public void update(Condition element, LongConsumer consumer) {
+    public void update(Condition element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null) {
             consumer.accept(-1);
         } else {
@@ -62,12 +66,14 @@ public class ConditionService implements IConditionService {
     }
 
     @Override
-    public void findAll(Consumer<List<Condition>> consumer) {
+    public void findAll(Consumer<List<Condition>> c) {
+        Consumer<List<Condition>> consumer = new SingleConsumer<>(c);
         FConditionService.runConditionListWorker(() -> elementsFromResultSet(repo.findAll()), consumer);
     }
 
     @Override
-    public void findById(Long id, Consumer<Condition> consumer) {
+    public void findById(Long id, Consumer<Condition> c) {
+        Consumer<Condition> consumer = new SingleConsumer<>(c);
         TurkeyAppFactory.runResultSetWorker(() -> repo.findById(id), set -> {
             Condition element = null;
             try {
@@ -82,22 +88,26 @@ public class ConditionService implements IConditionService {
     }
     
     @Override
-    public void findByGroupId(Long groupId, Consumer<List<Condition>> consumer) {
+    public void findByGroupId(Long groupId, Consumer<List<Condition>> c) {
+        Consumer<List<Condition>> consumer = new SingleConsumer<>(c);
         FConditionService.runConditionListWorker(() -> elementsFromResultSet(repo.findByGroupId(groupId)), consumer);
     }
 
     @Override
-    public void deleteById(Long id, LongConsumer consumer) {
+    public void deleteById(Long id, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         TurkeyAppFactory.runLongWorker(() -> repo.deleteById(id), consumer);
     }
     
     @Override
-    public void deleteByGroupId(long id, LongConsumer consumer) {
+    public void deleteByGroupId(long id, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         TurkeyAppFactory.runLongWorker(() -> repo.deleteByGroupId(id), consumer);
     }
     
     @Override
-    public void deleteByTargetId(long id, LongConsumer consumer) {
+    public void deleteByTargetId(long id, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         TurkeyAppFactory.runLongWorker(() -> repo.deleteByTargetId(id), consumer);
     }
     

@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.group.assignations;
 
+import devs.mrp.turkeydesktop.common.SingleConsumer;
 import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -62,6 +63,14 @@ public class FGroupAssignationService {
             }
         };
         worker.execute();
+    }
+    
+    public static Consumer<GroupAssignation> groupAssignationConsumer(Consumer<GroupAssignation> consumer) {
+        return new SingleConsumer<>(consumer);
+    }
+    
+    public static Consumer<List<GroupAssignation>> groupAssignationListConsumer(Consumer<List<GroupAssignation>> consumer) {
+        return new SingleConsumer<>(consumer);
     }
     
 }

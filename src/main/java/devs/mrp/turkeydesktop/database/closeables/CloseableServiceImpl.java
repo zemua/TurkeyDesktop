@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.closeables;
 
+import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
 import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,7 +26,8 @@ public class CloseableServiceImpl implements CloseableService {
     private static final Logger logger = Logger.getLogger(CloseableServiceImpl.class.getName());
     
     @Override
-    public void add(String element, LongConsumer consumer) {
+    public void add(String element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null) {
             consumer.accept(-1);
         } else {
@@ -45,12 +47,14 @@ public class CloseableServiceImpl implements CloseableService {
     }
 
     @Override
-    public void findAll(Consumer<List<Closeable>> consumer) {
-        CloseableServiceFactory.runCloseableListWorker(() -> listFromResultSet(repo.findAll()), consumer);
+    public void findAll(Consumer<List<Closeable>> c) {
+        Consumer<List<Closeable>> consumer = CloseableServiceFactory.singleListConsumer(c);
+        CloseableServiceFactory.runCloseableListWorker(() -> listFromResultSet(repo.findAll()), CloseableServiceFactory.singleListConsumer(consumer));
     }
 
     @Override
-    public void findById(String id, Consumer<Closeable> consumer) {
+    public void findById(String id, Consumer<Closeable> c) {
+        Consumer<Closeable> consumer = CloseableServiceFactory.singleConsumer(c);
         TurkeyAppFactory.runResultSetWorker(() -> repo.findById(id), set -> {
             Closeable closeable = new Closeable();
             try {
@@ -65,7 +69,8 @@ public class CloseableServiceImpl implements CloseableService {
     }
 
     @Override
-    public void canBeClosed(String process, Consumer<Boolean> consumer) {
+    public void canBeClosed(String process, Consumer<Boolean> c) {
+        Consumer<Boolean> consumer = SingleConsumerFactory.getBooleanConsumer(c);
         TurkeyAppFactory.runResultSetWorker(() -> repo.findById(process), set -> {
             try {
                 if (set.next()) {
@@ -80,7 +85,8 @@ public class CloseableServiceImpl implements CloseableService {
     }
 
     @Override
-    public void deleteById(String id, LongConsumer consumer) {
+    public void deleteById(String id, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         TurkeyAppFactory.runLongWorker(() -> repo.deleteById(id), consumer);
     }
     

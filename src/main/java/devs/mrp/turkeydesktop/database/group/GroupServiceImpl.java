@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.group;
 
+import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
 import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,7 +27,8 @@ public class GroupServiceImpl implements GroupService {
     private static final Logger logger = Logger.getLogger(GroupServiceImpl.class.getName());
     
     @Override
-    public void add(Group element, LongConsumer consumer) {
+    public void add(Group element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null) {
             consumer.accept(-1);
         } else {
@@ -54,7 +56,8 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public void update(Group element, LongConsumer consumer) {
+    public void update(Group element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null) {
             consumer.accept(-1);
         } else {
@@ -63,7 +66,8 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public void findAll(Consumer<List<Group>> consumer) {
+    public void findAll(Consumer<List<Group>> c) {
+        Consumer<List<Group>> consumer = GroupServiceFactory.groupListConsumer(c);
         TurkeyAppFactory.runResultSetWorker(() -> repo.findAll(), allResult -> {
             consumer.accept(elementsFromResultSet(allResult));
         });
@@ -71,7 +75,8 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public void findById(long id, Consumer<Group> consumer) {
+    public void findById(long id, Consumer<Group> c) {
+        Consumer<Group> consumer = GroupServiceFactory.groupConsumer(c);
         TurkeyAppFactory.runResultSetWorker(() -> repo.findById(id), set -> {
             Group element = null;
             try {
@@ -86,31 +91,36 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public void deleteById(long id, LongConsumer consumer) {
+    public void deleteById(long id, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         TurkeyAppFactory.runLongWorker(() -> repo.deleteById(id), consumer);
     }
 
     @Override
-    public void findAllPositive(Consumer<List<Group>> consumer) {
+    public void findAllPositive(Consumer<List<Group>> c) {
+        Consumer<List<Group>> consumer = GroupServiceFactory.groupListConsumer(c);
         TurkeyAppFactory.runResultSetWorker(() -> repo.findAllOfType(Group.GroupType.POSITIVE), allResult -> {
             consumer.accept(elementsFromResultSet(allResult));
         });
     }
 
     @Override
-    public void findAllNegative(Consumer<List<Group>> consumer) {
+    public void findAllNegative(Consumer<List<Group>> c) {
+        Consumer<List<Group>> consumer = GroupServiceFactory.groupListConsumer(c);
         TurkeyAppFactory.runResultSetWorker(() -> repo.findAllOfType(Group.GroupType.NEGATIVE), negatives -> {
             consumer.accept(elementsFromResultSet(negatives));
         });
     }
     
     @Override
-    public void setPreventClose(long groupId, boolean preventClose, IntConsumer consumer) {
+    public void setPreventClose(long groupId, boolean preventClose, IntConsumer c) {
+        IntConsumer consumer = SingleConsumerFactory.getIntConsumer(c);
         TurkeyAppFactory.runIntWorker(() -> repo.setPreventClose(groupId, preventClose), consumer);
     }
     
     @Override
-    public void isPreventClose(long groupId, Consumer<Boolean> consumer) {
+    public void isPreventClose(long groupId, Consumer<Boolean> c) {
+        Consumer<Boolean> consumer = SingleConsumerFactory.getBooleanConsumer(c);
         if (groupId < 1) { // doesn't belong to a group
             consumer.accept(false);
             return;

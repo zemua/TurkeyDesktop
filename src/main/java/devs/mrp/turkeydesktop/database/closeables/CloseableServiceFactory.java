@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.closeables;
 
+import devs.mrp.turkeydesktop.common.SingleConsumer;
 import devs.mrp.turkeydesktop.common.TurkeyAppFactory;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -62,6 +63,14 @@ public class CloseableServiceFactory {
             }
         };
         worker.execute();
+    }
+    
+    public static Consumer<List<Closeable>> singleListConsumer(Consumer<List<Closeable>> consumer) {
+        return new SingleConsumer<>(consumer);
+    }
+    
+    public static Consumer<Closeable> singleConsumer(Consumer<Closeable> consumer) {
+        return new SingleConsumer<>(consumer);
     }
     
 }
