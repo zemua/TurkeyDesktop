@@ -78,8 +78,8 @@ public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, 
         if (panel == null) {
             return;
         }
-        panel.removeAll(); // clear in case it has been filled before
         facadeService.getLogsDependablesWithTitleConditions(from, to, titledLogs -> {
+            panel.removeAll(); // clear in case it has been filled before
             titledLogs.sort((c1, c2) -> Long.valueOf(c2.getElapsed()).compareTo(c1.getElapsed()));
             titledLogs.stream()
                     .filter(c -> getFilterText().isEmpty() ? true : StringUtils.containsIgnoreCase(c.getTitle(), getFilterText()))

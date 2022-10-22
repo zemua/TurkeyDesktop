@@ -24,9 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent> {
 
     private final List<FeedbackListener<CatProcessEnum, AWTEvent>> listeners = new ArrayList<>();
-    
-    private int fromInitiated = 0;
-    private int toInitiated = 0;
 
     // Netbeans UI builder enforces JList<String> and that prevents us from adding any other data except String to the model
     // unless we leave the model not parameterized ¯\_(ツ)_/¯
@@ -189,16 +186,14 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
 
     private void dateFromPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_dateFromPropertyChange
         setDateChooserErrorColor();
-        fromInitiated ++;
-        if (initiated()) {
+        if ("date".equals(evt.getPropertyName())) {
             sendUpdate();
         }
     }//GEN-LAST:event_dateFromPropertyChange
 
     private void dateToPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_dateToPropertyChange
         setDateChooserErrorColor();
-        toInitiated ++;
-        if (initiated()) {
+        if ("date".equals(evt.getPropertyName())) {
             sendUpdate();
         }
     }//GEN-LAST:event_dateToPropertyChange
@@ -208,9 +203,7 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
     }//GEN-LAST:event_selectShowTypePropertyChange
 
     private void selectShowTypeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectShowTypeActionPerformed
-        if (initiated()) {
             sendUpdate();
-        }
     }//GEN-LAST:event_selectShowTypeActionPerformed
 
     private void filterClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filterClearActionPerformed
@@ -258,11 +251,6 @@ public class CatProcessPanel extends FeedbackerPanelWithFetcher<CatProcessEnum, 
         if (isFromAndToCorrect()) {
             giveFeedback(CatProcessEnum.UPDATE, null);
         }
-    }
-    
-    private boolean initiated() {
-        // When initiating the fields on load, datePropertyChange is called 2 times instead of 1
-        return fromInitiated > 1 && toInitiated > 1;
     }
 
     @Override

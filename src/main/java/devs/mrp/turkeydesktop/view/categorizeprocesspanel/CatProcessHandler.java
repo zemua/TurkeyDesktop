@@ -83,8 +83,8 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
     private void attachItemsToListPanel(Date from, Date to, int filter) {
         JPanel panel = (JPanel)this.getPanel().getProperty(CatProcessEnum.LIST_PANEL);
         if (panel == null) {return;}
-        panel.removeAll(); // clear in case it has been filled before
         typedService.getTypedLogGroupedByProcess(from, to, triplas -> {
+            panel.removeAll(); // clear in case it has been filled before
             triplas.sort((c1,c2) -> c2.getValue2().compareTo(c1.getValue2()));
             triplas.stream()
                     .filter(c -> textFromFilter().isEmpty() ? true : StringUtils.containsIgnoreCase(c.getValue1(), textFromFilter()))

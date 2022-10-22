@@ -25,9 +25,6 @@ public class CategorizeTitlesPanel extends FeedbackerPanelWithFetcher<Categorize
 
     private final List<FeedbackListener<CategorizeTitlesEnum, AWTEvent>> listeners = new ArrayList<>();
     
-    private int fromInitiated = 0;
-    private int toInitiated = 0;
-    
     /**
      * Creates new form CategorizeProcessPanel
      */
@@ -163,24 +160,20 @@ public class CategorizeTitlesPanel extends FeedbackerPanelWithFetcher<Categorize
 
     private void dateFromPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_dateFromPropertyChange
         setDateChooserErrorColor();
-        fromInitiated ++;
-        if (initiated()) {
+        if ("date".equals(evt.getPropertyName())) {
             sendUpdate();
         }
     }//GEN-LAST:event_dateFromPropertyChange
 
     private void dateToPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_dateToPropertyChange
         setDateChooserErrorColor();
-        toInitiated ++;
-        if (initiated()) {
+        if ("date".equals(evt.getPropertyName())) {
             sendUpdate();
         }
     }//GEN-LAST:event_dateToPropertyChange
 
     private void selectShowTypeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectShowTypeActionPerformed
-        if (initiated()){
             sendUpdate();
-        }
     }//GEN-LAST:event_selectShowTypeActionPerformed
 
     private void filterClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filterClearActionPerformed
@@ -228,11 +221,6 @@ public class CategorizeTitlesPanel extends FeedbackerPanelWithFetcher<Categorize
         if (isFromAndToCorrect()) {
             giveFeedback(CategorizeTitlesEnum.UPDATE, null);
         }
-    }
-    
-    private boolean initiated() {
-        // When initiating the fields on load, datePropertyChange is called 2 times instead of 1
-        return fromInitiated > 1 && toInitiated > 1;
     }
     
     @Override
