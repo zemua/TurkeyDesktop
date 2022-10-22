@@ -74,14 +74,7 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
                     titledLogFromResultSetEntry(set, titledLog -> {
                         logList.add(titledLog);
                         if (read.get() == logList.size()) {
-                            try {
-                                if (set.isLast()) {
-                                    consumer.accept(logList);
-                                }
-                            } catch (SQLException ex) {
-                                Logger.getLogger(TitledLogServiceFacadeImpl.class.getName()).log(Level.SEVERE, null, ex);
-                                consumer.accept(logList);
-                            }
+                            consumer.accept(logList);
                         }
                     });
                 }
