@@ -5,9 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.group.facade;
 
-import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
-import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
 import devs.mrp.turkeydesktop.database.type.TypeServiceFactory;
 import devs.mrp.turkeydesktop.database.type.Type;
 import java.util.List;
@@ -15,6 +13,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import devs.mrp.turkeydesktop.database.type.TypeService;
+import java.util.function.Consumer;
 
 /**
  *
@@ -26,20 +25,22 @@ public class AssignableProcessService extends AssignableAbstractService implemen
     private static final Logger logger = Logger.getLogger(AssignableProcessService.class.getName());
     
     @Override
-    public List<AssignableElement<Type.Types>> positiveElementsWithAssignation() {
-        return elementsWithAssignation(getAssignationsMap(GroupAssignation.ElementType.PROCESS),
-                Type.Types.POSITIVE);
+    public void positiveElementsWithAssignation(Consumer<List<AssignableElement<Type.Types>>> consumer) {
+        getAssignationsMap(GroupAssignation.ElementType.PROCESS, result -> {
+            elementsWithAssignation(result, Type.Types.POSITIVE, consumer);
+        });
     }
 
     @Override
-    public List<AssignableElement<Type.Types>> negativeElementsWithAssignation() {
-        return elementsWithAssignation(getAssignationsMap(GroupAssignation.ElementType.PROCESS),
-                Type.Types.NEGATIVE);
+    public void negativeElementsWithAssignation(Consumer<List<AssignableElement<Type.Types>>> consumer) {
+        getAssignationsMap(GroupAssignation.ElementType.PROCESS, result -> {
+            elementsWithAssignation(result, Type.Types.NEGATIVE, consumer);
+        });
     }
     
-    private List<AssignableElement<Type.Types>> elementsWithAssignation(Map<String, GroupAssignation> assignables, Type.Types positiveOrNegative) {
-        return typeService.findAll()
-                .stream()
+    private void elementsWithAssignation(Map<String, GroupAssignation> assignables, Type.Types positiveOrNegative, Consumer<List<AssignableElement<Type.Types>>> consumer) {
+        typeService.findAll(result -> {
+            var computed = result.stream()
                 .filter(t -> t.getType().equals(positiveOrNegative))
                 .map(t -> {
                     AssignableElement<Type.Types> element = new AssignableElement<>();
@@ -56,6 +57,8 @@ public class AssignableProcessService extends AssignableAbstractService implemen
                     return element;
                 })
                 .collect(Collectors.toList());
+            consumer.accept(computed);
+        });
     }
     
 }

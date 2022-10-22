@@ -60,11 +60,8 @@ public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, Feedbacker
         refreshPanelList();
     }
     
-    private void refreshPanelList() {
-        JPanel panel = (JPanel)this.getPanel().getProperty(GroupsEnum.PANEL_LIST);
-        if (panel == null || !(panel instanceof JPanel)) {return;}
+    private void processRefreshPanelList(List<Group> list, JPanel panel) {
         panel.removeAll();
-        List<Group> list = type == Group.GroupType.POSITIVE ? groupService.findAllPositive() : groupService.findAllNegative();
         list.forEach(g -> {
             JLabel label = new JLabel();
             label.setText(g.getName());
@@ -75,6 +72,21 @@ public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, Feedbacker
         panel.updateUI();
     }
     
+    private void refreshPanelList() {
+        JPanel panel = (JPanel)this.getPanel().getProperty(GroupsEnum.PANEL_LIST);
+        if (panel == null || !(panel instanceof JPanel)) {return;}
+        if (type == Group.GroupType.POSITIVE) {
+            groupService.findAllPositive(positiveResult -> {
+                processRefreshPanelList(positiveResult, panel);
+            });
+        } else {
+            groupService.findAllNegative(negativeResult -> {
+                processRefreshPanelList(negativeResult, panel);
+            });
+        }
+        
+    }
+    
     private void addGroup() {
         JTextField field = (JTextField)this.getPanel().getProperty(GroupsEnum.TEXT);
         if (field == null || !(field instanceof JTextField) || field.getText().isBlank()){return;}
@@ -82,7 +94,7 @@ public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, Feedbacker
         Group group = new Group();
         group.setName(name);
         group.setType(this.type);
-        groupService.add(group);
+        groupService.add(group, r -> {});
         field.setText("");
         refreshPanelList();
     }

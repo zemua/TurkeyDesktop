@@ -6,26 +6,28 @@
 package devs.mrp.turkeydesktop.database.group.assignations;
 
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.LongConsumer;
 
 /**
  *
  * @author miguel
  */
 public interface IGroupAssignationService {
-    public long add(GroupAssignation element);
-    public long update(GroupAssignation element);
-    public List<GroupAssignation> findAll();
+    public void add(GroupAssignation element, LongConsumer consumer);
+    public void update(GroupAssignation element, LongConsumer consumer);
+    public void findAll(Consumer<List<GroupAssignation>> consumer);
     @Deprecated
-    public GroupAssignation findById(long id);
+    public void findById(long id, Consumer<GroupAssignation> consumer);
     @Deprecated
-    public long deleteById(long id);
-    public long deleteByGroupId(long id);
+    public void deleteById(long id, LongConsumer consumer);
+    public void deleteByGroupId(long id, LongConsumer consumer);
     
-    public GroupAssignation findByProcessId(String processId);
-    public long deleteByProcessId(String processId);
-    public GroupAssignation findByTitleId(String titleId);
-    public GroupAssignation findLongestTitleIdContainedIn(String titleId);
-    public long deleteByTitleId(String titleId);
-    public List<GroupAssignation> findProcessesOfGroup(Long groupId);
-    public List<GroupAssignation> findTitlesOfGroup(Long groupId);
+    public void findByProcessId(String processId, Consumer<GroupAssignation> consumer);
+    public void deleteByProcessId(String processId, LongConsumer consumer);
+    public void findByTitleId(String titleId, Consumer<GroupAssignation> consumer);
+    public void findLongestTitleIdContainedIn(String titleId, Consumer<GroupAssignation> consumer);
+    public void deleteByTitleId(String titleId, LongConsumer consumer);
+    public void findProcessesOfGroup(Long groupId, Consumer<List<GroupAssignation>> consumer);
+    public void findTitlesOfGroup(Long groupId, Consumer<List<GroupAssignation>> consumer);
 }

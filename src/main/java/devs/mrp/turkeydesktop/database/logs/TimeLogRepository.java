@@ -76,10 +76,10 @@ public class TimeLogRepository implements TimeLogDao {
                     result = generatedId.getLong(1);
                 }
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                logger.log(Level.SEVERE, "SQL exception", ex);
             }
         } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, "Interrupted exception", ex);
         } finally {
             semaphore.release();
         }

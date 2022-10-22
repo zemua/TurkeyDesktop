@@ -8,6 +8,7 @@ package devs.mrp.turkeydesktop.service.watchdog;
 import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.common.FileHandler;
+import devs.mrp.turkeydesktop.common.WorkerFactory;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.database.group.GroupServiceFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
@@ -25,7 +26,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JTextArea;
-import javax.swing.SwingWorker;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritter;
 import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritterFactory;
@@ -37,6 +37,8 @@ import devs.mrp.turkeydesktop.view.container.traychain.TrayChainBaseHandler;
 import devs.mrp.turkeydesktop.view.container.traychain.TrayChainFactory;
 import java.awt.Image;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 /**
  *
@@ -57,7 +59,6 @@ public class WatchDogImpl implements WatchDog {
 
     private boolean on = true;
     private JTextArea mLogger;
-    private SwingWorker<Object, Object> worker;
     private AtomicLong timestamp;
     private ProcessChecker processChecker;
     private LocaleMessages localeMessages;
@@ -68,6 +69,11 @@ public class WatchDogImpl implements WatchDog {
     private TrayChainBaseHandler trayHandler = TrayChainFactory.getChain();
     private ResourceHandler<Image,ImagesEnum> imageHandler = ResourceHandlerFactory.getImagesHandler();
     private GroupService groupService = GroupServiceFactory.getService();
+    
+    private ExecutorService singleThreadExecutor = WorkerFactory.getSingleThreadExecutor();
+    
+    private ExecutorService loopedExecutor = WorkerFactory.getSingleThreadExecutor();
+    Future<?> loopFuture = null;
 
     private WatchDogImpl() {
         initConditionChecker();
@@ -106,10 +112,23 @@ public class WatchDogImpl implements WatchDog {
         try {
             semaphore.acquire();
             // if it is not running, set it up and execute it
-            if (on && (worker == null || worker.isDone() || worker.getState().equals(SwingWorker.StateValue.PENDING))) {
-                initializeWorker();
+            if (on && (loopFuture == null || loopFuture.isCancelled() || loopFuture.isDone() || loopedExecutor.isShutdown() || loopedExecutor.isTerminated())) {
                 timestamp.set(System.currentTimeMillis());
-                worker.execute();
+                Thread watchdogThread = Thread.currentThread();
+                loopFuture = loopedExecutor.submit(() -> {
+                    while (WatchDogImpl.this.on && watchdogThread.isAlive()) {
+                        try {
+                            Thread.sleep(SLEEP_MILIS);
+                            try {
+                                doLoopedStuff();
+                            } catch (Exception e) {
+                                LOGGER.log(Level.SEVERE, "Exception while running watchdog", e);
+                            }
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(WatchDogImpl.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                });
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -135,66 +154,54 @@ public class WatchDogImpl implements WatchDog {
         LOGGER.log(Level.INFO, text);
     }
 
-    private void initializeWorker() {
-        this.worker = new SwingWorker<>() {
-            @Override
-            protected Object doInBackground() throws Exception {
-                while (WatchDogImpl.this.on && Thread.currentThread().isAlive()) {
-                    Thread.sleep(SLEEP_MILIS);
-                    try {
-                        doLoopedStuff();
-                    } catch (Exception e) {
-                        LOGGER.log(Level.SEVERE, "Exception while running watchdog", e);
-                    }
-                    // publish calls to process() method of SwingWorker
-                    //publish();
-                }
-                return null;
-            }
-
-            @Override
-            protected void process(List<Object> chunks) {
-                //doLoopedStuff();
-            }
-        };
-    }
-
     private void doLoopedStuff() {
         Long current = System.currentTimeMillis();
         processChecker.refresh();
         Long elapsed = current - timestamp.getAndSet(current);
         
         // insert entry to db
-        TimeLog entry = dbLogger.logEntry(elapsed, processChecker.currentProcessPid(), processChecker.currentProcessName(), processChecker.currentWindowTitle());
-        
-        boolean conditionsMet = conditionChecker.areConditionsMet(entry.getGroupId());
-        boolean isLockDown = conditionChecker.isLockDownTime();
-        conditionChecker.notifyCloseToConditionsRefresh();
-        if (entry.isBlockable() && (conditionChecker.timeRemaining() <= 0 || !conditionsMet || isLockDown)) {
-            killerHandler.receiveRequest(null, processChecker.currentProcessPid());
-            Toaster.sendToast(localeMessages.getString("killingProcess"));
-        }
-        
-        if (!conditionsMet) {
-            Toaster.sendToast(localeMessages.getString("conditionsNotMetFor") + " " + groupService.findById(entry.getGroupId()).getName());
-        }
-        
-        if (entry.getCounted() < 0 && conditionChecker.isTimeRunningOut()) {
-            Toaster.sendToast(localeMessages.getString("timeRunningOut"));
-        }
-        
-        try {
-            FileHandler.exportAccumulated(entry.getAccumulated());
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Error exporting accumulated time to file", e);
-        }
-        
-        exportWritter.exportChanged();
-        
-        giveFeedback("Entry logged", entry);
-        
-        updateTrayIcon(isLockDown, entry.getCounted());
-        trayHandler.requestChangeTimeLeft("time", conditionChecker.timeRemaining());
+        dbLogger.logEntry(elapsed, processChecker.currentProcessPid(), processChecker.currentProcessName(), processChecker.currentWindowTitle(), entry -> {
+            singleThreadExecutor.submit(() -> {
+                conditionChecker.areConditionsMet(entry.getGroupId(), conditionsMet -> {
+                    conditionChecker.isLockDownTime(isLockDown -> {
+                        conditionChecker.notifyCloseToConditionsRefresh();
+                        conditionChecker.timeRemaining(remaining -> {
+                            if (entry.isBlockable() && (remaining <= 0 || !conditionsMet || isLockDown)) {
+                                killerHandler.receiveRequest(null, processChecker.currentProcessPid());
+                                Toaster.sendToast(localeMessages.getString("killingProcess"));
+                            }
+                        });
+
+                        if (!conditionsMet) {
+                            groupService.findById(entry.getGroupId(), groupResult -> {
+                                Toaster.sendToast(localeMessages.getString("conditionsNotMetFor") + " " + groupResult.getName());
+                            });
+                        }
+
+                        conditionChecker.isTimeRunningOut(isRunningOut -> {
+                            if (entry.getCounted() < 0 && isRunningOut) {
+                                Toaster.sendToast(localeMessages.getString("timeRunningOut"));
+                            }
+                        });
+
+                        try {
+                            FileHandler.exportAccumulated(entry.getAccumulated());
+                        } catch (IOException e) {
+                            logger.log(Level.SEVERE, "Error exporting accumulated time to file", e);
+                        }
+
+                        exportWritter.exportChanged();
+
+                        giveFeedback("Entry logged", entry);
+
+                        updateTrayIcon(isLockDown, entry.getCounted());
+                        conditionChecker.timeRemaining(remaining -> {
+                            trayHandler.requestChangeTimeLeft("time", remaining);
+                        });
+                    });
+                });
+            });
+        });
     }
 
     @Override

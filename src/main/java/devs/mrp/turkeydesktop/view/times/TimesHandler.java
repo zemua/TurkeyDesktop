@@ -5,16 +5,13 @@
  */
 package devs.mrp.turkeydesktop.view.times;
 
-import devs.mrp.turkeydesktop.common.Dupla;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
-import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.util.Date;
-import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
@@ -57,23 +54,22 @@ public class TimesHandler extends PanelHandler<TimesEnum, AWTEvent, FeedbackerPa
     
     @Override
     protected void doExtraBeforeShow() {
-        attachRecordsToLogger(logService.findLast24H());
+        updateLogs(getFrom(), getTo());
+        /*logService.findLast24H(res -> {
+            attachRecordsToLogger(res);
+        });*/
     }
     
     private void initCaller() {
         exit();
     }
     
-    private void attachRecordsToLogger(List<TimeLog> list) {
-        JTextArea log = (JTextArea)this.getPanel().getProperty(TimesEnum.LOGGER);
-        list.forEach(e -> log.append(String.format("%s \n", e.toString())));
-    }
-    
     private void updateLogs(Date from, Date to) {
         JTextArea log = (JTextArea)this.getPanel().getProperty(TimesEnum.LOGGER);
-        log.setText("");
-        List<Dupla<String,Long>> times = logService.findProcessTimeFromTo(from, to);
-        times.forEach(t -> log.append(String.format(localeMessages.getString("processTimeLog"), t.getValue1(), TimeConverter.millisToHMS(t.getValue2()))));
+        logService.findProcessTimeFromTo(from, to, times -> {
+            log.setText("");
+            times.forEach(t -> log.append(String.format(localeMessages.getString("processTimeLog"), t.getValue1(), TimeConverter.millisToHMS(t.getValue2()))));
+        });
     }
     
     private Date getFrom() {

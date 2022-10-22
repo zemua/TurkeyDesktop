@@ -55,11 +55,13 @@ public class TimeLog {
             return;
         }
         // if we are asked to set is as blockable we check if that is possible
-        if (groupService.isPreventClose(groupId)) {
-            this.blockable = false;
-        } else {
-            this.blockable = blockable;
-        }
+        groupService.isPreventClose(groupId, isPreventCloseResult -> {
+            if (isPreventCloseResult) {
+                this.blockable = false;
+            } else {
+                this.blockable = blockable;
+            }
+        });
     }
 
     public Type.Types getType() {

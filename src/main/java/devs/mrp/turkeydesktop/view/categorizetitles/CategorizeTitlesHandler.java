@@ -14,7 +14,6 @@ import devs.mrp.turkeydesktop.view.categorizetitles.element.conditions.FTitleCon
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.util.Date;
-import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -79,21 +78,22 @@ public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, 
         if (panel == null) {
             return;
         }
-        panel.removeAll(); // clear in case it has been filled before
-        List<TitledLog> titledLogs = facadeService.getLogsDependablesWithTitleConditions(from, to);
-        titledLogs.sort((c1, c2) -> Long.valueOf(c2.getElapsed()).compareTo(c1.getElapsed()));
-        titledLogs.stream()
-                .filter(c -> getFilterText().isEmpty() ? true : StringUtils.containsIgnoreCase(c.getTitle(), getFilterText()))
-                .forEach(t -> {
-            if (ifPassFilter(t, filter)) {
-                CategorizeTitlesElement element = new CategorizeTitlesElement(t.getTitle(), t.getQtyPositives(), t.getQtyNegatives());
-                element.setTitledLog(t);
-                panel.add(element);
-                setTagClickListener(element, t);
-            }
+        facadeService.getLogsDependablesWithTitleConditions(from, to, titledLogs -> {
+            panel.removeAll(); // clear in case it has been filled before
+            titledLogs.sort((c1, c2) -> Long.valueOf(c2.getElapsed()).compareTo(c1.getElapsed()));
+            titledLogs.stream()
+                    .filter(c -> getFilterText().isEmpty() ? true : StringUtils.containsIgnoreCase(c.getTitle(), getFilterText()))
+                    .forEach(t -> {
+                        if (ifPassFilter(t, filter)) {
+                            CategorizeTitlesElement element = new CategorizeTitlesElement(t.getTitle(), t.getQtyPositives(), t.getQtyNegatives());
+                            element.setTitledLog(t);
+                            panel.add(element);
+                            setTagClickListener(element, t);
+                        }
+            });
+            panel.updateUI();
+            panel.revalidate();
         });
-        panel.updateUI();
-        panel.revalidate();
     }
     
     private String getFilterText() {

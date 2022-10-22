@@ -5,10 +5,14 @@
  */
 package devs.mrp.turkeydesktop.database.group.external;
 
+import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
+import devs.mrp.turkeydesktop.common.WorkerFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.LongConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,75 +26,95 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     private static final Logger logger = Logger.getLogger(ExternalGroupServiceImpl.class.getName());
 
     @Override
-    public long add(ExternalGroup element) {
+    public void add(ExternalGroup element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null) {
-            return -1;
+            consumer.accept(-1);
         } else if (element.getFile() != null && element.getFile().length() > 500) {
             logger.log(Level.SEVERE, "File path cannot be longer than 500 characters");
-            return -1;
+            consumer.accept(-1);
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            ResultSet rs = repo.findById(element.getId());
-            try {
-                if (rs.next()) {
-                    return updateOrKeep(element, rs);
+            WorkerFactory.runResultSetWorker(() -> repo.findById(element.getId()), rs -> {
+                try {
+                    if (rs.next()) {
+                        updateOrKeep(element, rs, consumer);
+                    } else {
+                        // if no element by that id, try with same group and file
+                        WorkerFactory.runResultSetWorker(() -> repo.findByGroupAndFile(element.getGroup(), element.getFile()), rs2 -> {
+                            try {
+                                if (rs2.next()) {
+                                    updateOrKeep(element, rs2, consumer);
+                                } else {
+                                    // else there is no element stored with this id
+                                    WorkerFactory.runLongWorker(() -> repo.add(element), consumer);
+                                }
+                            } catch (SQLException ex) {
+                                Logger.getLogger(ExternalGroupServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        });
+                    }
+                } catch (SQLException ex) {
+                    logger.log(Level.SEVERE, null, ex);
                 }
-                // if no element by that id, try with same group and file
-                rs = repo.findByGroupAndFile(element.getGroup(), element.getFile());
-                if (rs.next()) {
-                    return updateOrKeep(element, rs);
+            });
+        }
+    }
+
+    private void updateOrKeep(ExternalGroup element, ResultSet rs, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
+        ExternalGroup group = elementFromResultSetEntry(rs);
+        // if the value stored differs from the one received
+        if (!group.equals(element)) {
+            update(element, consumer);
+        } else {
+            // else the value is the same as the one stored
+            consumer.accept(0);
+        }
+        
+    }
+
+    @Override
+    public void update(ExternalGroup element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
+        if (element == null) {
+            consumer.accept(-1);
+        } else if (element.getFile() != null && element.getFile().length() > 500) {
+            logger.log(Level.SEVERE, "File path cannot be longer than 500 characters");
+            consumer.accept(-1);
+        } else {
+            WorkerFactory.runLongWorker(() -> repo.update(element), consumer);
+        }
+    }
+
+    @Override
+    public void findAll(Consumer<List<ExternalGroup>> c) {
+        Consumer<List<ExternalGroup>> consumer = ExternalGroupServiceFactory.externalGroupListConsumer(c);
+        WorkerFactory.runResultSetWorker(() -> repo.findAll(), rs -> {
+            consumer.accept(elementsFromResultSet(rs));
+        });
+    }
+
+    @Override
+    public void findById(long id, Consumer<ExternalGroup> c) {
+        Consumer<ExternalGroup> consumer = ExternalGroupServiceFactory.externalGroupConsumer(c);
+        WorkerFactory.runResultSetWorker(() -> repo.findById(id), set -> {
+            ExternalGroup element = null;
+            try {
+                if (set.next()) {
+                    element = elementFromResultSetEntry(set);
                 }
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-            // else there is no element stored with this id
-            return repo.add(element);
-        }
-    }
-
-    private long updateOrKeep(ExternalGroup element, ResultSet rs) {
-        ExternalGroup group = elementFromResultSetEntry(rs);
-        // if the value stored differs from the one received
-        if (!group.equals(element)) {
-            return update(element);
-        }
-        // else the value is the same as the one stored
-        return 0;
+            consumer.accept(element);
+        });
     }
 
     @Override
-    public long update(ExternalGroup element) {
-        if (element == null) {
-            return -1;
-        } else if (element.getFile() != null && element.getFile().length() > 500) {
-            logger.log(Level.SEVERE, "File path cannot be longer than 500 characters");
-            return -1;
-        }
-        return repo.update(element);
-    }
-
-    @Override
-    public List<ExternalGroup> findAll() {
-        return elementsFromResultSet(repo.findAll());
-    }
-
-    @Override
-    public ExternalGroup findById(long id) {
-        ResultSet set = repo.findById(id);
-        ExternalGroup element = null;
-        try {
-            if (set.next()) {
-                element = elementFromResultSetEntry(set);
-            }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        return element;
-    }
-
-    @Override
-    public long deleteById(long id) {
-        return repo.deleteById(id);
+    public void deleteById(long id, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
+        WorkerFactory.runLongWorker(() -> repo.deleteById(id), consumer);
     }
 
     private List<ExternalGroup> elementsFromResultSet(ResultSet set) {
@@ -119,18 +143,25 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     }
 
     @Override
-    public List<ExternalGroup> findByGroup(Long id) {
-        return elementsFromResultSet(repo.findByGroup(id));
+    public void findByGroup(Long id, Consumer<List<ExternalGroup>> c) {
+        Consumer<List<ExternalGroup>> consumer = ExternalGroupServiceFactory.externalGroupListConsumer(c);
+        WorkerFactory.runResultSetWorker(() -> repo.findByGroup(id), rs -> {
+            consumer.accept(elementsFromResultSet(rs));
+        });
     }
 
     @Override
-    public List<ExternalGroup> findByFile(String file) {
-        return elementsFromResultSet(repo.findByFile(file));
+    public void findByFile(String file, Consumer<List<ExternalGroup>> c) {
+        Consumer<List<ExternalGroup>> consumer = ExternalGroupServiceFactory.externalGroupListConsumer(c);
+        WorkerFactory.runResultSetWorker(() -> repo.findByFile(file), rs -> {
+            consumer.accept(elementsFromResultSet(rs));
+        });
     }
 
     @Override
-    public long deleteByGroup(Long id) {
-        return repo.deleteByGroup(id);
+    public void deleteByGroup(Long id, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
+        WorkerFactory.runLongWorker(() -> repo.deleteByGroup(id), consumer);
     }
 
 }

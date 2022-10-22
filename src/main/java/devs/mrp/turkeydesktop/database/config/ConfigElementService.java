@@ -5,6 +5,9 @@
  */
 package devs.mrp.turkeydesktop.database.config;
 
+import devs.mrp.turkeydesktop.common.SingleConsumer;
+import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
+import devs.mrp.turkeydesktop.common.WorkerFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,6 +15,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.LongConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -34,84 +39,101 @@ public class ConfigElementService implements IConfigElementService {
     private void initConfigMap() {
         if (configMap == null) {
             configMap = new HashMap<>();
-            findAll(); // it assigns values to the hashmap inside the function
+            findAll(r -> {}); // it assigns values to the hashmap inside the function
         }
     }
 
     @Override
-    public long add(ConfigElement element) {
+    public void add(ConfigElement element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null || element.getKey() == null || element.getValue().length() > 150) {
-            return -1;
+            consumer.accept(-1);
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            ResultSet rs = repo.findById(element.getKey().toString());
-            try {
-                if (rs.next()) {
-                    if (configMap.containsKey(element.getKey()) && configMap.get(element.getKey()) != element.getValue()) {
+            WorkerFactory.runResultSetWorker(() -> repo.findById(element.getKey().toString()), rs -> {
+                try {
+                    if (rs.next()) {
+                        if (configMap.containsKey(element.getKey()) && configMap.get(element.getKey()) != element.getValue()) {
+                            configMap.put(element.getKey(), element.getValue());
+                            update(element, consumer);
+                        } else {
+                            // else the value is the same as the one stored
+                            consumer.accept(0);
+                        }
+                    } else {
                         configMap.put(element.getKey(), element.getValue());
-                        return update(element);
+                        WorkerFactory.runLongWorker(() -> repo.add(element), consumer);
                     }
-                    // else the value is the same as the one stored
-                    return 0;
+                } catch (SQLException ex) {
+                    logger.log(Level.SEVERE, null, ex);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void update(ConfigElement element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
+        if (element == null || element.getKey() == null || element.getValue().length() > 150) {
+            consumer.accept(-1);
+            return;
+        }
+        configMap.put(element.getKey(), element.getValue());
+        WorkerFactory.runLongWorker(() -> repo.update(element), consumer);
+    }
+
+    @Override
+    public void findAll(Consumer<List<ConfigElement>> c) {
+        Consumer<List<ConfigElement>> consumer = new SingleConsumer<>(c);
+        List<ConfigElement> elements = new ArrayList<>();
+        WorkerFactory.runResultSetWorker(() -> repo.findAll(), set -> {
+            try {
+                while (set.next()) {
+                    ConfigElement el = elementFromResultSetEntry(set);
+                    elements.add(el);
                 }
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-            configMap.put(element.getKey(), element.getValue());
-            return repo.add(element);
-        }
+            configMap = elements.stream().collect(Collectors.toMap(ConfigElement::getKey, ConfigElement::getValue));
+            consumer.accept(elements);
+        });
+    }
+    
+    private class ConfigElementWrapper {
+        ConfigElement element;
     }
 
     @Override
-    public long update(ConfigElement element) {
-        if (element == null || element.getKey() == null || element.getValue().length() > 150) {
-            return -1;
-        }
-        configMap.put(element.getKey(), element.getValue());
-        return repo.update(element);
-    }
-
-    @Override
-    public List<ConfigElement> findAll() {
-        List<ConfigElement> elements = new ArrayList<>();
-        ResultSet set = repo.findAll();
-        try {
-            while (set.next()) {
-                ConfigElement el = elementFromResultSetEntry(set);
-                elements.add(el);
+    public void findById(ConfigurationEnum key, Consumer<ConfigElement> c) {
+        Consumer<ConfigElement> consumer = new SingleConsumer<>(c);
+        WorkerFactory.runResultSetWorker(() -> repo.findById(key.toString()), set -> {
+            ConfigElementWrapper e = new ConfigElementWrapper();
+            try {
+                if (set.next()) {
+                    e.element = elementFromResultSetEntry(set);
+                    configMap.put(e.element.getKey(), e.element.getValue());
+                } else {
+                    configElement(key, result -> {
+                        e.element = result;
+                    });
+                }
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
             }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        configMap.clear();
-        elements.forEach(e -> configMap.put(e.getKey(), e.getValue()));
-        return elements;
+            consumer.accept(e.element);
+        });
     }
 
     @Override
-    public ConfigElement findById(ConfigurationEnum key) {
-        ResultSet set = repo.findById(key.toString());
-        ConfigElement element = null;
-        try {
-            if (set.next()) {
-                element = elementFromResultSetEntry(set);
-                configMap.put(element.getKey(), element.getValue());
-            } else {
-                element = configElement(key);
-            }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        return element;
-    }
-
-    @Override
-    public long deleteById(ConfigurationEnum key) {
+    public void deleteById(ConfigurationEnum key, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (key == null) {
-            return -1;
+            consumer.accept(-1);
+            return;
         }
         configMap.remove(key);
-        return repo.deleteById(key.toString());
+        WorkerFactory.runLongWorker(() -> repo.deleteById(key.toString()), consumer);
     }
 
     private ConfigElement elementFromResultSetEntry(ResultSet set) {
@@ -126,8 +148,9 @@ public class ConfigElementService implements IConfigElementService {
     }
 
     @Override
-    public List<ConfigElement> allConfigElements() {
-        return configMap.entrySet().stream()
+    public void allConfigElements(Consumer<List<ConfigElement>> c) {
+        Consumer<List<ConfigElement>> consumer = new SingleConsumer<>(c);
+        var result = configMap.entrySet().stream()
                 .map(e -> {
                     ConfigElement el = new ConfigElement();
                     el.setKey(e.getKey());
@@ -135,10 +158,12 @@ public class ConfigElementService implements IConfigElementService {
                     return el;
                 })
                 .collect(Collectors.toList());
+        consumer.accept(result);
     }
 
     @Override
-    public ConfigElement configElement(ConfigurationEnum key) {
+    public void configElement(ConfigurationEnum key, Consumer<ConfigElement> c) {
+        Consumer<ConfigElement> consumer = new SingleConsumer<>(c);
         ConfigElement el = new ConfigElement();
         el.setKey(key);
         if (configMap.containsKey(key)) {
@@ -146,7 +171,7 @@ public class ConfigElementService implements IConfigElementService {
         } else {
             el.setValue(key.getDefault());
         }
-        return el;
+        consumer.accept(el);
     }
 
 }

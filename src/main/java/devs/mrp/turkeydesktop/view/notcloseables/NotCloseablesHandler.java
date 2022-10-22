@@ -5,6 +5,7 @@
  */
 package devs.mrp.turkeydesktop.view.notcloseables;
 
+import devs.mrp.turkeydesktop.common.IntegerWrapper;
 import devs.mrp.turkeydesktop.database.closeables.CloseableService;
 import devs.mrp.turkeydesktop.database.closeables.CloseableServiceFactory;
 import devs.mrp.turkeydesktop.database.type.Type;
@@ -14,7 +15,6 @@ import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.groups.review.switchable.Switchable;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
-import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -76,22 +76,26 @@ public class NotCloseablesHandler extends PanelHandler<NotCloseablesEnum, Object
         JPanel panel = (JPanel) object;
         panel.removeAll();
         
-        List<Type> dependables = typeService.findByType(Type.Types.DEPENDS);
-        dependables.forEach(process -> {
-            boolean canClose = closeableService.canBeClosed(process.getProcess());
-            Switchable switchable = new Switchable(process.getProcess(), !canClose, true);
-            switchable.addFeedbackListener((processId, feedback) -> {
-                if (!feedback) { // if the checkbox was unchecked with this event
-                    closeableService.deleteById(processId);
-                } else { // if the checkbox was cheked with this event
-                    closeableService.add(processId);
-                }
+        typeService.findByType(Type.Types.DEPENDS, dependables -> {
+            IntegerWrapper i = new IntegerWrapper();
+            dependables.forEach(process -> {
+                closeableService.canBeClosed(process.getProcess(), canClose -> {
+                    Switchable switchable = new Switchable(process.getProcess(), !canClose, true);
+                    switchable.addFeedbackListener((processId, feedback) -> {
+                        if (!feedback) { // if the checkbox was unchecked with this event
+                            closeableService.deleteById(processId, r -> {});
+                        } else { // if the checkbox was cheked with this event
+                            closeableService.add(processId, r -> {});
+                        }
+                    });
+                    panel.add(switchable);
+                    i.increase();
+                    if (i.get() == dependables.size()) {
+                        panel.revalidate();
+                        panel.updateUI();
+                    }
+                });
             });
-            panel.add(switchable);
         });
-        
-        panel.revalidate();
-        panel.updateUI();
     }
-    
 }

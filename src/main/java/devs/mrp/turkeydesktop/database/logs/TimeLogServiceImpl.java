@@ -6,7 +6,9 @@
 package devs.mrp.turkeydesktop.database.logs;
 
 import devs.mrp.turkeydesktop.common.Dupla;
+import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
 import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.common.WorkerFactory;
 import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.type.Type;
 import java.sql.ResultSet;
@@ -14,6 +16,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.LongConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,72 +36,85 @@ public class TimeLogServiceImpl implements TimeLogService {
      */
     @Deprecated
     @Override
-    public long add(TimeLog element) {
+    public void add(TimeLog element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null) {
-            return -1;
+            consumer.accept(-1);
         } else {
             if (element.getWindowTitle().length() > 500) {
                 logger.log(Level.SEVERE, String.format("Window title too long: %s", element.getWindowTitle()));
                 element.setWindowTitle(element.getWindowTitle().substring(0, 499));
             }
-            return repo.add(element);
+            WorkerFactory.runLongWorker(() -> repo.add(element), consumer);
         }
     }
 
     @Override
-    public long update(TimeLog element) {
+    public void update(TimeLog element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null || element.getId() <= 0) {
-            return -1;
+            consumer.accept(-1);
         } else {
             if (element.getWindowTitle().length() > 500) {
                 logger.log(Level.SEVERE, String.format("Window title too long: %s", element.getWindowTitle()));
                 element.setWindowTitle(element.getWindowTitle().substring(0, 499));
             }
-            return repo.update(element);
+            WorkerFactory.runLongWorker(() -> repo.update(element), consumer);
         }
     }
 
-    public List<TimeLog> findLast24H() {
-        return listFromResultSet(repo.findAll());
+    @Override
+    public void findLast24H(Consumer<List<TimeLog>> c) {
+        var consumer = TimeLogServiceFactory.getListConsumer(c);
+        WorkerFactory.runResultSetWorker(() -> repo.findAll(), res -> {
+            consumer.accept(listFromResultSet(res));
+        });
     }
     
     @Override
-    public List<Dupla<String, Long>> findProcessTimeFromTo(Date from, Date to) {
+    public void findProcessTimeFromTo(Date from, Date to, Consumer<List<Dupla<String,Long>>> c) {
+        var consumer = TimeLogServiceFactory.getListDuplaConsumer(c);
         // Set from to hour 0 of the day
         long fromMilis = TimeConverter.millisToBeginningOfDay(from.getTime());
         // Set "to" to the last second of the day
         long toMilis = TimeConverter.millisToEndOfDay(to.getTime());
         // use calendar objects to get milliseconds
         List<Dupla<String,Long>> times = new ArrayList<>();
-        ResultSet set = repo.getTimeFrameGroupedByProcess(fromMilis, toMilis);
-        try {
-            while (set.next()) {
-                Dupla<String,Long> dupla = new Dupla<>();
-                dupla.setValue1(set.getString(TimeLog.PROCESS_NAME));
-                dupla.setValue2(set.getLong(2));
-                times.add(dupla);
+        WorkerFactory.runResultSetWorker(() -> repo.getTimeFrameGroupedByProcess(fromMilis, toMilis), set -> {
+            try {
+                while (set.next()) {
+                    Dupla<String,Long> dupla = new Dupla<>();
+                    dupla.setValue1(set.getString(TimeLog.PROCESS_NAME));
+                    dupla.setValue2(set.getLong(2));
+                    times.add(dupla);
+                }
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
             }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        return times;
+            consumer.accept(times);
+        });
     }
 
-    public TimeLog findById(long id) {
-        ResultSet set = repo.findById(id);
-        TimeLog timeLog = null;
-        try {
-            if (set.next()) {
-                timeLog = setTimeLogFromResultSetEntry(set);
+    @Override
+    public void findById(long id, Consumer<TimeLog> c) {
+        var consumer = TimeLogServiceFactory.getConsumer(c);
+        WorkerFactory.runResultSetWorker(() -> repo.findById(id), set -> {
+            TimeLog timeLog = null;
+            try {
+                if (set.next()) {
+                    timeLog = setTimeLogFromResultSetEntry(set);
+                }
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
             }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        return timeLog;
+            consumer.accept(timeLog);
+        });
     }
 
-    public long deleteById(long id) {
-        return repo.deleteById(id);
+    @Override
+    public void deleteById(long id, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
+        WorkerFactory.runLongWorker(() -> repo.deleteById(id), consumer);
     }
 
     private List<TimeLog> listFromResultSet(ResultSet set) {
@@ -114,17 +131,19 @@ public class TimeLogServiceImpl implements TimeLogService {
     }
 
     @Override
-    public TimeLog findMostRecent() {
-        TimeLog entry = null;
-        try {
-            ResultSet set = repo.getMostRecent();
-            if (set.next()) {
-                entry = setTimeLogFromResultSetEntry(set);
+    public void findMostRecent(Consumer<TimeLog> c) {
+        var consumer = TimeLogServiceFactory.getConsumer(c);
+        WorkerFactory.runResultSetWorker(() -> repo.getMostRecent(), set -> {
+            TimeLog entry = null;
+            try {
+                if (set.next()) {
+                    entry = setTimeLogFromResultSetEntry(set);
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(TimeLogServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        return entry;
+            consumer.accept(entry);
+        });
     }
     
     private TimeLog setTimeLogFromResultSetEntry(ResultSet set) {
@@ -149,39 +168,43 @@ public class TimeLogServiceImpl implements TimeLogService {
     }
 
     @Override
-    public List<Dupla<String, Long>> logsGroupedByTitle(Date from, Date to) {
+    public void logsGroupedByTitle(Date from, Date to, Consumer<List<Dupla<String, Long>>> c) {
+        var consumer = TimeLogServiceFactory.getListDuplaConsumer(c);
         // Set from to hour 0 of the day
         long fromMilis = TimeConverter.millisToBeginningOfDay(from.getTime());
         // Set 'to' to the last second of the day
         long toMilis = TimeConverter.millisToEndOfDay(to.getTime());
         // use calendar objects to get milliseconds
-        List<Dupla<String, Long>> groupedTimes = new ArrayList<>();
-        ResultSet set = repo.getGroupedByTitle(fromMilis, toMilis);
-        try {
-            while (set.next()) {
-                Dupla<String, Long> dupla = new Dupla<>();
-                dupla.setValue1(set.getString(TimeLog.WINDOW_TITLE));
-                dupla.setValue2(set.getLong(2));
-                groupedTimes.add(dupla);
+        WorkerFactory.runResultSetWorker(() -> repo.getGroupedByTitle(fromMilis, toMilis), set -> {
+            List<Dupla<String, Long>> groupedTimes = new ArrayList<>();
+            try {
+                while (set.next()) {
+                    Dupla<String, Long> dupla = new Dupla<>();
+                    dupla.setValue1(set.getString(TimeLog.WINDOW_TITLE));
+                    dupla.setValue2(set.getLong(2));
+                    groupedTimes.add(dupla);
+                }
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
             }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        return groupedTimes;
+            consumer.accept(groupedTimes);
+        });
     }
     
     @Override
-    public long timeSpentOnGroupForFrame(long groupId, long from, long to) {
-        ResultSet set = repo.getTimeFrameOfGroup(groupId, from, to);
-        long spent = 0;
-        try {
-            if (set.next()) {
-                spent = set.getLong(2);
+    public void timeSpentOnGroupForFrame(long groupId, long from, long to, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
+        WorkerFactory.runResultSetWorker(() -> repo.getTimeFrameOfGroup(groupId, from, to), set -> {
+            long spent = 0;
+            try {
+                if (set.next()) {
+                    spent = set.getLong(2);
+                }
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
             }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        return spent;
+            consumer.accept(spent);
+        });
     }
 
 }

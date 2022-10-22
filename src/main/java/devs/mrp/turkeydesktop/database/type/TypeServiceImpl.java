@@ -5,6 +5,8 @@
  */
 package devs.mrp.turkeydesktop.database.type;
 
+import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
+import devs.mrp.turkeydesktop.common.WorkerFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationDao;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationRepository;
@@ -12,6 +14,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.LongConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,66 +30,81 @@ public class TypeServiceImpl implements TypeService {
     private static final Logger logger = Logger.getLogger(TypeServiceImpl.class.getName());
 
     @Override
-    public long add(Type element) {
+    public void add(Type element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null) {
-            return -1;
+            consumer.accept(-1);
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
             ResultSet rs = repo.findById(element.getProcess());
             try{
                 if (rs.next()){
-                return update(element);
-            }
+                    update(element, consumer);
+                } else {
+                    WorkerFactory.runLongWorker(() -> repo.add(element), consumer);
+                }
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-            return repo.add(element);
         }
     }
 
     @Override
-    public long update(Type element) {
+    public void update(Type element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null || element.getProcess() == null) {
-            return -1;
+            consumer.accept(-1);
         } else {
-            Type saved = findById(element.getProcess());
-            if (saved != null && saved.getType() != null && !saved.getType().equals(element.getType())) {
-                // if we are changing the type of the process, then remove from any existing groups
-                assignationRepo.deleteByElementId(GroupAssignation.ElementType.PROCESS, element.getProcess());
-            }
-            return repo.update(element);
+            findById(element.getProcess(), saved -> {
+                if (saved != null && saved.getType() != null && !saved.getType().equals(element.getType())) {
+                    // if we are changing the type of the process, then remove from any existing groups
+                    WorkerFactory.runWorker(() -> {
+                        assignationRepo.deleteByElementId(GroupAssignation.ElementType.PROCESS, element.getProcess());
+                    });
+                }
+                WorkerFactory.runLongWorker(() -> repo.update(element), consumer);
+            });
         }
     }
 
     @Override
-    public List<Type> findAll() {
-        return listFromResultSet(repo.findAll());
+    public void findAll(Consumer<List<Type>> c) {
+        var consumer = TypeServiceFactory.getListConsumer(c);
+        WorkerFactory.runResultSetWorker(() -> repo.findAll(), set -> {
+            consumer.accept(listFromResultSet(set));
+        });
     }
     
     @Override
-    public List<Type> findByType(Type.Types type) {
-        return listFromResultSet(repo.findByType(type.toString()));
+    public void findByType(Type.Types type, Consumer<List<Type>> c) {
+        var consumer = TypeServiceFactory.getListConsumer(c);
+        WorkerFactory.runResultSetWorker(() -> repo.findByType(type.toString()), res -> {
+            consumer.accept(listFromResultSet(res));
+        });
     }
 
     @Override
-    public Type findById(String id) {
-        ResultSet set = repo.findById(id);
-        Type type = new Type();
-        try {
-            if (set.next()) {
-                type.setProcess(set.getString(Type.PROCESS_NAME));
-                type.setType(Type.Types.valueOf(set.getString(Type.TYPE)));
+    public void findById(String id, Consumer<Type> c) {
+        var consumer = TypeServiceFactory.getConsumer(c);
+        WorkerFactory.runResultSetWorker(() -> repo.findById(id), set -> {
+            Type type = new Type();
+            try {
+                if (set.next()) {
+                    type.setProcess(set.getString(Type.PROCESS_NAME));
+                    type.setType(Type.Types.valueOf(set.getString(Type.TYPE)));
+                }
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
             }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        return type;
+            consumer.accept(type);
+        });
     }
 
     @Override
-    public long deleteById(String id) {
-        assignationRepo.deleteByElementId(GroupAssignation.ElementType.PROCESS, id);
-        return repo.deleteById(id);
+    public void deleteById(String id, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
+        WorkerFactory.runWorker(() -> assignationRepo.deleteByElementId(GroupAssignation.ElementType.PROCESS, id));
+        WorkerFactory.runLongWorker(() -> repo.deleteById(id), consumer);
     }
     
     private List<Type> listFromResultSet(ResultSet set) {

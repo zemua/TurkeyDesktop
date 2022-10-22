@@ -24,12 +24,12 @@ import javax.swing.SwingWorker;
  */
 public abstract class RemovableLabel<ELEMENT> extends JPanel implements Feedbacker<ELEMENT, RemovableLabel.Action> {
     
-    private LocaleMessages locale = LocaleMessages.getInstance();
+    protected final LocaleMessages locale = LocaleMessages.getInstance();
     private List<FeedbackListener<ELEMENT, RemovableLabel.Action>> listeners = new ArrayList<>();
     
-    private ELEMENT element;
-    private JLabel label;
-    private JButton button;
+    protected ELEMENT element;
+    protected JLabel label;
+    protected JButton button;
     
     public enum Action {
         DELETE;
@@ -55,7 +55,7 @@ public abstract class RemovableLabel<ELEMENT> extends JPanel implements Feedback
     
     protected abstract String getNameFromElement(ELEMENT element);
     
-    private void initializeLabel() {
+    protected void initializeLabel() {
         label = new JLabel();
         label.setText(getNameFromElement(element));
         label.addMouseListener(new MouseAdapter() {
@@ -65,7 +65,7 @@ public abstract class RemovableLabel<ELEMENT> extends JPanel implements Feedback
         });
     }
     
-    private void initializeButton() {
+    protected void initializeButton() {
         button = new JButton();
         button.setText(locale.getString("remove"));
         button.setEnabled(false);
@@ -78,7 +78,7 @@ public abstract class RemovableLabel<ELEMENT> extends JPanel implements Feedback
         });
     }
     
-    private void showButton() {
+    protected void showButton() {
         button.setEnabled(true);
         button.setVisible(true);
         // hide back the button in 3 seconds
@@ -105,7 +105,7 @@ public abstract class RemovableLabel<ELEMENT> extends JPanel implements Feedback
     
     protected abstract void initializeOtherElements();
     
-    private void initializePanel() {
+    protected void initializePanel() {
         this.setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.LINE_AXIS));
         this.setAlignmentX(Component.LEFT_ALIGNMENT);
         this.add(label);

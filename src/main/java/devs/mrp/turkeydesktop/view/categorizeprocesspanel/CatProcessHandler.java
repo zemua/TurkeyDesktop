@@ -7,7 +7,6 @@ package devs.mrp.turkeydesktop.view.categorizeprocesspanel;
 
 import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
 import devs.mrp.turkeydesktop.common.FeedbackListener;
-import devs.mrp.turkeydesktop.common.Tripla;
 import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeServiceFactory;
 import devs.mrp.turkeydesktop.database.type.TypeServiceFactory;
@@ -17,7 +16,6 @@ import devs.mrp.turkeydesktop.view.categorizeprocesspanel.list.CategorizerElemen
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.util.Date;
-import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -79,27 +77,28 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
 
     @Override
     protected void doExtraBeforeShow() {
-        attachItemsToListPanel(new Date(), new Date(), FILTER_ALL);
+        attachItemsToListPanel(new Date(), new Date(), FILTER_NOT_CATEGORIZED);
     }
     
     private void attachItemsToListPanel(Date from, Date to, int filter) {
         JPanel panel = (JPanel)this.getPanel().getProperty(CatProcessEnum.LIST_PANEL);
         if (panel == null) {return;}
-        panel.removeAll(); // clear in case it has been filled before
-        List<Tripla<String, Long, Type.Types>> triplas = typedService.getTypedLogGroupedByProcess(from, to);
-        triplas.sort((c1,c2) -> c2.getValue2().compareTo(c1.getValue2()));
-        triplas.stream()
-                .filter(c -> textFromFilter().isEmpty() ? true : StringUtils.containsIgnoreCase(c.getValue1(), textFromFilter()))
-                .forEach(t -> {
-            if (ifPassFilter(t.getValue3(), filter)) {
-                CategorizerElement element = new CategorizerElement(panel.getWidth(), panel.getHeight());
-                element.init(t.getValue1(), t.getValue3());
-                panel.add(element);
-                setRadioListener(element);
-            }
+        typedService.getTypedLogGroupedByProcess(from, to, triplas -> {
+            panel.removeAll(); // clear in case it has been filled before
+            triplas.sort((c1,c2) -> c2.getValue2().compareTo(c1.getValue2()));
+            triplas.stream()
+                    .filter(c -> textFromFilter().isEmpty() ? true : StringUtils.containsIgnoreCase(c.getValue1(), textFromFilter()))
+                    .forEach(t -> {
+                        if (ifPassFilter(t.getValue3(), filter)) {
+                            CategorizerElement element = new CategorizerElement(panel.getWidth(), panel.getHeight());
+                            element.init(t.getValue1(), t.getValue3());
+                            panel.add(element);
+                            setRadioListener(element);
+                        }
+            });
+            panel.updateUI();
+            panel.revalidate();
         });
-        panel.updateUI();
-        panel.revalidate();
     }
     
     private String textFromFilter() {
@@ -141,22 +140,29 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
         el.addFeedbackListener(mListener);
     }
     
-    private void addCategorization(String process, Type.Types type) {
-        Type saved = typeService.findById(process);
-        Type t = new Type();
-        t.setProcess(process);
-        t.setType(type);
-        if (Type.Types.POSITIVE.equals(type) || Type.Types.NEGATIVE.equals(saved.getType())) {
-            popupMaker.show(this.getFrame(), () -> {
-                // runnable positive
-                typeService.add(t);
-            }, () -> {
-                // runnable negative
-                updateItemsInList();
-            });
-        } else {
-            typeService.add(t);
-        }
+    private void addCategorization(String process, Type.Types targetType) {
+        typeService.findById(process, savedType -> {
+            Type t = new Type();
+            t.setProcess(process);
+            t.setType(targetType);
+            if (isChangeToLessRestrictive(targetType, savedType)) {
+                popupMaker.show(this.getFrame(), () -> {
+                    // runnable positive
+                    typeService.add(t, r -> {});
+                }, () -> {
+                    // runnable negative
+                    updateItemsInList();
+                });
+            } else {
+                typeService.add(t, r -> {});
+            }
+        });
+    }
+    
+    private boolean isChangeToLessRestrictive(Type.Types target, Type saved) {
+        return Type.Types.POSITIVE.equals(target) // if we want to change to positive
+                || Type.Types.NEGATIVE.equals(saved.getType()) // if we are moving away from negative
+                || (Type.Types.DEPENDS.equals(saved.getType()) && !Type.Types.NEGATIVE.equals(target)); // if we are moving away from depends to any other than negative
     }
 
     @Override

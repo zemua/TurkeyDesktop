@@ -10,6 +10,7 @@ import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
+import java.util.function.Consumer;
 
 /**
  *
@@ -27,6 +28,10 @@ public class GroupConditionFacade {
     private String targetName;
     private long usageTimeCondition;
     private long lastDaysCondition;
+    
+    public GroupConditionFacade() {
+        
+    }
 
     public long getConditionId() {
         return conditionId;
@@ -85,7 +90,11 @@ public class GroupConditionFacade {
     }
     
     @Override
-    public String toString() {
+    public String toString(){
+        return "";
+    }
+    
+    public void toString(Consumer<String> consumer) {
         StringBuilder builder = new StringBuilder();
         builder.append(locale.getString("if"));
         builder.append(" ");
@@ -104,10 +113,12 @@ public class GroupConditionFacade {
         } else {
             builder.append(locale.getString("today"));
         }
-        if (!conditionCheker.isConditionMet(toCondition())) {
-            builder.append(String.format(" - %s", locale.getString("notMet")));
-        }
-        return builder.toString();
+        conditionCheker.isConditionMet(toCondition(), isMetResult -> {
+            if (!isMetResult) {
+                builder.append(String.format(" - %s", locale.getString("notMet")));
+            }
+            consumer.accept(builder.toString());
+        });
     }
     
     private Condition toCondition() {

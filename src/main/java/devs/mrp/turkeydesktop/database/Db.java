@@ -71,7 +71,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
         return semaphore;
     }
 
-    public static boolean verifyCanGetDb() {
+    public boolean verifyCanGetDb() {
         try {
             if (Objects.nonNull(con) && !con.isClosed()) {
                 return true;
@@ -81,7 +81,9 @@ public class Db { // TODO create asynchronous listeners to update livedata
         } catch (SQLException ex) {
             Logger.getLogger(Db.class.getName()).log(Level.SEVERE, "error trying to stablish db connection", ex);
             try {
-                con.close();
+                if(con != null) {
+                    con.close();
+                }
             } catch (SQLException ex1) {
                 Logger.getLogger(Db.class.getName()).log(Level.SEVERE, "error trying to close db connection", ex1);
             }

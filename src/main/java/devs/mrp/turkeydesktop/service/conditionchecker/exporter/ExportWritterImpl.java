@@ -7,6 +7,7 @@ package devs.mrp.turkeydesktop.service.conditionchecker.exporter;
 
 import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.common.WorkerFactory;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroup;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupService;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupServiceFactory;
@@ -15,6 +16,11 @@ import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,8 +55,12 @@ public class ExportWritterImpl implements ExportWritter {
     }
 
     private void doExports() {
-        exportedGroupService.findAll().stream()
-                .forEach(e -> processFile(e));
+        exportedGroupService.findAll(all -> {
+            WorkerFactory.runInNewThread(() -> {
+                all.stream()
+                    .forEach(e -> processFile(e));
+            });
+        });
     }
 
     private void processFile(ExportedGroup export) {
@@ -61,21 +71,35 @@ public class ExportWritterImpl implements ExportWritter {
             logger.log(Level.SEVERE, "error clearing file " + export.getFile(), ex);
         }
         StringBuilder fileText = new StringBuilder();
+        List<Map.Entry<LocalDate, String>> processed = Collections.synchronizedList(new ArrayList<>());
         for (int i = 0; i < export.getDays(); i++) {
-            long to = TimeConverter.endOfOffsetDaysConsideringDayChange(i);
-            long from = TimeConverter.beginningOfOffsetDaysConsideringDayChange(i);
-            long spent = timeLogService.timeSpentOnGroupForFrame(export.getGroup(), from, to);
-            LocalDate date = LocalDate.now().minusDays(i);
-            String result = String.format("%d-%d-%d-%d", date.getYear(), date.getMonthValue() - 1, date.getDayOfMonth(), spent); // TODO LocalDate month starts in 1 but in Android app is set to start on 0
-            if (i != 0) {
-                fileText.append(System.lineSeparator());
-            }
-            fileText.append(result);
-        }
-        try {
-            FileHandler.writeToTxt(file, fileText.toString());
-        } catch (IOException ex) {
-            logger.log(Level.SEVERE, "error exporting group time to file", ex);
+            int j = i;
+            TimeConverter.endOfOffsetDaysConsideringDayChange(j, to -> {
+                TimeConverter.beginningOfOffsetDaysConsideringDayChange(j, from -> {
+                    timeLogService.timeSpentOnGroupForFrame(export.getGroup(), from, to, spent -> {
+                        LocalDate date = LocalDate.now().minusDays(j);
+                        String result = String.format("%d-%d-%d-%d", date.getYear(), date.getMonthValue() - 1, date.getDayOfMonth(), spent); // TODO LocalDate month starts in 1 but in Android app is set to start on 0
+
+                        Map.Entry<LocalDate, String> entry = new AbstractMap.SimpleEntry<>(date, result);
+                        processed.add(entry);
+
+                        if (processed.size() == export.getDays()){
+                            processed.sort((e1, e2) -> e1.getKey().compareTo(e2.getKey()));
+                            for (int k = 0; k < processed.size(); k++) {
+                                if (k != 0) {
+                                    fileText.append(System.lineSeparator());
+                                }
+                                fileText.append(processed.get(k).getValue());
+                            }
+                            try {
+                                FileHandler.writeToTxt(file, fileText.toString());
+                            } catch (IOException ex) {
+                                logger.log(Level.SEVERE, "error exporting group time to file", ex);
+                            }
+                        }
+                    });
+                });
+            });
         }
     }
 

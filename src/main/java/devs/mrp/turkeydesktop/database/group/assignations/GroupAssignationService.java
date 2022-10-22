@@ -5,10 +5,14 @@
  */
 package devs.mrp.turkeydesktop.database.group.assignations;
 
+import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
+import devs.mrp.turkeydesktop.common.WorkerFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.LongConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
@@ -23,117 +27,141 @@ public class GroupAssignationService implements IGroupAssignationService {
     private static final Logger logger = Logger.getLogger(GroupAssignationService.class.getName());
     
     @Override
-    public long add(GroupAssignation element) {
+    public void add(GroupAssignation element, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         if (element == null) {
-            return -1;
+            consumer.accept(-1L);
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            ResultSet rs = repo.findByElementId(element.getType(), element.getElementId());
-            try {
-                if (rs.next()) {
-                    GroupAssignation group = elementFromResultSetEntry(rs);
-                    // if the value stored differs from the one received
-                    if (!group.equals(element)) {
-                        return update(element);
+            WorkerFactory.runResultSetWorker(() -> repo.findByElementId(element.getType(), element.getElementId()), rs -> {
+                try {
+                    if (rs.next()) {
+                        GroupAssignation group = elementFromResultSetEntry(rs);
+                        // if the value stored differs from the one received
+                        if (!group.equals(element)) {
+                            update(element, consumer);
+                        } else {
+                            // else the value is the same as the one stored
+                            consumer.accept(0L);
+                        }
+                    } else {
+                        // else there is no element stored with this id
+                        WorkerFactory.runLongWorker(() -> repo.add(element), consumer::accept);
                     }
-                    // else the value is the same as the one stored
-                    return 0;
+                } catch (SQLException ex) {
+                    logger.log(Level.SEVERE, null, ex);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void update(GroupAssignation element, LongConsumer c) {
+        LongConsumer longConsumer = SingleConsumerFactory.getLongConsumer(c);
+        if (element == null) {
+            longConsumer.accept(-1);
+        } else {
+            WorkerFactory.runLongWorker(() -> repo.update(element), longConsumer::accept);
+        }
+    }
+
+    @Override
+    public void findAll(Consumer<List<GroupAssignation>> c) {
+        Consumer<List<GroupAssignation>> consumer = FGroupAssignationService.groupAssignationListConsumer(c);
+        FGroupAssignationService.runGroupAssignationListWoker(() -> elementsFromResultSet(repo.findAll()), consumer::accept);
+    }
+
+    @Deprecated
+    @Override
+    public void findById(long id, Consumer<GroupAssignation> c) {
+        Consumer<GroupAssignation> consumer = FGroupAssignationService.groupAssignationConsumer(c);
+        WorkerFactory.runResultSetWorker(() -> repo.findById(id), result -> {
+            GroupAssignation element = null;
+            try {
+                if (result.next()) {
+                    element = elementFromResultSetEntry(result);
                 }
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-            // else there is no element stored with this id
-            return repo.add(element);
-        }
-    }
-
-    @Override
-    public long update(GroupAssignation element) {
-        if (element == null) {
-            return -1;
-        }
-        return repo.update(element);
-    }
-
-    @Override
-    public List<GroupAssignation> findAll() {
-        return elementsFromResultSet(repo.findAll());
+            consumer.accept(element);
+        });
     }
 
     @Deprecated
     @Override
-    public GroupAssignation findById(long id) {
-        ResultSet set = repo.findById(id);
-        GroupAssignation element = null;
-        try {
-            if (set.next()) {
-                element = elementFromResultSetEntry(set);
-            }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        return element;
-    }
-
-    @Deprecated
-    @Override
-    public long deleteById(long id) {
-        return repo.deleteById(id);
+    public void deleteById(long id, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
+        WorkerFactory.runLongWorker(() -> repo.deleteById(id), consumer::accept);
     }
 
     @Override
-    public GroupAssignation findByProcessId(String processId) {
-        ResultSet set = repo.findByElementId(GroupAssignation.ElementType.PROCESS, processId);
-        try {
-            if (set.next()) {
-                return elementFromResultSetEntry(set);
+    public void findByProcessId(String processId, Consumer<GroupAssignation> c) {
+        Consumer<GroupAssignation> consumer = FGroupAssignationService.groupAssignationConsumer(c);
+        WorkerFactory.runResultSetWorker(() -> repo.findByElementId(GroupAssignation.ElementType.PROCESS, processId), result -> {
+            try {
+                if (result.next()) {
+                    consumer.accept(elementFromResultSetEntry(result));
+                } else {
+                    consumer.accept(null);
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(GroupAssignationService.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } catch (SQLException ex) {
-            Logger.getLogger(GroupAssignationService.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
+        });
     }
     
     @Override
-    public long deleteByProcessId(String processId) {
-        return repo.deleteByElementId(GroupAssignation.ElementType.PROCESS, processId);
+    public void deleteByProcessId(String processId, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
+        WorkerFactory.runLongWorker(() -> repo.deleteByElementId(GroupAssignation.ElementType.PROCESS, processId), consumer);
     }
 
     @Override
-    public GroupAssignation findByTitleId(String titleId) {
-        ResultSet set = repo.findByElementId(GroupAssignation.ElementType.TITLE, titleId);
-        try {
-            if (set.next()) {
-                return elementFromResultSetEntry(set);
+    public void findByTitleId(String titleId, Consumer<GroupAssignation> c) {
+        Consumer<GroupAssignation> consumer = FGroupAssignationService.groupAssignationConsumer(c);
+        WorkerFactory.runResultSetWorker(() -> repo.findByElementId(GroupAssignation.ElementType.TITLE, titleId), set -> {
+            try {
+                if (set.next()) {
+                    consumer.accept(elementFromResultSetEntry(set));
+                } else {
+                    consumer.accept(null);
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(GroupAssignationService.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } catch (SQLException ex) {
-            Logger.getLogger(GroupAssignationService.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
+        });
     }
     
     @Override
-    public GroupAssignation findLongestTitleIdContainedIn(String titleId) {
-        List<GroupAssignation> titleAssignations = elementsFromResultSet(repo.findAllOfType(GroupAssignation.ElementType.TITLE));
-        return titleAssignations.stream()
-                .filter(ga -> StringUtils.containsIgnoreCase(titleId, ga.getElementId()))
-                .max((ga1, ga2) -> Integer.compare(ga1.getElementId().length(), ga2.getElementId().length()))
-                .orElse(null);
+    public void findLongestTitleIdContainedIn(String titleId, Consumer<GroupAssignation> c) {
+        Consumer<GroupAssignation> consumer = FGroupAssignationService.groupAssignationConsumer(c);
+        FGroupAssignationService.runGroupAssignationListWoker(() -> elementsFromResultSet(repo.findAllOfType(GroupAssignation.ElementType.TITLE)), titleAssignations -> {
+            FGroupAssignationService.runGroupAssignationWorker(() -> 
+                    titleAssignations.stream()
+                        .filter(ga -> StringUtils.containsIgnoreCase(titleId, ga.getElementId()))
+                        .max((ga1, ga2) -> Integer.compare(ga1.getElementId().length(), ga2.getElementId().length()))
+                        .orElse(null),
+                    consumer);
+        });
     }
     
     @Override
-    public long deleteByTitleId(String titleId) {
-        return repo.deleteByElementId(GroupAssignation.ElementType.TITLE, titleId);
+    public void deleteByTitleId(String titleId, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
+        WorkerFactory.runLongWorker(() -> repo.deleteByElementId(GroupAssignation.ElementType.TITLE, titleId), consumer);
     }
 
     @Override
-    public List<GroupAssignation> findProcessesOfGroup(Long groupId) {
-        return elementsFromResultSet(repo.findAllElementTypeOfGroup(GroupAssignation.ElementType.PROCESS, groupId));
+    public void findProcessesOfGroup(Long groupId, Consumer<List<GroupAssignation>> c) {
+        Consumer<List<GroupAssignation>> consumer = FGroupAssignationService.groupAssignationListConsumer(c);
+        FGroupAssignationService.runGroupAssignationListWoker(() -> elementsFromResultSet(repo.findAllElementTypeOfGroup(GroupAssignation.ElementType.PROCESS, groupId)), consumer);
     }
 
     @Override
-    public List<GroupAssignation> findTitlesOfGroup(Long groupId) {
-        return elementsFromResultSet(repo.findAllElementTypeOfGroup(GroupAssignation.ElementType.TITLE, groupId));
+    public void findTitlesOfGroup(Long groupId, Consumer<List<GroupAssignation>> c) {
+        Consumer<List<GroupAssignation>> consumer = FGroupAssignationService.groupAssignationListConsumer(c);
+        FGroupAssignationService.runGroupAssignationListWoker(() -> elementsFromResultSet(repo.findAllElementTypeOfGroup(GroupAssignation.ElementType.TITLE, groupId)), consumer);
     }
     
     private List<GroupAssignation> elementsFromResultSet(ResultSet set) {
@@ -162,8 +190,9 @@ public class GroupAssignationService implements IGroupAssignationService {
     }
 
     @Override
-    public long deleteByGroupId(long id) {
-        return repo.deleteByGroupId(id);
+    public void deleteByGroupId(long id, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
+        WorkerFactory.runLongWorker(() -> repo.deleteByGroupId(id), consumer::accept);
     }
     
 }
