@@ -88,8 +88,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
     public void addTimeLogAdjustingCounted(TimeLog element, Consumer<TimeLog> consumer) {
         adjustDependingOnType(element, result -> {
             adjustAccumulated(element, element.getCounted(), updatedElement -> {
-                logService.add(updatedElement,r -> {});
-                consumer.accept(updatedElement);
+                logService.add(updatedElement,r -> consumer.accept(updatedElement));
             });
         });
     }

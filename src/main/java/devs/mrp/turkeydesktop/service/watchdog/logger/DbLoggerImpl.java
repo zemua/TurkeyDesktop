@@ -9,12 +9,15 @@ import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeServiceFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeService;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 /**
  *
  * @author miguel
  */
 public class DbLoggerImpl implements DbLogger {
+    
+    private static final Logger LOGGER = Logger.getLogger(DbLoggerImpl.class.getName());
     
     LogAndTypeFacadeService logService;
     

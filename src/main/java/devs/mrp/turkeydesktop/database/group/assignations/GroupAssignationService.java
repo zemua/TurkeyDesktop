@@ -38,16 +38,17 @@ public class GroupAssignationService implements IGroupAssignationService {
                         // if the value stored differs from the one received
                         if (!group.equals(element)) {
                             update(element, consumer);
+                        } else {
+                            // else the value is the same as the one stored
+                            consumer.accept(0L);
                         }
-                        // else the value is the same as the one stored
-                        consumer.accept(0L);
-
+                    } else {
+                        // else there is no element stored with this id
+                        TurkeyAppFactory.runLongWorker(() -> repo.add(element), consumer::accept);
                     }
                 } catch (SQLException ex) {
                     logger.log(Level.SEVERE, null, ex);
                 }
-                // else there is no element stored with this id
-                TurkeyAppFactory.runLongWorker(() -> repo.add(element), consumer::accept);
             });
         }
     }
@@ -56,8 +57,9 @@ public class GroupAssignationService implements IGroupAssignationService {
     public void update(GroupAssignation element, LongConsumer longConsumer) {
         if (element == null) {
             longConsumer.accept(-1);
+        } else {
+            TurkeyAppFactory.runLongWorker(() -> repo.update(element), longConsumer::accept);
         }
-        TurkeyAppFactory.runLongWorker(() -> repo.update(element), longConsumer::accept);
     }
 
     @Override
@@ -93,11 +95,12 @@ public class GroupAssignationService implements IGroupAssignationService {
             try {
                 if (result.next()) {
                     consumer.accept(elementFromResultSetEntry(result));
+                } else {
+                    consumer.accept(null);
                 }
             } catch (SQLException ex) {
                 Logger.getLogger(GroupAssignationService.class.getName()).log(Level.SEVERE, null, ex);
             }
-            consumer.accept(null);
         });
     }
     
@@ -112,11 +115,12 @@ public class GroupAssignationService implements IGroupAssignationService {
             try {
                 if (set.next()) {
                     consumer.accept(elementFromResultSetEntry(set));
+                } else {
+                    consumer.accept(null);
                 }
             } catch (SQLException ex) {
                 Logger.getLogger(GroupAssignationService.class.getName()).log(Level.SEVERE, null, ex);
             }
-            consumer.accept(null);
         });
     }
     
