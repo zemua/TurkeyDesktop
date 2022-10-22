@@ -139,7 +139,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                                     element.setGroupId(result != null ? result.getGroupId() : -1);
                                     if (!lockdown) {
                                         conditionChecker.areConditionsMet(element.getGroupId(), areMet -> {
-                                            conditionChecker.isIdleWithToast(isIdle -> {
+                                            conditionChecker.isIdleWithToast(true, isIdle -> {
                                                 element.setCounted(!isIdle && areMet ? Math.abs(element.getElapsed()) : 0);
                                                 consumer.accept(element);
                                             });
@@ -209,7 +209,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
             }
             boolean isPositive = title.getType().equals(Title.Type.POSITIVE);
             conditionChecker.areConditionsMet(element.getGroupId(), areMet -> {
-                conditionChecker.isIdleWithToast(isIdle -> {
+                conditionChecker.isIdleWithToast(isPositive, isIdle -> {
                     if (isPositive && (isIdle || !areMet)) {
                         element.setCounted(0);
                         consumer.accept(element);

@@ -285,10 +285,10 @@ public class ConditionCheckerImpl implements ConditionChecker {
     }
     
     @Override
-    public void isIdleWithToast(Consumer<Boolean> consumer) {
+    public void isIdleWithToast(boolean sendToast, Consumer<Boolean> consumer) {
         isIdle(idle -> {
             isIdleFlood(flood -> {
-                if (idle && !flood) {
+                if (idle && sendToast && !flood) {
                     Toaster.sendToast(localeMessages.getString("idleMsg"));
                 }
             });

@@ -24,7 +24,7 @@ public interface ConditionChecker {
     public void isTimeRunningOut(Consumer<Boolean> consumer);
     public void timeRemaining(LongConsumer consumer);
     public void isIdle(Consumer<Boolean> consumer);
-    public void isIdleWithToast(Consumer<Boolean> consumer);
+    public void isIdleWithToast(boolean sendToast, Consumer<Boolean> consumer);
     public void notifyCloseToConditionsRefresh();
     
 }
