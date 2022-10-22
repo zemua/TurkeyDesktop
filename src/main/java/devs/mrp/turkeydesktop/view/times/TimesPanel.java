@@ -20,9 +20,6 @@ import java.util.List;
 public class TimesPanel extends FeedbackerPanelWithFetcher<TimesEnum, AWTEvent> {
 
     private final List<FeedbackListener<TimesEnum, AWTEvent>> listeners = new ArrayList<>();
-
-    private int fromInitiated = 0;
-    private int toInitiated = 0;
     
     /**
      * Creates new form TimesPanel
@@ -158,16 +155,14 @@ public class TimesPanel extends FeedbackerPanelWithFetcher<TimesEnum, AWTEvent> 
 
     private void dateFromPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_dateFromPropertyChange
         setDateChooserErrorColor();
-        fromInitiated ++;
-        if (initiated()) {
+        if ("date".equals(evt.getPropertyName())) {
             sendUpdate();
         }
     }//GEN-LAST:event_dateFromPropertyChange
 
     private void dateToPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_dateToPropertyChange
         setDateChooserErrorColor();
-        toInitiated ++;
-        if (initiated()) {
+        if ("date".equals(evt.getPropertyName())) {
             sendUpdate();
         }
     }//GEN-LAST:event_dateToPropertyChange
@@ -212,11 +207,6 @@ public class TimesPanel extends FeedbackerPanelWithFetcher<TimesEnum, AWTEvent> 
         if (isFromAndToCorrect()) {
             giveFeedback(TimesEnum.UPDATE, null);
         }
-    }
-    
-    private boolean initiated() {
-        // When initiating the fields on load, datePropertyChange is called 2 times instead of 1
-        return fromInitiated > 1 && toInitiated > 1;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
