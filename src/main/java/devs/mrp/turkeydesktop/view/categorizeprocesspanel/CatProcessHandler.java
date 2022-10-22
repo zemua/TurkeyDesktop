@@ -77,7 +77,7 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
 
     @Override
     protected void doExtraBeforeShow() {
-        attachItemsToListPanel(new Date(), new Date(), FILTER_ALL);
+        attachItemsToListPanel(new Date(), new Date(), FILTER_NOT_CATEGORIZED);
     }
     
     private void attachItemsToListPanel(Date from, Date to, int filter) {
