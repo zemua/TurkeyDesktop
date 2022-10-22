@@ -20,6 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -39,6 +40,9 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
         var consumer = TitledLogServiceFacadeFactory.getListConsumer(c);
         logService.logsGroupedByTitle(from, to, result -> {
             List<TitledLog> logs = new ArrayList<>();
+            if (result.isEmpty()) {
+                consumer.accept(Collections.EMPTY_LIST);
+            }
             result.stream().forEach(e -> {
                 TitledLog tl = new TitledLog();
                 tl.setTitle(e.getValue1());

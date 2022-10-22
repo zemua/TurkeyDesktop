@@ -44,6 +44,7 @@ public class ConditionElement extends RemovableLabel<GroupConditionFacade> {
             });
             alternativeInitializeButton();
             alternativeInitializePanel();
+            this.revalidate();
         });
     }
 

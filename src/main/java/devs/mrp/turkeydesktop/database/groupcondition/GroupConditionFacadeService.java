@@ -39,6 +39,9 @@ public class GroupConditionFacadeService implements IGroupConditionFacadeService
         var consumer = FGroupConditionFacadeService.getListConsumer(c);
         List<GroupConditionFacade> list = Collections.synchronizedList(new ArrayList<>());
         conditionService.findByGroupId(groupId, result -> {
+            if (result.isEmpty()) {
+                consumer.accept(Collections.EMPTY_LIST);
+            }
             result.forEach(con -> {
                 toFacade(con, facade -> {
                     list.add(facade);

@@ -7,6 +7,7 @@ package devs.mrp.turkeydesktop.service.conditionchecker;
 
 import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.common.FileHandler;
+import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.FConditionService;
@@ -97,9 +98,13 @@ public class ConditionCheckerImpl implements ConditionChecker {
     }
 
     @Override
-    public void areConditionsMet(List<Condition> conditions, Consumer<Boolean> consumer) {
+    public void areConditionsMet(List<Condition> conditions, Consumer<Boolean> c) {
+        Consumer<Boolean> consumer = SingleConsumerFactory.getBooleanConsumer(c);
         Set<Condition> processed = Collections.synchronizedSet(new HashSet<>());
         AtomicBoolean areMet = new AtomicBoolean(true);
+        if (conditions.isEmpty()) {
+            consumer.accept(true);
+        }
         conditions.forEach(condition -> {
             isConditionMet(condition, isMet -> {
                 if (!isMet) {

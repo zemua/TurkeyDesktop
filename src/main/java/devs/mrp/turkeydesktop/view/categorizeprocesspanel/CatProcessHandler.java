@@ -89,12 +89,12 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
             triplas.stream()
                     .filter(c -> textFromFilter().isEmpty() ? true : StringUtils.containsIgnoreCase(c.getValue1(), textFromFilter()))
                     .forEach(t -> {
-                if (ifPassFilter(t.getValue3(), filter)) {
-                    CategorizerElement element = new CategorizerElement(panel.getWidth(), panel.getHeight());
-                    element.init(t.getValue1(), t.getValue3());
-                    panel.add(element);
-                    setRadioListener(element);
-                }
+                        if (ifPassFilter(t.getValue3(), filter)) {
+                            CategorizerElement element = new CategorizerElement(panel.getWidth(), panel.getHeight());
+                            element.init(t.getValue1(), t.getValue3());
+                            panel.add(element);
+                            setRadioListener(element);
+                        }
             });
             panel.updateUI();
             panel.revalidate();

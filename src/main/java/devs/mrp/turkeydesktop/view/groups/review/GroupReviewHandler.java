@@ -391,7 +391,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         hourSpinner.setValue(0L);
         minuteSpinner.setValue(15L);
         daySpinner.setValue(0L);
-        fillConditionsInPanel(conditionsListPanel);
+        fillConditionsInPanel();
     }
 
     private void setTargetNameComboBoxValues() throws Exception {
@@ -414,9 +414,14 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         });
     }
 
-    private void fillConditionsInPanel(JPanel panel) {
-        panel.removeAll();
+    private void fillConditionsInPanel() {
+        Object conditionsListObject = this.getPanel().getProperty(GroupReviewEnum.CONDITIONS_PANEL_LIST);
+        if (conditionsListObject == null || !(conditionsListObject instanceof JPanel)) {
+            return;
+        }
+        JPanel panel = (JPanel) conditionsListObject;
         groupConditionFacadeService.findByGroupId(group.getId(), groupConditions -> {
+            panel.removeAll();
             groupConditions.forEach(cond -> {
                     ConditionElement element = new ConditionElement(cond);
                     panel.add(element);
@@ -436,9 +441,9 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                         }
                     });
                 });
+            panel.revalidate();
+            panel.repaint();
         });
-        panel.revalidate();
-        panel.updateUI();
     }
 
     private void addCondition() throws Exception {
@@ -461,12 +466,13 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     }
 
     private void removeCondition(long id) {
-        conditionService.deleteById(id, r -> {});
-        try {
-            fillConditionFields();
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "failed refreshing conditions fields after condition deletion", e);
-        }
+        conditionService.deleteById(id, r -> {
+            try {
+                fillConditionFields();
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "failed refreshing conditions fields after condition deletion", e);
+            }
+        });
     }
 
     private void setConfiguration() throws Exception {
@@ -552,8 +558,8 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
 
     private void refreshExternalTime() throws Exception {
         JPanel panel = (JPanel) getObjectFromPanel(GroupReviewEnum.EXTERNAL_TIME_PANEL, JPanel.class).orElseThrow(() -> new Exception("wrong object"));
-        panel.removeAll();
         externalGroupService.findByGroup(this.group.getId(), groupResult -> {
+            panel.removeAll();
             groupResult.stream()
                 .map(externalGroup -> {
                     RemovableLabel<ExternalGroup> label = new RemovableLabel<>(externalGroup) {

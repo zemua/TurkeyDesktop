@@ -84,12 +84,12 @@ public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, 
             titledLogs.stream()
                     .filter(c -> getFilterText().isEmpty() ? true : StringUtils.containsIgnoreCase(c.getTitle(), getFilterText()))
                     .forEach(t -> {
-                if (ifPassFilter(t, filter)) {
-                    CategorizeTitlesElement element = new CategorizeTitlesElement(t.getTitle(), t.getQtyPositives(), t.getQtyNegatives());
-                    element.setTitledLog(t);
-                    panel.add(element);
-                    setTagClickListener(element, t);
-                }
+                        if (ifPassFilter(t, filter)) {
+                            CategorizeTitlesElement element = new CategorizeTitlesElement(t.getTitle(), t.getQtyPositives(), t.getQtyNegatives());
+                            element.setTitledLog(t);
+                            panel.add(element);
+                            setTagClickListener(element, t);
+                        }
             });
             panel.updateUI();
             panel.revalidate();
