@@ -208,9 +208,10 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                 return;
             }
             boolean isPositive = title.getType().equals(Title.Type.POSITIVE);
+            boolean isNeutral = title.getType().equals(Title.Type.NEUTRAL);
             conditionChecker.areConditionsMet(element.getGroupId(), areMet -> {
                 conditionChecker.isIdleWithToast(isPositive, isIdle -> {
-                    if (isPositive && (isIdle || !areMet)) {
+                    if (isNeutral || (isPositive && (isIdle || !areMet))) {
                         element.setCounted(0);
                         consumer.accept(element);
                     } else {

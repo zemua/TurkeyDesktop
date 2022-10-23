@@ -18,7 +18,7 @@ public class Title {
     private Title.Type type;
     
     public enum Type {
-        POSITIVE, NEGATIVE;
+        POSITIVE, NEGATIVE, NEUTRAL;
     }
 
     public String getSubStr() {

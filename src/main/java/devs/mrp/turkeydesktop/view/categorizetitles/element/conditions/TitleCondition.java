@@ -21,7 +21,16 @@ public class TitleCondition extends RemovableLabel<Title> {
     
     @Override
     protected String getNameFromElement(Title element) {
-        return element.getType().equals(Title.Type.POSITIVE) ? "[+] " + element.getSubStr() : "[-] " + element.getSubStr();
+        switch(element.getType()) {
+            case POSITIVE:
+                return "[+] " + element.getSubStr();
+            case NEUTRAL:
+                return "| |" + element.getSubStr();
+            case NEGATIVE:
+                return "[-] " + element.getSubStr();
+            default:
+                return "[?]" + element.getSubStr();
+        }
     }
 
     @Override

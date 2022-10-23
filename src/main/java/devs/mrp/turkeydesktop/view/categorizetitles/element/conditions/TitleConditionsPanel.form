@@ -32,6 +32,8 @@
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="positiveButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
+                      <Component id="neutralButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="negativeButton" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -55,6 +57,7 @@
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="negativeButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="positiveButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="neutralButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -91,6 +94,17 @@
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="negativeButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="neutralButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="messages.properties" key="neutral" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+        </Property>
+        <Property name="enabled" type="boolean" value="false"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="neutralButtonActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JButton" name="positiveButton">

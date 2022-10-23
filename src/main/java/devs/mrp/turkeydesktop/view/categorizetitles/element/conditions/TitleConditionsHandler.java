@@ -62,6 +62,16 @@ public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AW
                         // intentionally empty
                     }, shortWaitingSeconds);
                     break;
+                case NEUTRAL_BUTTON:
+                    String conditionText = ((JLabel)getPanel().getProperty(TitleConditionsEnum.NEW_CONDITION_TEXT)).getText();
+                    popupMaker.show(this.getFrame(), () -> {
+                        // positive
+                        addCondition(conditionText, Title.Type.NEUTRAL);
+                    }, () -> {
+                        // negative do nothing
+                        // intentionally empty
+                    }, shortWaitingSeconds);
+                    break;
                 case NEGATIVE_BUTTON:
                     addCondition(((JLabel)getPanel().getProperty(TitleConditionsEnum.NEW_CONDITION_TEXT)).getText(), Title.Type.NEGATIVE);
                     break;

@@ -40,6 +40,7 @@ public class TitleConditionsPanel extends FeedbackerPanelWithFetcher<TitleCondit
         backButton = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         negativeButton = new javax.swing.JButton();
+        neutralButton = new javax.swing.JButton();
         positiveButton = new javax.swing.JButton();
         newConditionText = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -62,6 +63,14 @@ public class TitleConditionsPanel extends FeedbackerPanelWithFetcher<TitleCondit
         negativeButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 negativeButtonActionPerformed(evt);
+            }
+        });
+
+        neutralButton.setText(bundle.getString("neutral")); // NOI18N
+        neutralButton.setEnabled(false);
+        neutralButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                neutralButtonActionPerformed(evt);
             }
         });
 
@@ -127,6 +136,8 @@ public class TitleConditionsPanel extends FeedbackerPanelWithFetcher<TitleCondit
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(positiveButton)
                         .addGap(18, 18, 18)
+                        .addComponent(neutralButton)
+                        .addGap(18, 18, 18)
                         .addComponent(negativeButton)))
                 .addContainerGap())
         );
@@ -144,7 +155,8 @@ public class TitleConditionsPanel extends FeedbackerPanelWithFetcher<TitleCondit
                     .addComponent(newConditionText, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(negativeButton)
-                        .addComponent(positiveButton)))
+                        .addComponent(positiveButton)
+                        .addComponent(neutralButton)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 96, Short.MAX_VALUE)
                 .addContainerGap())
@@ -159,6 +171,7 @@ public class TitleConditionsPanel extends FeedbackerPanelWithFetcher<TitleCondit
         boolean empty = newConditionText.getText().isEmpty();
         negativeButton.setEnabled(!empty);
         positiveButton.setEnabled(!empty);
+        neutralButton.setEnabled(!empty);
     }//GEN-LAST:event_newConditionTextPropertyChange
 
     private void positiveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_positiveButtonActionPerformed
@@ -194,6 +207,13 @@ public class TitleConditionsPanel extends FeedbackerPanelWithFetcher<TitleCondit
     private void titleTextMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_titleTextMouseDragged
         setConditionText();
     }//GEN-LAST:event_titleTextMouseDragged
+
+    private void neutralButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_neutralButtonActionPerformed
+        giveFeedback(TitleConditionsEnum.NEUTRAL_BUTTON, evt);
+        // the following will be executed AFTER the listener has handled the feedback and read the label text
+        // but this is not thread safe
+        newConditionText.setText("");
+    }//GEN-LAST:event_neutralButtonActionPerformed
 
     private void setConditionText() {
         String text = titleText.getSelectedText();
@@ -240,6 +260,7 @@ public class TitleConditionsPanel extends FeedbackerPanelWithFetcher<TitleCondit
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JButton negativeButton;
+    private javax.swing.JButton neutralButton;
     private javax.swing.JLabel newConditionText;
     private javax.swing.JButton positiveButton;
     private javax.swing.JTextArea titleText;
