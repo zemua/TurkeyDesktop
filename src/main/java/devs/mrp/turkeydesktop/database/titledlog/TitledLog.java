@@ -19,6 +19,7 @@ public class TitledLog {
     private List<Title> conditions;
     private long qtyPositives;
     private long qtyNegatives;
+    private long qtyNeutral;
 
     public String getTitle() {
         return title;
@@ -58,6 +59,14 @@ public class TitledLog {
 
     public void setQtyNegatives(long qtyNegatives) {
         this.qtyNegatives = qtyNegatives;
+    }
+    
+    public void setQtyNeutral(long qtyNeutral) {
+        this.qtyNeutral = qtyNeutral;
+    }
+    
+    public long getQtyNeutral() {
+        return qtyNeutral;
     }
     
 }

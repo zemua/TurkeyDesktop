@@ -51,12 +51,15 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
                     tl.setQtyPositives(qtyPos);
                     titleService.countTypesOf(Title.Type.NEGATIVE, e.getValue1(), qtyNeg -> {
                         tl.setQtyNegatives(qtyNeg);
-                        titleService.findContainedByAndNegativeFirst(e.getValue1(), cond -> {
-                            tl.setConditions(cond);
-                            logs.add(tl);
-                            if (logs.size() == result.size()) {
-                                consumer.accept(logs);
-                            }
+                        titleService.countTypesOf(Title.Type.NEUTRAL, e.getValue1(), qtyNeut -> {
+                            tl.setQtyNeutral(qtyNeut);
+                            titleService.findContainedByAndNegativeFirst(e.getValue1(), cond -> {
+                                tl.setConditions(cond);
+                                logs.add(tl);
+                                if (logs.size() == result.size()) {
+                                    consumer.accept(logs);
+                                }
+                            });
                         });
                     });
                 });
@@ -99,10 +102,14 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
                 log.setQtyPositives(qtyPos);
                 titleService.countTypesOf(Title.Type.NEGATIVE, title, qtyNeg -> {
                     log.setQtyNegatives(qtyNeg);
-                    titleService.findContainedByAndNegativeFirst(title, contained -> {
-                        log.setConditions(contained);
-                        consumer.accept(log);
+                    titleService.countTypesOf(Title.Type.NEUTRAL, title, qtyNeut -> {
+                        log.setQtyNeutral(qtyNeut);
+                        titleService.findContainedByAndNegativeFirst(title, contained -> {
+                            log.setConditions(contained);
+                            consumer.accept(log);
+                        });
                     });
+                    
                 });
             });
         } catch (SQLException ex) {

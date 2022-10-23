@@ -110,13 +110,16 @@ public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, 
         if (filter == CategorizeTitlesFilter.FILTER_ALL.getFilter()) {
             return true;
         }
-        if (filter == CategorizeTitlesFilter.FILTER_NOT_CATEGORIZED.getFilter() && log.getQtyNegatives() == 0 && log.getQtyPositives() == 0) {
+        if (filter == CategorizeTitlesFilter.FILTER_NOT_CATEGORIZED.getFilter() && log.getQtyNegatives() == 0 && log.getQtyPositives() == 0 && log.getQtyNeutral() == 0) {
             return true;
         }
         if (filter == CategorizeTitlesFilter.FILTER_NEGATIVE.getFilter() && log.getQtyNegatives() > 0) {
             return true;
         }
         if (filter == CategorizeTitlesFilter.FILTER_POSITIVE.getFilter() && log.getQtyPositives() > 0) {
+            return true;
+        }
+        if (filter == CategorizeTitlesFilter.FILTER_NEUTRAL.getFilter() && log.getQtyNeutral() > 0) {
             return true;
         }
         return false;

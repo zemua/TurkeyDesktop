@@ -10,7 +10,7 @@ package devs.mrp.turkeydesktop.view.categorizetitles;
  * @author miguel
  */
 public enum CategorizeTitlesFilter {
-    FILTER_ALL(0), FILTER_NOT_CATEGORIZED(1), FILTER_POSITIVE(2), FILTER_NEGATIVE(3);
+    FILTER_ALL(0), FILTER_NOT_CATEGORIZED(1), FILTER_POSITIVE(2), FILTER_NEGATIVE(3), FILTER_NEUTRAL(4);
     
     private int filter;
 
