@@ -4,13 +4,20 @@
  */
 package devs.mrp.turkeydesktop.common;
 
+import devs.mrp.turkeydesktop.i18n.LocaleMessages;
+import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author ncm55070
  */
 public class SingleConsumer<T> implements Consumer<T> {
+    
+    private static final Logger LOGGER = Logger.getLogger(SingleConsumer.class.getSimpleName());
+    private static final LocaleMessages locale = LocaleMessages.getInstance();
     
     private boolean consumed = false;
     private final Consumer<T> mConsumer;
@@ -24,6 +31,9 @@ public class SingleConsumer<T> implements Consumer<T> {
         if (consumed == false) {
             consumed = true;
             mConsumer.accept(t);
+        } else {
+            LOGGER.log(Level.WARNING, "Tried to consume content more than one time, stack: " + Thread.currentThread().getStackTrace());
+            Toaster.sendToast(locale.getString("calledMoreThanOneTime"));
         }
     }
     
