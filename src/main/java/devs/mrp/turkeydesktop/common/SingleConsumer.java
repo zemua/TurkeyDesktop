@@ -6,6 +6,7 @@ package devs.mrp.turkeydesktop.common;
 
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
+import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,7 +33,7 @@ public class SingleConsumer<T> implements Consumer<T> {
             consumed = true;
             mConsumer.accept(t);
         } else {
-            LOGGER.log(Level.WARNING, "Tried to consume content more than one time, stack: " + Thread.currentThread().getStackTrace());
+            LOGGER.log(Level.WARNING, "Tried to consume content more than one time, stack: {0}", Arrays.toString(Thread.currentThread().getStackTrace()));
             Toaster.sendToast(locale.getString("calledMoreThanOneTime"));
         }
     }

@@ -69,7 +69,8 @@ public class ConditionCheckerImpl implements ConditionChecker {
     private static final Pattern NUMBER_PATTERN = Pattern.compile("^-?\\d+$");
 
     @Override
-    public void isConditionMet(Condition condition, Consumer<Boolean> consumer) {
+    public void isConditionMet(Condition condition, Consumer<Boolean> c) {
+        Consumer<Boolean> consumer = SingleConsumerFactory.getBooleanConsumer(c);
         TimeConverter.beginningOfOffsetDaysConsideringDayChange(condition.getLastDaysCondition(), beginningResult -> {
             TimeConverter.endOfTodayConsideringDayChange(endResult -> {
                 timeLogService.timeSpentOnGroupForFrame(condition.getTargetId(), beginningResult, endResult, timeSpent -> {
@@ -82,7 +83,8 @@ public class ConditionCheckerImpl implements ConditionChecker {
         
     }
     
-    private void externalTimeFromCondition(Condition condition, LongConsumer consumer) {
+    private void externalTimeFromCondition(Condition condition, LongConsumer c) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         configService.configElement(ConfigurationEnum.CHANGE_OF_DAY, changeOfDayResult -> {
             Long changeOfDay = Long.valueOf(changeOfDayResult.getValue());
             LocalDate to = LocalDateTime.now().minusHours(changeOfDay).toLocalDate();
@@ -119,9 +121,11 @@ public class ConditionCheckerImpl implements ConditionChecker {
     }
 
     @Override
-    public void areConditionsMet(long groupId, Consumer<Boolean> consumer) {
+    public void areConditionsMet(long groupId, Consumer<Boolean> c) {
+        Consumer<Boolean> consumer = SingleConsumerFactory.getBooleanConsumer(c);
         if (groupId <= 0) {
             consumer.accept(true);
+            return;
         }
         conditionService.findByGroupId(groupId, conditions -> {
             areConditionsMet(conditions, consumer);
@@ -129,14 +133,16 @@ public class ConditionCheckerImpl implements ConditionChecker {
     }
 
     @Override
-    public void isLockDownTime(Consumer<Boolean> consumer) {
+    public void isLockDownTime(Consumer<Boolean> c) {
+        Consumer<Boolean> consumer = SingleConsumerFactory.getBooleanConsumer(c);
         isLockDownTime(System.currentTimeMillis(), isLockDown -> {
             consumer.accept(isLockDown);
         });
     }
 
     @Override
-    public void isLockDownTime(Long now, Consumer<Boolean> consumer) {
+    public void isLockDownTime(Long now, Consumer<Boolean> c) {
+        Consumer<Boolean> consumer = SingleConsumerFactory.getBooleanConsumer(c);
         lockDownActivated(lockDownActivatedResult -> {
             if (!lockDownActivatedResult){
                 consumer.accept(false);
@@ -168,25 +174,29 @@ public class ConditionCheckerImpl implements ConditionChecker {
         });
     }
     
-    private void lockDownActivated(Consumer<Boolean> consumer) {
+    private void lockDownActivated(Consumer<Boolean> sc) {
+        Consumer<Boolean> consumer = SingleConsumerFactory.getBooleanConsumer(sc);
         configService.findById(ConfigurationEnum.LOCKDOWN, c -> {
             consumer.accept(Boolean.valueOf(c.getValue()));
         });
     }
 
-    private void lockDownStart(LongConsumer consumer) {
+    private void lockDownStart(LongConsumer sc) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(sc);
         configService.findById(ConfigurationEnum.LOCKDOWN_FROM, c -> {
             consumer.accept(Long.valueOf(c.getValue()));
         });
     }
 
-    private void lockDownEnd(LongConsumer consumer) {
+    private void lockDownEnd(LongConsumer sc) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(sc);
         configService.findById(ConfigurationEnum.LOCKDOWN_TO, c -> {
             consumer.accept(Long.valueOf(c.getValue()));
         });
     }
 
-    private void closeToLock(Long hourNow, Long from, Consumer<Boolean> consumer) {
+    private void closeToLock(Long hourNow, Long from, Consumer<Boolean> sc) {
+        Consumer<Boolean> consumer = SingleConsumerFactory.getBooleanConsumer(sc);
         lockDownActivated(lockDownActivated -> {
             if (!lockDownActivated) {
                 consumer.accept(false);
@@ -221,7 +231,8 @@ public class ConditionCheckerImpl implements ConditionChecker {
     }
 
     @Override
-    public void isTimeRunningOut(Consumer<Boolean> consumer) {
+    public void isTimeRunningOut(Consumer<Boolean> sc) {
+        Consumer<Boolean> consumer = SingleConsumerFactory.getBooleanConsumer(sc);
         configService.findById(ConfigurationEnum.MIN_LEFT_BUTTON, minLeftButton -> {
             Boolean notify = Boolean.valueOf(minLeftButton.getValue());
             if (!notify) {
@@ -238,7 +249,8 @@ public class ConditionCheckerImpl implements ConditionChecker {
     }
 
     @Override
-    public void timeRemaining(LongConsumer consumer) {
+    public void timeRemaining(LongConsumer sc) {
+        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(sc);
         importService.findAll(allResult -> {
             Long totalImported = allResult.stream()
                     .map(path -> {
@@ -265,7 +277,8 @@ public class ConditionCheckerImpl implements ConditionChecker {
     }
     
     @Override
-    public void isIdle(Consumer<Boolean> consumer) {
+    public void isIdle(Consumer<Boolean> sc) {
+        Consumer<Boolean> consumer = SingleConsumerFactory.getBooleanConsumer(sc);
         configService.findById(ConfigurationEnum.IDLE, idle -> {
             Long idleCondition = Long.valueOf(idle.getValue());
             LongWrapper currentIdle = new LongWrapper();
@@ -275,7 +288,8 @@ public class ConditionCheckerImpl implements ConditionChecker {
         
     }
     
-    private void isIdleFlood(Consumer<Boolean> consumer) {
+    private void isIdleFlood(Consumer<Boolean> sc) {
+        Consumer<Boolean> consumer = SingleConsumerFactory.getBooleanConsumer(sc);
         configService.findById(ConfigurationEnum.IDLE, idle -> {
             Long idleCondition = Long.valueOf(idle.getValue());
             LongWrapper currentIdle = new LongWrapper();
@@ -285,7 +299,8 @@ public class ConditionCheckerImpl implements ConditionChecker {
     }
     
     @Override
-    public void isIdleWithToast(boolean sendToast, Consumer<Boolean> consumer) {
+    public void isIdleWithToast(boolean sendToast, Consumer<Boolean> sc) {
+        Consumer<Boolean> consumer = SingleConsumerFactory.getBooleanConsumer(sc);
         isIdle(idle -> {
             isIdleFlood(flood -> {
                 if (idle && sendToast && !flood) {
@@ -305,7 +320,8 @@ public class ConditionCheckerImpl implements ConditionChecker {
         });
     }
     
-    public void closeToConditionsRefresh(Consumer<Boolean> consumer) {
+    public void closeToConditionsRefresh(Consumer<Boolean> sc) {
+        Consumer<Boolean> consumer = SingleConsumerFactory.getBooleanConsumer(sc);
         configService.configElement(ConfigurationEnum.NOTIFY_CHANGE_OF_DAY, notifyChangeOfDayResult -> {
             Boolean notify = Boolean.valueOf(notifyChangeOfDayResult.getValue());
             if (!notify) {
