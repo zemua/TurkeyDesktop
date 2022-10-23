@@ -18,9 +18,9 @@ import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
+import javax.swing.JTextArea;
 
 /**
  *
@@ -78,7 +78,7 @@ public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AW
     }
     
     private void fillFields() {
-        JTextField title = (JTextField)getPanel().getProperty(TitleConditionsEnum.TITLE);
+        JTextArea title = (JTextArea)getPanel().getProperty(TitleConditionsEnum.TITLE);
         title.setText(mTitledLog.getTitle());
     }
     
