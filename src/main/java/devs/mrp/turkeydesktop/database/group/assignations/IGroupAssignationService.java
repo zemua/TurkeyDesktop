@@ -27,6 +27,7 @@ public interface IGroupAssignationService {
     public void deleteByProcessId(String processId, LongConsumer consumer);
     public void findByTitleId(String titleId, Consumer<GroupAssignation> consumer);
     public void findLongestTitleIdContainedIn(String titleId, Consumer<GroupAssignation> consumer);
+    public void findGroupOfAssignation(String assignation, Consumer<GroupAssignation> consumer);
     public void deleteByTitleId(String titleId, LongConsumer consumer);
     public void findProcessesOfGroup(Long groupId, Consumer<List<GroupAssignation>> consumer);
     public void findTitlesOfGroup(Long groupId, Consumer<List<GroupAssignation>> consumer);

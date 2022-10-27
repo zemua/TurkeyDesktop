@@ -194,5 +194,17 @@ public class GroupAssignationService implements IGroupAssignationService {
         LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
         WorkerFactory.runLongWorker(() -> repo.deleteByGroupId(id), consumer::accept);
     }
+
+    @Override
+    public void findGroupOfAssignation(String assignation, Consumer<GroupAssignation> c) {
+        Consumer<GroupAssignation> consumer = FGroupAssignationService.groupAssignationConsumer(c);
+        FGroupAssignationService.runGroupAssignationListWoker(() -> elementsFromResultSet(repo.findByElementId(GroupAssignation.ElementType.TITLE, assignation.toLowerCase())), titleAssignations -> {
+            if (titleAssignations.isEmpty()) {
+                consumer.accept(null);
+            } else {
+                consumer.accept(titleAssignations.get(0));
+            }
+        });
+    }
     
 }

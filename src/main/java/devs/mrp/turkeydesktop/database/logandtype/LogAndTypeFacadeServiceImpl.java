@@ -124,14 +124,17 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                             case DEPENDS:
                                 element.setType(Type.Types.DEPENDS);
                                 // If title is "hello to you" and we have records "hello" in group1 and "hello to" in group2 the group2 will be chosen
-                                groupAssignationService.findLongestTitleIdContainedIn(element.getWindowTitle(), assignation -> {
-                                    element.setGroupId(assignation != null ? assignation.getGroupId() : -1);
-                                    if (!lockdown){
-                                        setCountedDependingOnTitle(element, element.getElapsed(), proportion, r -> consumer.accept(element));
-                                    } else {
-                                        setCountedForTitleWhenLockdown(element, proportion, r -> consumer.accept(element));
-                                    }
+                                titleService.findLongestContainedBy(element.getWindowTitle().toLowerCase(), title -> {
+                                    groupAssignationService.findGroupOfAssignation(title.getSubStr(), assignation -> {
+                                        element.setGroupId(assignation != null ? assignation.getGroupId() : -1);
+                                        if (!lockdown){
+                                            setCountedDependingOnTitle(element, title, element.getElapsed(), proportion, r -> consumer.accept(element));
+                                        } else {
+                                            setCountedForTitleWhenLockdown(element, title, proportion, r -> consumer.accept(element));
+                                        }
+                                    });
                                 });
+                                
                                 break;
                             case POSITIVE:
                                 element.setType(Type.Types.POSITIVE);
@@ -176,53 +179,48 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
         });
     }
     
-    private void setCountedForTitleWhenLockdown(TimeLog element, long proportion, Consumer<TimeLog> c) {
+    private void setCountedForTitleWhenLockdown(TimeLog element, Title title, long proportion, Consumer<TimeLog> c) {
         Consumer<TimeLog> consumer = LogAndTypeServiceFactory.getConsumer(c);
-        titleService.findLongestContainedBy(element.getWindowTitle().toLowerCase(), title -> {
-            if (title != null && title.getType().equals(Title.Type.NEGATIVE)) {
-                closeableService.canBeClosed(element.getProcessName(), b -> {
-                    element.setBlockable(b);
+        if (title != null && title.getType().equals(Title.Type.NEGATIVE)) {
+            closeableService.canBeClosed(element.getProcessName(), b -> {
+                element.setBlockable(b);
+                element.setCounted(-1 * proportion * element.getElapsed());
+                consumer.accept(element);
+            });
+        } else { // when not negative, don't disccount points if idle
+            conditionChecker.isIdle(isIdle -> {
+                if (!isIdle) {
                     element.setCounted(-1 * proportion * element.getElapsed());
                     consumer.accept(element);
-                });
-            } else { // when not negative, don't disccount points if idle
-                conditionChecker.isIdle(isIdle -> {
-                    if (!isIdle) {
-                        element.setCounted(-1 * proportion * element.getElapsed());
-                        consumer.accept(element);
-                    } else {
-                        element.setCounted(0);
-                        consumer.accept(element);
-                    }
-                });
-            }
-        });
+                } else {
+                    element.setCounted(0);
+                    consumer.accept(element);
+                }
+            });
+        }
     }
     
-    private void setCountedDependingOnTitle(TimeLog element, long elapsed, int proportion, Consumer<TimeLog> c) {
+    private void setCountedDependingOnTitle(TimeLog element, Title title, long elapsed, int proportion, Consumer<TimeLog> c) {
         Consumer<TimeLog> consumer = LogAndTypeServiceFactory.getConsumer(c);
-        titleService.findLongestContainedBy(element.getWindowTitle().toLowerCase(), title -> {
-            if (title == null) {
-                element.setCounted(0);
-                consumer.accept(element);
-                return;
-            }
-            boolean isPositive = title.getType().equals(Title.Type.POSITIVE);
-            boolean isNeutral = title.getType().equals(Title.Type.NEUTRAL);
-            conditionChecker.areConditionsMet(element.getGroupId(), areMet -> {
-                conditionChecker.isIdleWithToast(isPositive, isIdle -> {
-                    if (isNeutral || (isPositive && (isIdle || !areMet))) {
-                        element.setCounted(0);
+        if (title == null) {
+            element.setCounted(0);
+            consumer.accept(element);
+            return;
+        }
+        boolean isPositive = title.getType().equals(Title.Type.POSITIVE);
+        boolean isNeutral = title.getType().equals(Title.Type.NEUTRAL);
+        conditionChecker.areConditionsMet(element.getGroupId(), areMet -> {
+            conditionChecker.isIdleWithToast(isPositive, isIdle -> {
+                if (isNeutral || (isPositive && (isIdle || !areMet))) {
+                    element.setCounted(0);
+                    consumer.accept(element);
+                } else {
+                    element.setCounted(isPositive ? Math.abs(elapsed) : - Math.abs(elapsed) * proportion);
+                    closeableService.canBeClosed(element.getProcessName(), b -> {
+                        element.setBlockable(b);
                         consumer.accept(element);
-                    } else {
-                        element.setCounted(isPositive ? Math.abs(elapsed) : - Math.abs(elapsed) * proportion);
-                        closeableService.canBeClosed(element.getProcessName(), b -> {
-                            element.setBlockable(b);
-                            consumer.accept(element);
-                        });
-                    }
-                });
-
+                    });
+                }
             });
         });
     }
