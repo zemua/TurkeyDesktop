@@ -37,6 +37,7 @@ import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
 import devs.mrp.turkeydesktop.database.type.TypeService;
 import java.util.function.Consumer;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -125,7 +126,8 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                                 element.setType(Type.Types.DEPENDS);
                                 // If title is "hello to you" and we have records "hello" in group1 and "hello to" in group2 the group2 will be chosen
                                 titleService.findLongestContainedBy(element.getWindowTitle().toLowerCase(), title -> {
-                                    groupAssignationService.findGroupOfAssignation(title.getSubStr(), assignation -> {
+                                    String subStr = title != null ? title.getSubStr() : StringUtils.EMPTY;
+                                    groupAssignationService.findGroupOfAssignation(subStr, assignation -> {
                                         element.setGroupId(assignation != null ? assignation.getGroupId() : -1);
                                         if (!lockdown){
                                             setCountedDependingOnTitle(element, title, element.getElapsed(), proportion, r -> consumer.accept(element));
