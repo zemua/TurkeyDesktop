@@ -5,7 +5,9 @@
  */
 package devs.mrp.turkeydesktop.view.notcloseables;
 
+import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
 import devs.mrp.turkeydesktop.common.IntegerWrapper;
+import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.closeables.CloseableService;
 import devs.mrp.turkeydesktop.database.closeables.CloseableServiceFactory;
 import devs.mrp.turkeydesktop.database.type.Type;
@@ -24,6 +26,8 @@ import javax.swing.JPanel;
  * @author miguel
  */
 public class NotCloseablesHandler extends PanelHandler<NotCloseablesEnum, Object, FeedbackerPanelWithFetcher<NotCloseablesEnum, Object>> {
+    
+    private ConfirmationWithDelay popupMaker = new ConfirmationWithDelayFactory();
     
     private static final Logger logger = Logger.getLogger(NotCloseablesHandler.class.getName());
     private final LocaleMessages localeMessages = LocaleMessages.getInstance();
@@ -85,7 +89,13 @@ public class NotCloseablesHandler extends PanelHandler<NotCloseablesEnum, Object
                         if (!feedback) { // if the checkbox was unchecked with this event
                             closeableService.deleteById(processId, r -> {});
                         } else { // if the checkbox was cheked with this event
-                            closeableService.add(processId, r -> {});
+                            popupMaker.show(this.getFrame(), () -> {
+                                // positive
+                                closeableService.add(processId, r -> {});
+                            }, () -> {
+                                // negative
+                                switchable.setSelected(false);
+                            });
                         }
                     });
                     panel.add(switchable);
