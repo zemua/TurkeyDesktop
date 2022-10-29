@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import rx.Observable;
 
 /**
  *
@@ -35,9 +36,8 @@ public class CloseableRepository implements CloseableDao {
     }
     
     @Override
-    public long add(Closeable element) {
-        try {
-            semaphore.acquire();
+    public Observable<Long> add(Closeable element) {
+        return Db.observableLong(()-> {
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s) ",
@@ -48,26 +48,24 @@ public class CloseableRepository implements CloseableDao {
                 stm.executeUpdate();
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
+                return 0L;
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return 1;
+            return 1L;
+        });
+        
     }
 
     @Deprecated
     @Override
-    public long update(Closeable element) {
+    public Observable<Long> update(Closeable element) {
         // single column table, nothing to update
-        return 0;
+        return Observable.just(0L);
     }
 
     @Override
-    public ResultSet findAll() {
-        ResultSet rs = null;
-        try {
+    public Observable<ResultSet> findAll() {
+        return Db.observableResultSet(() -> {
+            ResultSet rs = null;
             semaphore.acquire();
             PreparedStatement stm;
             try {
@@ -77,18 +75,14 @@ public class CloseableRepository implements CloseableDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null ,ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null ,ex);
-        } finally {
-            semaphore.release();
-        }
-        return rs;
+            return rs;
+        });
     }
 
     @Override
-    public ResultSet findById(String id) {
-        ResultSet rs = null;
-        try {
+    public Observable<ResultSet> findById(String id) {
+        return Db.observableResultSet(() -> {
+            ResultSet rs = null;
             semaphore.acquire();
             PreparedStatement stm;
             try {
@@ -99,18 +93,14 @@ public class CloseableRepository implements CloseableDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return rs;
+            return rs;
+        });
     }
 
     @Override
-    public long deleteById(String id) {
-        long delQty = -1;
-        try {
+    public Observable<Long> deleteById(String id) {
+        return Db.observableLong(() -> {
+            long delQty = -1;
             semaphore.acquire();
             PreparedStatement stm;
             try {
@@ -121,12 +111,8 @@ public class CloseableRepository implements CloseableDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return delQty;
+            return delQty;
+        });
     }
     
 }
