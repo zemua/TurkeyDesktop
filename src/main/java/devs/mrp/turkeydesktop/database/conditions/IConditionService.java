@@ -6,20 +6,19 @@
 package devs.mrp.turkeydesktop.database.conditions;
 
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.LongConsumer;
+import rx.Observable;
 
 /**
  *
  * @author miguel
  */
 public interface IConditionService {
-    public void add(Condition element, LongConsumer consumer);
-    public void update(Condition element, LongConsumer consumer);
-    public void findAll(Consumer<List<Condition>> consumer);
-    public void findByGroupId(Long groupId, Consumer<List<Condition>> consumer);
-    public void findById(Long id, Consumer<Condition> consumer);
-    public void deleteById(Long id, LongConsumer consumer);
-    public void deleteByGroupId(long id, LongConsumer consumer);
-    public void deleteByTargetId(long id, LongConsumer consumer);
+    public Observable<Long> add(Condition element);
+    public Observable<Long> update(Condition element);
+    public Observable<List<Condition>> findAll();
+    public Observable<List<Condition>> findByGroupId(Long groupId);
+    public Observable<Condition> findById(Long id);
+    public Observable<Long> deleteById(Long id);
+    public Observable<Long> deleteByGroupId(long id);
+    public Observable<Long> deleteByTargetId(long id);
 }

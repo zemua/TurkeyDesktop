@@ -9,7 +9,6 @@ import devs.mrp.turkeydesktop.database.Db;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import rx.Observable;
@@ -22,7 +21,6 @@ public class CloseableRepository implements CloseableDao {
     
     private Db dbInstance = Db.getInstance();
     private Logger logger = Logger.getLogger(CloseableRepository.class.getName());
-    private Semaphore semaphore = Db.getSemaphore();
     
     private static CloseableRepository instance;
     
@@ -66,7 +64,6 @@ public class CloseableRepository implements CloseableDao {
     public Observable<ResultSet> findAll() {
         return Db.observableResultSet(() -> {
             ResultSet rs = null;
-            semaphore.acquire();
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s",
@@ -83,7 +80,6 @@ public class CloseableRepository implements CloseableDao {
     public Observable<ResultSet> findById(String id) {
         return Db.observableResultSet(() -> {
             ResultSet rs = null;
-            semaphore.acquire();
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
@@ -101,7 +97,6 @@ public class CloseableRepository implements CloseableDao {
     public Observable<Long> deleteById(String id) {
         return Db.observableLong(() -> {
             long delQty = -1;
-            semaphore.acquire();
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",

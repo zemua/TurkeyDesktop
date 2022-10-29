@@ -73,9 +73,9 @@ public class Db { // TODO create asynchronous listeners to update livedata
         return instance;
     }
 
-    public static Semaphore getSemaphore() {
+    /*public static Semaphore getSemaphore() {
         return semaphore;
-    }
+    }*/
     
     public static Observable<Long> observableLong(Callable<Long> callable) {
         return Observable.from(executor.submit(callable));
