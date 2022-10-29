@@ -320,25 +320,17 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private void setProcessSwitchableListener(Switchable switchable, String name, GroupAssignation.ElementType processOrTitle) {
         switchable.addFeedbackListener((processOrTitleId, feedback) -> {
             if (!feedback) { // if the checkbox was unchecked with this event
-                if (Group.GroupType.NEGATIVE.equals(this.group.getType())) {
-                    popupMaker.show(this.getFrame(), () -> {
-                        // positive
-                        if (processOrTitle.equals(GroupAssignation.ElementType.PROCESS)) {
-                            groupAssignationService.deleteByProcessId(processOrTitleId, r -> {});
-                        } else {
-                            groupAssignationService.deleteByTitleId(processOrTitleId, r -> {});
-                        }
-                    }, () -> {
-                        // negative
-                        switchable.setSelected(true);
-                    });
-                } else {
+                popupMaker.show(this.getFrame(), () -> {
+                    // positive
                     if (processOrTitle.equals(GroupAssignation.ElementType.PROCESS)) {
                         groupAssignationService.deleteByProcessId(processOrTitleId, r -> {});
                     } else {
                         groupAssignationService.deleteByTitleId(processOrTitleId, r -> {});
                     }
-                }
+                }, () -> {
+                    // negative
+                    switchable.setSelected(true);
+                });
             } else { // if the checkbox was cheked with this event
                 GroupAssignation ga = new GroupAssignation();
                 ga.setElementId(name);
