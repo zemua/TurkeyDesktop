@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
-import java.util.function.Consumer;
+import rx.Observable;
 
 /**
  *
@@ -23,25 +23,17 @@ public class AssignableTitleServiceImpl extends AssignableAbstractService implem
     private final TitleService titleService = TitleServiceFactory.getService();
     
     @Override
-    public void positiveElementsWithAssignation(Consumer<List<AssignableElement<Title.Type>>> c) {
-        var consumer = AssignableElementServiceFactory.getConsumer(c);
-        getAssignationsMap(GroupAssignation.ElementType.TITLE, result -> {
-            elementsWithAssignation(result, Title.Type.POSITIVE, consumer);
-        });
+    public Observable<List<AssignableElement<Title.Type>>> positiveElementsWithAssignation() {
+        return getAssignationsMap(GroupAssignation.ElementType.TITLE).flatMap(result -> elementsWithAssignation(result, Title.Type.POSITIVE));
     }
 
     @Override
-    public void negativeElementsWithAssignation(Consumer<List<AssignableElement<Title.Type>>> c) {
-        var consumer = AssignableElementServiceFactory.getConsumer(c);
-        getAssignationsMap(GroupAssignation.ElementType.TITLE, result -> {
-            elementsWithAssignation(result, Title.Type.NEGATIVE, consumer);
-        });
+    public Observable<List<AssignableElement<Title.Type>>> negativeElementsWithAssignation() {
+        return getAssignationsMap(GroupAssignation.ElementType.TITLE).flatMap(result -> elementsWithAssignation(result, Title.Type.NEGATIVE));
     }
     
-    private void elementsWithAssignation(Map<String, GroupAssignation> assignables, Title.Type positiveOrNegative, Consumer<List<AssignableElement<Title.Type>>> c) {
-        var consumer = AssignableElementServiceFactory.getConsumer(c);
-        titleService.findAll(allResult -> {
-            var result = allResult.stream()
+    private Observable<List<AssignableElement<Title.Type>>> elementsWithAssignation(Map<String, GroupAssignation> assignables, Title.Type positiveOrNegative) {
+        return titleService.findAll().map(allResult -> allResult.stream()
                 .filter(t -> t.getType().equals(positiveOrNegative))
                 .map(t -> {
                     AssignableElement<Title.Type> element = new AssignableElement<>();
@@ -57,9 +49,7 @@ public class AssignableTitleServiceImpl extends AssignableAbstractService implem
                     element.setProcessOrTitle(GroupAssignation.ElementType.TITLE);
                     return element;
                 })
-                .collect(Collectors.toList());
-            consumer.accept(result);
-        });
+                .collect(Collectors.toList()));
     }
     
 }

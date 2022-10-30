@@ -8,6 +8,7 @@ package devs.mrp.turkeydesktop.database.titles;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.LongConsumer;
+import rx.Observable;
 
 /**
  *
@@ -16,7 +17,7 @@ import java.util.function.LongConsumer;
 public interface TitleService {
     
     public void save(Title element, LongConsumer consumer);
-    public void findAll(Consumer<List<Title>> consumer);
+    public Observable<List<Title>> findAll();
     public void findContainedByAndNegativeFirst(String title, Consumer<List<Title>> consumer);
     public void findLongestContainedBy(String title, Consumer<Title> consumer);
     public void findBySubString(String subStr, Consumer<Title> consumer);
