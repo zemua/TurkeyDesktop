@@ -448,7 +448,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         condition.setUsageTimeCondition(TimeConverter.hoursToMilis((Long) hourSpinner.getValue()) + TimeConverter.minutesToMilis((Long) minuteSpinner.getValue()));
         condition.setLastDaysCondition((long) daySpinner.getValue());
 
-        conditionService.add(condition, r -> {
+        conditionService.add(condition).subscribe(r -> {
             try {
                 fillConditionFields();
             } catch (Exception ex) {
@@ -458,7 +458,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     }
 
     private void removeCondition(long id) {
-        conditionService.deleteById(id, r -> {
+        conditionService.deleteById(id).subscribe(r -> {
             try {
                 fillConditionFields();
             } catch (Exception e) {
@@ -511,8 +511,8 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         if (!field.getText().equals("delete")) {
             return;
         }
-        conditionService.deleteByGroupId(group.getId(), r -> {});
-        conditionService.deleteByTargetId(group.getId(), r -> {});
+        conditionService.deleteByGroupId(group.getId()).subscribe();
+        conditionService.deleteByTargetId(group.getId()).subscribe();
         externalGroupService.deleteByGroup(group.getId(), r -> {});
         groupAssignationService.deleteByGroupId(group.getId(), r -> {});
         groupService.deleteById(group.getId(), r -> exit());

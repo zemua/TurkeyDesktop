@@ -85,9 +85,9 @@ public class FileHandler {
             return;
         }
         lastExport = now;
-        configService.configElement(ConfigurationEnum.EXPORT_PATH, configElementResult -> {
+        configService.configElement(ConfigurationEnum.EXPORT_PATH).subscribe(configElementResult -> {
             String exportPath = configElementResult.getValue();
-            configService.configElement(ConfigurationEnum.EXPORT_TOGGLE, exportToggleResult -> {
+            configService.configElement(ConfigurationEnum.EXPORT_TOGGLE).subscribe(exportToggleResult -> {
                 if (!StringUtils.EMPTY.equals(exportPath) && Boolean.valueOf(exportToggleResult.getValue())) {
                     try {
                         exportToFile(createFileIfNotExists(new File(exportPath), "txt"), String.valueOf(time));

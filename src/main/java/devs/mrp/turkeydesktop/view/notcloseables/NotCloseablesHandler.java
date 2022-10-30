@@ -83,15 +83,15 @@ public class NotCloseablesHandler extends PanelHandler<NotCloseablesEnum, Object
         typeService.findByType(Type.Types.DEPENDS, dependables -> {
             IntegerWrapper i = new IntegerWrapper();
             dependables.forEach(process -> {
-                closeableService.canBeClosed(process.getProcess(), canClose -> {
+                closeableService.canBeClosed(process.getProcess()).subscribe(canClose -> {
                     Switchable switchable = new Switchable(process.getProcess(), !canClose, true);
                     switchable.addFeedbackListener((processId, feedback) -> {
                         if (!feedback) { // if the checkbox was unchecked with this event
-                            closeableService.deleteById(processId, r -> {});
+                            closeableService.deleteById(processId).subscribe();
                         } else { // if the checkbox was cheked with this event
                             popupMaker.show(this.getFrame(), () -> {
                                 // positive
-                                closeableService.add(processId, r -> {});
+                                closeableService.add(processId).subscribe();
                             }, () -> {
                                 // negative
                                 switchable.setSelected(false);

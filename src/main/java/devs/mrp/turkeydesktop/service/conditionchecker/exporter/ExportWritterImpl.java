@@ -74,8 +74,8 @@ public class ExportWritterImpl implements ExportWritter {
         List<Map.Entry<LocalDate, String>> processed = Collections.synchronizedList(new ArrayList<>());
         for (int i = 0; i < export.getDays(); i++) {
             int j = i;
-            TimeConverter.endOfOffsetDaysConsideringDayChange(j, to -> {
-                TimeConverter.beginningOfOffsetDaysConsideringDayChange(j, from -> {
+            TimeConverter.endOfOffsetDaysConsideringDayChange(j).subscribe(to -> {
+                TimeConverter.beginningOfOffsetDaysConsideringDayChange(j).subscribe(from -> {
                     timeLogService.timeSpentOnGroupForFrame(export.getGroup(), from, to, spent -> {
                         LocalDate date = LocalDate.now().minusDays(j);
                         String result = String.format("%d-%d-%d-%d", date.getYear(), date.getMonthValue() - 1, date.getDayOfMonth(), spent); // TODO LocalDate month starts in 1 but in Android app is set to start on 0
