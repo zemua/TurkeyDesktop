@@ -512,7 +512,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         }
         conditionService.deleteByGroupId(group.getId()).subscribe();
         conditionService.deleteByTargetId(group.getId()).subscribe();
-        externalGroupService.deleteByGroup(group.getId(), r -> {});
+        externalGroupService.deleteByGroup(group.getId()).subscribe();
         groupAssignationService.deleteByGroupId(group.getId()).subscribe();
         groupService.deleteById(group.getId()).subscribe(r -> exit());
     }
@@ -538,7 +538,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         ExternalGroup externalGroup = new ExternalGroup();
         externalGroup.setGroup(this.group.getId());
         externalGroup.setFile(file.getPath());
-        externalGroupService.add(externalGroup, r -> {
+        externalGroupService.add(externalGroup).subscribe(r -> {
             try {
                 refreshExternalTime();
             } catch (Exception ex) {
@@ -549,7 +549,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
 
     private void refreshExternalTime() throws Exception {
         JPanel panel = (JPanel) getObjectFromPanel(GroupReviewEnum.EXTERNAL_TIME_PANEL, JPanel.class).orElseThrow(() -> new Exception("wrong object"));
-        externalGroupService.findByGroup(this.group.getId(), groupResult -> {
+        externalGroupService.findByGroup(this.group.getId()).subscribe(groupResult -> {
             panel.removeAll();
             groupResult.stream()
                 .map(externalGroup -> {
@@ -575,7 +575,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                     };
                     label.addFeedbackListener((ExternalGroup tipo, RemovableLabel.Action feedback) -> {
                         if (feedback.equals(RemovableLabel.Action.DELETE)) {
-                            externalGroupService.deleteById(tipo.getId(), r -> {});
+                            externalGroupService.deleteById(tipo.getId()).subscribe();
                             try {
                                 refreshExternalTime();
                             } catch (Exception e) {
