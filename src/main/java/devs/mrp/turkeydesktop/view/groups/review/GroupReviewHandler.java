@@ -609,7 +609,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         exportedGroup.setDays((Long) daysSpinner.getValue());
         exportedGroup.setFile(file.getPath());
         exportedGroup.setGroup(this.group.getId());
-        exportedGroupService.add(exportedGroup, r -> {
+        exportedGroupService.add(exportedGroup).subscribe(r -> {
             try {
                 refreshGroupExporter();
             } catch (Exception ex) {
@@ -620,12 +620,12 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
 
     private void updateGroupExporterDays() throws Exception {
         JSpinner daysSpinner = (JSpinner) getObjectFromPanel(GroupReviewEnum.EXPORT_GROUP_DAYS, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
-        exportedGroupService.findById(this.group.getId(), existing -> {
+        exportedGroupService.findById(this.group.getId()).subscribe(existing -> {
             if (Objects.isNull(existing)) {
                 return;
             }
             existing.setDays((Long) daysSpinner.getValue());
-            exportedGroupService.add(existing, r -> {
+            exportedGroupService.add(existing).subscribe(r -> {
                 try {
                     refreshGroupExporter();
                 } catch (Exception ex) {
@@ -639,7 +639,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private void refreshGroupExporter() throws Exception {
         JSpinner daysSpinner = (JSpinner) getObjectFromPanel(GroupReviewEnum.EXPORT_GROUP_DAYS, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         JButton button = (JButton) getObjectFromPanel(GroupReviewEnum.EXPORT_GROUP_TARGET, JButton.class).orElseThrow(() -> new Exception("wrong object"));
-        exportedGroupService.findById(this.group.getId(), existing -> {
+        exportedGroupService.findById(this.group.getId()).subscribe(existing -> {
             if (Objects.isNull(existing)) {
                 return;
             }

@@ -5,16 +5,13 @@
  */
 package devs.mrp.turkeydesktop.database.group.external;
 
-import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
-import devs.mrp.turkeydesktop.common.WorkerFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.LongConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import rx.Observable;
 
 /**
  *
@@ -26,79 +23,66 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     private static final Logger logger = Logger.getLogger(ExternalGroupServiceImpl.class.getName());
 
     @Override
-    public void add(ExternalGroup element, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
+    public Observable<Long> add(ExternalGroup element) {
         if (element == null) {
-            consumer.accept(-1);
-        } else if (element.getFile() != null && element.getFile().length() > 500) {
+            return Observable.just(-1L);
+        }
+        if (element.getFile() != null && element.getFile().length() > 500) {
             logger.log(Level.SEVERE, "File path cannot be longer than 500 characters");
-            consumer.accept(-1);
-        } else {
-            // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            WorkerFactory.runResultSetWorker(() -> repo.findById(element.getId()), rs -> {
+            return Observable.just(-1L);
+        }
+        // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
+        return repo.findById(element.getId()).flatMap(rs -> {
+            try {
+                if (rs.next()) {
+                    return updateOrKeep(element, rs);
+                }
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
+            // if no element by that id, try with same group and file
+            return repo.findByGroupAndFile(element.getGroup(), element.getFile()).flatMap(rs2 -> {
                 try {
-                    if (rs.next()) {
-                        updateOrKeep(element, rs, consumer);
-                    } else {
-                        // if no element by that id, try with same group and file
-                        WorkerFactory.runResultSetWorker(() -> repo.findByGroupAndFile(element.getGroup(), element.getFile()), rs2 -> {
-                            try {
-                                if (rs2.next()) {
-                                    updateOrKeep(element, rs2, consumer);
-                                } else {
-                                    // else there is no element stored with this id
-                                    WorkerFactory.runLongWorker(() -> repo.add(element), consumer);
-                                }
-                            } catch (SQLException ex) {
-                                Logger.getLogger(ExternalGroupServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        });
+                    if (rs2.next()) {
+                        return updateOrKeep(element, rs2);
                     }
                 } catch (SQLException ex) {
-                    logger.log(Level.SEVERE, null, ex);
+                    Logger.getLogger(ExternalGroupServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
                 }
+                return repo.add(element);
             });
-        }
-    }
-
-    private void updateOrKeep(ExternalGroup element, ResultSet rs, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        ExternalGroup group = elementFromResultSetEntry(rs);
-        // if the value stored differs from the one received
-        if (!group.equals(element)) {
-            update(element, consumer);
-        } else {
-            // else the value is the same as the one stored
-            consumer.accept(0);
-        }
-        
-    }
-
-    @Override
-    public void update(ExternalGroup element, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        if (element == null) {
-            consumer.accept(-1);
-        } else if (element.getFile() != null && element.getFile().length() > 500) {
-            logger.log(Level.SEVERE, "File path cannot be longer than 500 characters");
-            consumer.accept(-1);
-        } else {
-            WorkerFactory.runLongWorker(() -> repo.update(element), consumer);
-        }
-    }
-
-    @Override
-    public void findAll(Consumer<List<ExternalGroup>> c) {
-        Consumer<List<ExternalGroup>> consumer = ExternalGroupServiceFactory.externalGroupListConsumer(c);
-        WorkerFactory.runResultSetWorker(() -> repo.findAll(), rs -> {
-            consumer.accept(elementsFromResultSet(rs));
         });
     }
 
+    private Observable<Long> updateOrKeep(ExternalGroup element, ResultSet rs) {
+        ExternalGroup group = elementFromResultSetEntry(rs);
+        // if the value stored differs from the one received
+        if (!group.equals(element)) {
+            return update(element);
+        }
+        return Observable.just(0L);
+    }
+
     @Override
-    public void findById(long id, Consumer<ExternalGroup> c) {
-        Consumer<ExternalGroup> consumer = ExternalGroupServiceFactory.externalGroupConsumer(c);
-        WorkerFactory.runResultSetWorker(() -> repo.findById(id), set -> {
+    public Observable<Long> update(ExternalGroup element) {
+        if (element == null) {
+            return Observable.just(-1L);
+        }
+        if (element.getFile() != null && element.getFile().length() > 500) {
+            logger.log(Level.SEVERE, "File path cannot be longer than 500 characters");
+            return Observable.just(-1L);
+        }
+        return repo.update(element);
+    }
+
+    @Override
+    public Observable<List<ExternalGroup>> findAll() {
+        return repo.findAll().map(this::elementsFromResultSet);
+    }
+
+    @Override
+    public Observable<ExternalGroup> findById(long id) {
+        return repo.findById(id).map(set -> {
             ExternalGroup element = null;
             try {
                 if (set.next()) {
@@ -107,14 +91,13 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-            consumer.accept(element);
+            return element;
         });
     }
 
     @Override
-    public void deleteById(long id, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        WorkerFactory.runLongWorker(() -> repo.deleteById(id), consumer);
+    public Observable<Long> deleteById(long id) {
+        return repo.deleteById(id);
     }
 
     private List<ExternalGroup> elementsFromResultSet(ResultSet set) {
@@ -143,25 +126,18 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     }
 
     @Override
-    public void findByGroup(Long id, Consumer<List<ExternalGroup>> c) {
-        Consumer<List<ExternalGroup>> consumer = ExternalGroupServiceFactory.externalGroupListConsumer(c);
-        WorkerFactory.runResultSetWorker(() -> repo.findByGroup(id), rs -> {
-            consumer.accept(elementsFromResultSet(rs));
-        });
+    public Observable<List<ExternalGroup>> findByGroup(Long id) {
+        return repo.findByGroup(id).map(this::elementsFromResultSet);
     }
 
     @Override
-    public void findByFile(String file, Consumer<List<ExternalGroup>> c) {
-        Consumer<List<ExternalGroup>> consumer = ExternalGroupServiceFactory.externalGroupListConsumer(c);
-        WorkerFactory.runResultSetWorker(() -> repo.findByFile(file), rs -> {
-            consumer.accept(elementsFromResultSet(rs));
-        });
+    public Observable<List<ExternalGroup>> findByFile(String file) {
+        return repo.findByFile(file).map(this::elementsFromResultSet);
     }
 
     @Override
-    public void deleteByGroup(Long id, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        WorkerFactory.runLongWorker(() -> repo.deleteByGroup(id), consumer);
+    public Observable<Long> deleteByGroup(Long id) {
+        return repo.deleteByGroup(id);
     }
 
 }
