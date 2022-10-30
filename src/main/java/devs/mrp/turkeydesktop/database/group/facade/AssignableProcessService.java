@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import devs.mrp.turkeydesktop.database.type.TypeService;
-import java.util.function.Consumer;
+import rx.Observable;
 
 /**
  *
@@ -25,21 +25,17 @@ public class AssignableProcessService extends AssignableAbstractService implemen
     private static final Logger logger = Logger.getLogger(AssignableProcessService.class.getName());
     
     @Override
-    public void positiveElementsWithAssignation(Consumer<List<AssignableElement<Type.Types>>> consumer) {
-        getAssignationsMap(GroupAssignation.ElementType.PROCESS, result -> {
-            elementsWithAssignation(result, Type.Types.POSITIVE, consumer);
-        });
+    public Observable<List<AssignableElement<Type.Types>>> positiveElementsWithAssignation() {
+        return getAssignationsMap(GroupAssignation.ElementType.PROCESS).flatMap(result -> elementsWithAssignation(result, Type.Types.POSITIVE));
     }
 
     @Override
-    public void negativeElementsWithAssignation(Consumer<List<AssignableElement<Type.Types>>> consumer) {
-        getAssignationsMap(GroupAssignation.ElementType.PROCESS, result -> {
-            elementsWithAssignation(result, Type.Types.NEGATIVE, consumer);
-        });
+    public Observable<List<AssignableElement<Type.Types>>> negativeElementsWithAssignation() {
+        return getAssignationsMap(GroupAssignation.ElementType.PROCESS).flatMap(result -> elementsWithAssignation(result, Type.Types.NEGATIVE));
     }
     
-    private void elementsWithAssignation(Map<String, GroupAssignation> assignables, Type.Types positiveOrNegative, Consumer<List<AssignableElement<Type.Types>>> consumer) {
-        typeService.findAll(result -> {
+    private Observable<List<AssignableElement<Type.Types>>> elementsWithAssignation(Map<String, GroupAssignation> assignables, Type.Types positiveOrNegative) {
+        return typeService.findAll().map(result -> {
             var computed = result.stream()
                 .filter(t -> t.getType().equals(positiveOrNegative))
                 .map(t -> {
@@ -57,7 +53,7 @@ public class AssignableProcessService extends AssignableAbstractService implemen
                     return element;
                 })
                 .collect(Collectors.toList());
-            consumer.accept(computed);
+            return computed;
         });
     }
     

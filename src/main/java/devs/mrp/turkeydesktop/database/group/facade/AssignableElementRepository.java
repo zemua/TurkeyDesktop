@@ -5,16 +5,6 @@
  */
 package devs.mrp.turkeydesktop.database.group.facade;
 
-import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
-import devs.mrp.turkeydesktop.database.type.Type;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.concurrent.Semaphore;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  *
  * @author miguel

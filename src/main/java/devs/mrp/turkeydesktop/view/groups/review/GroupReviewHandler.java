@@ -54,9 +54,9 @@ import java.util.Iterator;
 import org.apache.commons.lang3.StringUtils;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import java.util.Optional;
-import java.util.function.Consumer;
 import javax.swing.JCheckBox;
 import rx.Observable;
+import rx.Subscriber;
 
 /**
  *
@@ -207,32 +207,41 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         }
         JPanel panel = (JPanel) object;
         panel.removeAll();
+        
+        Subscriber subscriber = new Subscriber<List<AssignableElement<GroupAssignation.ElementType>>>() {
+            @Override
+            public void onCompleted() {}
 
-        Consumer<List<AssignableElement<GroupAssignation.ElementType>>> consumer = result -> {
-            Iterator<AssignableElement<GroupAssignation.ElementType>> iterator = result.iterator();
-            while (iterator.hasNext()) {
-                AssignableElement element = iterator.next();
-                try {
-                    if (!getFilterText().isEmpty() && !StringUtils.containsIgnoreCase(element.getElementName(), getFilterText())) {
-                        iterator.remove();
+            @Override
+            public void onError(Throwable thrwbl) {}
+
+            @Override
+            public void onNext(List<AssignableElement<GroupAssignation.ElementType>> result) {
+                Iterator<AssignableElement<GroupAssignation.ElementType>> iterator = result.iterator();
+                while (iterator.hasNext()) {
+                    AssignableElement element = iterator.next();
+                    try {
+                        if (!getFilterText().isEmpty() && !StringUtils.containsIgnoreCase(element.getElementName(), getFilterText())) {
+                            iterator.remove();
+                        }
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE, "error getting the text from filter, defaulting to no filter", e);
                     }
-                } catch (Exception e) {
-                    logger.log(Level.SEVERE, "error getting the text from filter, defaulting to no filter", e);
+
                 }
 
+                Collections.sort(result, getAssignableComparator());
+
+                setSwitchablesFromAssignables(result, panel, GroupAssignation.ElementType.PROCESS);
+                panel.revalidate();
+                panel.updateUI();
             }
-
-            Collections.sort(result, getAssignableComparator());
-
-            setSwitchablesFromAssignables(result, panel, GroupAssignation.ElementType.PROCESS);
-            panel.revalidate();
-            panel.updateUI();
         };
         
         if (group.getType().equals(Group.GroupType.POSITIVE)){
-            assignableProcessService.positiveElementsWithAssignation(consumer);
+            assignableProcessService.positiveElementsWithAssignation().subscribe(subscriber);
         } else {
-            assignableProcessService.negativeElementsWithAssignation(consumer);
+            assignableProcessService.negativeElementsWithAssignation().subscribe(subscriber);
         }
         
     }
@@ -244,31 +253,28 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         }
         JPanel panel = (JPanel) object;
         panel.removeAll();
-
-        Consumer<List<AssignableElement<GroupAssignation.ElementType>>> consumer = result -> {
-            Iterator<AssignableElement<GroupAssignation.ElementType>> iterator = result.iterator();
-            while (iterator.hasNext()) {
-                AssignableElement element = iterator.next();
-                try {
-                    if (!getFilterText().isEmpty() && !StringUtils.containsIgnoreCase(element.getElementName(), getFilterText())) {
-                        iterator.remove();
-                    }
-                } catch (Exception e) {
-                    logger.log(Level.SEVERE, "error getting the text from filter, defaulting to no filter", e);
-                }
-
+        
+        Subscriber subscriber = new Subscriber<List<AssignableElement<GroupAssignation.ElementType>>>() {
+            @Override
+            public void onCompleted() {
+                throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
             }
 
-            Collections.sort(result, getAssignableComparator());
+            @Override
+            public void onError(Throwable thrwbl) {
+                throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+            }
 
-            setSwitchablesFromAssignables(result, panel, GroupAssignation.ElementType.TITLE);
-            panel.revalidate();
-            panel.updateUI();
+            @Override
+            public void onNext(List<AssignableElement<GroupAssignation.ElementType>> t) {
+                throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+            }
         };
+        
         if (group.getType().equals(Group.GroupType.POSITIVE)) {
-            assignableTitlesService.positiveElementsWithAssignation(consumer);
+            assignableTitlesService.positiveElementsWithAssignation().subscribe(subscriber);
         } else {
-            assignableTitlesService.negativeElementsWithAssignation(consumer);
+            assignableTitlesService.negativeElementsWithAssignation().subscribe(subscriber);
         }
         
     }
