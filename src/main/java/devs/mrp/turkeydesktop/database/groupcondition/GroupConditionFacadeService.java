@@ -9,11 +9,9 @@ import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.FConditionService;
 import devs.mrp.turkeydesktop.database.conditions.IConditionService;
 import devs.mrp.turkeydesktop.database.group.GroupServiceFactory;
-import java.util.List;
 import devs.mrp.turkeydesktop.database.group.GroupService;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.function.Consumer;
+import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -25,38 +23,18 @@ public class GroupConditionFacadeService implements IGroupConditionFacadeService
     private final GroupService groupService = GroupServiceFactory.getService();
     
     @Override
-    public void findByConditionId(long conditionId, Consumer<GroupConditionFacade> c) {
-        var consumer = FGroupConditionFacadeService.getConsumer(c);
-        conditionService.findById(conditionId, condition -> {
-            toFacade(condition, facade -> {
-                consumer.accept(facade);
-            });
-        });
+    public Single<GroupConditionFacade> findByConditionId(long conditionId) {
+        return conditionService.findById(conditionId).flatMap(this::toFacade);
     }
 
     @Override
-    public void findByGroupId(long groupId, Consumer<List<GroupConditionFacade>> c) {
-        var consumer = FGroupConditionFacadeService.getListConsumer(c);
-        List<GroupConditionFacade> list = Collections.synchronizedList(new ArrayList<>());
-        conditionService.findByGroupId(groupId, result -> {
-            if (result.isEmpty()) {
-                consumer.accept(Collections.EMPTY_LIST);
-            }
-            result.forEach(con -> {
-                toFacade(con, facade -> {
-                    list.add(facade);
-                    if (list.size() == result.size()) {
-                        consumer.accept(list);
-                    }
-                });
-            });
-        });
+    public Observable<GroupConditionFacade> findByGroupId(long groupId) {
+        return conditionService.findByGroupId(groupId).flatMapSingle(this::toFacade);
     }
     
-    private void toFacade(Condition condition, Consumer<GroupConditionFacade> c) {
-        var consumer = FGroupConditionFacadeService.getConsumer(c);
-        groupService.findById(condition.getGroupId(), origin -> {
-            groupService.findById(condition.getTargetId(), target -> {
+    private Single<GroupConditionFacade> toFacade(Condition condition) {
+        return groupService.findById(condition.getGroupId()).flatMap(origin -> {
+            return groupService.findById(condition.getTargetId()).map(target -> {
                 GroupConditionFacade facade = new GroupConditionFacade();
                 facade.setConditionId(condition.getId());
                 facade.setGroupId(condition.getGroupId());
@@ -65,7 +43,7 @@ public class GroupConditionFacadeService implements IGroupConditionFacadeService
                 facade.setTargetName(target.getName());
                 facade.setLastDaysCondition(condition.getLastDaysCondition());
                 facade.setUsageTimeCondition(condition.getUsageTimeCondition());
-                consumer.accept(facade);
+                return facade;
             });
         });
     }

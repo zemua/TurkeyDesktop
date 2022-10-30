@@ -6,7 +6,7 @@
 package devs.mrp.turkeydesktop.database;
 
 import java.sql.ResultSet;
-import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -14,14 +14,14 @@ import rx.Observable;
  */
 public interface GeneralDao<T, I> {
     
-    public Observable<Long> add(T element);
+    public Single<Long> add(T element);
     
-    public Observable<Long> update(T element);
+    public Single<Long> update(T element);
     
-    public Observable<ResultSet> findAll();
+    public Single<ResultSet> findAll();
     
-    public Observable<ResultSet> findById(I id);
+    public Single<ResultSet> findById(I id);
     
-    public Observable<Long> deleteById(I id);
+    public Single<Long> deleteById(I id);
     
 }

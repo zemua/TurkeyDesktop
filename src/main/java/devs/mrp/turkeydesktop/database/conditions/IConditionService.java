@@ -5,20 +5,20 @@
  */
 package devs.mrp.turkeydesktop.database.conditions;
 
-import java.util.List;
 import rx.Observable;
+import rx.Single;
 
 /**
  *
  * @author miguel
  */
 public interface IConditionService {
-    public Observable<Long> add(Condition element);
-    public Observable<Long> update(Condition element);
-    public Observable<List<Condition>> findAll();
-    public Observable<List<Condition>> findByGroupId(Long groupId);
-    public Observable<Condition> findById(Long id);
-    public Observable<Long> deleteById(Long id);
-    public Observable<Long> deleteByGroupId(long id);
-    public Observable<Long> deleteByTargetId(long id);
+    public Single<Long> add(Condition element);
+    public Single<Long> update(Condition element);
+    public Observable<Condition> findAll();
+    public Observable<Condition> findByGroupId(Long groupId);
+    public Single<Condition> findById(Long id);
+    public Single<Long> deleteById(Long id);
+    public Single<Long> deleteByGroupId(long id);
+    public Single<Long> deleteByTargetId(long id);
 }

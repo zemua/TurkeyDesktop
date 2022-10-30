@@ -5,23 +5,23 @@
  */
 package devs.mrp.turkeydesktop.database.group;
 
-import java.util.List;
 import rx.Observable;
+import rx.Single;
 
 /**
  *
  * @author miguel
  */
 public interface GroupService {
-    public Observable<Long> add(Group element);
-    public Observable<Long> update(Group element);
-    public Observable<List<Group>> findAll();
-    public Observable<Group> findById(long id);
-    public Observable<Long> deleteById(long id);
+    public Single<Long> add(Group element);
+    public Single<Long> update(Group element);
+    public Observable<Group> findAll();
+    public Single<Group> findById(long id);
+    public Single<Long> deleteById(long id);
     
-    public Observable<List<Group>> findAllPositive();
-    public Observable<List<Group>> findAllNegative();
+    public Observable<Group> findAllPositive();
+    public Observable<Group> findAllNegative();
     
-    public Observable<Integer> setPreventClose(long groupId, boolean preventClose);
-    public Observable<Boolean> isPreventClose(long groupId);
+    public Single<Integer> setPreventClose(long groupId, boolean preventClose);
+    public Single<Boolean> isPreventClose(long groupId);
 }
