@@ -5,17 +5,14 @@
  */
 package devs.mrp.turkeydesktop.database.group.assignations;
 
-import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
-import devs.mrp.turkeydesktop.common.WorkerFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.LongConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
+import rx.Observable;
 
 /**
  *
@@ -27,55 +24,47 @@ public class GroupAssignationService implements IGroupAssignationService {
     private static final Logger logger = Logger.getLogger(GroupAssignationService.class.getName());
     
     @Override
-    public void add(GroupAssignation element, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
+    public Observable<Long> add(GroupAssignation element) {
         if (element == null) {
-            consumer.accept(-1L);
-        } else {
-            // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            WorkerFactory.runResultSetWorker(() -> repo.findByElementId(element.getType(), element.getElementId()), rs -> {
-                try {
-                    if (rs.next()) {
-                        GroupAssignation group = elementFromResultSetEntry(rs);
-                        // if the value stored differs from the one received
-                        if (!group.equals(element)) {
-                            update(element, consumer);
-                        } else {
-                            // else the value is the same as the one stored
-                            consumer.accept(0L);
-                        }
-                    } else {
-                        // else there is no element stored with this id
-                        WorkerFactory.runLongWorker(() -> repo.add(element), consumer::accept);
+            return Observable.just(-1L);
+        }
+        // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
+        return repo.findByElementId(element.getType(), element.getElementId()).flatMap(rs -> {
+            try {
+                if (rs.next()) {
+                    GroupAssignation group = elementFromResultSetEntry(rs);
+                    // if the value stored differs from the one received
+                    if (!group.equals(element)) {
+                        return update(element);
                     }
-                } catch (SQLException ex) {
-                    logger.log(Level.SEVERE, null, ex);
+                } else {
+                    // else there is no element stored with this id
+                    return repo.add(element);
                 }
-            });
-        }
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
+            return Observable.just(0L);
+        });
     }
 
     @Override
-    public void update(GroupAssignation element, LongConsumer c) {
-        LongConsumer longConsumer = SingleConsumerFactory.getLongConsumer(c);
+    public Observable<Long> update(GroupAssignation element) {
         if (element == null) {
-            longConsumer.accept(-1);
-        } else {
-            WorkerFactory.runLongWorker(() -> repo.update(element), longConsumer::accept);
+            return Observable.just(-1L);
         }
+        return repo.update(element);
     }
 
     @Override
-    public void findAll(Consumer<List<GroupAssignation>> c) {
-        Consumer<List<GroupAssignation>> consumer = FGroupAssignationService.groupAssignationListConsumer(c);
-        FGroupAssignationService.runGroupAssignationListWoker(() -> elementsFromResultSet(repo.findAll()), consumer::accept);
+    public Observable<List<GroupAssignation>> findAll() {
+        return repo.findAll().map(this::elementsFromResultSet);
     }
 
     @Deprecated
     @Override
-    public void findById(long id, Consumer<GroupAssignation> c) {
-        Consumer<GroupAssignation> consumer = FGroupAssignationService.groupAssignationConsumer(c);
-        WorkerFactory.runResultSetWorker(() -> repo.findById(id), result -> {
+    public Observable<GroupAssignation> findById(long id) {
+        return repo.findById(id).map(result -> {
             GroupAssignation element = null;
             try {
                 if (result.next()) {
@@ -84,84 +73,73 @@ public class GroupAssignationService implements IGroupAssignationService {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-            consumer.accept(element);
+            return element;
         });
     }
 
     @Deprecated
     @Override
-    public void deleteById(long id, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        WorkerFactory.runLongWorker(() -> repo.deleteById(id), consumer::accept);
+    public Observable<Long> deleteById(long id) {
+        return repo.deleteById(id);
     }
 
     @Override
-    public void findByProcessId(String processId, Consumer<GroupAssignation> c) {
-        Consumer<GroupAssignation> consumer = FGroupAssignationService.groupAssignationConsumer(c);
-        WorkerFactory.runResultSetWorker(() -> repo.findByElementId(GroupAssignation.ElementType.PROCESS, processId), result -> {
+    public Observable<GroupAssignation> findByProcessId(String processId) {
+        return repo.findByElementId(GroupAssignation.ElementType.PROCESS, processId).map(result -> {
             try {
                 if (result.next()) {
-                    consumer.accept(elementFromResultSetEntry(result));
-                } else {
-                    consumer.accept(null);
+                    return elementFromResultSetEntry(result);
                 }
             } catch (SQLException ex) {
                 Logger.getLogger(GroupAssignationService.class.getName()).log(Level.SEVERE, null, ex);
             }
+            return null;
         });
     }
     
     @Override
-    public void deleteByProcessId(String processId, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        WorkerFactory.runLongWorker(() -> repo.deleteByElementId(GroupAssignation.ElementType.PROCESS, processId), consumer);
+    public Observable<Long> deleteByProcessId(String processId) {
+        return repo.deleteByElementId(GroupAssignation.ElementType.PROCESS, processId);
     }
 
     @Override
-    public void findByTitleId(String titleId, Consumer<GroupAssignation> c) {
-        Consumer<GroupAssignation> consumer = FGroupAssignationService.groupAssignationConsumer(c);
-        WorkerFactory.runResultSetWorker(() -> repo.findByElementId(GroupAssignation.ElementType.TITLE, titleId), set -> {
+    public Observable<GroupAssignation> findByTitleId(String titleId) {
+        return repo.findByElementId(GroupAssignation.ElementType.TITLE, titleId).map(set -> {
             try {
                 if (set.next()) {
-                    consumer.accept(elementFromResultSetEntry(set));
-                } else {
-                    consumer.accept(null);
+                    return elementFromResultSetEntry(set);
                 }
             } catch (SQLException ex) {
                 Logger.getLogger(GroupAssignationService.class.getName()).log(Level.SEVERE, null, ex);
             }
+            return null;
         });
     }
     
     @Override
-    public void findLongestTitleIdContainedIn(String titleId, Consumer<GroupAssignation> c) {
-        Consumer<GroupAssignation> consumer = FGroupAssignationService.groupAssignationConsumer(c);
-        FGroupAssignationService.runGroupAssignationListWoker(() -> elementsFromResultSet(repo.findAllOfType(GroupAssignation.ElementType.TITLE)), titleAssignations -> {
-            FGroupAssignationService.runGroupAssignationWorker(() -> 
-                    titleAssignations.stream()
+    public Observable<GroupAssignation> findLongestTitleIdContainedIn(String titleId) {
+        return repo.findAllOfType(GroupAssignation.ElementType.TITLE)
+                .map(this::elementsFromResultSet)
+                .map(titleAssignations -> titleAssignations.stream()
                         .filter(ga -> StringUtils.containsIgnoreCase(titleId, ga.getElementId()))
                         .max((ga1, ga2) -> Integer.compare(ga1.getElementId().length(), ga2.getElementId().length()))
-                        .orElse(null),
-                    consumer);
-        });
+                        .orElse(null));
     }
     
     @Override
-    public void deleteByTitleId(String titleId, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        WorkerFactory.runLongWorker(() -> repo.deleteByElementId(GroupAssignation.ElementType.TITLE, titleId), consumer);
+    public Observable<Long> deleteByTitleId(String titleId) {
+        return repo.deleteByElementId(GroupAssignation.ElementType.TITLE, titleId);
     }
 
     @Override
-    public void findProcessesOfGroup(Long groupId, Consumer<List<GroupAssignation>> c) {
-        Consumer<List<GroupAssignation>> consumer = FGroupAssignationService.groupAssignationListConsumer(c);
-        FGroupAssignationService.runGroupAssignationListWoker(() -> elementsFromResultSet(repo.findAllElementTypeOfGroup(GroupAssignation.ElementType.PROCESS, groupId)), consumer);
+    public Observable<List<GroupAssignation>> findProcessesOfGroup(Long groupId) {
+        return repo.findAllElementTypeOfGroup(GroupAssignation.ElementType.PROCESS, groupId)
+                .map(this::elementsFromResultSet);
     }
 
     @Override
-    public void findTitlesOfGroup(Long groupId, Consumer<List<GroupAssignation>> c) {
-        Consumer<List<GroupAssignation>> consumer = FGroupAssignationService.groupAssignationListConsumer(c);
-        FGroupAssignationService.runGroupAssignationListWoker(() -> elementsFromResultSet(repo.findAllElementTypeOfGroup(GroupAssignation.ElementType.TITLE, groupId)), consumer);
+    public Observable<List<GroupAssignation>> findTitlesOfGroup(Long groupId) {
+        return repo.findAllElementTypeOfGroup(GroupAssignation.ElementType.TITLE, groupId).map(this::elementsFromResultSet);
     }
     
     private List<GroupAssignation> elementsFromResultSet(ResultSet set) {
@@ -190,20 +168,17 @@ public class GroupAssignationService implements IGroupAssignationService {
     }
 
     @Override
-    public void deleteByGroupId(long id, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        WorkerFactory.runLongWorker(() -> repo.deleteByGroupId(id), consumer::accept);
+    public Observable<Long> deleteByGroupId(long id) {
+        return repo.deleteByGroupId(id);
     }
 
     @Override
-    public void findGroupOfAssignation(String assignation, Consumer<GroupAssignation> c) {
-        Consumer<GroupAssignation> consumer = FGroupAssignationService.groupAssignationConsumer(c);
-        FGroupAssignationService.runGroupAssignationListWoker(() -> elementsFromResultSet(repo.findByElementId(GroupAssignation.ElementType.TITLE, assignation.toLowerCase())), titleAssignations -> {
+    public Observable<GroupAssignation> findGroupOfAssignation(String assignation) {
+        return repo.findByElementId(GroupAssignation.ElementType.TITLE, assignation.toLowerCase()).map(this::elementsFromResultSet).map(titleAssignations -> {
             if (titleAssignations.isEmpty()) {
-                consumer.accept(null);
-            } else {
-                consumer.accept(titleAssignations.get(0));
+                return null;
             }
+            return titleAssignations.get(0);
         });
     }
     
