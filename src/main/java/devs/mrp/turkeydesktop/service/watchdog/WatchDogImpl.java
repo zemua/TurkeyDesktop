@@ -173,7 +173,7 @@ public class WatchDogImpl implements WatchDog {
                         });
 
                         if (!conditionsMet) {
-                            groupService.findById(entry.getGroupId(), groupResult -> {
+                            groupService.findById(entry.getGroupId()).subscribe(groupResult -> {
                                 Toaster.sendToast(localeMessages.getString("conditionsNotMetFor") + " " + groupResult.getName());
                             });
                         }

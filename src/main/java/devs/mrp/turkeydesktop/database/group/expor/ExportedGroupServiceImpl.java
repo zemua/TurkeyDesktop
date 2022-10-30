@@ -5,16 +5,13 @@
  */
 package devs.mrp.turkeydesktop.database.group.expor;
 
-import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
-import devs.mrp.turkeydesktop.common.WorkerFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.LongConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import rx.Observable;
 
 /**
  *
@@ -26,62 +23,54 @@ public class ExportedGroupServiceImpl implements ExportedGroupService {
     private static final Logger logger = Logger.getLogger(ExportedGroupServiceImpl.class.getName());
 
     @Override
-    public void add(ExportedGroup element, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
+    public Observable<Long> add(ExportedGroup element) {
         if (element == null) {
-            consumer.accept(-1);
-        } else if (element.getFile() != null && element.getFile().length() > 500) {
+            return Observable.just(-1L);
+        }
+        if (element.getFile() != null && element.getFile().length() > 500) {
             logger.log(Level.SEVERE, "File path cannot be longer than 500 characters");
-            consumer.accept(-1);
-        } else {
-            // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            WorkerFactory.runResultSetWorker(() -> repo.findById(element.getGroup()), rs -> {
-                try {
-                    if (rs.next()) {
-                        ExportedGroup group = elementFromResultSetEntry(rs);
-                        // if the value stored differs from the one received
-                        if (!group.equals(element)) {
-                            update(element, consumer);
-                        } else {
-                            // else the value is the same as the one stored
-                            consumer.accept(0);
-                        }
-                    } else {
-                        // else there is no element stored with this id
-                        WorkerFactory.runLongWorker(() -> repo.add(element), consumer);
+            return Observable.just(-1L);
+        }
+        // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
+        return repo.findById(element.getGroup()).flatMap(rs -> {
+            try {
+                if (rs.next()) {
+                    ExportedGroup group = elementFromResultSetEntry(rs);
+                    // if the value stored differs from the one received
+                    if (!group.equals(element)) {
+                        return update(element);
                     }
-                } catch (SQLException ex) {
-                    logger.log(Level.SEVERE, null, ex);
+                } else {
+                    // else there is no element stored with this id
+                    return repo.add(element);
                 }
-            });
-        }
-    }
-
-    @Override
-    public void update(ExportedGroup element, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        if (element == null) {
-            consumer.accept(-1);
-        } else if (element.getFile() != null && element.getFile().length() > 500) {
-            logger.log(Level.SEVERE, "File path cannot be longer than 500 characters");
-            consumer.accept(-1);
-        } else {
-            WorkerFactory.runLongWorker(() -> repo.update(element), consumer);
-        }
-    }
-
-    @Override
-    public void findAll(Consumer<List<ExportedGroup>> c) {
-        Consumer<List<ExportedGroup>> consumer = ExportedGroupServiceFactory.exportedGroupListConsumer(c);
-        WorkerFactory.runResultSetWorker(() -> repo.findAll(), all -> {
-            consumer.accept(elementsFromResultSet(all));
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
+            return Observable.just(0L);
         });
     }
 
     @Override
-    public void findById(long id, Consumer<ExportedGroup> c) {
-        Consumer<ExportedGroup> consumer = ExportedGroupServiceFactory.exportedGroupConsumer(c);
-        WorkerFactory.runResultSetWorker(() -> repo.findById(id), set -> {
+    public Observable<Long> update(ExportedGroup element) {
+        if (element == null) {
+            return Observable.just(-1L);
+        }
+        if (element.getFile() != null && element.getFile().length() > 500) {
+            logger.log(Level.SEVERE, "File path cannot be longer than 500 characters");
+            return Observable.just(-1L);
+        }
+        return repo.update(element);
+    }
+
+    @Override
+    public Observable<List<ExportedGroup>> findAll() {
+        return repo.findAll().map(this::elementsFromResultSet);
+    }
+
+    @Override
+    public Observable<ExportedGroup> findById(long id) {
+        return repo.findById(id).map(set -> {
             ExportedGroup element = null;
             try {
                 if (set.next()) {
@@ -90,36 +79,28 @@ public class ExportedGroupServiceImpl implements ExportedGroupService {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-            consumer.accept(element);
+            return element;
         });
     }
 
     @Override
-    public void deleteById(long id, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        WorkerFactory.runLongWorker(() -> repo.deleteById(id), consumer);
+    public Observable<Long> deleteById(long id) {
+        return repo.deleteById(id);
     }
 
     @Override
-    public void findByGroup(long id, Consumer<List<ExportedGroup>> c) {
-        Consumer<List<ExportedGroup>> consumer = ExportedGroupServiceFactory.exportedGroupListConsumer(c);
-        WorkerFactory.runResultSetWorker(() -> repo.findByGroup(id), results -> {
-            consumer.accept(elementsFromResultSet(results));
-        });
+    public Observable<List<ExportedGroup>> findByGroup(long id) {
+        return repo.findByGroup(id).map(this::elementsFromResultSet);
     }
 
     @Override
-    public void findByFileAndGroup(long groupId, String file, Consumer<List<ExportedGroup>> c) {
-        Consumer<List<ExportedGroup>> consumer = ExportedGroupServiceFactory.exportedGroupListConsumer(c);
-        WorkerFactory.runResultSetWorker(() -> repo.findByGroupAndFile(groupId, file), set -> {
-            consumer.accept(elementsFromResultSet(set));
-        });
+    public Observable<List<ExportedGroup>> findByFileAndGroup(long groupId, String file) {
+        return repo.findByGroupAndFile(groupId, file).map(this::elementsFromResultSet);
     }
 
     @Override
-    public void deleteByGroup(long id, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        WorkerFactory.runLongWorker(() -> repo.deleteByGroup(id), consumer);
+    public Observable<Long> deleteByGroup(long id) {
+        return repo.deleteByGroup(id);
     }
 
     private List<ExportedGroup> elementsFromResultSet(ResultSet set) {

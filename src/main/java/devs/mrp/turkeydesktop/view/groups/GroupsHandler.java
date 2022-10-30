@@ -76,11 +76,11 @@ public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, Feedbacker
         JPanel panel = (JPanel)this.getPanel().getProperty(GroupsEnum.PANEL_LIST);
         if (panel == null || !(panel instanceof JPanel)) {return;}
         if (type == Group.GroupType.POSITIVE) {
-            groupService.findAllPositive(positiveResult -> {
+            groupService.findAllPositive().subscribe(positiveResult -> {
                 processRefreshPanelList(positiveResult, panel);
             });
         } else {
-            groupService.findAllNegative(negativeResult -> {
+            groupService.findAllNegative().subscribe(negativeResult -> {
                 processRefreshPanelList(negativeResult, panel);
             });
         }
@@ -94,7 +94,7 @@ public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, Feedbacker
         Group group = new Group();
         group.setName(name);
         group.setType(this.type);
-        groupService.add(group, r -> {});
+        groupService.add(group).subscribe();
         field.setText("");
         refreshPanelList();
     }

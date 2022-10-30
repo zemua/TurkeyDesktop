@@ -7,13 +7,14 @@ package devs.mrp.turkeydesktop.database.group.expor;
 
 import devs.mrp.turkeydesktop.database.GeneralDao;
 import java.sql.ResultSet;
+import rx.Observable;
 
 /**
  *
  * @author miguel
  */
 public interface ExportedGroupDao extends GeneralDao<ExportedGroup, Long> {
-    public ResultSet findByGroup(Long id);
-    public ResultSet findByGroupAndFile(Long groupId, String file);
-    public long deleteByGroup(Long id);
+    public Observable<ResultSet> findByGroup(Long id);
+    public Observable<ResultSet> findByGroupAndFile(Long groupId, String file);
+    public Observable<Long> deleteByGroup(Long id);
 }

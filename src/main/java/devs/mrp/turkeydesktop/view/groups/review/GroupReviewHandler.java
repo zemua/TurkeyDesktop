@@ -56,6 +56,7 @@ import devs.mrp.turkeydesktop.database.group.GroupService;
 import java.util.Optional;
 import java.util.function.Consumer;
 import javax.swing.JCheckBox;
+import rx.Observable;
 
 /**
  *
@@ -323,9 +324,9 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                 popupMaker.show(this.getFrame(), () -> {
                     // positive
                     if (processOrTitle.equals(GroupAssignation.ElementType.PROCESS)) {
-                        groupAssignationService.deleteByProcessId(processOrTitleId, r -> {});
+                        groupAssignationService.deleteByProcessId(processOrTitleId).subscribe();
                     } else {
-                        groupAssignationService.deleteByTitleId(processOrTitleId, r -> {});
+                        groupAssignationService.deleteByTitleId(processOrTitleId).subscribe();
                     }
                 }, () -> {
                     // negative
@@ -336,7 +337,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                 ga.setElementId(name);
                 ga.setGroupId(group.getId());
                 ga.setType(processOrTitle);
-                groupAssignationService.add(ga, r -> {});
+                groupAssignationService.add(ga).subscribe();
             }
         });
     }
@@ -391,19 +392,17 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             throw new Exception("error getting some fields for condition");
         }
         targetComboBox.removeAllItems();
-        comboItems(items -> {
+        comboItems().subscribe(items -> {
             items.forEach(item -> targetComboBox.addItem(item));
         });
     }
 
     @SuppressWarnings("unchecked")
-    private void comboItems(Consumer<List<Group>> consumer) {
-        groupService.findAllPositive(positiveResult -> {
-            var res = positiveResult.stream()
-                .filter(g -> g.getId() != group.getId())
-                .collect(Collectors.toList());
-            consumer.accept(res);
-        });
+    private Observable<List<Group>> comboItems() {
+        return groupService.findAllPositive()
+                .map(positiveResult -> positiveResult.stream()
+                    .filter(g -> g.getId() != group.getId())
+                    .collect(Collectors.toList()));
     }
 
     private void fillConditionsInPanel() {
@@ -499,7 +498,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             return;
         }
         group.setName(field.getText());
-        groupService.update(group, r -> setGroupLabelName(group.getName()));
+        groupService.update(group).subscribe(r -> setGroupLabelName(group.getName()));
     }
 
     private void deleteGroup() throws Exception {
@@ -514,8 +513,8 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         conditionService.deleteByGroupId(group.getId()).subscribe();
         conditionService.deleteByTargetId(group.getId()).subscribe();
         externalGroupService.deleteByGroup(group.getId(), r -> {});
-        groupAssignationService.deleteByGroupId(group.getId(), r -> {});
-        groupService.deleteById(group.getId(), r -> exit());
+        groupAssignationService.deleteByGroupId(group.getId()).subscribe();
+        groupService.deleteById(group.getId()).subscribe(r -> exit());
     }
 
     private void addExternalTime() throws Exception {
@@ -666,7 +665,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                 popupMaker.show(getFrame(), () ->{
                     // positive runnable
                     group.setPreventClose(true);
-                    groupService.update(group, r -> {});
+                    groupService.update(group).subscribe();
                     preventClose.setEnabled(true);
                 }, () -> {
                     // negative runnable
@@ -676,7 +675,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                 });
             } else {
                 group.setPreventClose(false);
-                groupService.update(group, r -> {});
+                groupService.update(group).subscribe();
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error setting prevent close");
