@@ -5,15 +5,10 @@
  */
 package devs.mrp.turkeydesktop.database.group;
 
-import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
-import devs.mrp.turkeydesktop.common.WorkerFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.IntConsumer;
-import java.util.function.LongConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import rx.Observable;
@@ -61,18 +56,13 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public void findAll(Consumer<List<Group>> c) {
-        Consumer<List<Group>> consumer = GroupServiceFactory.groupListConsumer(c);
-        WorkerFactory.runResultSetWorker(() -> repo.findAll(), allResult -> {
-            consumer.accept(elementsFromResultSet(allResult));
-        });
-        
+    public Observable<List<Group>> findAll() {
+        return repo.findAll().map(this::elementsFromResultSet);
     }
 
     @Override
-    public void findById(long id, Consumer<Group> c) {
-        Consumer<Group> consumer = GroupServiceFactory.groupConsumer(c);
-        WorkerFactory.runResultSetWorker(() -> repo.findById(id), set -> {
+    public Observable<Group> findById(long id) {
+        return repo.findById(id).map(set -> {
             Group element = null;
             try {
                 if (set.next()) {
@@ -81,52 +71,36 @@ public class GroupServiceImpl implements GroupService {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-            consumer.accept(element);
+            return element;
         });
     }
 
     @Override
-    public void deleteById(long id, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        WorkerFactory.runLongWorker(() -> repo.deleteById(id), consumer);
+    public Observable<Long> deleteById(long id) {
+        return repo.deleteById(id);
     }
 
     @Override
-    public void findAllPositive(Consumer<List<Group>> c) {
-        Consumer<List<Group>> consumer = GroupServiceFactory.groupListConsumer(c);
-        WorkerFactory.runResultSetWorker(() -> repo.findAllOfType(Group.GroupType.POSITIVE), allResult -> {
-            consumer.accept(elementsFromResultSet(allResult));
-        });
+    public Observable<List<Group>> findAllPositive() {
+        return repo.findAllOfType(Group.GroupType.POSITIVE).map(this::elementsFromResultSet);
     }
 
     @Override
-    public void findAllNegative(Consumer<List<Group>> c) {
-        Consumer<List<Group>> consumer = GroupServiceFactory.groupListConsumer(c);
-        WorkerFactory.runResultSetWorker(() -> repo.findAllOfType(Group.GroupType.NEGATIVE), negatives -> {
-            consumer.accept(elementsFromResultSet(negatives));
-        });
+    public Observable<List<Group>> findAllNegative() {
+        return repo.findAllOfType(Group.GroupType.NEGATIVE).map(this::elementsFromResultSet);
     }
     
     @Override
-    public void setPreventClose(long groupId, boolean preventClose, IntConsumer c) {
-        IntConsumer consumer = SingleConsumerFactory.getIntConsumer(c);
-        WorkerFactory.runIntWorker(() -> repo.setPreventClose(groupId, preventClose), consumer);
+    public Observable<Integer> setPreventClose(long groupId, boolean preventClose) {
+        return repo.setPreventClose(groupId, preventClose);
     }
     
     @Override
-    public void isPreventClose(long groupId, Consumer<Boolean> c) {
-        Consumer<Boolean> consumer = SingleConsumerFactory.getBooleanConsumer(c);
+    public Observable<Boolean> isPreventClose(long groupId) {
         if (groupId < 1) { // doesn't belong to a group
-            consumer.accept(false);
-            return;
+            return Observable.just(false);
         }
-        findById(groupId, group -> {
-            if (group == null) {
-                consumer.accept(false);
-            } else {
-                consumer.accept(group.isPreventClose());
-            }
-        });
+        return findById(groupId).map(group -> group != null && group.isPreventClose());
     }
     
     private List<Group> elementsFromResultSet(ResultSet set) {
