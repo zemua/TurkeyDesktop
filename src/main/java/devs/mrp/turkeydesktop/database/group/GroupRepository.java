@@ -9,9 +9,9 @@ import devs.mrp.turkeydesktop.database.Db;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import rx.Observable;
 
 /**
  *
@@ -21,7 +21,6 @@ public class GroupRepository implements GroupDao {
     
     private Db dbInstance = Db.getInstance();
     private static final Logger logger = Logger.getLogger(GroupRepository.class.getName());
-    private final Semaphore semaphore = Db.getSemaphore();
     
     private static GroupRepository instance;
     
@@ -37,10 +36,9 @@ public class GroupRepository implements GroupDao {
     }
     
     @Override
-    public long add(Group element) {
-        long result = -1;
-        try {
-            semaphore.acquire();
+    public Observable<Long> add(Group element) {
+        return Db.observableLong(() -> {
+            long result = -1;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s) ",
@@ -52,19 +50,14 @@ public class GroupRepository implements GroupDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return result;
+            return result;
+        });
     }
 
     @Override
-    public long update(Group element) {
-        long result = -1;
-        try {
-            semaphore.acquire();
+    public Observable<Long> update(Group element) {
+        return Db.observableLong(() -> {
+            long result = -1;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=?, %s=? WHERE %s=? ",
@@ -77,40 +70,30 @@ public class GroupRepository implements GroupDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return result;
+            return result;
+        });
     }
 
     @Override
-    public ResultSet findAll() {
-        ResultSet rs = null;
-        try {
-            semaphore.acquire();
-            PreparedStatement stm;
-            try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s",
-                        Db.GROUPS_TABLE));
-                rs = stm.executeQuery();
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null ,ex);
-            }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null ,ex);
-        } finally {
-            semaphore.release();
-        }
-        return rs;
+    public Observable<ResultSet> findAll() {
+        return Db.observableResultSet(() -> {
+            ResultSet rs = null;
+                PreparedStatement stm;
+                try {
+                    stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s",
+                            Db.GROUPS_TABLE));
+                    rs = stm.executeQuery();
+                } catch (SQLException ex) {
+                    logger.log(Level.SEVERE, null ,ex);
+                }
+            return rs;
+        });
     }
 
     @Override
-    public ResultSet findById(Long id) {
-        ResultSet rs = null;
-        try {
-            semaphore.acquire();
+    public Observable<ResultSet> findById(Long id) {
+        return Db.observableResultSet(() -> {
+            ResultSet rs = null;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
@@ -120,19 +103,14 @@ public class GroupRepository implements GroupDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return rs;
+            return rs;
+        });
     }
 
     @Override
-    public long deleteById(Long id) {
-        long delQty = -1;
-        try {
-            semaphore.acquire();
+    public Observable<Long> deleteById(Long id) {
+        return Db.observableLong(() -> {
+            long delQty = -1;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
@@ -142,19 +120,14 @@ public class GroupRepository implements GroupDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return delQty;
+            return delQty;
+        });
     }
 
     @Override
-    public ResultSet findAllOfType(Group.GroupType type) {
-        ResultSet rs = null;
-        try {
-            semaphore.acquire();
+    public Observable<ResultSet> findAllOfType(Group.GroupType type) {
+        return Db.observableResultSet(() -> {
+            ResultSet rs = null;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
@@ -164,19 +137,14 @@ public class GroupRepository implements GroupDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null ,ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null ,ex);
-        } finally {
-            semaphore.release();
-        }
-        return rs;
+            return rs;
+        });
     }
     
     @Override
-    public int setPreventClose(long groupId, boolean preventClose) {
-        int affectedRows = 0;
-        try {
-            semaphore.acquire();
+    public Observable<Integer> setPreventClose(long groupId, boolean preventClose) {
+        return Db.observableInt(() -> {
+            int affectedRows = 0;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s = ? WHERE %s = ?",
@@ -187,12 +155,8 @@ public class GroupRepository implements GroupDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null ,ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null ,ex);
-        } finally {
-            semaphore.release();
-        }
-        return affectedRows;
+            return affectedRows;
+        });
     }
     
 }
