@@ -16,6 +16,7 @@ import java.util.function.IntConsumer;
 import java.util.function.LongConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import rx.Observable;
 
 /**
  *
@@ -27,42 +28,36 @@ public class GroupServiceImpl implements GroupService {
     private static final Logger logger = Logger.getLogger(GroupServiceImpl.class.getName());
     
     @Override
-    public void add(Group element, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
+    public Observable<Long> add(Group element) {
         if (element == null) {
-            consumer.accept(-1);
-        } else {
-            // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            WorkerFactory.runResultSetWorker(() -> repo.findById(element.getId()), rs -> {
-                try {
-                    if (rs.next()) {
-                        Group group = elementFromResultSetEntry(rs);
-                        // if the value stored differs from the one received
-                        if (!group.equals(element)) {
-                            update(element, consumer);
-                        } else {
-                            // else the value is the same as the one stored
-                            consumer.accept(0);
-                        }
-                    } else {
-                        // else there is no element stored with this id
-                        WorkerFactory.runLongWorker(() -> repo.add(element), consumer);
-                    }
-                } catch (SQLException ex) {
-                    logger.log(Level.SEVERE, null, ex);
-                }
-            });
+            return Observable.just(-1L);
         }
+        // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
+        return repo.findById(element.getId()).flatMap(rs -> {
+            try {
+                if (rs.next()) {
+                    Group group = elementFromResultSetEntry(rs);
+                    // if the value stored differs from the one received
+                    if (!group.equals(element)) {
+                        return update(element);
+                    }
+                } else {
+                    // else there is no element stored with this id
+                    return repo.add(element);
+                }
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
+            return Observable.just(0L);
+        });
     }
 
     @Override
-    public void update(Group element, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
+    public Observable<Long> update(Group element) {
         if (element == null) {
-            consumer.accept(-1);
-        } else {
-            WorkerFactory.runLongWorker(() -> repo.update(element), consumer);
+            return Observable.just(-1L);
         }
+        return repo.update(element);
     }
 
     @Override
