@@ -6,7 +6,6 @@
 package devs.mrp.turkeydesktop.database.config;
 
 import devs.mrp.turkeydesktop.database.GeneralDao;
-import java.sql.ResultSet;
 
 /**
  *
