@@ -7,7 +7,7 @@ package devs.mrp.turkeydesktop.database.conditions;
 
 import devs.mrp.turkeydesktop.database.GeneralDao;
 import java.sql.ResultSet;
-import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -15,8 +15,8 @@ import rx.Observable;
  */
 public interface ConditionDao extends GeneralDao<Condition, Long> {
     
-    public Observable<ResultSet> findByGroupId(long groupId);
-    public Observable<Long> deleteByGroupId(long groupId);
-    public Observable<Long> deleteByTargetId(long targetId);
+    public Single<ResultSet> findByGroupId(long groupId);
+    public Single<Long> deleteByGroupId(long groupId);
+    public Single<Long> deleteByTargetId(long targetId);
     
 }

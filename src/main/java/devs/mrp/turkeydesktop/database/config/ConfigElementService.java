@@ -8,14 +8,13 @@ package devs.mrp.turkeydesktop.database.config;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -26,7 +25,7 @@ public class ConfigElementService implements IConfigElementService {
     private static final ConfigElementDao repo = ConfigElementRepository.getInstance();
     private static final Logger logger = Logger.getLogger(ConfigElementService.class.getName());
 
-    private static Map<ConfigurationEnum, String> configMap;
+    private static Map<ConfigurationEnum, String> configMap = new HashMap<>();
 
     public ConfigElementService() {
         initConfigMap();
@@ -41,9 +40,9 @@ public class ConfigElementService implements IConfigElementService {
     }
 
     @Override
-    public Observable<Long> add(ConfigElement element) {
+    public Single<Long> add(ConfigElement element) {
         if (element == null || element.getKey() == null || element.getValue().length() > 150) {
-            return Observable.just(-1L);
+            return Single.just(-1L);
         }
         // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
         return repo.findById(element.getKey().toString()).flatMap(rs -> {
@@ -60,33 +59,35 @@ public class ConfigElementService implements IConfigElementService {
                 } catch (SQLException ex) {
                     Logger.getLogger(ConfigElementService.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                return Observable.just(0L);
+                return Single.just(0L);
         });
     }
 
     @Override
-    public Observable<Long> update(ConfigElement element) {
+    public Single<Long> update(ConfigElement element) {
         if (element == null || element.getKey() == null || element.getValue().length() > 150) {
-            return Observable.just(-1L);
+            return Single.just(-1L);
         }
         configMap.put(element.getKey(), element.getValue());
         return repo.update(element);
     }
 
     @Override
-    public Observable<List<ConfigElement>> findAll() {
-        List<ConfigElement> elements = new ArrayList<>();
-        return repo.findAll().map(set -> {
-            try {
-                while (set.next()) {
-                    ConfigElement el = elementFromResultSetEntry(set);
-                    elements.add(el);
+    public Observable<ConfigElement> findAll() {
+        return repo.findAll().flatMapObservable(set -> {
+            return Observable.create(subscriber -> {
+                configMap.clear();
+                try {
+                    while (set.next()) {
+                        ConfigElement elem = elementFromResultSetEntry(set);
+                        subscriber.onNext(elem);
+                        configMap.put(elem.getKey(), elem.getValue());
+                    }
+                } catch (SQLException ex) {
+                    logger.log(Level.SEVERE, null, ex);
                 }
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
-            configMap = elements.stream().collect(Collectors.toMap(ConfigElement::getKey, ConfigElement::getValue));
-            return elements;
+                
+            });
         });
     }
     
@@ -95,27 +96,27 @@ public class ConfigElementService implements IConfigElementService {
     }
 
     @Override
-    public Observable<ConfigElement> findById(ConfigurationEnum key) {
+    public Single<ConfigElement> findById(ConfigurationEnum key) {
         return repo.findById(key.toString()).flatMap(set -> {
             ConfigElementWrapper e = new ConfigElementWrapper();
             try {
                 if (set.next()) {
                     e.element = elementFromResultSetEntry(set);
                     configMap.put(e.element.getKey(), e.element.getValue());
-                    return Observable.just(e.element);
+                    return Single.just(e.element);
                 }
                 return configElement(key);
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-            return Observable.just(e.element);
+            return Single.just(e.element);
         });
     }
 
     @Override
-    public Observable<Long> deleteById(ConfigurationEnum key) {
+    public Single<Long> deleteById(ConfigurationEnum key) {
         if (key == null) {
-            return Observable.just(-1L);
+            return Single.just(-1L);
         }
         configMap.remove(key);
         return repo.deleteById(key.toString());
@@ -133,8 +134,8 @@ public class ConfigElementService implements IConfigElementService {
     }
 
     @Override
-    public Observable<List<ConfigElement>> allConfigElements() {
-        return Observable.just(configMap.entrySet().stream()
+    public Observable<ConfigElement> allConfigElements() {
+        return Observable.from(configMap.entrySet().stream()
                 .map(e -> {
                     ConfigElement el = new ConfigElement();
                     el.setKey(e.getKey());
@@ -145,7 +146,7 @@ public class ConfigElementService implements IConfigElementService {
     }
 
     @Override
-    public Observable<ConfigElement> configElement(ConfigurationEnum key) {
+    public Single<ConfigElement> configElement(ConfigurationEnum key) {
         ConfigElement el = new ConfigElement();
         el.setKey(key);
         if (configMap.containsKey(key)) {
@@ -153,7 +154,7 @@ public class ConfigElementService implements IConfigElementService {
         } else {
             el.setValue(key.getDefault());
         }
-        return Observable.just(el);
+        return Single.just(el);
     }
 
 }

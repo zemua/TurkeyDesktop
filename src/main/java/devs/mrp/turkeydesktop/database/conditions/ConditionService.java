@@ -7,11 +7,10 @@ package devs.mrp.turkeydesktop.database.conditions;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -23,9 +22,9 @@ public class ConditionService implements IConditionService {
     private static final Logger logger = Logger.getLogger(ConditionService.class.getName());
     
     @Override
-    public Observable<Long> add(Condition element) {
+    public Single<Long> add(Condition element) {
         if (element == null) {
-            return Observable.just(-1L);
+            return Single.just(-1L);
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
             return repo.findById(element.getId()).flatMap(rs -> {
@@ -43,27 +42,27 @@ public class ConditionService implements IConditionService {
                 } catch (SQLException ex) {
                     Logger.getLogger(ConditionService.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                return Observable.just(0L);
+                return Single.just(0L);
             });
         }
     }
 
     @Override
-    public Observable<Long> update(Condition element) {
+    public Single<Long> update(Condition element) {
         if (element == null) {
-            return Observable.just(-1L);
+            return Single.just(-1L);
         } else {
             return repo.update(element);
         }
     }
 
     @Override
-    public Observable<List<Condition>> findAll() {
-        return repo.findAll().map(this::elementsFromResultSet);
+    public Observable<Condition> findAll() {
+        return repo.findAll().flatMapObservable(this::elementsFromResultSet);
     }
 
     @Override
-    public Observable<Condition> findById(Long id) {
+    public Single<Condition> findById(Long id) {
         return repo.findById(id).map(set -> {
             Condition element = null;
             try {
@@ -78,36 +77,36 @@ public class ConditionService implements IConditionService {
     }
     
     @Override
-    public Observable<List<Condition>> findByGroupId(Long groupId) {
-        return repo.findByGroupId(groupId).map(this::elementsFromResultSet);
+    public Observable<Condition> findByGroupId(Long groupId) {
+        return repo.findByGroupId(groupId).flatMapObservable(this::elementsFromResultSet);
     }
 
     @Override
-    public Observable<Long> deleteById(Long id) {
+    public Single<Long> deleteById(Long id) {
         return repo.deleteById(id);
     }
     
     @Override
-    public Observable<Long> deleteByGroupId(long id) {
+    public Single<Long> deleteByGroupId(long id) {
         return repo.deleteByGroupId(id);
     }
     
     @Override
-    public Observable<Long> deleteByTargetId(long id) {
+    public Single<Long> deleteByTargetId(long id) {
         return repo.deleteByTargetId(id);
     }
     
-    private List<Condition> elementsFromResultSet(ResultSet set) {
-        List<Condition> elements = new ArrayList<>();
-        try {
-            while (set.next()) {
-                Condition el = elementFromResultSetEntry(set);
-                elements.add(el);
+    private Observable<Condition> elementsFromResultSet(ResultSet set) {
+        return Observable.create(subscriber -> {
+            try {
+                while(set.next()) {
+                    subscriber.onNext(elementFromResultSetEntry(set));
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(ConditionService.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        return elements;
+            subscriber.onCompleted();
+        });
     }
     
     private Condition elementFromResultSetEntry(ResultSet set) {

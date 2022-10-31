@@ -6,8 +6,8 @@
 package devs.mrp.turkeydesktop.database.config;
 
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
-import java.util.List;
 import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -15,13 +15,13 @@ import rx.Observable;
  */
 public interface IConfigElementService {
     
-    public Observable<Long> add(ConfigElement element);
-    public Observable<Long> update(ConfigElement element);
-    public Observable<List<ConfigElement>> findAll();
-    public Observable<ConfigElement> findById(ConfigurationEnum key);
-    public Observable<Long> deleteById(ConfigurationEnum key);
+    public Single<Long> add(ConfigElement element);
+    public Single<Long> update(ConfigElement element);
+    public Observable<ConfigElement> findAll();
+    public Single<ConfigElement> findById(ConfigurationEnum key);
+    public Single<Long> deleteById(ConfigurationEnum key);
     
-    public Observable<List<ConfigElement>> allConfigElements();
-    public Observable<ConfigElement> configElement(ConfigurationEnum key);
+    public Observable<ConfigElement> allConfigElements();
+    public Single<ConfigElement> configElement(ConfigurationEnum key);
     
 }

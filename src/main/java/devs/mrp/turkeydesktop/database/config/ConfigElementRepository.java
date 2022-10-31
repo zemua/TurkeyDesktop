@@ -11,7 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -36,8 +36,8 @@ public class ConfigElementRepository implements ConfigElementDao {
     }
     
     @Override
-    public Observable<Long> add(ConfigElement element) {
-        return Db.observableLong(() -> {
+    public Single<Long> add(ConfigElement element) {
+        return Db.singleLong(() -> {
             long result = -1;
             PreparedStatement stm;
             try {
@@ -55,8 +55,8 @@ public class ConfigElementRepository implements ConfigElementDao {
     }
 
     @Override
-    public Observable<Long> update(ConfigElement element) {
-        return Db.observableLong(() -> {
+    public Single<Long> update(ConfigElement element) {
+        return Db.singleLong(() -> {
             long result = -1;
             PreparedStatement stm;
             try {
@@ -74,8 +74,8 @@ public class ConfigElementRepository implements ConfigElementDao {
     }
 
     @Override
-    public Observable<ResultSet> findAll() {
-        return Db.observableResultSet(() -> {
+    public Single<ResultSet> findAll() {
+        return Db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -90,8 +90,8 @@ public class ConfigElementRepository implements ConfigElementDao {
     }
 
     @Override
-    public Observable<ResultSet> findById(String id) {
-        return Db.observableResultSet(() -> {
+    public Single<ResultSet> findById(String id) {
+        return Db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -107,8 +107,8 @@ public class ConfigElementRepository implements ConfigElementDao {
     }
 
     @Override
-    public Observable<Long> deleteById(String id) {
-        return Db.observableLong(() -> {
+    public Single<Long> deleteById(String id) {
+        return Db.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {

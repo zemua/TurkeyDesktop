@@ -11,7 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -36,8 +36,8 @@ public class ConditionRepository implements ConditionDao {
     }
     
     @Override
-    public Observable<Long> add(Condition element) {
-        return Db.observableLong(() -> {
+    public Single<Long> add(Condition element) {
+        return Db.singleLong(() -> {
             long result = -1;
             PreparedStatement stm;
             try {
@@ -57,8 +57,8 @@ public class ConditionRepository implements ConditionDao {
     }
 
     @Override
-    public Observable<Long> update(Condition element) {
-        return Db.observableLong(() -> {
+    public Single<Long> update(Condition element) {
+        return Db.singleLong(() -> {
             long result = -1;
             PreparedStatement stm;
             try {
@@ -77,8 +77,8 @@ public class ConditionRepository implements ConditionDao {
     }
 
     @Override
-    public Observable<ResultSet> findAll() {
-        return Db.observableResultSet(() -> {
+    public Single<ResultSet> findAll() {
+        return Db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -93,8 +93,8 @@ public class ConditionRepository implements ConditionDao {
     }
 
     @Override
-    public Observable<ResultSet> findById(Long id) {
-        return Db.observableResultSet(() -> {
+    public Single<ResultSet> findById(Long id) {
+        return Db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -110,8 +110,8 @@ public class ConditionRepository implements ConditionDao {
     }
     
     @Override
-    public Observable<ResultSet> findByGroupId(long groupId) {
-        return Db.observableResultSet(() -> {
+    public Single<ResultSet> findByGroupId(long groupId) {
+        return Db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -127,8 +127,8 @@ public class ConditionRepository implements ConditionDao {
     }
 
     @Override
-    public Observable<Long> deleteById(Long id) {
-        return Db.observableLong(() -> {
+    public Single<Long> deleteById(Long id) {
+        return Db.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
@@ -144,8 +144,8 @@ public class ConditionRepository implements ConditionDao {
     }
     
     @Override
-    public Observable<Long> deleteByGroupId(long id) {
-        return Db.observableLong(() -> {
+    public Single<Long> deleteByGroupId(long id) {
+        return Db.singleLong(() -> {
             long delQty = -1;
                 PreparedStatement stm;
                 try {
@@ -161,8 +161,8 @@ public class ConditionRepository implements ConditionDao {
     }
     
     @Override
-    public Observable<Long> deleteByTargetId(long id) {
-        return Db.observableLong(() -> {
+    public Single<Long> deleteByTargetId(long id) {
+        return Db.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
