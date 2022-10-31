@@ -5,20 +5,20 @@
  */
 package devs.mrp.turkeydesktop.database.group.expor;
 
-import java.util.List;
 import rx.Observable;
+import rx.Single;
 
 /**
  *
  * @author miguel
  */
 public interface ExportedGroupService {
-    public Observable<Long> add(ExportedGroup element);
-    public Observable<Long> update(ExportedGroup element);
-    public Observable<List<ExportedGroup>> findAll();
-    public Observable<ExportedGroup> findById(long id);
-    public Observable<Long> deleteById(long id);
-    public Observable<List<ExportedGroup>> findByGroup(long id);
-    public Observable<List<ExportedGroup>> findByFileAndGroup(long groupId, String file);
-    public Observable<Long> deleteByGroup(long id);
+    public Single<Long> add(ExportedGroup element);
+    public Single<Long> update(ExportedGroup element);
+    public Observable<ExportedGroup> findAll();
+    public Single<ExportedGroup> findById(long id);
+    public Single<Long> deleteById(long id);
+    public Observable<ExportedGroup> findByGroup(long id);
+    public Observable<ExportedGroup> findByFileAndGroup(long groupId, String file);
+    public Single<Long> deleteByGroup(long id);
 }
