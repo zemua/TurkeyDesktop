@@ -17,7 +17,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.Formatter;
 import java.util.concurrent.TimeUnit;
-import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -105,7 +105,7 @@ public class TimeConverter {
         return millisToEndOfDay(System.currentTimeMillis());
     }
     
-    public static Observable<Long> endOfTodayConsideringDayChange() {
+    public static Single<Long> endOfTodayConsideringDayChange() {
         return configService.configElement(ConfigurationEnum.CHANGE_OF_DAY).map(changeOfDayResult -> {
             Long changeOfDayMilis = hoursToMilis(Long.valueOf(changeOfDayResult.getValue()));
             return endOfToday()+changeOfDayMilis;
@@ -118,7 +118,7 @@ public class TimeConverter {
         return zdt.toInstant().toEpochMilli();
     }
     
-    public static Observable<Long> beginningOfOffsetDaysConsideringDayChange(long offsetDays) {
+    public static Single<Long> beginningOfOffsetDaysConsideringDayChange(long offsetDays) {
         return configService.configElement(ConfigurationEnum.CHANGE_OF_DAY).map(changeOfDayResult -> {
             Long changeOfDay = Long.valueOf(changeOfDayResult.getValue());
             LocalDateTime start = LocalDateTime.now().minusHours(changeOfDay).toLocalDate().atStartOfDay().minusDays(offsetDays).plusHours(changeOfDay);
@@ -133,7 +133,7 @@ public class TimeConverter {
         return zdt.toInstant().toEpochMilli();
     }
     
-    public static Observable<Long> endOfOffsetDaysConsideringDayChange(long offsetDays) {
+    public static Single<Long> endOfOffsetDaysConsideringDayChange(long offsetDays) {
         return configService.configElement(ConfigurationEnum.CHANGE_OF_DAY).map(changeOfDayResult -> {
             Long changeOfDay = Long.valueOf(changeOfDayResult.getValue());
             LocalDateTime end = LocalDateTime.now().minusHours(changeOfDay).toLocalDate().atStartOfDay().plusHours(24).minusDays(offsetDays).plusHours(changeOfDay);
