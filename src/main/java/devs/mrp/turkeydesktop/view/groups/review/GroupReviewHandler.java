@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -53,6 +52,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import org.apache.commons.lang3.StringUtils;
 import devs.mrp.turkeydesktop.database.group.GroupService;
+import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacade;
 import java.util.Optional;
 import javax.swing.JCheckBox;
 import rx.Observable;
@@ -398,17 +398,12 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             throw new Exception("error getting some fields for condition");
         }
         targetComboBox.removeAllItems();
-        comboItems().subscribe(items -> {
-            items.forEach(item -> targetComboBox.addItem(item));
-        });
+        comboItems().subscribe(item -> targetComboBox.addItem(item));
     }
 
     @SuppressWarnings("unchecked")
-    private Observable<List<Group>> comboItems() {
-        return groupService.findAllPositive()
-                .map(positiveResult -> positiveResult.stream()
-                    .filter(g -> g.getId() != group.getId())
-                    .collect(Collectors.toList()));
+    private Observable<Group> comboItems() {
+        return groupService.findAllPositive().filter(g -> g.getId() != group.getId());
     }
 
     private void fillConditionsInPanel() {
@@ -417,30 +412,41 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             return;
         }
         JPanel panel = (JPanel) conditionsListObject;
-        groupConditionFacadeService.findByGroupId(group.getId(), groupConditions -> {
-            panel.removeAll();
-            groupConditions.forEach(cond -> {
-                    ConditionElement element = new ConditionElement(cond);
-                    panel.add(element);
-                    element.addFeedbackListener((tipo, feedback) -> {
-                        switch (feedback) {
-                            case DELETE:
-                                popupMaker.show(this.getFrame(), () -> {
-                                    // positive
-                                    removeCondition(tipo.getConditionId());
-                                }, () -> {
-                                    // negative
-                                    // do nothing, intentionally left blank
-                                });
-                                break;
-                            default:
-                                break;
-                        }
-                    });
+        panel.removeAll();
+        Subscriber<GroupConditionFacade> subscriber = new Subscriber<GroupConditionFacade>() {
+            @Override
+            public void onCompleted() {
+                panel.revalidate();
+                panel.repaint();
+            }
+
+            @Override
+            public void onError(Throwable thrwbl) {
+                // nothing to do here
+            }
+
+            @Override
+            public void onNext(GroupConditionFacade t) {
+                ConditionElement element = new ConditionElement(t);
+                panel.add(element);
+                element.addFeedbackListener((tipo, feedback) -> {
+                    switch (feedback) {
+                        case DELETE:
+                            popupMaker.show(GroupReviewHandler.this.getFrame(), () -> {
+                                // positive
+                                removeCondition(tipo.getConditionId());
+                            }, () -> {
+                                // negative
+                                // do nothing, intentionally left blank
+                            });
+                            break;
+                        default:
+                            break;
+                    }
                 });
-            panel.revalidate();
-            panel.repaint();
-        });
+            }
+        };
+        groupConditionFacadeService.findByGroupId(group.getId()).subscribe(subscriber);
     }
 
     private void addCondition() throws Exception {
@@ -555,9 +561,25 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
 
     private void refreshExternalTime() throws Exception {
         JPanel panel = (JPanel) getObjectFromPanel(GroupReviewEnum.EXTERNAL_TIME_PANEL, JPanel.class).orElseThrow(() -> new Exception("wrong object"));
-        externalGroupService.findByGroup(this.group.getId()).subscribe(groupResult -> {
-            panel.removeAll();
-            groupResult.stream()
+        panel.removeAll();
+        Subscriber<RemovableLabel<ExternalGroup>> subscriber = new Subscriber<RemovableLabel<ExternalGroup>>() {
+            @Override
+            public void onCompleted() {
+                panel.revalidate();
+                panel.repaint();
+            }
+
+            @Override
+            public void onError(Throwable thrwbl) {
+                // nothing to do here
+            }
+
+            @Override
+            public void onNext(RemovableLabel<ExternalGroup> t) {
+                panel.add(t);
+            }
+        };
+        externalGroupService.findByGroup(this.group.getId())
                 .map(externalGroup -> {
                     RemovableLabel<ExternalGroup> label = new RemovableLabel<>(externalGroup) {
                         @Override
@@ -590,10 +612,8 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                         }
                     });
                     return label;
-                }).forEach(label -> panel.add(label));
-            panel.revalidate();
-            panel.repaint();
-        });
+                })
+                .subscribe(subscriber);
     }
 
     private void selectFileGroupExporter() throws Exception {
