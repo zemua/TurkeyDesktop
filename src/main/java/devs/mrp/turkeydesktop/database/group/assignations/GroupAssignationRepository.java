@@ -11,7 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -36,8 +36,8 @@ public class GroupAssignationRepository implements GroupAssignationDao {
     }
     
     @Override
-    public Observable<ResultSet> findByElementId(GroupAssignation.ElementType elementType, String elementId) {
-        return Db.observableResultSet(() -> {
+    public Single<ResultSet> findByElementId(GroupAssignation.ElementType elementType, String elementId) {
+        return Db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -54,8 +54,8 @@ public class GroupAssignationRepository implements GroupAssignationDao {
     }
 
     @Override
-    public Observable<ResultSet> findAllElementTypeOfGroup(GroupAssignation.ElementType elementType, Long groupId) {
-        return Db.observableResultSet(() -> {
+    public Single<ResultSet> findAllElementTypeOfGroup(GroupAssignation.ElementType elementType, Long groupId) {
+        return Db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -72,8 +72,8 @@ public class GroupAssignationRepository implements GroupAssignationDao {
     }
 
     @Override
-    public Observable<Long> add(GroupAssignation element) {
-        return Db.observableLong(() -> {
+    public Single<Long> add(GroupAssignation element) {
+        return Db.singleLong(() -> {
             long result = -1;
             PreparedStatement stm;
             try {
@@ -92,8 +92,8 @@ public class GroupAssignationRepository implements GroupAssignationDao {
     }
 
     @Override
-    public Observable<Long> update(GroupAssignation element) {
-        return Db.observableLong(() -> {
+    public Single<Long> update(GroupAssignation element) {
+        return Db.singleLong(() -> {
             long result = -1;
             PreparedStatement stm;
             try {
@@ -112,8 +112,8 @@ public class GroupAssignationRepository implements GroupAssignationDao {
     }
 
     @Override
-    public Observable<ResultSet> findAll() {
-        return Db.observableResultSet(() -> {
+    public Single<ResultSet> findAll() {
+        return Db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -129,19 +129,19 @@ public class GroupAssignationRepository implements GroupAssignationDao {
 
     @Deprecated
     @Override
-    public Observable<ResultSet> findById(Long id) {
-        return Observable.empty();
+    public Single<ResultSet> findById(Long id) {
+        return Single.just(null);
     }
 
     @Deprecated
     @Override
-    public Observable<Long> deleteById(Long id) {
-        return Observable.just(0L);
+    public Single<Long> deleteById(Long id) {
+        return Single.just(0L);
     }
     
     @Override
-    public Observable<Long> deleteByElementId(GroupAssignation.ElementType elementType, String elementId) {
-        return Db.observableLong(() -> {
+    public Single<Long> deleteByElementId(GroupAssignation.ElementType elementType, String elementId) {
+        return Db.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
@@ -159,8 +159,8 @@ public class GroupAssignationRepository implements GroupAssignationDao {
     }
     
     @Override
-    public Observable<ResultSet> findAllOfType(GroupAssignation.ElementType elementType) {
-        return Db.observableResultSet(() -> {
+    public Single<ResultSet> findAllOfType(GroupAssignation.ElementType elementType) {
+        return Db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -176,8 +176,8 @@ public class GroupAssignationRepository implements GroupAssignationDao {
     }
 
     @Override
-    public Observable<Long> deleteByGroupId(long groupId) {
-        return Db.observableLong(() -> {
+    public Single<Long> deleteByGroupId(long groupId) {
+        return Db.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {

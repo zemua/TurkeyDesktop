@@ -7,7 +7,7 @@ package devs.mrp.turkeydesktop.database.group.assignations;
 
 import devs.mrp.turkeydesktop.database.GeneralDao;
 import java.sql.ResultSet;
-import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -15,10 +15,10 @@ import rx.Observable;
  */
 public interface GroupAssignationDao extends GeneralDao<GroupAssignation, Long> {
     
-    public Observable<ResultSet> findByElementId(GroupAssignation.ElementType elementType, String elementId);
-    public Observable<Long> deleteByElementId(GroupAssignation.ElementType elementType, String elementId);
-    public Observable<ResultSet> findAllElementTypeOfGroup(GroupAssignation.ElementType elementType, Long groupId);
-    public Observable<ResultSet> findAllOfType(GroupAssignation.ElementType elementType);
-    public Observable<Long> deleteByGroupId(long groupId);
+    public Single<ResultSet> findByElementId(GroupAssignation.ElementType elementType, String elementId);
+    public Single<Long> deleteByElementId(GroupAssignation.ElementType elementType, String elementId);
+    public Single<ResultSet> findAllElementTypeOfGroup(GroupAssignation.ElementType elementType, Long groupId);
+    public Single<ResultSet> findAllOfType(GroupAssignation.ElementType elementType);
+    public Single<Long> deleteByGroupId(long groupId);
     
 }

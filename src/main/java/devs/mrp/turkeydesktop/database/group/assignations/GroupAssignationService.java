@@ -7,12 +7,11 @@ package devs.mrp.turkeydesktop.database.group.assignations;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -24,9 +23,9 @@ public class GroupAssignationService implements IGroupAssignationService {
     private static final Logger logger = Logger.getLogger(GroupAssignationService.class.getName());
     
     @Override
-    public Observable<Long> add(GroupAssignation element) {
+    public Single<Long> add(GroupAssignation element) {
         if (element == null) {
-            return Observable.just(-1L);
+            return Single.just(-1L);
         }
         // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
         return repo.findByElementId(element.getType(), element.getElementId()).flatMap(rs -> {
@@ -44,26 +43,26 @@ public class GroupAssignationService implements IGroupAssignationService {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-            return Observable.just(0L);
+            return Single.just(0L);
         });
     }
 
     @Override
-    public Observable<Long> update(GroupAssignation element) {
+    public Single<Long> update(GroupAssignation element) {
         if (element == null) {
-            return Observable.just(-1L);
+            return Single.just(-1L);
         }
         return repo.update(element);
     }
 
     @Override
-    public Observable<List<GroupAssignation>> findAll() {
-        return repo.findAll().map(this::elementsFromResultSet);
+    public Observable<GroupAssignation> findAll() {
+        return repo.findAll().flatMapObservable(this::elementsFromResultSet);
     }
 
     @Deprecated
     @Override
-    public Observable<GroupAssignation> findById(long id) {
+    public Single<GroupAssignation> findById(long id) {
         return repo.findById(id).map(result -> {
             GroupAssignation element = null;
             try {
@@ -79,12 +78,12 @@ public class GroupAssignationService implements IGroupAssignationService {
 
     @Deprecated
     @Override
-    public Observable<Long> deleteById(long id) {
+    public Single<Long> deleteById(long id) {
         return repo.deleteById(id);
     }
 
     @Override
-    public Observable<GroupAssignation> findByProcessId(String processId) {
+    public Single<GroupAssignation> findByProcessId(String processId) {
         return repo.findByElementId(GroupAssignation.ElementType.PROCESS, processId).map(result -> {
             try {
                 if (result.next()) {
@@ -98,12 +97,12 @@ public class GroupAssignationService implements IGroupAssignationService {
     }
     
     @Override
-    public Observable<Long> deleteByProcessId(String processId) {
+    public Single<Long> deleteByProcessId(String processId) {
         return repo.deleteByElementId(GroupAssignation.ElementType.PROCESS, processId);
     }
 
     @Override
-    public Observable<GroupAssignation> findByTitleId(String titleId) {
+    public Single<GroupAssignation> findByTitleId(String titleId) {
         return repo.findByElementId(GroupAssignation.ElementType.TITLE, titleId).map(set -> {
             try {
                 if (set.next()) {
@@ -117,42 +116,44 @@ public class GroupAssignationService implements IGroupAssignationService {
     }
     
     @Override
-    public Observable<GroupAssignation> findLongestTitleIdContainedIn(String titleId) {
+    public Single<GroupAssignation> findLongestTitleIdContainedIn(String titleId) {
         return repo.findAllOfType(GroupAssignation.ElementType.TITLE)
-                .map(this::elementsFromResultSet)
-                .map(titleAssignations -> titleAssignations.stream()
-                        .filter(ga -> StringUtils.containsIgnoreCase(titleId, ga.getElementId()))
-                        .max((ga1, ga2) -> Integer.compare(ga1.getElementId().length(), ga2.getElementId().length()))
-                        .orElse(null));
+                .flatMapObservable(this::elementsFromResultSet)
+                .filter(ga -> StringUtils.containsIgnoreCase(titleId, ga.getElementId()))
+                // sort longest first
+                .toSortedList((ga1, ga2) -> Integer.compare(ga1.getElementId().length(), ga2.getElementId().length()))
+                // get the first one only
+                .map(list -> list.get(0))
+                .toSingle();
     }
     
     @Override
-    public Observable<Long> deleteByTitleId(String titleId) {
+    public Single<Long> deleteByTitleId(String titleId) {
         return repo.deleteByElementId(GroupAssignation.ElementType.TITLE, titleId);
     }
 
     @Override
-    public Observable<List<GroupAssignation>> findProcessesOfGroup(Long groupId) {
+    public Observable<GroupAssignation> findProcessesOfGroup(Long groupId) {
         return repo.findAllElementTypeOfGroup(GroupAssignation.ElementType.PROCESS, groupId)
-                .map(this::elementsFromResultSet);
+                .flatMapObservable(this::elementsFromResultSet);
     }
 
     @Override
-    public Observable<List<GroupAssignation>> findTitlesOfGroup(Long groupId) {
-        return repo.findAllElementTypeOfGroup(GroupAssignation.ElementType.TITLE, groupId).map(this::elementsFromResultSet);
+    public Observable<GroupAssignation> findTitlesOfGroup(Long groupId) {
+        return repo.findAllElementTypeOfGroup(GroupAssignation.ElementType.TITLE, groupId).flatMapObservable(this::elementsFromResultSet);
     }
     
-    private List<GroupAssignation> elementsFromResultSet(ResultSet set) {
-        List<GroupAssignation> elements = new ArrayList<>();
-        try {
-            while (set.next()) {
-                GroupAssignation el = elementFromResultSetEntry(set);
-                elements.add(el);
+    private Observable<GroupAssignation> elementsFromResultSet(ResultSet set) {
+        return Observable.create(subscriber -> {
+            try {
+                while (set.next()) {
+                    subscriber.onNext(elementFromResultSetEntry(set));
+                }
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
             }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        return elements;
+            subscriber.onCompleted();
+        });
     }
     
     private GroupAssignation elementFromResultSetEntry(ResultSet set) {
@@ -168,18 +169,15 @@ public class GroupAssignationService implements IGroupAssignationService {
     }
 
     @Override
-    public Observable<Long> deleteByGroupId(long id) {
+    public Single<Long> deleteByGroupId(long id) {
         return repo.deleteByGroupId(id);
     }
 
     @Override
-    public Observable<GroupAssignation> findGroupOfAssignation(String assignation) {
-        return repo.findByElementId(GroupAssignation.ElementType.TITLE, assignation.toLowerCase()).map(this::elementsFromResultSet).map(titleAssignations -> {
-            if (titleAssignations.isEmpty()) {
-                return null;
-            }
-            return titleAssignations.get(0);
-        });
+    public Single<GroupAssignation> findGroupOfAssignation(String assignation) {
+        return repo.findByElementId(GroupAssignation.ElementType.TITLE, assignation.toLowerCase())
+                .flatMapObservable(this::elementsFromResultSet)
+                .toSingle();
     }
     
 }

@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import rx.Observable;
 import rx.Single;
 
@@ -135,14 +134,14 @@ public class ConfigElementService implements IConfigElementService {
 
     @Override
     public Observable<ConfigElement> allConfigElements() {
-        return Observable.from(configMap.entrySet().stream()
+        return Observable.from((Iterable)configMap.entrySet().stream()
                 .map(e -> {
                     ConfigElement el = new ConfigElement();
                     el.setKey(e.getKey());
                     el.setValue(e.getValue());
                     return el;
                 })
-                .collect(Collectors.toList()));
+                .iterator());
     }
 
     @Override

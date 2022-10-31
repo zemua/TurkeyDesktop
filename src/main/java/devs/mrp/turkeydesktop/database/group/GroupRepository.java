@@ -11,7 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -36,8 +36,8 @@ public class GroupRepository implements GroupDao {
     }
     
     @Override
-    public Observable<Long> add(Group element) {
-        return Db.observableLong(() -> {
+    public Single<Long> add(Group element) {
+        return Db.singleLong(() -> {
             long result = -1;
             PreparedStatement stm;
             try {
@@ -55,8 +55,8 @@ public class GroupRepository implements GroupDao {
     }
 
     @Override
-    public Observable<Long> update(Group element) {
-        return Db.observableLong(() -> {
+    public Single<Long> update(Group element) {
+        return Db.singleLong(() -> {
             long result = -1;
             PreparedStatement stm;
             try {
@@ -75,8 +75,8 @@ public class GroupRepository implements GroupDao {
     }
 
     @Override
-    public Observable<ResultSet> findAll() {
-        return Db.observableResultSet(() -> {
+    public Single<ResultSet> findAll() {
+        return Db.singleResultSet(() -> {
             ResultSet rs = null;
                 PreparedStatement stm;
                 try {
@@ -91,8 +91,8 @@ public class GroupRepository implements GroupDao {
     }
 
     @Override
-    public Observable<ResultSet> findById(Long id) {
-        return Db.observableResultSet(() -> {
+    public Single<ResultSet> findById(Long id) {
+        return Db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -108,8 +108,8 @@ public class GroupRepository implements GroupDao {
     }
 
     @Override
-    public Observable<Long> deleteById(Long id) {
-        return Db.observableLong(() -> {
+    public Single<Long> deleteById(Long id) {
+        return Db.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
@@ -125,8 +125,8 @@ public class GroupRepository implements GroupDao {
     }
 
     @Override
-    public Observable<ResultSet> findAllOfType(Group.GroupType type) {
-        return Db.observableResultSet(() -> {
+    public Single<ResultSet> findAllOfType(Group.GroupType type) {
+        return Db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -142,8 +142,8 @@ public class GroupRepository implements GroupDao {
     }
     
     @Override
-    public Observable<Integer> setPreventClose(long groupId, boolean preventClose) {
-        return Db.observableInt(() -> {
+    public Single<Integer> setPreventClose(long groupId, boolean preventClose) {
+        return Db.singleInt(() -> {
             int affectedRows = 0;
             PreparedStatement stm;
             try {

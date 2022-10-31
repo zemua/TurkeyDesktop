@@ -7,7 +7,7 @@ package devs.mrp.turkeydesktop.database.group;
 
 import devs.mrp.turkeydesktop.database.GeneralDao;
 import java.sql.ResultSet;
-import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -15,8 +15,8 @@ import rx.Observable;
  */
 public interface GroupDao extends GeneralDao<Group, Long> {
     
-    public Observable<ResultSet> findAllOfType(Group.GroupType type);
+    public Single<ResultSet> findAllOfType(Group.GroupType type);
     
-    public Observable<Integer> setPreventClose(long groupId, boolean preventClose);
+    public Single<Integer> setPreventClose(long groupId, boolean preventClose);
     
 }

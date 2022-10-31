@@ -5,29 +5,29 @@
  */
 package devs.mrp.turkeydesktop.database.group.assignations;
 
-import java.util.List;
 import rx.Observable;
+import rx.Single;
 
 /**
  *
  * @author miguel
  */
 public interface IGroupAssignationService {
-    public Observable<Long> add(GroupAssignation element);
-    public Observable<Long> update(GroupAssignation element);
-    public Observable<List<GroupAssignation>> findAll();
+    public Single<Long> add(GroupAssignation element);
+    public Single<Long> update(GroupAssignation element);
+    public Observable<GroupAssignation> findAll();
     @Deprecated
-    public Observable<GroupAssignation> findById(long id);
+    public Single<GroupAssignation> findById(long id);
     @Deprecated
-    public Observable<Long> deleteById(long id);
-    public Observable<Long> deleteByGroupId(long id);
+    public Single<Long> deleteById(long id);
+    public Single<Long> deleteByGroupId(long id);
     
-    public Observable<GroupAssignation> findByProcessId(String processId);
-    public Observable<Long> deleteByProcessId(String processId);
-    public Observable<GroupAssignation> findByTitleId(String titleId);
-    public Observable<GroupAssignation> findLongestTitleIdContainedIn(String titleId);
-    public Observable<GroupAssignation> findGroupOfAssignation(String assignation);
-    public Observable<Long> deleteByTitleId(String titleId);
-    public Observable<List<GroupAssignation>> findProcessesOfGroup(Long groupId);
-    public Observable<List<GroupAssignation>> findTitlesOfGroup(Long groupId);
+    public Single<GroupAssignation> findByProcessId(String processId);
+    public Single<Long> deleteByProcessId(String processId);
+    public Single<GroupAssignation> findByTitleId(String titleId);
+    public Single<GroupAssignation> findLongestTitleIdContainedIn(String titleId);
+    public Single<GroupAssignation> findGroupOfAssignation(String assignation);
+    public Single<Long> deleteByTitleId(String titleId);
+    public Observable<GroupAssignation> findProcessesOfGroup(Long groupId);
+    public Observable<GroupAssignation> findTitlesOfGroup(Long groupId);
 }
