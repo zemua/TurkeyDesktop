@@ -8,10 +8,8 @@ package devs.mrp.turkeydesktop.database.group.facade;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.type.TypeServiceFactory;
 import devs.mrp.turkeydesktop.database.type.Type;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import devs.mrp.turkeydesktop.database.type.TypeService;
 import rx.Observable;
 
@@ -25,18 +23,17 @@ public class AssignableProcessService extends AssignableAbstractService implemen
     private static final Logger logger = Logger.getLogger(AssignableProcessService.class.getName());
     
     @Override
-    public Observable<List<AssignableElement<Type.Types>>> positiveElementsWithAssignation() {
-        return getAssignationsMap(GroupAssignation.ElementType.PROCESS).flatMap(result -> elementsWithAssignation(result, Type.Types.POSITIVE));
+    public Observable<AssignableElement<Type.Types>> positiveElementsWithAssignation() {
+        return getAssignationsMap(GroupAssignation.ElementType.PROCESS).flatMapObservable(result -> elementsWithAssignation(result, Type.Types.POSITIVE));
     }
 
     @Override
-    public Observable<List<AssignableElement<Type.Types>>> negativeElementsWithAssignation() {
-        return getAssignationsMap(GroupAssignation.ElementType.PROCESS).flatMap(result -> elementsWithAssignation(result, Type.Types.NEGATIVE));
+    public Observable<AssignableElement<Type.Types>> negativeElementsWithAssignation() {
+        return getAssignationsMap(GroupAssignation.ElementType.PROCESS).flatMapObservable(result -> elementsWithAssignation(result, Type.Types.NEGATIVE));
     }
     
-    private Observable<List<AssignableElement<Type.Types>>> elementsWithAssignation(Map<String, GroupAssignation> assignables, Type.Types positiveOrNegative) {
-        return typeService.findAll().map(result -> {
-            var computed = result.stream()
+    private Observable<AssignableElement<Type.Types>> elementsWithAssignation(Map<String, GroupAssignation> assignables, Type.Types positiveOrNegative) {
+        return typeService.findAll()
                 .filter(t -> t.getType().equals(positiveOrNegative))
                 .map(t -> {
                     AssignableElement<Type.Types> element = new AssignableElement<>();
@@ -51,10 +48,7 @@ public class AssignableProcessService extends AssignableAbstractService implemen
                     element.setPositiveOrNegative(positiveOrNegative);
                     element.setProcessOrTitle(GroupAssignation.ElementType.PROCESS);
                     return element;
-                })
-                .collect(Collectors.toList());
-            return computed;
-        });
+                });
     }
     
 }

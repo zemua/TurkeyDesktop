@@ -7,11 +7,10 @@ package devs.mrp.turkeydesktop.database.group.external;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -23,13 +22,13 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     private static final Logger logger = Logger.getLogger(ExternalGroupServiceImpl.class.getName());
 
     @Override
-    public Observable<Long> add(ExternalGroup element) {
+    public Single<Long> add(ExternalGroup element) {
         if (element == null) {
-            return Observable.just(-1L);
+            return Single.just(-1L);
         }
         if (element.getFile() != null && element.getFile().length() > 500) {
             logger.log(Level.SEVERE, "File path cannot be longer than 500 characters");
-            return Observable.just(-1L);
+            return Single.just(-1L);
         }
         // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
         return repo.findById(element.getId()).flatMap(rs -> {
@@ -54,34 +53,34 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
         });
     }
 
-    private Observable<Long> updateOrKeep(ExternalGroup element, ResultSet rs) {
+    private Single<Long> updateOrKeep(ExternalGroup element, ResultSet rs) {
         ExternalGroup group = elementFromResultSetEntry(rs);
         // if the value stored differs from the one received
         if (!group.equals(element)) {
             return update(element);
         }
-        return Observable.just(0L);
+        return Single.just(0L);
     }
 
     @Override
-    public Observable<Long> update(ExternalGroup element) {
+    public Single<Long> update(ExternalGroup element) {
         if (element == null) {
-            return Observable.just(-1L);
+            return Single.just(-1L);
         }
         if (element.getFile() != null && element.getFile().length() > 500) {
             logger.log(Level.SEVERE, "File path cannot be longer than 500 characters");
-            return Observable.just(-1L);
+            return Single.just(-1L);
         }
         return repo.update(element);
     }
 
     @Override
-    public Observable<List<ExternalGroup>> findAll() {
-        return repo.findAll().map(this::elementsFromResultSet);
+    public Observable<ExternalGroup> findAll() {
+        return repo.findAll().flatMapObservable(this::elementsFromResultSet);
     }
 
     @Override
-    public Observable<ExternalGroup> findById(long id) {
+    public Single<ExternalGroup> findById(long id) {
         return repo.findById(id).map(set -> {
             ExternalGroup element = null;
             try {
@@ -96,21 +95,21 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     }
 
     @Override
-    public Observable<Long> deleteById(long id) {
+    public Single<Long> deleteById(long id) {
         return repo.deleteById(id);
     }
 
-    private List<ExternalGroup> elementsFromResultSet(ResultSet set) {
-        List<ExternalGroup> elements = new ArrayList<>();
-        try {
-            while (set.next()) {
-                ExternalGroup el = elementFromResultSetEntry(set);
-                elements.add(el);
+    private Observable<ExternalGroup> elementsFromResultSet(ResultSet set) {
+        return Observable.create(subscriber -> {
+            try {
+                while (set.next()) {
+                    subscriber.onNext(elementFromResultSetEntry(set));
+                }
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
             }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        return elements;
+            subscriber.onCompleted();
+        });
     }
 
     private ExternalGroup elementFromResultSetEntry(ResultSet set) {
@@ -126,17 +125,17 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     }
 
     @Override
-    public Observable<List<ExternalGroup>> findByGroup(Long id) {
-        return repo.findByGroup(id).map(this::elementsFromResultSet);
+    public Observable<ExternalGroup> findByGroup(Long id) {
+        return repo.findByGroup(id).flatMapObservable(this::elementsFromResultSet);
     }
 
     @Override
-    public Observable<List<ExternalGroup>> findByFile(String file) {
-        return repo.findByFile(file).map(this::elementsFromResultSet);
+    public Observable<ExternalGroup> findByFile(String file) {
+        return repo.findByFile(file).flatMapObservable(this::elementsFromResultSet);
     }
 
     @Override
-    public Observable<Long> deleteByGroup(Long id) {
+    public Single<Long> deleteByGroup(Long id) {
         return repo.deleteByGroup(id);
     }
 

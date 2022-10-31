@@ -5,7 +5,6 @@
  */
 package devs.mrp.turkeydesktop.database.group.facade;
 
-import java.util.List;
 import rx.Observable;
 
 /**
@@ -13,6 +12,6 @@ import rx.Observable;
  * @author miguel
  */
 public interface AssignableElementService<TYPE> {
-    public Observable<List<AssignableElement<TYPE>>> positiveElementsWithAssignation();
-    public Observable<List<AssignableElement<TYPE>>> negativeElementsWithAssignation();
+    public Observable<AssignableElement<TYPE>> positiveElementsWithAssignation();
+    public Observable<AssignableElement<TYPE>> negativeElementsWithAssignation();
 }

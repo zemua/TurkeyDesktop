@@ -5,20 +5,20 @@
  */
 package devs.mrp.turkeydesktop.database.group.external;
 
-import java.util.List;
 import rx.Observable;
+import rx.Single;
 
 /**
  *
  * @author miguel
  */
 public interface ExternalGroupService {
-    public Observable<Long> add(ExternalGroup element);
-    public Observable<Long> update(ExternalGroup element);
-    public Observable<List<ExternalGroup>> findAll();
-    public Observable<ExternalGroup> findById(long id);
-    public Observable<Long> deleteById(long id);
-    public Observable<List<ExternalGroup>> findByGroup(Long id);
-    public Observable<List<ExternalGroup>> findByFile(String file);
-    public Observable<Long> deleteByGroup(Long id);
+    public Single<Long> add(ExternalGroup element);
+    public Single<Long> update(ExternalGroup element);
+    public Observable<ExternalGroup> findAll();
+    public Single<ExternalGroup> findById(long id);
+    public Single<Long> deleteById(long id);
+    public Observable<ExternalGroup> findByGroup(Long id);
+    public Observable<ExternalGroup> findByFile(String file);
+    public Single<Long> deleteByGroup(Long id);
 }

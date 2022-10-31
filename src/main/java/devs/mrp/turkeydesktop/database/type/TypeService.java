@@ -18,7 +18,7 @@ public interface TypeService {
     
     public void add(Type element, LongConsumer consumer);
     public void update(Type element, LongConsumer consumer);
-    public Observable<List<Type>> findAll();
+    public Observable<Type> findAll();
     public void findById(String id, Consumer<Type> consumer);
     public void deleteById(String id, LongConsumer consumer);
     public void findByType(Type.Types type, Consumer<List<Type>> consumer);

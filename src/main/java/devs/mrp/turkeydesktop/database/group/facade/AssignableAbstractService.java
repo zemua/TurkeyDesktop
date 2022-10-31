@@ -9,8 +9,7 @@ import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationServi
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
 import java.util.Map;
-import java.util.stream.Collectors;
-import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -20,10 +19,10 @@ public abstract class AssignableAbstractService {
     
     private IGroupAssignationService assignationService = FGroupAssignationService.getService();
     
-    protected Observable<Map<String, GroupAssignation>> getAssignationsMap(GroupAssignation.ElementType type) {
+    protected Single<Map<String, GroupAssignation>> getAssignationsMap(GroupAssignation.ElementType type) {
         return assignationService.findAll()
-                .map(result -> result.stream()
-                    .filter(a -> type.equals(a.getType()))
-                    .collect(Collectors.toMap((a -> a.getElementId()),(a -> a))));
+                .filter(a -> type.equals(a.getType()))
+                .toMap((a -> a.getElementId()),(a -> a))
+                .toSingle();
     }
 }

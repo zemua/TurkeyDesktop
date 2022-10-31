@@ -17,7 +17,7 @@ import rx.Observable;
 public interface TitleService {
     
     public void save(Title element, LongConsumer consumer);
-    public Observable<List<Title>> findAll();
+    public Observable<Title> findAll();
     public void findContainedByAndNegativeFirst(String title, Consumer<List<Title>> consumer);
     public void findLongestContainedBy(String title, Consumer<Title> consumer);
     public void findBySubString(String subStr, Consumer<Title> consumer);

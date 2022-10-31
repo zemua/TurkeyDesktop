@@ -11,7 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -36,8 +36,8 @@ public class ExternalGroupRepository implements ExternalGroupDao {
     }
     
     @Override
-    public Observable<Long> add(ExternalGroup element) {
-        return Db.observableLong(() -> {
+    public Single<Long> add(ExternalGroup element) {
+        return Db.singleLong(() -> {
             long result = -1;
             PreparedStatement stm;
             try {
@@ -55,8 +55,8 @@ public class ExternalGroupRepository implements ExternalGroupDao {
     }
 
     @Override
-    public Observable<Long> update(ExternalGroup element) {
-        return Db.observableLong(() -> {
+    public Single<Long> update(ExternalGroup element) {
+        return Db.singleLong(() -> {
             long result = -1;
             PreparedStatement stm;
             try {
@@ -74,8 +74,8 @@ public class ExternalGroupRepository implements ExternalGroupDao {
     }
 
     @Override
-    public Observable<ResultSet> findAll() {
-        return Db.observableResultSet(() -> {
+    public Single<ResultSet> findAll() {
+        return Db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -90,8 +90,8 @@ public class ExternalGroupRepository implements ExternalGroupDao {
     }
 
     @Override
-    public Observable<ResultSet> findById(Long id) {
-        return Db.observableResultSet(() -> {
+    public Single<ResultSet> findById(Long id) {
+        return Db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -107,8 +107,8 @@ public class ExternalGroupRepository implements ExternalGroupDao {
     }
 
     @Override
-    public Observable<Long> deleteById(Long id) {
-        return Db.observableLong(() -> {
+    public Single<Long> deleteById(Long id) {
+        return Db.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
@@ -124,8 +124,8 @@ public class ExternalGroupRepository implements ExternalGroupDao {
     }
 
     @Override
-    public Observable<ResultSet> findByGroup(Long id) {
-        return Db.observableResultSet(() -> {
+    public Single<ResultSet> findByGroup(Long id) {
+        return Db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -141,8 +141,8 @@ public class ExternalGroupRepository implements ExternalGroupDao {
     }
 
     @Override
-    public Observable<ResultSet> findByFile(String file) {
-        return Db.observableResultSet(() -> {
+    public Single<ResultSet> findByFile(String file) {
+        return Db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -159,8 +159,8 @@ public class ExternalGroupRepository implements ExternalGroupDao {
     }
 
     @Override
-    public Observable<Long> deleteByGroup(Long id) {
-        return Db.observableLong(() -> {
+    public Single<Long> deleteByGroup(Long id) {
+        return Db.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
@@ -177,8 +177,8 @@ public class ExternalGroupRepository implements ExternalGroupDao {
     }
 
     @Override
-    public Observable<ResultSet> findByGroupAndFile(Long id, String file) {
-        return Db.observableResultSet(() -> {
+    public Single<ResultSet> findByGroupAndFile(Long id, String file) {
+        return Db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
