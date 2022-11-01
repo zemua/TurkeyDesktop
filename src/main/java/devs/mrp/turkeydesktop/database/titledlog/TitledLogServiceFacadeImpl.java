@@ -15,7 +15,7 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
-import devs.mrp.turkeydesktop.database.titles.TitleCategory;
+import devs.mrp.turkeydesktop.database.titles.Title;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
 import rx.Observable;
 import rx.Single;
@@ -38,9 +38,9 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
             tl.setTitle(e.getValue1());
             tl.setElapsed(e.getValue2());
             return titleService.getQtyPerCategory(e.getValue1()).flatMapObservable(map -> {
-                tl.setQtyNegatives(map.get(TitleCategory.NEGATIVE));
-                tl.setQtyNeutral(map.get(TitleCategory.NEUTRAL));
-                tl.setQtyPositives(map.get(TitleCategory.POSITIVE));
+                tl.setQtyNegatives(map.get(Title.Type.NEGATIVE));
+                tl.setQtyNeutral(map.get(Title.Type.NEUTRAL));
+                tl.setQtyPositives(map.get(Title.Type.POSITIVE));
                 return titleService.findContainedByAndNegativeFirst(e.getValue1()).map(cond -> {
                     tl.addCondition(cond);
                     return tl;
@@ -74,9 +74,9 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
             log.setTitle(title);
             log.setElapsed(entry.getLong(2));
             return titleService.getQtyPerCategory(title).flatMap(map -> {
-                log.setQtyNegatives(map.get(TitleCategory.NEGATIVE));
-                log.setQtyNeutral(map.get(TitleCategory.NEUTRAL));
-                log.setQtyPositives(map.get(TitleCategory.NEGATIVE));
+                log.setQtyNegatives(map.get(Title.Type.NEGATIVE));
+                log.setQtyNeutral(map.get(Title.Type.NEUTRAL));
+                log.setQtyPositives(map.get(Title.Type.NEGATIVE));
                 return titleService.findContainedByAndNegativeFirst(title)
                         .toList()
                         .map(contained -> {

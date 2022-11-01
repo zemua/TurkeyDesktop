@@ -6,8 +6,6 @@
 package devs.mrp.turkeydesktop.database.titles;
 
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.LongConsumer;
 import rx.Observable;
 import rx.Single;
 
@@ -17,13 +15,13 @@ import rx.Single;
  */
 public interface TitleService {
     
-    public void save(Title element, LongConsumer consumer);
+    public Single<Long> save(Title element);
     public Observable<Title> findAll();
     public Observable<Title> findContainedByAndNegativeFirst(String title);
     public Single<Title> findLongestContainedBy(String title);
-    public void findBySubString(String subStr, Consumer<Title> consumer);
-    public void deleteBySubString(String subStr, LongConsumer consumer);
+    public Single<Title> findBySubString(String subStr);
+    public Single<Long> deleteBySubString(String subStr);
     public Single<Long> countTypesOf(Title.Type type, String title);
-    public Single<Map<TitleCategory,Integer>> getQtyPerCategory(String title);
+    public Single<Map<Title.Type,Integer>> getQtyPerCategory(String title);
     
 }
