@@ -6,6 +6,7 @@
 package devs.mrp.turkeydesktop.database.titledlog;
 
 import devs.mrp.turkeydesktop.database.titles.Title;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,6 +44,13 @@ public class TitledLog {
 
     public void setConditions(List<Title> conditions) {
         this.conditions = conditions;
+    }
+    
+    public void addCondition(Title condition) {
+        if (this.conditions == null) {
+            this.conditions = new ArrayList<>();
+        }
+        this.conditions.add(condition);
     }
 
     public long getQtyPositives() {

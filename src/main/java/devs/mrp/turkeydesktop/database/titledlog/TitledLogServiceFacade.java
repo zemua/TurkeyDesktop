@@ -6,8 +6,7 @@
 package devs.mrp.turkeydesktop.database.titledlog;
 
 import java.util.Date;
-import java.util.List;
-import java.util.function.Consumer;
+import rx.Observable;
 
 /**
  *
@@ -15,6 +14,6 @@ import java.util.function.Consumer;
  */
 public interface TitledLogServiceFacade {
     
-    public void getLogsWithTitleConditions(Date from, Date to, Consumer<List<TitledLog>> consumer);
-    public void getLogsDependablesWithTitleConditions(Date from, Date to, Consumer<List<TitledLog>> consumer);
+    public Observable<TitledLog> getLogsWithTitleConditions(Date from, Date to);
+    public Observable<TitledLog> getLogsDependablesWithTitleConditions(Date from, Date to);
 }

@@ -5,7 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.titles;
 
-import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.LongConsumer;
 import rx.Observable;
@@ -19,10 +19,11 @@ public interface TitleService {
     
     public void save(Title element, LongConsumer consumer);
     public Observable<Title> findAll();
-    public void findContainedByAndNegativeFirst(String title, Consumer<List<Title>> consumer);
+    public Observable<Title> findContainedByAndNegativeFirst(String title);
     public Single<Title> findLongestContainedBy(String title);
     public void findBySubString(String subStr, Consumer<Title> consumer);
     public void deleteBySubString(String subStr, LongConsumer consumer);
-    public void countTypesOf(Title.Type type, String title, LongConsumer consumer);
+    public Single<Long> countTypesOf(Title.Type type, String title);
+    public Single<Map<TitleCategory,Integer>> getQtyPerCategory(String title);
     
 }
