@@ -7,6 +7,7 @@ package devs.mrp.turkeydesktop.database.type;
 
 import devs.mrp.turkeydesktop.database.GeneralDao;
 import java.sql.ResultSet;
+import rx.Single;
 
 /**
  *
@@ -14,6 +15,6 @@ import java.sql.ResultSet;
  */
 public interface TypeDao extends GeneralDao<Type, String> {
     
-    public ResultSet findByType(String type);
+    public Single<ResultSet> findByType(String type);
     
 }

@@ -6,15 +6,12 @@
 package devs.mrp.turkeydesktop.database.type;
 
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.List;
-import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import rx.Single;
 
 /**
  *
@@ -24,7 +21,6 @@ public class TypeRepository implements TypeDao {
     
     private Db dbInstance = Db.getInstance();
     private Logger logger = Logger.getLogger(TypeRepository.class.getName());
-    private Semaphore semaphore = Db.getSemaphore();
     
     private static TypeRepository instance;
     
@@ -38,10 +34,9 @@ public class TypeRepository implements TypeDao {
     }
     
     @Override
-    public long add(Type element) {
-        long result = -1;
-        try {
-            semaphore.acquire();
+    public Single<Long> add(Type element) {
+        return Db.singleLong(() -> {
+            long result = -1;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s) ",
@@ -58,19 +53,14 @@ public class TypeRepository implements TypeDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return result;
+            return result;
+        });
     }
 
     @Override
-    public long update(Type element) {
-        long entriesUpdated = -1;
-        try {
-            semaphore.acquire();
+    public Single<Long> update(Type element) {
+        return Db.singleLong(() -> {
+            long entriesUpdated = -1;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=? WHERE %s=?",
@@ -81,19 +71,14 @@ public class TypeRepository implements TypeDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return entriesUpdated;
+            return entriesUpdated;
+        });
     }
 
     @Override
-    public ResultSet findAll() {
-        ResultSet rs = null;
-        try {
-            semaphore.acquire();
+    public Single<ResultSet> findAll() {
+        return Db.singleResultSet(() -> {
+            ResultSet rs = null;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s",
@@ -102,19 +87,14 @@ public class TypeRepository implements TypeDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null ,ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null ,ex);
-        } finally {
-            semaphore.release();
-        }
-        return rs;
+            return rs;
+        });
     }
     
     @Override
-    public ResultSet findByType(String type) {
-        ResultSet rs = null;
-        try {
-            semaphore.acquire();
+    public Single<ResultSet> findByType(String type) {
+        return Db.singleResultSet(() -> {
+            ResultSet rs = null;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
@@ -124,19 +104,14 @@ public class TypeRepository implements TypeDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null ,ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null ,ex);
-        } finally {
-            semaphore.release();
-        }
-        return rs;
+            return rs;
+        });
     }
 
     @Override
-    public ResultSet findById(String id) {
-        ResultSet rs = null;
-        try {
-            semaphore.acquire();
+    public Single<ResultSet> findById(String id) {
+        return Db.singleResultSet(() -> {
+            ResultSet rs = null;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
@@ -146,19 +121,14 @@ public class TypeRepository implements TypeDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return rs;
+            return rs;
+        });
     }
 
     @Override
-    public long deleteById(String id) {
-        long delQty = -1;
-        try {
-            semaphore.acquire();
+    public Single<Long> deleteById(String id) {
+        return Db.singleLong(() -> {
+            long delQty = -1;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
@@ -168,12 +138,8 @@ public class TypeRepository implements TypeDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return delQty;
+            return delQty;
+        });
     }
     
 }

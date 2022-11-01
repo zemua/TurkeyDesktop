@@ -7,6 +7,7 @@ package devs.mrp.turkeydesktop.view.categorizeprocesspanel;
 
 import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
 import devs.mrp.turkeydesktop.common.FeedbackListener;
+import devs.mrp.turkeydesktop.common.Tripla;
 import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeServiceFactory;
 import devs.mrp.turkeydesktop.database.type.TypeServiceFactory;
@@ -21,9 +22,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeService;
 import devs.mrp.turkeydesktop.database.type.TypeService;
+import java.util.List;
 import java.util.logging.Level;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
+import rx.Subscriber;
 
 /**
  *
@@ -83,22 +86,35 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
     private void attachItemsToListPanel(Date from, Date to, int filter) {
         JPanel panel = (JPanel)this.getPanel().getProperty(CatProcessEnum.LIST_PANEL);
         if (panel == null) {return;}
-        typedService.getTypedLogGroupedByProcess(from, to, triplas -> {
-            panel.removeAll(); // clear in case it has been filled before
-            triplas.sort((c1,c2) -> c2.getValue2().compareTo(c1.getValue2()));
-            triplas.stream()
-                    .filter(c -> textFromFilter().isEmpty() ? true : StringUtils.containsIgnoreCase(c.getValue1(), textFromFilter()))
-                    .forEach(t -> {
-                        if (ifPassFilter(t.getValue3(), filter)) {
-                            CategorizerElement element = new CategorizerElement(panel.getWidth(), panel.getHeight());
-                            element.init(t.getValue1(), t.getValue3());
-                            panel.add(element);
-                            setRadioListener(element);
-                        }
-            });
-            panel.updateUI();
-            panel.revalidate();
-        });
+        panel.removeAll(); // clear in case it has been filled before
+        Subscriber<List<Tripla<String, Long, Type.Types>>> subscriber = new Subscriber<List<Tripla<String, Long, Type.Types>>>() {
+            @Override
+            public void onCompleted() {
+                panel.updateUI();
+                panel.revalidate();
+            }
+
+            @Override
+            public void onError(Throwable thrwbl) {
+                // nothing here
+            }
+
+            @Override
+            public void onNext(List<Tripla<String, Long, Type.Types>> triplas) {
+                triplas.sort((c1,c2) -> c2.getValue2().compareTo(c1.getValue2()));
+                triplas.stream()
+                        .filter(c -> textFromFilter().isEmpty() ? true : StringUtils.containsIgnoreCase(c.getValue1(), textFromFilter()))
+                        .forEach(t -> {
+                            if (ifPassFilter(t.getValue3(), filter)) {
+                                CategorizerElement element = new CategorizerElement(panel.getWidth(), panel.getHeight());
+                                element.init(t.getValue1(), t.getValue3());
+                                panel.add(element);
+                                setRadioListener(element);
+                            }
+                        });
+            }
+        };
+        typedService.getTypedLogGroupedByProcess(from, to).toList().subscribe(subscriber);
     }
     
     private String textFromFilter() {

@@ -8,8 +8,8 @@ package devs.mrp.turkeydesktop.service.watchdog.logger;
 import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeServiceFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeService;
-import java.util.function.Consumer;
 import java.util.logging.Logger;
+import rx.Single;
 
 /**
  *
@@ -26,14 +26,14 @@ public class DbLoggerImpl implements DbLogger {
     }
     
     @Override
-    public void logEntry(long elapsed, String processPid, String processName, String windowTitle, Consumer<TimeLog> consumer) {
+    public Single<TimeLog> logEntry(long elapsed, String processPid, String processName, String windowTitle) {
         TimeLog entry = new TimeLog();
         entry.setElapsed(elapsed);
         entry.setEpoch(System.currentTimeMillis());
         entry.setPid(processPid);
         entry.setProcessName(processName);
         entry.setWindowTitle(windowTitle);
-        logService.addTimeLogAdjustingCounted(entry, consumer);
+        return logService.addTimeLogAdjustingCounted(entry);
     }
     
 }
