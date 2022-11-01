@@ -13,6 +13,7 @@ import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import rx.Single;
 
 /**
  *
@@ -48,19 +49,20 @@ public class TimeLog {
         return blockable;
     }
 
-    public void setBlockable(boolean blockable) {
+    public Single<TimeLog> setBlockable(boolean blockable) {
         // if we are asked to set as not blockable we just do it
         if (blockable == false) {
             this.blockable = blockable;
-            return;
+            return Single.just(this);
         }
         // if we are asked to set is as blockable we check if that is possible
-        groupService.isPreventClose(groupId, isPreventCloseResult -> {
+        return groupService.isPreventClose(groupId).map(isPreventCloseResult -> {
             if (isPreventCloseResult) {
                 this.blockable = false;
             } else {
                 this.blockable = blockable;
             }
+            return this;
         });
     }
 

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.LongConsumer;
 import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -19,7 +20,7 @@ public interface TypeService {
     public void add(Type element, LongConsumer consumer);
     public void update(Type element, LongConsumer consumer);
     public Observable<Type> findAll();
-    public void findById(String id, Consumer<Type> consumer);
+    public Single<Type> findById(String id);
     public void deleteById(String id, LongConsumer consumer);
     public void findByType(Type.Types type, Consumer<List<Type>> consumer);
     

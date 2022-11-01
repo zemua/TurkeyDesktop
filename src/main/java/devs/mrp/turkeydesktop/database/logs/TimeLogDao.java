@@ -7,6 +7,7 @@ package devs.mrp.turkeydesktop.database.logs;
 
 import devs.mrp.turkeydesktop.database.GeneralDao;
 import java.sql.ResultSet;
+import rx.Single;
 
 /**
  *
@@ -14,11 +15,11 @@ import java.sql.ResultSet;
  */
 public interface TimeLogDao extends GeneralDao<TimeLog, Long> {
     
-    public ResultSet getTimeFrameGroupedByProcess(long from, long to);
-    public ResultSet getTimeFrameOfGroup(long groupId, long from, long to);
+    public Single<ResultSet> getTimeFrameGroupedByProcess(long from, long to);
+    public Single<ResultSet> getTimeFrameOfGroup(long groupId, long from, long to);
     
-    public ResultSet getMostRecent();
+    public Single<ResultSet> getMostRecent();
     
-    public ResultSet getGroupedByTitle(long from, long to);
+    public Single<ResultSet> getGroupedByTitle(long from, long to);
     
 }

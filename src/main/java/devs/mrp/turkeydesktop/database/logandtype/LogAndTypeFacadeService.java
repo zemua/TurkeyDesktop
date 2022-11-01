@@ -9,8 +9,8 @@ import devs.mrp.turkeydesktop.common.Tripla;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.type.Type;
 import java.util.Date;
-import java.util.List;
-import java.util.function.Consumer;
+import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -18,7 +18,7 @@ import java.util.function.Consumer;
  */
 public interface LogAndTypeFacadeService {
     
-    public void getTypedLogGroupedByProcess(Date from, Date to, Consumer<List<Tripla<String, Long, Type.Types>>> consumer);
+    public Observable<Tripla<String, Long, Type.Types>> getTypedLogGroupedByProcess(Date from, Date to);
     
-    public void addTimeLogAdjustingCounted(TimeLog element, Consumer<TimeLog> consumer);
+    public Single<TimeLog> addTimeLogAdjustingCounted(TimeLog element);
 }

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.LongConsumer;
 import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -19,7 +20,7 @@ public interface TitleService {
     public void save(Title element, LongConsumer consumer);
     public Observable<Title> findAll();
     public void findContainedByAndNegativeFirst(String title, Consumer<List<Title>> consumer);
-    public void findLongestContainedBy(String title, Consumer<Title> consumer);
+    public Single<Title> findLongestContainedBy(String title);
     public void findBySubString(String subStr, Consumer<Title> consumer);
     public void deleteBySubString(String subStr, LongConsumer consumer);
     public void countTypesOf(Title.Type type, String title, LongConsumer consumer);
