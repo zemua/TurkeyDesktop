@@ -7,7 +7,6 @@ package devs.mrp.turkeydesktop.service.conditionchecker.exporter;
 
 import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.common.TimeConverter;
-import devs.mrp.turkeydesktop.common.WorkerFactory;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroup;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupService;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupServiceFactory;
@@ -55,12 +54,7 @@ public class ExportWritterImpl implements ExportWritter {
     }
 
     private void doExports() {
-        exportedGroupService.findAll(all -> {
-            WorkerFactory.runInNewThread(() -> {
-                all.stream()
-                    .forEach(e -> processFile(e));
-            });
-        });
+        exportedGroupService.findAll().subscribe(e -> processFile(e));
     }
 
     private void processFile(ExportedGroup export) {
@@ -76,7 +70,7 @@ public class ExportWritterImpl implements ExportWritter {
             int j = i;
             TimeConverter.endOfOffsetDaysConsideringDayChange(j).subscribe(to -> {
                 TimeConverter.beginningOfOffsetDaysConsideringDayChange(j).subscribe(from -> {
-                    timeLogService.timeSpentOnGroupForFrame(export.getGroup(), from, to, spent -> {
+                    timeLogService.timeSpentOnGroupForFrame(export.getGroup(), from, to).subscribe(spent -> {
                         LocalDate date = LocalDate.now().minusDays(j);
                         String result = String.format("%d-%d-%d-%d", date.getYear(), date.getMonthValue() - 1, date.getDayOfMonth(), spent); // TODO LocalDate month starts in 1 but in Android app is set to start on 0
 

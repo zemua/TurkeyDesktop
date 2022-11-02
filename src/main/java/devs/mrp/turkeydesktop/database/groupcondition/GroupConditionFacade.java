@@ -10,7 +10,7 @@ import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
-import java.util.function.Consumer;
+import rx.Single;
 
 /**
  *
@@ -94,7 +94,7 @@ public class GroupConditionFacade {
         return "";
     }
     
-    public void toString(Consumer<String> consumer) {
+    public Single<String> stringify() {
         StringBuilder builder = new StringBuilder();
         builder.append(locale.getString("if"));
         builder.append(" ");
@@ -113,11 +113,11 @@ public class GroupConditionFacade {
         } else {
             builder.append(locale.getString("today"));
         }
-        conditionCheker.isConditionMet(toCondition(), isMetResult -> {
+        return conditionCheker.isConditionMet(toCondition()).map(isMetResult -> {
             if (!isMetResult) {
                 builder.append(String.format(" - %s", locale.getString("notMet")));
             }
-            consumer.accept(builder.toString());
+            return builder.toString();
         });
     }
     

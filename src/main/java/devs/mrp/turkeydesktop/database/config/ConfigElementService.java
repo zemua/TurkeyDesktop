@@ -134,14 +134,13 @@ public class ConfigElementService implements IConfigElementService {
 
     @Override
     public Observable<ConfigElement> allConfigElements() {
-        return Observable.from((Iterable)configMap.entrySet().stream()
+        return Observable.from(configMap.entrySet())
                 .map(e -> {
                     ConfigElement el = new ConfigElement();
                     el.setKey(e.getKey());
                     el.setValue(e.getValue());
                     return el;
-                })
-                .iterator());
+                });
     }
 
     @Override

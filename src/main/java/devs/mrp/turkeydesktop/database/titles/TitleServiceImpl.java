@@ -5,18 +5,14 @@
  */
 package devs.mrp.turkeydesktop.database.titles;
 
-import devs.mrp.turkeydesktop.common.WorkerFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationDao;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationRepository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
@@ -42,7 +38,7 @@ public class TitleServiceImpl implements TitleService {
     private void initConditionsMap() {
         if (conditionsMap == null) {
             conditionsMap = new ConcurrentHashMap<>();
-            retrieveAll(r -> {}); // it assigns values to the hashmap inside the function
+            retrieveAll().subscribe(); // it assigns values to the hashmap inside the function
         }
     }
 
@@ -75,22 +71,20 @@ public class TitleServiceImpl implements TitleService {
         }
     }
 
-    private void retrieveAll(Consumer<List<Title>> c) {
-        var consumer = TitleServiceFactory.getListConsumer(c);
-        WorkerFactory.runResultSetWorker(() -> repo.findAll(), set -> {
-            WorkerFactory.runWorker(() -> {
-                List<Title> elements = new ArrayList<>();
+    private Observable<Title> retrieveAll() {
+        conditionsMap.clear();
+        return repo.findAll().flatMapObservable(set -> {
+            return Observable.create(submitter -> {
                 try {
                     while (set.next()) {
                         Title el = elementFromResultSetEntry(set);
-                        elements.add(el);
+                        submitter.onNext(el);
+                        conditionsMap.put(el.getSubStr(), el);
                     }
                 } catch (SQLException ex) {
                     logger.log(Level.SEVERE, null, ex);
                 }
-                conditionsMap.clear();
-                elements.forEach(e -> conditionsMap.put(e.getSubStr(), e));
-                consumer.accept(elements);
+                submitter.onCompleted();
             });
         });
     }
