@@ -160,44 +160,42 @@ public class WatchDogImpl implements WatchDog {
         Long elapsed = current - timestamp.getAndSet(current);
         
         // insert entry to db
-        dbLogger.logEntry(elapsed, processChecker.currentProcessPid(), processChecker.currentProcessName(), processChecker.currentWindowTitle(), entry -> {
-            singleThreadExecutor.submit(() -> {
-                conditionChecker.areConditionsMet(entry.getGroupId(), conditionsMet -> {
-                    conditionChecker.isLockDownTime(isLockDown -> {
-                        conditionChecker.notifyCloseToConditionsRefresh();
-                        conditionChecker.timeRemaining(remaining -> {
-                            if (entry.isBlockable() && (remaining <= 0 || !conditionsMet || isLockDown)) {
-                                killerHandler.receiveRequest(null, processChecker.currentProcessPid());
-                                Toaster.sendToast(localeMessages.getString("killingProcess"));
-                            }
-                        });
-
-                        if (!conditionsMet) {
-                            groupService.findById(entry.getGroupId()).subscribe(groupResult -> {
-                                Toaster.sendToast(localeMessages.getString("conditionsNotMetFor") + " " + groupResult.getName());
-                            });
+        dbLogger.logEntry(elapsed, processChecker.currentProcessPid(), processChecker.currentProcessName(), processChecker.currentWindowTitle()).subscribe(entry -> {
+            conditionChecker.areConditionsMet(entry.getGroupId()).subscribe(conditionsMet -> {
+                conditionChecker.isLockDownTime().subscribe(isLockDown -> {
+                    conditionChecker.notifyCloseToConditionsRefresh().subscribe();
+                    conditionChecker.timeRemaining().subscribe(remaining -> {
+                        if (entry.isBlockable() && (remaining <= 0 || !conditionsMet || isLockDown)) {
+                            killerHandler.receiveRequest(null, processChecker.currentProcessPid());
+                            Toaster.sendToast(localeMessages.getString("killingProcess"));
                         }
+                    });
 
-                        conditionChecker.isTimeRunningOut(isRunningOut -> {
-                            if (entry.getCounted() < 0 && isRunningOut) {
-                                Toaster.sendToast(localeMessages.getString("timeRunningOut"));
-                            }
+                    if (!conditionsMet) {
+                        groupService.findById(entry.getGroupId()).subscribe(groupResult -> {
+                            Toaster.sendToast(localeMessages.getString("conditionsNotMetFor") + " " + groupResult.getName());
                         });
+                    }
 
-                        try {
-                            FileHandler.exportAccumulated(entry.getAccumulated());
-                        } catch (IOException e) {
-                            logger.log(Level.SEVERE, "Error exporting accumulated time to file", e);
+                    conditionChecker.isTimeRunningOut().subscribe(isRunningOut -> {
+                        if (entry.getCounted() < 0 && isRunningOut) {
+                            Toaster.sendToast(localeMessages.getString("timeRunningOut"));
                         }
+                    });
 
-                        exportWritter.exportChanged();
+                    try {
+                        FileHandler.exportAccumulated(entry.getAccumulated());
+                    } catch (IOException e) {
+                        logger.log(Level.SEVERE, "Error exporting accumulated time to file", e);
+                    }
 
-                        giveFeedback("Entry logged", entry);
+                    exportWritter.exportChanged();
 
-                        updateTrayIcon(isLockDown, entry.getCounted());
-                        conditionChecker.timeRemaining(remaining -> {
-                            trayHandler.requestChangeTimeLeft("time", remaining);
-                        });
+                    giveFeedback("Entry logged", entry);
+
+                    updateTrayIcon(isLockDown, entry.getCounted());
+                    conditionChecker.timeRemaining().subscribe(remaining -> {
+                        trayHandler.requestChangeTimeLeft("time", remaining);
                     });
                 });
             });
