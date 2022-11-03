@@ -21,6 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.text.JTextComponent;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
 import javax.swing.JTextArea;
+import rx.Subscriber;
 
 /**
  *
@@ -96,41 +97,54 @@ public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AW
         JPanel conditionsPanel = (JPanel)getPanel().getProperty(TitleConditionsEnum.CONDITIONS_PANEL);
         conditionsPanel.removeAll();
         String title = ((JTextComponent)getPanel().getProperty(TitleConditionsEnum.TITLE)).getText();
-        titleService.findContainedByAndNegativeFirst(title, titles -> {
-            titles.stream().forEach(t -> {
-                        TitleCondition label = new TitleCondition(t);
-                        conditionsPanel.add(label);
-                        label.addFeedbackListener((tipo,feedback) -> {
-                            if (RemovableLabel.Action.DELETE.equals(feedback)) {
-                                if (Title.Type.NEGATIVE.equals(t.getType())) {
-                                    popupMaker.show(this.getFrame(), () -> {
-                                        // positive
-                                        removeCondition(tipo.getSubStr());
-                                    }, () -> {
-                                        // negative
-                                        // do nothing, intentionally left blank
-                                    });
-                                } else {
-                                    removeCondition(tipo.getSubStr());
-                                }
-                            }
-                        });
-                    });
-            conditionsPanel.revalidate();
-            conditionsPanel.updateUI();
-        });
+        
+        Subscriber<Title> subscriber = new Subscriber<Title>() {
+            @Override
+            public void onCompleted() {
+                conditionsPanel.revalidate();
+                conditionsPanel.updateUI();
+            }
+
+            @Override
+            public void onError(Throwable thrwbl) {
+                // nothing to do here
+            }
+
+            @Override
+            public void onNext(Title t) {
+                TitleCondition label = new TitleCondition(t);
+                conditionsPanel.add(label);
+                label.addFeedbackListener((tipo,feedback) -> {
+                    if (RemovableLabel.Action.DELETE.equals(feedback)) {
+                        if (Title.Type.NEGATIVE.equals(t.getType())) {
+                            popupMaker.show(TitleConditionsHandler.this.getFrame(), () -> {
+                                // positive
+                                removeCondition(tipo.getSubStr());
+                            }, () -> {
+                                // negative
+                                // do nothing, intentionally left blank
+                            });
+                        } else {
+                            removeCondition(tipo.getSubStr());
+                        }
+                    }
+                });
+            }
+        };
+        
+        titleService.findContainedByAndNegativeFirst(title).subscribe(subscriber);
     }
     
     private void addCondition(String substr, Title.Type type) {
         Title title = new Title();
         title.setSubStr(substr);
         title.setType(type);
-        titleService.save(title, r -> {});
+        titleService.save(title).subscribe();
         fillConditions();
     }
     
     private void removeCondition(String substr) {
-        titleService.deleteBySubString(substr, r -> {});
+        titleService.deleteBySubString(substr).subscribe();
         fillConditions();
         
     }

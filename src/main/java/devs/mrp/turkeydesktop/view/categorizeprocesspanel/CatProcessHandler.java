@@ -157,20 +157,20 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
     }
     
     private void addCategorization(String process, Type.Types targetType) {
-        typeService.findById(process, savedType -> {
+        typeService.findById(process).subscribe(savedType -> {
             Type t = new Type();
             t.setProcess(process);
             t.setType(targetType);
             if (isChangeToLessRestrictive(targetType, savedType)) {
                 popupMaker.show(this.getFrame(), () -> {
                     // runnable positive
-                    typeService.add(t, r -> {});
+                    typeService.add(t).subscribe();
                 }, () -> {
                     // runnable negative
                     updateItemsInList();
                 });
             } else {
-                typeService.add(t, r -> {});
+                typeService.add(t).subscribe();
             }
         });
     }
