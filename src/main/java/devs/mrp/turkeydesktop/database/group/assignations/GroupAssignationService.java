@@ -176,8 +176,7 @@ public class GroupAssignationService implements IGroupAssignationService {
     @Override
     public Single<GroupAssignation> findGroupOfAssignation(String assignation) {
         return repo.findByElementId(GroupAssignation.ElementType.TITLE, assignation.toLowerCase())
-                .flatMapObservable(this::elementsFromResultSet)
-                .toSingle();
+                .map(this::elementFromResultSetEntry);
     }
     
 }
