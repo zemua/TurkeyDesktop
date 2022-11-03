@@ -32,6 +32,7 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import rx.Subscriber;
 
 /**
  *
@@ -689,48 +690,60 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
             importPanel.repaint();
             return;
         }
-        importService.add(file.getPath(), r -> {});
+        importService.add(file.getPath()).subscribe();
         refreshImportPanel();
     }
     
     private void refreshImportPanel() throws Exception {
         JPanel importPanel = (JPanel) getObjectFromPanel(ConfigurationPanelEnum.IMPORT_PANEL, JPanel.class).orElseThrow(() -> new Exception("wrong object"));
         importPanel.removeAll();
-        importService.findAll(allResult -> {
-            allResult.stream()
-                    .map(path -> {
-                        RemovableLabel<String> label = new RemovableLabel<>(path) {
-                            @Override
-                            protected String getNameFromElement(String element) {
-                                return element;
-                            }
-                            @Override
-                            protected void initializeOtherElements() {
-                                // ¯\_ (ツ)_/¯
-                            }
-                            @Override
-                            protected void addOtherItems(JPanel panel) {
-                                // ¯\_ (ツ)_/¯
-                            }
-                        };
-                        label.addFeedbackListener((String tipo, RemovableLabel.Action feedback) -> {
-                            if (feedback.equals(RemovableLabel.Action.DELETE)) {
-                                importService.deleteById(tipo, r -> {});
-                                try {
-                                    refreshImportPanel();
-                                } catch (Exception e) {
-                                    logger.log(Level.SEVERE, "could not refresh import panel after path deletion", e);
-                                }
-                            }
-                        });
-                        return label;
-                    })
-                    .forEach(label -> importPanel.add(label));
-            importPanel.revalidate();
-            importPanel.repaint();
+        
+        Subscriber<RemovableLabel<String>> subscriber = new Subscriber<RemovableLabel<String>>() {
+            @Override
+            public void onCompleted() {
+                importPanel.revalidate();
+                importPanel.repaint();
+                importStarted = true;
+            }
 
-            importStarted = true;
-        });
+            @Override
+            public void onError(Throwable thrwbl) {
+                // nothing to do here
+            }
+
+            @Override
+            public void onNext(RemovableLabel<String> label) {
+                importPanel.add(label);
+            }
+        };
+        
+        importService.findAll().map(path -> {
+            RemovableLabel<String> label = new RemovableLabel<>(path) {
+                    @Override
+                    protected String getNameFromElement(String element) {
+                        return element;
+                    }
+                    @Override
+                    protected void initializeOtherElements() {
+                        // ¯\_ (ツ)_/¯
+                    }
+                    @Override
+                    protected void addOtherItems(JPanel panel) {
+                        // ¯\_ (ツ)_/¯
+                    }
+                };
+                label.addFeedbackListener((String tipo, RemovableLabel.Action feedback) -> {
+                    if (feedback.equals(RemovableLabel.Action.DELETE)) {
+                        importService.deleteById(tipo).subscribe();
+                        try {
+                            refreshImportPanel();
+                        } catch (Exception e) {
+                            logger.log(Level.SEVERE, "could not refresh import panel after path deletion", e);
+                        }
+                    }
+                });
+                return label;
+            }).subscribe(subscriber);
     }
     
     private void handleIdleChange() throws Exception {

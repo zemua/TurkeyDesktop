@@ -6,7 +6,6 @@
 package devs.mrp.turkeydesktop.view.notcloseables;
 
 import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
-import devs.mrp.turkeydesktop.common.IntegerWrapper;
 import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.closeables.CloseableService;
 import devs.mrp.turkeydesktop.database.closeables.CloseableServiceFactory;
@@ -20,6 +19,7 @@ import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import rx.Subscriber;
 
 /**
  *
@@ -80,16 +80,27 @@ public class NotCloseablesHandler extends PanelHandler<NotCloseablesEnum, Object
         JPanel panel = (JPanel) object;
         panel.removeAll();
         
-        typeService.findByType(Type.Types.DEPENDS, dependables -> {
-            IntegerWrapper i = new IntegerWrapper();
-            dependables.forEach(process -> {
+        Subscriber<Type> subscriber = new Subscriber<Type>() {
+            @Override
+            public void onCompleted() {
+                panel.revalidate();
+                panel.updateUI();
+            }
+
+            @Override
+            public void onError(Throwable thrwbl) {
+                // nothing to do here
+            }
+
+            @Override
+            public void onNext(Type process) {
                 closeableService.canBeClosed(process.getProcess()).subscribe(canClose -> {
                     Switchable switchable = new Switchable(process.getProcess(), !canClose, true);
                     switchable.addFeedbackListener((processId, feedback) -> {
                         if (!feedback) { // if the checkbox was unchecked with this event
                             closeableService.deleteById(processId).subscribe();
                         } else { // if the checkbox was cheked with this event
-                            popupMaker.show(this.getFrame(), () -> {
+                            popupMaker.show(NotCloseablesHandler.this.getFrame(), () -> {
                                 // positive
                                 closeableService.add(processId).subscribe();
                             }, () -> {
@@ -99,13 +110,10 @@ public class NotCloseablesHandler extends PanelHandler<NotCloseablesEnum, Object
                         }
                     });
                     panel.add(switchable);
-                    i.increase();
-                    if (i.get() == dependables.size()) {
-                        panel.revalidate();
-                        panel.updateUI();
-                    }
                 });
-            });
-        });
+            }
+        };
+        
+        typeService.findByType(Type.Types.DEPENDS).subscribe(subscriber);
     }
 }

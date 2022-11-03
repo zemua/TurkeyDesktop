@@ -66,9 +66,9 @@ public class TimesHandler extends PanelHandler<TimesEnum, AWTEvent, FeedbackerPa
     
     private void updateLogs(Date from, Date to) {
         JTextArea log = (JTextArea)this.getPanel().getProperty(TimesEnum.LOGGER);
-        logService.findProcessTimeFromTo(from, to, times -> {
-            log.setText("");
-            times.forEach(t -> log.append(String.format(localeMessages.getString("processTimeLog"), t.getValue1(), TimeConverter.millisToHMS(t.getValue2()))));
+        log.setText("");
+        logService.findProcessTimeFromTo(from, to).subscribe(t -> {
+            log.append(String.format(localeMessages.getString("processTimeLog"), t.getValue1(), TimeConverter.millisToHMS(t.getValue2())));
         });
     }
     
