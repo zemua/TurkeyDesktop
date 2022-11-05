@@ -13,12 +13,18 @@ import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import rx.Single;
 
 /**
  *
  * @author miguel
  */
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class TimeLog {
     
     public static final String ID = "ID";

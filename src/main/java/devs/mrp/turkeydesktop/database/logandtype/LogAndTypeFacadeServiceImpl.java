@@ -23,7 +23,6 @@ import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
@@ -70,7 +69,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                         emitter.onNext(tripla);
                     }
                 } catch (SQLException ex) {
-                    LOGGER.log(Level.SEVERE, null, ex);
+                    emitter.onError(ex);
                 }
                 emitter.onCompleted();
             });

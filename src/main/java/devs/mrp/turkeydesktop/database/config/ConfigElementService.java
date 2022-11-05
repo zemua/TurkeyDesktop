@@ -79,13 +79,13 @@ public class ConfigElementService implements IConfigElementService {
                 try {
                     while (set.next()) {
                         ConfigElement elem = elementFromResultSetEntry(set);
-                        subscriber.onNext(elem);
                         configMap.put(elem.getKey(), elem.getValue());
+                        subscriber.onNext(elem);
                     }
                 } catch (SQLException ex) {
-                    logger.log(Level.SEVERE, null, ex);
+                    subscriber.onError(ex);
                 }
-                
+                subscriber.onCompleted();
             });
         });
     }

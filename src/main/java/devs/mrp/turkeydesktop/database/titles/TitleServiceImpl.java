@@ -82,7 +82,7 @@ public class TitleServiceImpl implements TitleService {
                         conditionsMap.put(el.getSubStr(), el);
                     }
                 } catch (SQLException ex) {
-                    logger.log(Level.SEVERE, null, ex);
+                    submitter.onError(ex);
                 }
                 submitter.onCompleted();
             });

@@ -79,7 +79,7 @@ public class TimeLogServiceImpl implements TimeLogService {
                         emitter.onNext(dupla);
                     }
                 } catch (SQLException ex) {
-                    logger.log(Level.SEVERE, null, ex);
+                    emitter.onError(ex);
                 }
                 emitter.onCompleted();
             });
@@ -114,7 +114,7 @@ public class TimeLogServiceImpl implements TimeLogService {
                     emitter.onNext(timeLog);
                 }
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                emitter.onError(ex);
             }
             emitter.onCompleted();
         });
@@ -127,6 +127,20 @@ public class TimeLogServiceImpl implements TimeLogService {
             try {
                 if (set.next()) {
                     entry = setTimeLogFromResultSetEntry(set);
+                } else {
+                    entry = TimeLog.builder()
+                            .accumulated(0L)
+                            .blockable(false)
+                            .counted(0L)
+                            .elapsed(0L)
+                            .epoch(0L)
+                            .groupId(-1)
+                            .id(0)
+                            .pid("")
+                            .processName("")
+                            .type(Type.Types.UNDEFINED)
+                            .windowTitle("")
+                            .build();
                 }
             } catch (SQLException ex) {
                 Logger.getLogger(TimeLogServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
@@ -173,7 +187,7 @@ public class TimeLogServiceImpl implements TimeLogService {
                         emitter.onNext(dupla);
                     }
                 } catch (SQLException ex) {
-                    logger.log(Level.SEVERE, null, ex);
+                    emitter.onError(ex);
                 }
                 emitter.onCompleted();
             });

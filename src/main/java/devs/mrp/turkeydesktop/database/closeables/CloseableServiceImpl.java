@@ -86,7 +86,7 @@ public class CloseableServiceImpl implements CloseableService {
                     suscriber.onNext(new Closeable(set.getString(Closeable.PROCESS_NAME)));
                 }
             } catch (SQLException ex) {
-                Logger.getLogger(CloseableServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+                suscriber.onError(ex);
             }
             suscriber.onCompleted();
         });

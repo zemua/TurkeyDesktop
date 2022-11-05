@@ -109,7 +109,7 @@ public class ExportedGroupServiceImpl implements ExportedGroupService {
                     subscribe.onNext(elementFromResultSetEntry(set));
                 }
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                subscribe.onError(ex);
             }
             subscribe.onCompleted();
         });

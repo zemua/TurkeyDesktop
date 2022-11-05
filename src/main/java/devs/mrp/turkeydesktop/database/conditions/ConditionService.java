@@ -103,7 +103,7 @@ public class ConditionService implements IConditionService {
                     subscriber.onNext(elementFromResultSetEntry(set));
                 }
             } catch (SQLException ex) {
-                Logger.getLogger(ConditionService.class.getName()).log(Level.SEVERE, null, ex);
+                subscriber.onError(ex);
             }
             subscriber.onCompleted();
         });

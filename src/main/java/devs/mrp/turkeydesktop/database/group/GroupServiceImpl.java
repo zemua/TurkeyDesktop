@@ -109,7 +109,7 @@ public class GroupServiceImpl implements GroupService {
                     subscriber.onNext(elementFromResultSetEntry(set));
                 }
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                subscriber.onError(ex);
             }
             subscriber.onCompleted();
         });

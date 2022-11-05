@@ -106,7 +106,7 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
                     subscriber.onNext(elementFromResultSetEntry(set));
                 }
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                subscriber.onError(ex);
             }
             subscriber.onCompleted();
         });

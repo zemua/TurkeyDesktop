@@ -102,7 +102,7 @@ public class TypeServiceImpl implements TypeService {
                     submitter.onNext(type);
                 }
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                submitter.onError(ex);
             }
             submitter.onCompleted();
         });

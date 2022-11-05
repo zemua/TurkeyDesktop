@@ -41,7 +41,7 @@ public class ImportServiceImpl implements ImportService {
                         emitter.onNext(set.getString(ConfigurationEnum.IMPORT_PATH.toString()));
                     }
                 } catch (SQLException ex) {
-                    logger.log(Level.SEVERE, null, ex);
+                    emitter.onError(ex);
                 }
                 emitter.onCompleted();
             });
