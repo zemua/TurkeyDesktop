@@ -17,6 +17,8 @@ import java.util.logging.Logger;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.database.titles.Title;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
+import java.util.ArrayList;
+import java.util.List;
 import rx.Observable;
 import rx.Single;
 
@@ -55,39 +57,46 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
         long toMillis = TimeConverter.millisToEndOfDay(to.getTime());
         
         return titleFacade.getTimeFrameOfDependablesGroupedByProcess(fromMillis, toMillis).flatMapObservable(set -> {
-            Observable observable = Observable.empty();
+            List<TitledLog> logs = new ArrayList<>();
             try {
                 while (set.next()) {
-                    observable.mergeWith(titledLogFromResultSetEntry(set).toObservable());
+                    TitledLog log = TitledLog.builder()
+                            .title(set.getString(TimeLog.WINDOW_TITLE))
+                            .elapsed(set.getLong(2))
+                            .build();
+                    logs.add(log);
                 }
             } catch (SQLException ex) {
                 Logger.getLogger(TitledLogServiceFacadeImpl.class.getName()).log(Level.SEVERE, null, ex);
             }
-            return observable;
+            return Observable.from(logs);
         });
     }
     
     private Single<TitledLog> titledLogFromResultSetEntry(ResultSet entry) {
         TitledLog log = new TitledLog();
         try {
-            String title = entry.getString(TimeLog.WINDOW_TITLE);
-            log.setTitle(title);
+            log.setTitle(entry.getString(TimeLog.WINDOW_TITLE));
             log.setElapsed(entry.getLong(2));
-            return titleService.getQtyPerCategory(title).flatMap(map -> {
+            return completeTitledLog(log);
+        } catch (SQLException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        }
+        return Single.just(log);
+    }
+    
+    private Single<TitledLog> completeTitledLog(TitledLog log) {
+        return titleService.getQtyPerCategory(log.getTitle()).flatMap(map -> {
                 log.setQtyNegatives(map.get(Title.Type.NEGATIVE));
                 log.setQtyNeutral(map.get(Title.Type.NEUTRAL));
                 log.setQtyPositives(map.get(Title.Type.NEGATIVE));
-                return titleService.findContainedByAndNegativeFirst(title)
+                return titleService.findContainedByAndNegativeFirst(log.getTitle())
                         .toList()
                         .map(contained -> {
                             log.setConditions(contained);
                             return log;
                         }).toSingle();
-            });
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        return Single.just(log);
+        });
     }
     
 }
