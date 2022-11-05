@@ -69,7 +69,7 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
             } catch (SQLException ex) {
                 Logger.getLogger(TitledLogServiceFacadeImpl.class.getName()).log(Level.SEVERE, null, ex);
             }
-            return Observable.from(logs);
+            return Observable.from(logs).flatMapSingle(this::completeTitledLog);
         });
     }
     
@@ -89,7 +89,7 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
         return titleService.getQtyPerCategory(log.getTitle()).flatMap(map -> {
                 log.setQtyNegatives(map.get(Title.Type.NEGATIVE));
                 log.setQtyNeutral(map.get(Title.Type.NEUTRAL));
-                log.setQtyPositives(map.get(Title.Type.NEGATIVE));
+                log.setQtyPositives(map.get(Title.Type.POSITIVE));
                 return titleService.findContainedByAndNegativeFirst(log.getTitle())
                         .toList()
                         .map(contained -> {
