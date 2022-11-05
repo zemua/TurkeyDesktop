@@ -47,16 +47,16 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElementService;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import org.apache.commons.lang3.StringUtils;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacade;
+import devs.mrp.turkeydesktop.database.type.Type;
 import java.util.Optional;
 import javax.swing.JCheckBox;
 import rx.Observable;
 import rx.Subscriber;
+import rx.functions.Func2;
 
 /**
  *
@@ -199,6 +199,24 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         JLabel label = (JLabel) object;
         label.setText(name);
     }
+    
+    private void processAssignableObservable(Observable<AssignableElement<Type.Types>> observable, JPanel panel) {
+        observable.filter(element -> {
+                                try {
+                                    return getFilterText().isEmpty() ||
+                                            StringUtils.containsIgnoreCase(element.getElementName(), getFilterText());
+                                } catch (Exception e) {
+                                    logger.log(Level.SEVERE, e.toString());
+                                }
+                                return true;
+                            })
+                    .toSortedList(getAssignableComparatorFunction())
+                    .subscribe(result -> {
+                        setSwitchablesFromAssignables(result, panel, GroupAssignation.ElementType.PROCESS);
+                        panel.revalidate();
+                        panel.updateUI();
+                    });
+    }
 
     private void setProcesses() {
         Object object = this.getPanel().getProperty(GroupReviewEnum.PROCESS_PANEL);
@@ -208,40 +226,10 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         JPanel panel = (JPanel) object;
         panel.removeAll();
         
-        Subscriber subscriber = new Subscriber<List<AssignableElement<GroupAssignation.ElementType>>>() {
-            @Override
-            public void onCompleted() {}
-
-            @Override
-            public void onError(Throwable thrwbl) {}
-
-            @Override
-            public void onNext(List<AssignableElement<GroupAssignation.ElementType>> result) {
-                Iterator<AssignableElement<GroupAssignation.ElementType>> iterator = result.iterator();
-                while (iterator.hasNext()) {
-                    AssignableElement element = iterator.next();
-                    try {
-                        if (!getFilterText().isEmpty() && !StringUtils.containsIgnoreCase(element.getElementName(), getFilterText())) {
-                            iterator.remove();
-                        }
-                    } catch (Exception e) {
-                        logger.log(Level.SEVERE, "error getting the text from filter, defaulting to no filter", e);
-                    }
-
-                }
-
-                Collections.sort(result, getAssignableComparator());
-
-                setSwitchablesFromAssignables(result, panel, GroupAssignation.ElementType.PROCESS);
-                panel.revalidate();
-                panel.updateUI();
-            }
-        };
-        
         if (group.getType().equals(Group.GroupType.POSITIVE)){
-            assignableProcessService.positiveElementsWithAssignation().subscribe(subscriber);
+            processAssignableObservable(assignableProcessService.positiveElementsWithAssignation(), panel);
         } else {
-            assignableProcessService.negativeElementsWithAssignation().subscribe(subscriber);
+            processAssignableObservable(assignableProcessService.negativeElementsWithAssignation(), panel);
         }
         
     }
@@ -254,40 +242,10 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         JPanel panel = (JPanel) object;
         panel.removeAll();
         
-        Subscriber subscriber = new Subscriber<List<AssignableElement<GroupAssignation.ElementType>>>() {
-            @Override
-            public void onCompleted() {
-                panel.revalidate();
-                panel.updateUI();
-            }
-
-            @Override
-            public void onError(Throwable thrwbl) {
-                // nothing to do here
-            }
-
-            @Override
-            public void onNext(List<AssignableElement<GroupAssignation.ElementType>> t) {
-                 Iterator<AssignableElement<GroupAssignation.ElementType>> iterator = t.iterator();
-                while (iterator.hasNext()) {
-                    AssignableElement element = iterator.next();
-                    try {
-                        if (!getFilterText().isEmpty() && !StringUtils.containsIgnoreCase(element.getElementName(), getFilterText())) {
-                            iterator.remove();
-                        }
-                    } catch (Exception e) {
-                        logger.log(Level.SEVERE, "error getting the text from filter, defaulting to no filter", e);
-                    }
-                    Collections.sort(t, getAssignableComparator());
-                    setSwitchablesFromAssignables(t, panel, GroupAssignation.ElementType.TITLE);
-                }
-            }
-        };
-        
         if (group.getType().equals(Group.GroupType.POSITIVE)) {
-            assignableTitlesService.positiveElementsWithAssignation().subscribe(subscriber);
+            processAssignableObservable(assignableTitlesService.positiveElementsWithAssignation(), panel);
         } else {
-            assignableTitlesService.negativeElementsWithAssignation().subscribe(subscriber);
+            processAssignableObservable(assignableTitlesService.negativeElementsWithAssignation(), panel);
         }
         
     }
@@ -295,6 +253,27 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private String getFilterText() throws Exception {
         JTextField field = (JTextField) getObjectFromPanel(GroupReviewEnum.TEXT_FILTER, JTextField.class).orElseThrow(() -> new Exception("wrong object"));
         return field.getText();
+    }
+    
+    private Func2<AssignableElement, AssignableElement, Integer> getAssignableComparatorFunction() {
+        return (AssignableElement o1, AssignableElement o2) -> {
+            try {
+                JComboBox orderDropdown = (JComboBox) getObjectFromPanel(GroupReviewEnum.ORDER_DROPDOWN, JComboBox.class).orElseThrow(() -> new Exception("wrong object"));
+                if (localeMessages.getString(ComboOrderEnum.UNASSIGNED_FIRST.getKey()).equals(orderDropdown.getSelectedItem())){
+                    boolean b1 = !assignableBelongsToGroup(o1) && assignableIsEnabled(o1);
+                    boolean b2 = !assignableBelongsToGroup(o2) && assignableIsEnabled(o2);
+                    return Boolean.compare(b2, b1);
+                }
+                if (localeMessages.getString(ComboOrderEnum.ASSIGNED_HERE_FIRST.getKey()).equals(orderDropdown.getSelectedItem())) {
+                    boolean b1 = assignableBelongsToGroup(o1);
+                    boolean b2 = assignableBelongsToGroup(o2);
+                    return Boolean.compare(b2, b1);
+                }
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "error getting the combo box", e);
+            }
+            return 0;
+        };
     }
     
     private Comparator<AssignableElement> getAssignableComparator() {
@@ -319,7 +298,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         return comparator;
     }
 
-    private void setSwitchablesFromAssignables(List<AssignableElement<GroupAssignation.ElementType>> assignables, JPanel panel, GroupAssignation.ElementType type) {
+    private void setSwitchablesFromAssignables(List<AssignableElement<Type.Types>> assignables, JPanel panel, GroupAssignation.ElementType type) {
         assignables.forEach(a -> {
             Switchable switchable = new Switchable(a.getElementName(),
                     assignableBelongsToGroup(a), // checked if it belongs to this group

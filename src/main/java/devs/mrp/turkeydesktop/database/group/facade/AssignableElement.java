@@ -6,7 +6,6 @@
 package devs.mrp.turkeydesktop.database.group.facade;
 
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
-import devs.mrp.turkeydesktop.database.type.Type;
 
 /**
  *
