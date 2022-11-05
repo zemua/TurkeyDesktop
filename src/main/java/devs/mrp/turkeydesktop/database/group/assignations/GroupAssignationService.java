@@ -176,7 +176,16 @@ public class GroupAssignationService implements IGroupAssignationService {
     @Override
     public Single<GroupAssignation> findGroupOfAssignation(String assignation) {
         return repo.findByElementId(GroupAssignation.ElementType.TITLE, assignation.toLowerCase())
-                .map(this::elementFromResultSetEntry);
+                .map(resultSet -> {
+                    try {
+                        if (resultSet.next()) {
+                            return elementFromResultSetEntry(resultSet);
+                        }
+                    } catch (SQLException ex) {
+                        Logger.getLogger(GroupAssignationService.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    return null;
+                });
     }
     
 }

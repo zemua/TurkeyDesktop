@@ -257,17 +257,30 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         Subscriber subscriber = new Subscriber<List<AssignableElement<GroupAssignation.ElementType>>>() {
             @Override
             public void onCompleted() {
-                throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+                panel.revalidate();
+                panel.updateUI();
             }
 
             @Override
             public void onError(Throwable thrwbl) {
-                throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+                // nothing to do here
             }
 
             @Override
             public void onNext(List<AssignableElement<GroupAssignation.ElementType>> t) {
-                throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+                 Iterator<AssignableElement<GroupAssignation.ElementType>> iterator = t.iterator();
+                while (iterator.hasNext()) {
+                    AssignableElement element = iterator.next();
+                    try {
+                        if (!getFilterText().isEmpty() && !StringUtils.containsIgnoreCase(element.getElementName(), getFilterText())) {
+                            iterator.remove();
+                        }
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE, "error getting the text from filter, defaulting to no filter", e);
+                    }
+                    Collections.sort(t, getAssignableComparator());
+                    setSwitchablesFromAssignables(t, panel, GroupAssignation.ElementType.TITLE);
+                }
             }
         };
         
