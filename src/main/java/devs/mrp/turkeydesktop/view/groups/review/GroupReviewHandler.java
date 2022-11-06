@@ -200,7 +200,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         label.setText(name);
     }
     
-    private void processAssignableObservable(Observable<AssignableElement<Type.Types>> observable, JPanel panel) {
+    private void processAssignableObservable(Observable<AssignableElement<Type.Types>> observable, JPanel panel, GroupAssignation.ElementType type) {
         observable.filter(element -> {
                                 try {
                                     return getFilterText().isEmpty() ||
@@ -212,7 +212,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                             })
                     .toSortedList(getAssignableComparatorFunction())
                     .subscribe(result -> {
-                        setSwitchablesFromAssignables(result, panel, GroupAssignation.ElementType.PROCESS);
+                        setSwitchablesFromAssignables(result, panel, type);
                         panel.revalidate();
                         panel.updateUI();
                     });
@@ -227,9 +227,9 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         panel.removeAll();
         
         if (group.getType().equals(Group.GroupType.POSITIVE)){
-            processAssignableObservable(assignableProcessService.positiveElementsWithAssignation(), panel);
+            processAssignableObservable(assignableProcessService.positiveElementsWithAssignation(), panel, GroupAssignation.ElementType.PROCESS);
         } else {
-            processAssignableObservable(assignableProcessService.negativeElementsWithAssignation(), panel);
+            processAssignableObservable(assignableProcessService.negativeElementsWithAssignation(), panel, GroupAssignation.ElementType.PROCESS);
         }
         
     }
@@ -243,9 +243,9 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         panel.removeAll();
         
         if (group.getType().equals(Group.GroupType.POSITIVE)) {
-            processAssignableObservable(assignableTitlesService.positiveElementsWithAssignation(), panel);
+            processAssignableObservable(assignableTitlesService.positiveElementsWithAssignation(), panel, GroupAssignation.ElementType.TITLE);
         } else {
-            processAssignableObservable(assignableTitlesService.negativeElementsWithAssignation(), panel);
+            processAssignableObservable(assignableTitlesService.negativeElementsWithAssignation(), panel, GroupAssignation.ElementType.TITLE);
         }
         
     }
