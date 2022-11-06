@@ -33,7 +33,7 @@ public class ConditionElement extends RemovableLabel<GroupConditionFacade> {
     
     @Override
     protected void initializeLabel() {
-        element.toString(stringResult -> {
+        element.stringify().subscribe(stringResult -> {
             label = new JLabel();
             label.setText(stringResult);
             label.addMouseListener(new MouseAdapter() {

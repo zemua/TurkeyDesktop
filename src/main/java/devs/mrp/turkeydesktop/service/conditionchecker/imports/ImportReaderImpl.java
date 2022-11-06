@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import rx.Single;
 
 /**
  *
@@ -84,9 +85,9 @@ public class ImportReaderImpl implements ImportReader {
     }
     
     @Override
-    public Long getTotalSpentFromFileBetweenDates(String path, LocalDate dateFrom, LocalDate dateTo) {
-        return streamFromFileBetweenDates(path, dateFrom, dateTo)
-                .collect(Collectors.summingLong(ImportValue::getSpent));
+    public Single<Long> getTotalSpentFromFileBetweenDates(String path, LocalDate dateFrom, LocalDate dateTo) {
+        return Single.just(streamFromFileBetweenDates(path, dateFrom, dateTo)
+                .collect(Collectors.summingLong(ImportValue::getSpent)));
     }
     
     private ImportValue mapEntry(String entry){

@@ -7,14 +7,13 @@ package devs.mrp.turkeydesktop.service.conditionchecker;
 
 import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.common.FileHandler;
-import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.FConditionService;
 import devs.mrp.turkeydesktop.database.conditions.IConditionService;
+import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.FConfigElementService;
 import devs.mrp.turkeydesktop.database.config.IConfigElementService;
-import devs.mrp.turkeydesktop.database.group.GroupServiceFactory;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupServiceFactory;
@@ -36,16 +35,11 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
-import devs.mrp.turkeydesktop.database.group.GroupService;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
-import java.util.function.LongConsumer;
+import java.util.concurrent.atomic.AtomicLong;
+import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -54,7 +48,6 @@ import java.util.function.LongConsumer;
 public class ConditionCheckerImpl implements ConditionChecker {
 
     private IConditionService conditionService = FConditionService.getService();
-    private GroupService groupService = GroupServiceFactory.getService();
     private TimeLogService timeLogService = TimeLogServiceFactory.getService();
     private IConfigElementService configService = FConfigElementService.getService();
     private ImportService importService = ImportServiceFactory.getService();
@@ -69,12 +62,12 @@ public class ConditionCheckerImpl implements ConditionChecker {
     private static final Pattern NUMBER_PATTERN = Pattern.compile("^-?\\d+$");
 
     @Override
-    public void isConditionMet(Condition condition, Consumer<Boolean> consumer) {
-        TimeConverter.beginningOfOffsetDaysConsideringDayChange(condition.getLastDaysCondition(), beginningResult -> {
-            TimeConverter.endOfTodayConsideringDayChange(endResult -> {
-                timeLogService.timeSpentOnGroupForFrame(condition.getTargetId(), beginningResult, endResult, timeSpent -> {
-                    externalTimeFromCondition(condition, external -> {
-                        consumer.accept(timeSpent+external >= condition.getUsageTimeCondition());
+    public Single<Boolean> isConditionMet(Condition condition) {
+        return TimeConverter.beginningOfOffsetDaysConsideringDayChange(condition.getLastDaysCondition()).flatMap(beginningResult -> {
+            return TimeConverter.endOfTodayConsideringDayChange().flatMap(endResult -> {
+                return timeLogService.timeSpentOnGroupForFrame(condition.getTargetId(), beginningResult, endResult).flatMap(timeSpent -> {
+                    return externalTimeFromCondition(condition).map(external -> {
+                        return timeSpent+external >= condition.getUsageTimeCondition();
                     });
                 });
             });
@@ -82,137 +75,121 @@ public class ConditionCheckerImpl implements ConditionChecker {
         
     }
     
-    private void externalTimeFromCondition(Condition condition, LongConsumer consumer) {
-        configService.configElement(ConfigurationEnum.CHANGE_OF_DAY, changeOfDayResult -> {
+    private Single<Long> externalTimeFromCondition(Condition condition) {
+        return configService.configElement(ConfigurationEnum.CHANGE_OF_DAY).flatMap(changeOfDayResult -> {
             Long changeOfDay = Long.valueOf(changeOfDayResult.getValue());
             LocalDate to = LocalDateTime.now().minusHours(changeOfDay).toLocalDate();
             LocalDate from = LocalDateTime.now().minusHours(changeOfDay).minusDays(condition.getLastDaysCondition()).toLocalDate();
-            externalGroupService.findByGroup(condition.getTargetId(), externals -> {
-                var res = externals.stream()
-                        .map(ExternalGroup::getFile)
-                        .map(file -> importReader.getTotalSpentFromFileBetweenDates(file, from, to))
-                        .collect(Collectors.summingLong(l -> l));
-                consumer.accept(res);
+            return externalGroupService.findByGroup(condition.getTargetId())
+                    .map(ExternalGroup::getFile)
+                    .flatMapSingle(file -> importReader.getTotalSpentFromFileBetweenDates(file, from, to))
+                    .collect(AtomicLong::new, AtomicLong::addAndGet)
+                    .map(AtomicLong::longValue)
+                    .toSingle();
             });
-        });
     }
 
     @Override
-    public void areConditionsMet(List<Condition> conditions, Consumer<Boolean> c) {
-        Consumer<Boolean> consumer = SingleConsumerFactory.getBooleanConsumer(c);
-        Set<Condition> processed = Collections.synchronizedSet(new HashSet<>());
-        AtomicBoolean areMet = new AtomicBoolean(true);
+    public Single<Boolean> areConditionsMet(List<Condition> conditions) {
         if (conditions.isEmpty()) {
-            consumer.accept(true);
+            return Single.just(true);
         }
-        conditions.forEach(condition -> {
-            isConditionMet(condition, isMet -> {
-                if (!isMet) {
-                    areMet.set(false);
-                }
-                processed.add(condition);
-                if(processed.size() == conditions.size()) {
-                    consumer.accept(areMet.get());
-                }
-            });
-        });
+        return Observable.from(conditions)
+                .flatMapSingle(this::isConditionMet)
+                .exists(b -> Boolean.FALSE.equals(b))
+                .map(b -> !b)
+                .toSingle();
     }
 
     @Override
-    public void areConditionsMet(long groupId, Consumer<Boolean> consumer) {
+    public Single<Boolean> areConditionsMet(long groupId) {
         if (groupId <= 0) {
-            consumer.accept(true);
+            return Single.just(true);
         }
-        conditionService.findByGroupId(groupId, conditions -> {
-            areConditionsMet(conditions, consumer);
-        });
+        return conditionService.findByGroupId(groupId)
+                .toList()
+                .flatMapSingle(conditions -> areConditionsMet(conditions))
+                .toSingle();
     }
 
     @Override
-    public void isLockDownTime(Consumer<Boolean> consumer) {
-        isLockDownTime(System.currentTimeMillis(), isLockDown -> {
-            consumer.accept(isLockDown);
-        });
+    public Single<Boolean> isLockDownTime() {
+        return isLockDownTime(System.currentTimeMillis());
     }
 
     @Override
-    public void isLockDownTime(Long now, Consumer<Boolean> consumer) {
-        lockDownActivated(lockDownActivatedResult -> {
+    public Single<Boolean> isLockDownTime(Long now) {
+        return lockDownActivated().flatMap(lockDownActivatedResult -> {
             if (!lockDownActivatedResult){
-                consumer.accept(false);
-                return;
+                return Single.just(false);
             }
             Long hourNow = TimeConverter.epochToMilisOnGivenDay(now);
-            lockDownStart(lockDownStartResult -> {
-                lockDownEnd(lockDownEndResult -> {
+            return lockDownStart().flatMap(lockDownStartResult -> {
+                return lockDownEnd().flatMap(lockDownEndResult -> {
                     Long from = lockDownStartResult;
                     Long to = lockDownEndResult;
                     // if start equals end then return
                     if (from.equals(to)){
-                        consumer.accept(false);
-                        return;
+                        return Single.just(false);
                     }
                     boolean isLockDown = (from < to && (from <= hourNow && hourNow <= to))
                             || (from > to && (hourNow >= from || hourNow <= to));
                     if (isLockDown) {
                         Toaster.sendToast(localeMessages.getString("isLockDown"));
                     } else {
-                        closeToLock(hourNow, from, res -> {
-                            if (res)
-                            Toaster.sendToast(localeMessages.getString("closeToLock"));
+                        return closeToLock(hourNow, from).map(res -> {
+                            if (res) {
+                                Toaster.sendToast(localeMessages.getString("closeToLock"));
+                            }
+                            return false; // close but not yet
                         });
                     }
-                    consumer.accept(isLockDown);
+                    return Single.just(isLockDown);
                 });
             });
         });
     }
     
-    private void lockDownActivated(Consumer<Boolean> consumer) {
-        configService.findById(ConfigurationEnum.LOCKDOWN, c -> {
-            consumer.accept(Boolean.valueOf(c.getValue()));
-        });
+    private Single<Boolean> lockDownActivated() {
+        return configService.findById(ConfigurationEnum.LOCKDOWN)
+                .map(ConfigElement::getValue)
+                .map(Boolean::valueOf);
     }
 
-    private void lockDownStart(LongConsumer consumer) {
-        configService.findById(ConfigurationEnum.LOCKDOWN_FROM, c -> {
-            consumer.accept(Long.valueOf(c.getValue()));
-        });
+    private Single<Long> lockDownStart() {
+        return configService.findById(ConfigurationEnum.LOCKDOWN_FROM)
+                .map(ConfigElement::getValue)
+                .map(Long::valueOf);
     }
 
-    private void lockDownEnd(LongConsumer consumer) {
-        configService.findById(ConfigurationEnum.LOCKDOWN_TO, c -> {
-            consumer.accept(Long.valueOf(c.getValue()));
-        });
+    private Single<Long> lockDownEnd() {
+        return configService.findById(ConfigurationEnum.LOCKDOWN_TO)
+                .map(ConfigElement::getValue)
+                .map(Long::valueOf);
     }
 
-    private void closeToLock(Long hourNow, Long from, Consumer<Boolean> consumer) {
-        lockDownActivated(lockDownActivated -> {
+    private Single<Boolean> closeToLock(Long hourNow, Long from) {
+        return lockDownActivated().flatMap(lockDownActivated -> {
             if (!lockDownActivated) {
-                consumer.accept(false);
-                return;
+                return Single.just(false);
             }
-            configService.findById(ConfigurationEnum.LOCK_NOTIFY, lockNotify -> {
+            return configService.findById(ConfigurationEnum.LOCK_NOTIFY).flatMap(lockNotify -> {
                 if (!Boolean.valueOf(lockNotify.getValue())) {
-                    consumer.accept(false);
-                    return;
+                    return Single.just(false);
                 }
-                lockDownStart(lockDownStart -> {
-                    lockDownEnd(lockDownEnd -> {
-                        if (lockDownStart == lockDownEnd) {
-                            consumer.accept(false);
-                            return;
+                return lockDownStart().flatMap(lockDownStart -> {
+                    return lockDownEnd().flatMap(lockDownEnd -> {
+                        if (lockDownStart.equals(lockDownEnd)) {
+                            return Single.just(false);
                         }
-                        configService.findById(ConfigurationEnum.LOCK_NOTIFY_MINUTES, lockNotifyMinutes -> {
+                        return configService.findById(ConfigurationEnum.LOCK_NOTIFY_MINUTES).map(lockNotifyMinutes -> {
                             Long minutesNotice = TimeConverter.getMinutes(Long.valueOf(lockNotifyMinutes.getValue()));
                             if (hourNow < from) {
-                                consumer.accept(from - hourNow < 60 * 1000 * minutesNotice);
-                                return;
+                                return (from - hourNow < 60 * 1000 * minutesNotice);
                             } else if (hourNow > from) {
-                                consumer.accept(from + TimeConverter.hoursToMilis(24) - hourNow < 60 * 1000 * minutesNotice);
-                                return;
+                                return (from + TimeConverter.hoursToMilis(24) - hourNow < 60 * 1000 * minutesNotice);
                             }
-                            consumer.accept(false);
+                            return false;
                         });
                     });
                 });
@@ -221,27 +198,24 @@ public class ConditionCheckerImpl implements ConditionChecker {
     }
 
     @Override
-    public void isTimeRunningOut(Consumer<Boolean> consumer) {
-        configService.findById(ConfigurationEnum.MIN_LEFT_BUTTON, minLeftButton -> {
+    public Single<Boolean> isTimeRunningOut() {
+        return configService.findById(ConfigurationEnum.MIN_LEFT_BUTTON).flatMap(minLeftButton -> {
             Boolean notify = Boolean.valueOf(minLeftButton.getValue());
             if (!notify) {
-                consumer.accept(false);
-                return;
+                return Single.just(false);
             }
-            configService.findById(ConfigurationEnum.MIN_LEFT_QTY, minLeftQty -> {
+            return configService.findById(ConfigurationEnum.MIN_LEFT_QTY).flatMap(minLeftQty -> {
                 Long notification = Long.valueOf(minLeftQty.getValue());
-                timeRemaining(timeRemaining -> {
-                    consumer.accept(notification >= timeRemaining);
+                return timeRemaining().map(timeRemaining -> {
+                    return notification >= timeRemaining;
                 });
             });
         });
     }
 
     @Override
-    public void timeRemaining(LongConsumer consumer) {
-        importService.findAll(allResult -> {
-            Long totalImported = allResult.stream()
-                    .map(path -> {
+    public Single<Long> timeRemaining() {
+        return importService.findAll().map(path -> {
                         String firstLine = "";
                         try {
                             firstLine = FileHandler.readFirstLineFromFile(new File(path));
@@ -250,82 +224,84 @@ public class ConditionCheckerImpl implements ConditionChecker {
                         }
                         return firstLine;
                     })
-                    .filter(Objects::nonNull) // filter nulls
-                    .filter(s -> !s.isBlank()) // filter blanks
-                    .filter(s -> NUMBER_PATTERN.matcher(s).matches()) // filter non numbers positive or negative
-                    .collect(Collectors.summingLong(Long::valueOf)); // convert to long and sum up
-            timeLogService.findMostRecent(tl -> {
-                Long accumulated = tl != null ? tl.getAccumulated() : 0;
-                configService.findById(ConfigurationEnum.PROPORTION, foundProportion -> {
-                    Long proportion = Long.valueOf(foundProportion.getValue());
-                    consumer.accept((accumulated + totalImported)/proportion);
+                .filter(Objects::nonNull) // filter nulls
+                .filter(s -> !s.isBlank()) // filter blanks
+                .filter(s -> NUMBER_PATTERN.matcher(s).matches()) // filter non numbers positive or negative
+                .map(Long::valueOf)
+                .collect(AtomicLong::new, AtomicLong::addAndGet)
+                .map(AtomicLong::longValue)
+                .toSingle()
+                .flatMap(totalImported -> {
+                        return timeLogService.findMostRecent().flatMap(tl -> {
+                            Long accumulated = tl != null ? tl.getAccumulated() : 0;
+                            return configService.findById(ConfigurationEnum.PROPORTION).map(foundProportion -> {
+                                Long proportion = Long.valueOf(foundProportion.getValue());
+                                return (accumulated + totalImported)/proportion;
+                            });
+                        });
                 });
-            });
-        });
     }
     
     @Override
-    public void isIdle(Consumer<Boolean> consumer) {
-        configService.findById(ConfigurationEnum.IDLE, idle -> {
+    public Single<Boolean> isIdle() {
+        return configService.findById(ConfigurationEnum.IDLE).map(idle -> {
             Long idleCondition = Long.valueOf(idle.getValue());
             LongWrapper currentIdle = new LongWrapper();
             idleHandler.receiveRequest("idle", currentIdle);
-            consumer.accept(currentIdle.getValue() >= idleCondition);
+            return currentIdle.getValue() >= idleCondition;
         });
         
     }
     
-    private void isIdleFlood(Consumer<Boolean> consumer) {
-        configService.findById(ConfigurationEnum.IDLE, idle -> {
+    private Single<Boolean> isIdleFlood() {
+        return configService.findById(ConfigurationEnum.IDLE).map(idle -> {
             Long idleCondition = Long.valueOf(idle.getValue());
             LongWrapper currentIdle = new LongWrapper();
             idleHandler.receiveRequest("idle", currentIdle);
-            consumer.accept(currentIdle.getValue() >= idleCondition + avoidMessageFlood);
+            return currentIdle.getValue() >= idleCondition + avoidMessageFlood;
         });
     }
     
     @Override
-    public void isIdleWithToast(Consumer<Boolean> consumer) {
-        isIdle(idle -> {
-            isIdleFlood(flood -> {
-                if (idle && !flood) {
+    public Single<Boolean> isIdleWithToast(boolean sendToast) {
+        return isIdle().flatMap(idle -> {
+            return isIdleFlood().map(flood -> {
+                if (idle && sendToast && !flood) {
                     Toaster.sendToast(localeMessages.getString("idleMsg"));
                 }
+                return idle;
             });
-            consumer.accept(idle);
         });
     }
 
     @Override
-    public void notifyCloseToConditionsRefresh() {
-        closeToConditionsRefresh(result -> {
+    public Single<Boolean> notifyCloseToConditionsRefresh() {
+        return closeToConditionsRefresh().map(result -> {
             if (result) {
                 Toaster.sendToast(localeMessages.getString("conditionsRefreshSoon"));
             }
+            return result;
         });
     }
     
-    public void closeToConditionsRefresh(Consumer<Boolean> consumer) {
-        configService.configElement(ConfigurationEnum.NOTIFY_CHANGE_OF_DAY, notifyChangeOfDayResult -> {
+    public Single<Boolean> closeToConditionsRefresh() {
+        return configService.configElement(ConfigurationEnum.NOTIFY_CHANGE_OF_DAY).flatMap(notifyChangeOfDayResult -> {
             Boolean notify = Boolean.valueOf(notifyChangeOfDayResult.getValue());
             if (!notify) {
-                consumer.accept(false);
-                return;
+                return Single.just(false);
             }
-            configService.findById(ConfigurationEnum.CHANGE_OF_DAY, changeOfDayResult -> {
-                configService.findById(ConfigurationEnum.NOTIFY_CHANGE_OF_DAY_MINUTES, changeOfDayMinutes -> {
+            return configService.findById(ConfigurationEnum.CHANGE_OF_DAY).flatMap(changeOfDayResult -> {
+                return configService.findById(ConfigurationEnum.NOTIFY_CHANGE_OF_DAY_MINUTES).map(changeOfDayMinutes -> {
                     Long changeOfDay = TimeConverter.hoursToMilis(Long.valueOf(changeOfDayResult.getValue()));
 
                     Long minutesNotice = Long.valueOf(changeOfDayMinutes.getValue());
                     Long hourNow = TimeConverter.epochToMilisOnGivenDay(System.currentTimeMillis());
                     if (hourNow < changeOfDay) {
-                        consumer.accept(changeOfDay - hourNow < 60 * 1000 * minutesNotice);
-                        return;
+                        return changeOfDay - hourNow < 60 * 1000 * minutesNotice;
                     } else if (hourNow > changeOfDay) {
-                        consumer.accept(changeOfDay + TimeConverter.hoursToMilis(24) - hourNow < 60 * 1000 * minutesNotice);
-                        return;
+                        return changeOfDay + TimeConverter.hoursToMilis(24) - hourNow < 60 * 1000 * minutesNotice;
                     }
-                    consumer.accept(false);
+                    return false;
                 });
             });
         });

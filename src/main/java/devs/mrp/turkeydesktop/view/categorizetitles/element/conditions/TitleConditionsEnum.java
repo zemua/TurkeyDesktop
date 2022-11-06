@@ -10,5 +10,5 @@ package devs.mrp.turkeydesktop.view.categorizetitles.element.conditions;
  * @author miguel
  */
 public enum TitleConditionsEnum {
-    BACK, TITLE, POSITIVE_BUTTON, NEGATIVE_BUTTON, NEW_CONDITION_TEXT, CONDITIONS_PANEL;
+    BACK, TITLE, POSITIVE_BUTTON, NEGATIVE_BUTTON, NEUTRAL_BUTTON, NEW_CONDITION_TEXT, CONDITIONS_PANEL;
 }

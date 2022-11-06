@@ -9,9 +9,9 @@ import devs.mrp.turkeydesktop.database.Db;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import rx.Single;
 
 /**
  *
@@ -21,7 +21,6 @@ public class CloseableRepository implements CloseableDao {
     
     private Db dbInstance = Db.getInstance();
     private Logger logger = Logger.getLogger(CloseableRepository.class.getName());
-    private Semaphore semaphore = Db.getSemaphore();
     
     private static CloseableRepository instance;
     
@@ -35,9 +34,8 @@ public class CloseableRepository implements CloseableDao {
     }
     
     @Override
-    public long add(Closeable element) {
-        try {
-            semaphore.acquire();
+    public Single<Long> add(Closeable element) {
+        return Db.singleLong(()-> {
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s) ",
@@ -48,27 +46,24 @@ public class CloseableRepository implements CloseableDao {
                 stm.executeUpdate();
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
+                return 0L;
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return 1;
+            return 1L;
+        });
+        
     }
 
     @Deprecated
     @Override
-    public long update(Closeable element) {
+    public Single<Long> update(Closeable element) {
         // single column table, nothing to update
-        return 0;
+        return Single.just(0L);
     }
 
     @Override
-    public ResultSet findAll() {
-        ResultSet rs = null;
-        try {
-            semaphore.acquire();
+    public Single<ResultSet> findAll() {
+        return Db.singleResultSet(() -> {
+            ResultSet rs = null;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s",
@@ -77,19 +72,14 @@ public class CloseableRepository implements CloseableDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null ,ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null ,ex);
-        } finally {
-            semaphore.release();
-        }
-        return rs;
+            return rs;
+        });
     }
 
     @Override
-    public ResultSet findById(String id) {
-        ResultSet rs = null;
-        try {
-            semaphore.acquire();
+    public Single<ResultSet> findById(String id) {
+        return Db.singleResultSet(() -> {
+            ResultSet rs = null;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
@@ -99,19 +89,14 @@ public class CloseableRepository implements CloseableDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return rs;
+            return rs;
+        });
     }
 
     @Override
-    public long deleteById(String id) {
-        long delQty = -1;
-        try {
-            semaphore.acquire();
+    public Single<Long> deleteById(String id) {
+        return Db.singleLong(() -> {
+            long delQty = -1;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
@@ -121,12 +106,8 @@ public class CloseableRepository implements CloseableDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return delQty;
+            return delQty;
+        });
     }
     
 }

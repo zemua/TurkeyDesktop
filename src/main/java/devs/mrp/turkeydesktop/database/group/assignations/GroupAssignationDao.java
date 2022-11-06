@@ -7,6 +7,7 @@ package devs.mrp.turkeydesktop.database.group.assignations;
 
 import devs.mrp.turkeydesktop.database.GeneralDao;
 import java.sql.ResultSet;
+import rx.Single;
 
 /**
  *
@@ -14,10 +15,10 @@ import java.sql.ResultSet;
  */
 public interface GroupAssignationDao extends GeneralDao<GroupAssignation, Long> {
     
-    public ResultSet findByElementId(GroupAssignation.ElementType elementType, String elementId);
-    public long deleteByElementId(GroupAssignation.ElementType elementType, String elementId);
-    public ResultSet findAllElementTypeOfGroup(GroupAssignation.ElementType elementType, Long groupId);
-    public ResultSet findAllOfType(GroupAssignation.ElementType elementType);
-    public long deleteByGroupId(long groupId);
+    public Single<ResultSet> findByElementId(GroupAssignation.ElementType elementType, String elementId);
+    public Single<Long> deleteByElementId(GroupAssignation.ElementType elementType, String elementId);
+    public Single<ResultSet> findAllElementTypeOfGroup(GroupAssignation.ElementType elementType, Long groupId);
+    public Single<ResultSet> findAllOfType(GroupAssignation.ElementType elementType);
+    public Single<Long> deleteByGroupId(long groupId);
     
 }

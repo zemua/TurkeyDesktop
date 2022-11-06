@@ -6,6 +6,7 @@
 package devs.mrp.turkeydesktop.database.logandtype;
 
 import java.sql.ResultSet;
+import rx.Single;
 
 /**
  *
@@ -13,6 +14,6 @@ import java.sql.ResultSet;
  */
 public interface LogAndTypeFacadeDao {
     
-    public ResultSet getTypedLogGroupedByProcess(long from, long to);
+    public Single<ResultSet> getTypedLogGroupedByProcess(long from, long to);
     
 }

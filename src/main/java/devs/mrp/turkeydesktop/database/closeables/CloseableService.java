@@ -5,9 +5,8 @@
  */
 package devs.mrp.turkeydesktop.database.closeables;
 
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.LongConsumer;
+import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -15,10 +14,10 @@ import java.util.function.LongConsumer;
  */
 public interface CloseableService {
     
-    public void add(String element, LongConsumer consumer);
-    public void findAll(Consumer<List<Closeable>> consumer);
-    public void findById(String id, Consumer<Closeable> consumer);
-    public void canBeClosed(String process, Consumer<Boolean> consumer);
-    public void deleteById(String id, LongConsumer consumer);
+    public Single<Long> add(String element);
+    public Observable<Closeable> findAll();
+    public Single<Closeable> findById(String id);
+    public Single<Boolean> canBeClosed(String process);
+    public Single<Long> deleteById(String id);
     
 }

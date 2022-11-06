@@ -5,17 +5,12 @@
  */
 package devs.mrp.turkeydesktop.database.group;
 
-import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
-import devs.mrp.turkeydesktop.common.WorkerFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.IntConsumer;
-import java.util.function.LongConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -27,57 +22,46 @@ public class GroupServiceImpl implements GroupService {
     private static final Logger logger = Logger.getLogger(GroupServiceImpl.class.getName());
     
     @Override
-    public void add(Group element, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
+    public Single<Long> add(Group element) {
         if (element == null) {
-            consumer.accept(-1);
-        } else {
-            // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            WorkerFactory.runResultSetWorker(() -> repo.findById(element.getId()), rs -> {
-                try {
-                    if (rs.next()) {
-                        Group group = elementFromResultSetEntry(rs);
-                        // if the value stored differs from the one received
-                        if (!group.equals(element)) {
-                            update(element, consumer);
-                        } else {
-                            // else the value is the same as the one stored
-                            consumer.accept(0);
-                        }
-                    } else {
-                        // else there is no element stored with this id
-                        WorkerFactory.runLongWorker(() -> repo.add(element), consumer);
+            return Single.just(-1L);
+        }
+        // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
+        return repo.findById(element.getId()).flatMap(rs -> {
+            try {
+                if (rs.next()) {
+                    Group group = elementFromResultSetEntry(rs);
+                    // if the value stored differs from the one received
+                    if (!group.equals(element)) {
+                        return update(element);
                     }
-                } catch (SQLException ex) {
-                    logger.log(Level.SEVERE, null, ex);
+                } else {
+                    // else there is no element stored with this id
+                    return repo.add(element);
                 }
-            });
-        }
-    }
-
-    @Override
-    public void update(Group element, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        if (element == null) {
-            consumer.accept(-1);
-        } else {
-            WorkerFactory.runLongWorker(() -> repo.update(element), consumer);
-        }
-    }
-
-    @Override
-    public void findAll(Consumer<List<Group>> c) {
-        Consumer<List<Group>> consumer = GroupServiceFactory.groupListConsumer(c);
-        WorkerFactory.runResultSetWorker(() -> repo.findAll(), allResult -> {
-            consumer.accept(elementsFromResultSet(allResult));
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
+            return Single.just(0L);
         });
-        
     }
 
     @Override
-    public void findById(long id, Consumer<Group> c) {
-        Consumer<Group> consumer = GroupServiceFactory.groupConsumer(c);
-        WorkerFactory.runResultSetWorker(() -> repo.findById(id), set -> {
+    public Single<Long> update(Group element) {
+        if (element == null) {
+            return Single.just(-1L);
+        }
+        return repo.update(element);
+    }
+
+    @Override
+    public Observable<Group> findAll() {
+        return repo.findAll().flatMapObservable(this::elementsFromResultSet);
+    }
+
+    @Override
+    public Single<Group> findById(long id) {
+        return repo.findById(id).map(set -> {
             Group element = null;
             try {
                 if (set.next()) {
@@ -86,65 +70,49 @@ public class GroupServiceImpl implements GroupService {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-            consumer.accept(element);
+            return element;
         });
     }
 
     @Override
-    public void deleteById(long id, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        WorkerFactory.runLongWorker(() -> repo.deleteById(id), consumer);
+    public Single<Long> deleteById(long id) {
+        return repo.deleteById(id);
     }
 
     @Override
-    public void findAllPositive(Consumer<List<Group>> c) {
-        Consumer<List<Group>> consumer = GroupServiceFactory.groupListConsumer(c);
-        WorkerFactory.runResultSetWorker(() -> repo.findAllOfType(Group.GroupType.POSITIVE), allResult -> {
-            consumer.accept(elementsFromResultSet(allResult));
-        });
+    public Observable<Group> findAllPositive() {
+        return repo.findAllOfType(Group.GroupType.POSITIVE).flatMapObservable(this::elementsFromResultSet);
     }
 
     @Override
-    public void findAllNegative(Consumer<List<Group>> c) {
-        Consumer<List<Group>> consumer = GroupServiceFactory.groupListConsumer(c);
-        WorkerFactory.runResultSetWorker(() -> repo.findAllOfType(Group.GroupType.NEGATIVE), negatives -> {
-            consumer.accept(elementsFromResultSet(negatives));
-        });
+    public Observable<Group> findAllNegative() {
+        return repo.findAllOfType(Group.GroupType.NEGATIVE).flatMapObservable(this::elementsFromResultSet);
     }
     
     @Override
-    public void setPreventClose(long groupId, boolean preventClose, IntConsumer c) {
-        IntConsumer consumer = SingleConsumerFactory.getIntConsumer(c);
-        WorkerFactory.runIntWorker(() -> repo.setPreventClose(groupId, preventClose), consumer);
+    public Single<Integer> setPreventClose(long groupId, boolean preventClose) {
+        return repo.setPreventClose(groupId, preventClose);
     }
     
     @Override
-    public void isPreventClose(long groupId, Consumer<Boolean> c) {
-        Consumer<Boolean> consumer = SingleConsumerFactory.getBooleanConsumer(c);
+    public Single<Boolean> isPreventClose(long groupId) {
         if (groupId < 1) { // doesn't belong to a group
-            consumer.accept(false);
-            return;
+            return Single.just(false);
         }
-        findById(groupId, group -> {
-            if (group == null) {
-                consumer.accept(false);
-            } else {
-                consumer.accept(group.isPreventClose());
-            }
-        });
+        return findById(groupId).map(group -> group != null && group.isPreventClose());
     }
     
-    private List<Group> elementsFromResultSet(ResultSet set) {
-        List<Group> elements = new ArrayList<>();
-        try {
-            while (set.next()) {
-                Group el = elementFromResultSetEntry(set);
-                elements.add(el);
+    private Observable<Group> elementsFromResultSet(ResultSet set) {
+        return Observable.create(subscriber -> {
+            try {
+                while (set.next()) {
+                    subscriber.onNext(elementFromResultSetEntry(set));
+                }
+            } catch (SQLException ex) {
+                subscriber.onError(ex);
             }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        return elements;
+            subscriber.onCompleted();
+        });
     }
     
     private Group elementFromResultSetEntry(ResultSet set) {

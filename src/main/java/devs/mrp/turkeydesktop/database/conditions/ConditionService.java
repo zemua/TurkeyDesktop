@@ -5,17 +5,12 @@
  */
 package devs.mrp.turkeydesktop.database.conditions;
 
-import devs.mrp.turkeydesktop.common.SingleConsumer;
-import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
-import devs.mrp.turkeydesktop.common.WorkerFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.LongConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -27,54 +22,48 @@ public class ConditionService implements IConditionService {
     private static final Logger logger = Logger.getLogger(ConditionService.class.getName());
     
     @Override
-    public void add(Condition element, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
+    public Single<Long> add(Condition element) {
         if (element == null) {
-            consumer.accept(-1);
+            return Single.just(-1L);
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            WorkerFactory.runResultSetWorker(() -> repo.findById(element.getId()), rs -> {
+            return repo.findById(element.getId()).flatMap(rs -> {
                 try {
                     if (rs.next()) {
                         Condition condition = elementFromResultSetEntry(rs);
                         // if the value stored differs from the one received
                         if (!condition.equals(element)) {
-                            update(element, consumer);
-                        } else {
-                            // else the value is the same as the one stored
-                            consumer.accept(0);
+                            return update(element);
                         }
                     } else {
                         // else there is no element stored with this id
-                        WorkerFactory.runLongWorker(() -> repo.add(element), consumer);
+                        return repo.add(element);
                     }
                 } catch (SQLException ex) {
-                    logger.log(Level.SEVERE, null, ex);
+                    Logger.getLogger(ConditionService.class.getName()).log(Level.SEVERE, null, ex);
                 }
+                return Single.just(0L);
             });
         }
     }
 
     @Override
-    public void update(Condition element, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
+    public Single<Long> update(Condition element) {
         if (element == null) {
-            consumer.accept(-1);
+            return Single.just(-1L);
         } else {
-            WorkerFactory.runLongWorker(() -> repo.update(element), consumer);
+            return repo.update(element);
         }
     }
 
     @Override
-    public void findAll(Consumer<List<Condition>> c) {
-        Consumer<List<Condition>> consumer = new SingleConsumer<>(c);
-        FConditionService.runConditionListWorker(() -> elementsFromResultSet(repo.findAll()), consumer);
+    public Observable<Condition> findAll() {
+        return repo.findAll().flatMapObservable(this::elementsFromResultSet);
     }
 
     @Override
-    public void findById(Long id, Consumer<Condition> c) {
-        Consumer<Condition> consumer = new SingleConsumer<>(c);
-        WorkerFactory.runResultSetWorker(() -> repo.findById(id), set -> {
+    public Single<Condition> findById(Long id) {
+        return repo.findById(id).map(set -> {
             Condition element = null;
             try {
                 if (set.next()) {
@@ -83,45 +72,41 @@ public class ConditionService implements IConditionService {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-            consumer.accept(element);
+            return element;
         });
     }
     
     @Override
-    public void findByGroupId(Long groupId, Consumer<List<Condition>> c) {
-        Consumer<List<Condition>> consumer = new SingleConsumer<>(c);
-        FConditionService.runConditionListWorker(() -> elementsFromResultSet(repo.findByGroupId(groupId)), consumer);
+    public Observable<Condition> findByGroupId(Long groupId) {
+        return repo.findByGroupId(groupId).flatMapObservable(this::elementsFromResultSet);
     }
 
     @Override
-    public void deleteById(Long id, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        WorkerFactory.runLongWorker(() -> repo.deleteById(id), consumer);
+    public Single<Long> deleteById(Long id) {
+        return repo.deleteById(id);
     }
     
     @Override
-    public void deleteByGroupId(long id, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        WorkerFactory.runLongWorker(() -> repo.deleteByGroupId(id), consumer);
+    public Single<Long> deleteByGroupId(long id) {
+        return repo.deleteByGroupId(id);
     }
     
     @Override
-    public void deleteByTargetId(long id, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        WorkerFactory.runLongWorker(() -> repo.deleteByTargetId(id), consumer);
+    public Single<Long> deleteByTargetId(long id) {
+        return repo.deleteByTargetId(id);
     }
     
-    private List<Condition> elementsFromResultSet(ResultSet set) {
-        List<Condition> elements = new ArrayList<>();
-        try {
-            while (set.next()) {
-                Condition el = elementFromResultSetEntry(set);
-                elements.add(el);
+    private Observable<Condition> elementsFromResultSet(ResultSet set) {
+        return Observable.create(subscriber -> {
+            try {
+                while(set.next()) {
+                    subscriber.onNext(elementFromResultSetEntry(set));
+                }
+            } catch (SQLException ex) {
+                subscriber.onError(ex);
             }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        return elements;
+            subscriber.onCompleted();
+        });
     }
     
     private Condition elementFromResultSetEntry(ResultSet set) {

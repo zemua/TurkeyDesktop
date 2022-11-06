@@ -6,12 +6,19 @@
 package devs.mrp.turkeydesktop.database.titledlog;
 
 import devs.mrp.turkeydesktop.database.titles.Title;
+import java.util.ArrayList;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 /**
  *
  * @author miguel
  */
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class TitledLog {
     
     private String title;
@@ -19,6 +26,7 @@ public class TitledLog {
     private List<Title> conditions;
     private long qtyPositives;
     private long qtyNegatives;
+    private long qtyNeutral;
 
     public String getTitle() {
         return title;
@@ -43,6 +51,13 @@ public class TitledLog {
     public void setConditions(List<Title> conditions) {
         this.conditions = conditions;
     }
+    
+    public void addCondition(Title condition) {
+        if (this.conditions == null) {
+            this.conditions = new ArrayList<>();
+        }
+        this.conditions.add(condition);
+    }
 
     public long getQtyPositives() {
         return qtyPositives;
@@ -58,6 +73,14 @@ public class TitledLog {
 
     public void setQtyNegatives(long qtyNegatives) {
         this.qtyNegatives = qtyNegatives;
+    }
+    
+    public void setQtyNeutral(long qtyNeutral) {
+        this.qtyNeutral = qtyNeutral;
+    }
+    
+    public long getQtyNeutral() {
+        return qtyNeutral;
     }
     
 }

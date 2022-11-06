@@ -25,10 +25,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -49,6 +54,8 @@ public class Db { // TODO create asynchronous listeners to update livedata
     public static final String CONFIG_TABLE = "CONFIG_TABLE";
     public static final String IMPORTS_TABLE = "IMPORTS_TABLE";
     private static final Semaphore semaphore = new Semaphore(4);
+    
+    private static final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
 
@@ -67,8 +74,40 @@ public class Db { // TODO create asynchronous listeners to update livedata
         return instance;
     }
 
-    public static Semaphore getSemaphore() {
+    /*public static Semaphore getSemaphore() {
         return semaphore;
+    }*/
+    
+    public static Observable<Long> observableLong(Callable<Long> callable) {
+        return Observable.from(executor.submit(callable));
+    }
+    
+    public static Observable<Integer> observableInt(Callable<Integer> callable) {
+        return Observable.from(executor.submit(callable));
+    }
+    
+    public static Observable<Boolean> observableBoolean(Callable<Boolean> callable) {
+        return Observable.from(executor.submit(callable));
+    }
+    
+    public static Observable<ResultSet> observableResultSet(Callable<ResultSet> callable) {
+        return Observable.from(executor.submit(callable));
+    }
+    
+    public static Single<Long> singleLong(Callable<Long> callable) {
+        return Single.from(executor.submit(callable));
+    }
+    
+    public static Single<Integer> singleInt(Callable<Integer> callable) {
+        return Single.from(executor.submit(callable));
+    }
+    
+    public static Single<Boolean> singleBoolean(Callable<Boolean> callable) {
+        return Single.from(executor.submit(callable));
+    }
+    
+    public static Single<ResultSet> singleResultSet(Callable<ResultSet> callable) {
+        return Single.from(executor.submit(callable));
     }
 
     public boolean verifyCanGetDb() {

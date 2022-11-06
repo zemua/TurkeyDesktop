@@ -9,9 +9,9 @@ import devs.mrp.turkeydesktop.database.Db;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import rx.Single;
 
 /**
  *
@@ -20,7 +20,6 @@ import java.util.logging.Logger;
 public class ExportedGroupRepository implements ExportedGroupDao {
     
     private Db dbInstance = Db.getInstance();
-    private final Semaphore semaphore = Db.getSemaphore();
     private static final Logger logger = Logger.getLogger(ExportedGroupRepository.class.getName());
     
     private static ExportedGroupRepository instance;
@@ -37,10 +36,9 @@ public class ExportedGroupRepository implements ExportedGroupDao {
     }
     
     @Override
-    public ResultSet findByGroup(Long id) {
-        ResultSet rs = null;
-        try {
-            semaphore.acquire();
+    public Single<ResultSet> findByGroup(Long id) {
+        return Db.singleResultSet(() -> {
+            ResultSet rs = null;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
@@ -50,19 +48,15 @@ public class ExportedGroupRepository implements ExportedGroupDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return rs;
+            return rs;
+        });
+        
     }
 
     @Override
-    public ResultSet findByGroupAndFile(Long groupId, String file) {
-        ResultSet rs = null;
-        try {
-            semaphore.acquire();
+    public Single<ResultSet> findByGroupAndFile(Long groupId, String file) {
+        return Db.singleResultSet(() -> {
+            ResultSet rs = null;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=? AND %s=?",
@@ -73,19 +67,14 @@ public class ExportedGroupRepository implements ExportedGroupDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return rs;
+            return rs;
+        });
     }
 
     @Override
-    public long deleteByGroup(Long id) {
-        long delQty = -1;
-        try {
-            semaphore.acquire();
+    public Single<Long> deleteByGroup(Long id) {
+        return Db.singleLong(() -> {
+            long delQty = -1;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
@@ -95,19 +84,14 @@ public class ExportedGroupRepository implements ExportedGroupDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return delQty;
+            return delQty;
+        });
     }
 
     @Override
-    public long add(ExportedGroup element) {
-        long result = -1;
-        try {
-            semaphore.acquire();
+    public Single<Long> add(ExportedGroup element) {
+        return Db.singleLong(() -> {
+            long result = -1;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s, %s) ",
@@ -120,19 +104,14 @@ public class ExportedGroupRepository implements ExportedGroupDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return result;
+            return result;
+        });
     }
 
     @Override
-    public long update(ExportedGroup element) {
-        long result = -1;
-        try {
-            semaphore.acquire();
+    public Single<Long> update(ExportedGroup element) {
+        return Db.singleLong(() -> {
+            long result = -1;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=? WHERE %s=? ",
@@ -144,19 +123,14 @@ public class ExportedGroupRepository implements ExportedGroupDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return result;
+            return result;
+        });
     }
 
     @Override
-    public ResultSet findAll() {
-        ResultSet rs = null;
-        try {
-            semaphore.acquire();
+    public Single<ResultSet> findAll() {
+        return Db.singleResultSet(() -> {
+            ResultSet rs = null;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s",
@@ -165,19 +139,14 @@ public class ExportedGroupRepository implements ExportedGroupDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null ,ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null ,ex);
-        } finally {
-            semaphore.release();
-        }
-        return rs;
+            return rs;
+        });
     }
 
     @Override
-    public ResultSet findById(Long id) {
-        ResultSet rs = null;
-        try {
-            semaphore.acquire();
+    public Single<ResultSet> findById(Long id) {
+        return Db.singleResultSet(() -> {
+            ResultSet rs = null;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
@@ -187,19 +156,14 @@ public class ExportedGroupRepository implements ExportedGroupDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return rs;
+            return rs;
+        });
     }
 
     @Override
-    public long deleteById(Long id) {
-        long delQty = -1;
-        try {
-            semaphore.acquire();
+    public Single<Long> deleteById(Long id) {
+        return Db.singleLong(() -> {
+            long delQty = -1;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
@@ -209,12 +173,8 @@ public class ExportedGroupRepository implements ExportedGroupDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return delQty;
+            return delQty;
+        });
     }
     
 }

@@ -12,9 +12,9 @@ import devs.mrp.turkeydesktop.database.type.Type;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import rx.Single;
 
 /**
  *
@@ -24,7 +24,6 @@ public class LogAndTypeFacadeRepository implements LogAndTypeFacadeDao {
     
     private Db dbInstance = Db.getInstance();
     private Logger logger = Logger.getLogger(TimeLogRepository.class.getName());
-    private Semaphore semaphore = Db.getSemaphore();
     
     private static LogAndTypeFacadeRepository instance;
     
@@ -38,10 +37,9 @@ public class LogAndTypeFacadeRepository implements LogAndTypeFacadeDao {
     }
     
     @Override
-    public ResultSet getTypedLogGroupedByProcess(long from, long to) {
-        ResultSet rs = null;
-        try {
-            semaphore.acquire();
+    public Single<ResultSet> getTypedLogGroupedByProcess(long from, long to) {
+        return Db.singleResultSet(() -> {
+            ResultSet rs = null;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("SELECT %s, %s, SUM(%s) FROM %s LEFT JOIN %s ON %s WHERE %s>=? AND %s<=? GROUP BY %s",
@@ -60,12 +58,8 @@ public class LogAndTypeFacadeRepository implements LogAndTypeFacadeDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null ,ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null ,ex);
-        } finally {
-            semaphore.release();
-        }
-        return rs;
+            return rs;
+        });
     }
     
 }

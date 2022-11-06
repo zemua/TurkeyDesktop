@@ -7,9 +7,8 @@ package devs.mrp.turkeydesktop.database.logs;
 
 import devs.mrp.turkeydesktop.common.Dupla;
 import java.util.Date;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.LongConsumer;
+import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -17,14 +16,14 @@ import java.util.function.LongConsumer;
  */
 public interface TimeLogService {
     
-    public void add(TimeLog element, LongConsumer consumer);
-    public void update(TimeLog element, LongConsumer consumer);
-    public void findLast24H(Consumer<List<TimeLog>> consumer);
-    public void findById(long id, Consumer<TimeLog> consumer);
-    public void deleteById(long id, LongConsumer consumer);
-    public void findProcessTimeFromTo(Date from, Date to, Consumer<List<Dupla<String,Long>>> consumer);
-    public void logsGroupedByTitle(Date from, Date to, Consumer<List<Dupla<String, Long>>> consumer);
-    public void timeSpentOnGroupForFrame(long groupId, long from, long to, LongConsumer consumer);
-    public void findMostRecent(Consumer<TimeLog> consumer);
+    public Single<Long> add(TimeLog element);
+    public Single<Long> update(TimeLog element);
+    public Observable<TimeLog> findLast24H();
+    public Single<TimeLog> findById(long id);
+    public Single<Long> deleteById(long id);
+    public Observable<Dupla<String,Long>> findProcessTimeFromTo(Date from, Date to);
+    public Observable<Dupla<String,Long>> logsGroupedByTitle(Date from, Date to);
+    public Single<Long> timeSpentOnGroupForFrame(long groupId, long from, long to);
+    public Single<TimeLog> findMostRecent();
     
 }

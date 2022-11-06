@@ -5,16 +5,12 @@
  */
 package devs.mrp.turkeydesktop.database.imports;
 
-import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
-import devs.mrp.turkeydesktop.common.WorkerFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.LongConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -26,58 +22,53 @@ public class ImportServiceImpl implements ImportService {
     private static final Logger logger = Logger.getLogger(ImportServiceImpl.class.getName());
 
     @Override
-    public void add(String path, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        exists(path, existsResult -> {
+    public Single<Long> add(String path) {
+        return exists(path).flatMap(existsResult -> {
             if (!existsResult){
-                WorkerFactory.runLongWorker(() -> repo.add(path), consumer);
-            } else {
-                consumer.accept(0);
+                return repo.add(path);
             }
+            return Single.just(0L);
         });
+        
     }
 
     @Override
-    public void findAll(Consumer<List<String>> c) {
-        Consumer<List<String>> consumer = SingleConsumerFactory.getStringListConsumer(c);
-        WorkerFactory.runResultSetWorker(() -> repo.findAll(), set -> {
-            List<String> elements = new ArrayList<>();
-            try {
-                while (set.next()) {
-                    elements.add(set.getString(ConfigurationEnum.IMPORT_PATH.toString()));
+    public Observable<String> findAll() {
+        return repo.findAll().flatMapObservable(set -> {
+            return Observable.create(emitter -> {
+                try {
+                    while (set.next()) {
+                        emitter.onNext(set.getString(ConfigurationEnum.IMPORT_PATH.toString()));
+                    }
+                } catch (SQLException ex) {
+                    emitter.onError(ex);
                 }
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
-            consumer.accept(elements);
+                emitter.onCompleted();
+            });
         });
     }
 
     @Override
-    public void exists(String path, Consumer<Boolean> c) {
-        Consumer<Boolean> consumer = SingleConsumerFactory.getBooleanConsumer(c);
+    public Single<Boolean> exists(String path) {
         if (path == null || "".equals(path) || path.length() > 500) {
-            consumer.accept(false);
-            return;
+            return Single.just(false);
         }
-        WorkerFactory.runResultSetWorker(() -> repo.findById(path), rs -> {
+        return repo.findById(path).map(rs -> {
             try {
-                consumer.accept(rs.next());
+                return rs.next();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
-                consumer.accept(false);
+                Logger.getLogger(ImportServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
             }
+            return false;
         });
     }
 
     @Override
-    public void deleteById(String path, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
+    public Single<Long> deleteById(String path) {
         if (path == null) {
-            consumer.accept(-1);
-            return;
+            return Single.just(-1L);
         }
-        WorkerFactory.runLongWorker(() -> repo.deleteById(path), consumer);
+        return repo.deleteById(path);
     }
 
 }

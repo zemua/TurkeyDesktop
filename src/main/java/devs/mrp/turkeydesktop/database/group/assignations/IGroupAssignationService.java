@@ -5,29 +5,29 @@
  */
 package devs.mrp.turkeydesktop.database.group.assignations;
 
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.LongConsumer;
+import rx.Observable;
+import rx.Single;
 
 /**
  *
  * @author miguel
  */
 public interface IGroupAssignationService {
-    public void add(GroupAssignation element, LongConsumer consumer);
-    public void update(GroupAssignation element, LongConsumer consumer);
-    public void findAll(Consumer<List<GroupAssignation>> consumer);
+    public Single<Long> add(GroupAssignation element);
+    public Single<Long> update(GroupAssignation element);
+    public Observable<GroupAssignation> findAll();
     @Deprecated
-    public void findById(long id, Consumer<GroupAssignation> consumer);
+    public Single<GroupAssignation> findById(long id);
     @Deprecated
-    public void deleteById(long id, LongConsumer consumer);
-    public void deleteByGroupId(long id, LongConsumer consumer);
+    public Single<Long> deleteById(long id);
+    public Single<Long> deleteByGroupId(long id);
     
-    public void findByProcessId(String processId, Consumer<GroupAssignation> consumer);
-    public void deleteByProcessId(String processId, LongConsumer consumer);
-    public void findByTitleId(String titleId, Consumer<GroupAssignation> consumer);
-    public void findLongestTitleIdContainedIn(String titleId, Consumer<GroupAssignation> consumer);
-    public void deleteByTitleId(String titleId, LongConsumer consumer);
-    public void findProcessesOfGroup(Long groupId, Consumer<List<GroupAssignation>> consumer);
-    public void findTitlesOfGroup(Long groupId, Consumer<List<GroupAssignation>> consumer);
+    public Single<GroupAssignation> findByProcessId(String processId);
+    public Single<Long> deleteByProcessId(String processId);
+    public Single<GroupAssignation> findByTitleId(String titleId);
+    public Single<GroupAssignation> findLongestTitleIdContainedIn(String titleId);
+    public Single<GroupAssignation> findGroupOfAssignation(String assignation);
+    public Single<Long> deleteByTitleId(String titleId);
+    public Observable<GroupAssignation> findProcessesOfGroup(Long groupId);
+    public Observable<GroupAssignation> findTitlesOfGroup(Long groupId);
 }

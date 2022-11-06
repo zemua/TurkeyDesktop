@@ -5,8 +5,8 @@
  */
 package devs.mrp.turkeydesktop.database.groupcondition;
 
-import java.util.List;
-import java.util.function.Consumer;
+import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -14,7 +14,7 @@ import java.util.function.Consumer;
  */
 public interface IGroupConditionFacadeService {
     
-    public void findByConditionId(long conditionId, Consumer<GroupConditionFacade> consumer);
-    public void findByGroupId(long groupId, Consumer<List<GroupConditionFacade>> consumer);
+    public Single<GroupConditionFacade> findByConditionId(long conditionId);
+    public Observable<GroupConditionFacade> findByGroupId(long groupId);
     
 }

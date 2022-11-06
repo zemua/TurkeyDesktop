@@ -5,14 +5,13 @@
  */
 package devs.mrp.turkeydesktop.database.group.facade;
 
-import java.util.List;
-import java.util.function.Consumer;
+import rx.Observable;
 
 /**
  *
  * @author miguel
  */
 public interface AssignableElementService<TYPE> {
-    public void positiveElementsWithAssignation(Consumer<List<AssignableElement<TYPE>>> consumer);
-    public void negativeElementsWithAssignation(Consumer<List<AssignableElement<TYPE>>> consumer);
+    public Observable<AssignableElement<TYPE>> positiveElementsWithAssignation();
+    public Observable<AssignableElement<TYPE>> negativeElementsWithAssignation();
 }

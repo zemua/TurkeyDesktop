@@ -13,12 +13,12 @@ import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import devs.mrp.turkeydesktop.database.group.GroupService;
+import rx.Subscriber;
 
 /**
  *
@@ -60,29 +60,38 @@ public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, Feedbacker
         refreshPanelList();
     }
     
-    private void processRefreshPanelList(List<Group> list, JPanel panel) {
-        panel.removeAll();
-        list.forEach(g -> {
-            JLabel label = new JLabel();
-            label.setText(g.getName());
-            setClickListener(label, g);
-            panel.add(label);
-        });
-        panel.revalidate();
-        panel.updateUI();
+    private void addToPanelList(Group g, JPanel panel) {
+        JLabel label = new JLabel();
+        label.setText(g.getName());
+        setClickListener(label, g);
+        panel.add(label);
     }
     
     private void refreshPanelList() {
         JPanel panel = (JPanel)this.getPanel().getProperty(GroupsEnum.PANEL_LIST);
         if (panel == null || !(panel instanceof JPanel)) {return;}
+        panel.removeAll();
+        Subscriber<Group> subscriber = new Subscriber<>() {
+            @Override
+            public void onCompleted() {
+                panel.revalidate();
+                panel.updateUI();
+            }
+
+            @Override
+            public void onError(Throwable thrwbl) {
+                // nothing here
+            }
+
+            @Override
+            public void onNext(Group t) {
+                addToPanelList(t, panel);
+            }
+        };
         if (type == Group.GroupType.POSITIVE) {
-            groupService.findAllPositive(positiveResult -> {
-                processRefreshPanelList(positiveResult, panel);
-            });
+            groupService.findAllPositive().subscribe(subscriber);
         } else {
-            groupService.findAllNegative(negativeResult -> {
-                processRefreshPanelList(negativeResult, panel);
-            });
+            groupService.findAllNegative().subscribe(subscriber);
         }
         
     }
@@ -94,7 +103,7 @@ public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, Feedbacker
         Group group = new Group();
         group.setName(name);
         group.setType(this.type);
-        groupService.add(group, r -> {});
+        groupService.add(group).subscribe();
         field.setText("");
         refreshPanelList();
     }

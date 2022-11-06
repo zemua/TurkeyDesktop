@@ -5,9 +5,8 @@
  */
 package devs.mrp.turkeydesktop.database.type;
 
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.LongConsumer;
+import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -15,11 +14,11 @@ import java.util.function.LongConsumer;
  */
 public interface TypeService {
     
-    public void add(Type element, LongConsumer consumer);
-    public void update(Type element, LongConsumer consumer);
-    public void findAll(Consumer<List<Type>> consumer);
-    public void findById(String id, Consumer<Type> consumer);
-    public void deleteById(String id, LongConsumer consumer);
-    public void findByType(Type.Types type, Consumer<List<Type>> consumer);
+    public Single<Long> add(Type element);
+    public Single<Long> update(Type element);
+    public Observable<Type> findAll();
+    public Single<Type> findById(String id);
+    public Single<Long> deleteById(String id);
+    public Observable<Type> findByType(Type.Types type);
     
 }

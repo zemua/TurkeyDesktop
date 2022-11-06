@@ -11,9 +11,9 @@ import devs.mrp.turkeydesktop.database.type.Type;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import rx.Single;
 
 /**
  *
@@ -23,7 +23,6 @@ public class TitledLogRepoFacade implements TitledLogDaoFacade {
     
     private final Db dbInstance = Db.getInstance();
     private Logger logger = Logger.getLogger(TitledLogRepoFacade.class.getName());
-    private Semaphore semaphore = Db.getSemaphore();
     
     private static TitledLogRepoFacade instance;
     
@@ -39,10 +38,9 @@ public class TitledLogRepoFacade implements TitledLogDaoFacade {
     }
     
     @Override
-    public ResultSet getTimeFrameOfDependablesGroupedByProcess(long from, long to) {
-        ResultSet rs = null;
-        try {
-            semaphore.acquire();
+    public Single<ResultSet> getTimeFrameOfDependablesGroupedByProcess(long from, long to) {
+        return Db.singleResultSet(() -> {
+            ResultSet rs = null;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("SELECT %s, SUM(%s) FROM %s LEFT JOIN %s ON %s WHERE %s>=? AND %s<=? AND %s=? GROUP BY %s",
@@ -62,12 +60,8 @@ public class TitledLogRepoFacade implements TitledLogDaoFacade {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null ,ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null ,ex);
-        } finally {
-            semaphore.release();
-        }
-        return rs;
+            return rs;
+        });
     }
     
 }

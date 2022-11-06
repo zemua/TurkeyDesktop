@@ -7,8 +7,7 @@ package devs.mrp.turkeydesktop.service.conditionchecker;
 
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.LongConsumer;
+import rx.Single;
 
 /**
  *
@@ -16,15 +15,15 @@ import java.util.function.LongConsumer;
  */
 public interface ConditionChecker {
     
-    public void isConditionMet(Condition condition, Consumer<Boolean> consumer);
-    public void areConditionsMet(List<Condition> conditions, Consumer<Boolean> consumer);
-    public void areConditionsMet(long groupId, Consumer<Boolean> consumer);
-    public void isLockDownTime(Consumer<Boolean> consumer);
-    public void isLockDownTime(Long now, Consumer<Boolean> consumer);
-    public void isTimeRunningOut(Consumer<Boolean> consumer);
-    public void timeRemaining(LongConsumer consumer);
-    public void isIdle(Consumer<Boolean> consumer);
-    public void isIdleWithToast(Consumer<Boolean> consumer);
-    public void notifyCloseToConditionsRefresh();
+    public Single<Boolean> isConditionMet(Condition condition);
+    public Single<Boolean> areConditionsMet(List<Condition> conditions);
+    public Single<Boolean> areConditionsMet(long groupId);
+    public Single<Boolean> isLockDownTime();
+    public Single<Boolean> isLockDownTime(Long now);
+    public Single<Boolean> isTimeRunningOut();
+    public Single<Long> timeRemaining();
+    public Single<Boolean> isIdle();
+    public Single<Boolean> isIdleWithToast(boolean sendToast);
+    public Single<Boolean> notifyCloseToConditionsRefresh();
     
 }

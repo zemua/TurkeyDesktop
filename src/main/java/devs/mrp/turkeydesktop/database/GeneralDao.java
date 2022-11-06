@@ -6,6 +6,7 @@
 package devs.mrp.turkeydesktop.database;
 
 import java.sql.ResultSet;
+import rx.Single;
 
 /**
  *
@@ -13,14 +14,14 @@ import java.sql.ResultSet;
  */
 public interface GeneralDao<T, I> {
     
-    public long add(T element);
+    public Single<Long> add(T element);
     
-    public long update(T element);
+    public Single<Long> update(T element);
     
-    public ResultSet findAll();
+    public Single<ResultSet> findAll();
     
-    public ResultSet findById(I id);
+    public Single<ResultSet> findById(I id);
     
-    public long deleteById(I id);
+    public Single<Long> deleteById(I id);
     
 }

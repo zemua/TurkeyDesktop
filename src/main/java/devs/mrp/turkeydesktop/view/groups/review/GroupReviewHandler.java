@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -48,14 +47,16 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElementService;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import org.apache.commons.lang3.StringUtils;
 import devs.mrp.turkeydesktop.database.group.GroupService;
+import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacade;
+import devs.mrp.turkeydesktop.database.type.Type;
 import java.util.Optional;
-import java.util.function.Consumer;
 import javax.swing.JCheckBox;
+import rx.Observable;
+import rx.Subscriber;
+import rx.functions.Func2;
 
 /**
  *
@@ -198,6 +199,24 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         JLabel label = (JLabel) object;
         label.setText(name);
     }
+    
+    private void processAssignableObservable(Observable<AssignableElement<Type.Types>> observable, JPanel panel, GroupAssignation.ElementType type) {
+        observable.filter(element -> {
+                                try {
+                                    return getFilterText().isEmpty() ||
+                                            StringUtils.containsIgnoreCase(element.getElementName(), getFilterText());
+                                } catch (Exception e) {
+                                    logger.log(Level.SEVERE, e.toString());
+                                }
+                                return true;
+                            })
+                    .toSortedList(getAssignableComparatorFunction())
+                    .subscribe(result -> {
+                        setSwitchablesFromAssignables(result, panel, type);
+                        panel.revalidate();
+                        panel.updateUI();
+                    });
+    }
 
     private void setProcesses() {
         Object object = this.getPanel().getProperty(GroupReviewEnum.PROCESS_PANEL);
@@ -206,32 +225,11 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         }
         JPanel panel = (JPanel) object;
         panel.removeAll();
-
-        Consumer<List<AssignableElement<GroupAssignation.ElementType>>> consumer = result -> {
-            Iterator<AssignableElement<GroupAssignation.ElementType>> iterator = result.iterator();
-            while (iterator.hasNext()) {
-                AssignableElement element = iterator.next();
-                try {
-                    if (!getFilterText().isEmpty() && !StringUtils.containsIgnoreCase(element.getElementName(), getFilterText())) {
-                        iterator.remove();
-                    }
-                } catch (Exception e) {
-                    logger.log(Level.SEVERE, "error getting the text from filter, defaulting to no filter", e);
-                }
-
-            }
-
-            Collections.sort(result, getAssignableComparator());
-
-            setSwitchablesFromAssignables(result, panel, GroupAssignation.ElementType.PROCESS);
-            panel.revalidate();
-            panel.updateUI();
-        };
         
         if (group.getType().equals(Group.GroupType.POSITIVE)){
-            assignableProcessService.positiveElementsWithAssignation(consumer);
+            processAssignableObservable(assignableProcessService.positiveElementsWithAssignation(), panel, GroupAssignation.ElementType.PROCESS);
         } else {
-            assignableProcessService.negativeElementsWithAssignation(consumer);
+            processAssignableObservable(assignableProcessService.negativeElementsWithAssignation(), panel, GroupAssignation.ElementType.PROCESS);
         }
         
     }
@@ -243,31 +241,11 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         }
         JPanel panel = (JPanel) object;
         panel.removeAll();
-
-        Consumer<List<AssignableElement<GroupAssignation.ElementType>>> consumer = result -> {
-            Iterator<AssignableElement<GroupAssignation.ElementType>> iterator = result.iterator();
-            while (iterator.hasNext()) {
-                AssignableElement element = iterator.next();
-                try {
-                    if (!getFilterText().isEmpty() && !StringUtils.containsIgnoreCase(element.getElementName(), getFilterText())) {
-                        iterator.remove();
-                    }
-                } catch (Exception e) {
-                    logger.log(Level.SEVERE, "error getting the text from filter, defaulting to no filter", e);
-                }
-
-            }
-
-            Collections.sort(result, getAssignableComparator());
-
-            setSwitchablesFromAssignables(result, panel, GroupAssignation.ElementType.TITLE);
-            panel.revalidate();
-            panel.updateUI();
-        };
+        
         if (group.getType().equals(Group.GroupType.POSITIVE)) {
-            assignableTitlesService.positiveElementsWithAssignation(consumer);
+            processAssignableObservable(assignableTitlesService.positiveElementsWithAssignation(), panel, GroupAssignation.ElementType.TITLE);
         } else {
-            assignableTitlesService.negativeElementsWithAssignation(consumer);
+            processAssignableObservable(assignableTitlesService.negativeElementsWithAssignation(), panel, GroupAssignation.ElementType.TITLE);
         }
         
     }
@@ -275,6 +253,27 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private String getFilterText() throws Exception {
         JTextField field = (JTextField) getObjectFromPanel(GroupReviewEnum.TEXT_FILTER, JTextField.class).orElseThrow(() -> new Exception("wrong object"));
         return field.getText();
+    }
+    
+    private Func2<AssignableElement, AssignableElement, Integer> getAssignableComparatorFunction() {
+        return (AssignableElement o1, AssignableElement o2) -> {
+            try {
+                JComboBox orderDropdown = (JComboBox) getObjectFromPanel(GroupReviewEnum.ORDER_DROPDOWN, JComboBox.class).orElseThrow(() -> new Exception("wrong object"));
+                if (localeMessages.getString(ComboOrderEnum.UNASSIGNED_FIRST.getKey()).equals(orderDropdown.getSelectedItem())){
+                    boolean b1 = !assignableBelongsToGroup(o1) && assignableIsEnabled(o1);
+                    boolean b2 = !assignableBelongsToGroup(o2) && assignableIsEnabled(o2);
+                    return Boolean.compare(b2, b1);
+                }
+                if (localeMessages.getString(ComboOrderEnum.ASSIGNED_HERE_FIRST.getKey()).equals(orderDropdown.getSelectedItem())) {
+                    boolean b1 = assignableBelongsToGroup(o1);
+                    boolean b2 = assignableBelongsToGroup(o2);
+                    return Boolean.compare(b2, b1);
+                }
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "error getting the combo box", e);
+            }
+            return 0;
+        };
     }
     
     private Comparator<AssignableElement> getAssignableComparator() {
@@ -299,7 +298,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         return comparator;
     }
 
-    private void setSwitchablesFromAssignables(List<AssignableElement<GroupAssignation.ElementType>> assignables, JPanel panel, GroupAssignation.ElementType type) {
+    private void setSwitchablesFromAssignables(List<AssignableElement<Type.Types>> assignables, JPanel panel, GroupAssignation.ElementType type) {
         assignables.forEach(a -> {
             Switchable switchable = new Switchable(a.getElementName(),
                     assignableBelongsToGroup(a), // checked if it belongs to this group
@@ -320,31 +319,23 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private void setProcessSwitchableListener(Switchable switchable, String name, GroupAssignation.ElementType processOrTitle) {
         switchable.addFeedbackListener((processOrTitleId, feedback) -> {
             if (!feedback) { // if the checkbox was unchecked with this event
-                if (Group.GroupType.NEGATIVE.equals(this.group.getType())) {
-                    popupMaker.show(this.getFrame(), () -> {
-                        // positive
-                        if (processOrTitle.equals(GroupAssignation.ElementType.PROCESS)) {
-                            groupAssignationService.deleteByProcessId(processOrTitleId, r -> {});
-                        } else {
-                            groupAssignationService.deleteByTitleId(processOrTitleId, r -> {});
-                        }
-                    }, () -> {
-                        // negative
-                        switchable.setSelected(true);
-                    });
-                } else {
+                popupMaker.show(this.getFrame(), () -> {
+                    // positive
                     if (processOrTitle.equals(GroupAssignation.ElementType.PROCESS)) {
-                        groupAssignationService.deleteByProcessId(processOrTitleId, r -> {});
+                        groupAssignationService.deleteByProcessId(processOrTitleId).subscribe();
                     } else {
-                        groupAssignationService.deleteByTitleId(processOrTitleId, r -> {});
+                        groupAssignationService.deleteByTitleId(processOrTitleId).subscribe();
                     }
-                }
+                }, () -> {
+                    // negative
+                    switchable.setSelected(true);
+                });
             } else { // if the checkbox was cheked with this event
                 GroupAssignation ga = new GroupAssignation();
                 ga.setElementId(name);
                 ga.setGroupId(group.getId());
                 ga.setType(processOrTitle);
-                groupAssignationService.add(ga, r -> {});
+                groupAssignationService.add(ga).subscribe();
             }
         });
     }
@@ -399,19 +390,12 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             throw new Exception("error getting some fields for condition");
         }
         targetComboBox.removeAllItems();
-        comboItems(items -> {
-            items.forEach(item -> targetComboBox.addItem(item));
-        });
+        comboItems().subscribe(item -> targetComboBox.addItem(item));
     }
 
     @SuppressWarnings("unchecked")
-    private void comboItems(Consumer<List<Group>> consumer) {
-        groupService.findAllPositive(positiveResult -> {
-            var res = positiveResult.stream()
-                .filter(g -> g.getId() != group.getId())
-                .collect(Collectors.toList());
-            consumer.accept(res);
-        });
+    private Observable<Group> comboItems() {
+        return groupService.findAllPositive().filter(g -> g.getId() != group.getId());
     }
 
     private void fillConditionsInPanel() {
@@ -420,30 +404,41 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             return;
         }
         JPanel panel = (JPanel) conditionsListObject;
-        groupConditionFacadeService.findByGroupId(group.getId(), groupConditions -> {
-            panel.removeAll();
-            groupConditions.forEach(cond -> {
-                    ConditionElement element = new ConditionElement(cond);
-                    panel.add(element);
-                    element.addFeedbackListener((tipo, feedback) -> {
-                        switch (feedback) {
-                            case DELETE:
-                                popupMaker.show(this.getFrame(), () -> {
-                                    // positive
-                                    removeCondition(tipo.getConditionId());
-                                }, () -> {
-                                    // negative
-                                    // do nothing, intentionally left blank
-                                });
-                                break;
-                            default:
-                                break;
-                        }
-                    });
+        panel.removeAll();
+        Subscriber<GroupConditionFacade> subscriber = new Subscriber<GroupConditionFacade>() {
+            @Override
+            public void onCompleted() {
+                panel.revalidate();
+                panel.repaint();
+            }
+
+            @Override
+            public void onError(Throwable thrwbl) {
+                // nothing to do here
+            }
+
+            @Override
+            public void onNext(GroupConditionFacade t) {
+                ConditionElement element = new ConditionElement(t);
+                panel.add(element);
+                element.addFeedbackListener((tipo, feedback) -> {
+                    switch (feedback) {
+                        case DELETE:
+                            popupMaker.show(GroupReviewHandler.this.getFrame(), () -> {
+                                // positive
+                                removeCondition(tipo.getConditionId());
+                            }, () -> {
+                                // negative
+                                // do nothing, intentionally left blank
+                            });
+                            break;
+                        default:
+                            break;
+                    }
                 });
-            panel.revalidate();
-            panel.repaint();
-        });
+            }
+        };
+        groupConditionFacadeService.findByGroupId(group.getId()).subscribe(subscriber);
     }
 
     private void addCondition() throws Exception {
@@ -456,7 +451,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         condition.setUsageTimeCondition(TimeConverter.hoursToMilis((Long) hourSpinner.getValue()) + TimeConverter.minutesToMilis((Long) minuteSpinner.getValue()));
         condition.setLastDaysCondition((long) daySpinner.getValue());
 
-        conditionService.add(condition, r -> {
+        conditionService.add(condition).subscribe(r -> {
             try {
                 fillConditionFields();
             } catch (Exception ex) {
@@ -466,7 +461,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     }
 
     private void removeCondition(long id) {
-        conditionService.deleteById(id, r -> {
+        conditionService.deleteById(id).subscribe(r -> {
             try {
                 fillConditionFields();
             } catch (Exception e) {
@@ -507,7 +502,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             return;
         }
         group.setName(field.getText());
-        groupService.update(group, r -> setGroupLabelName(group.getName()));
+        groupService.update(group).subscribe(r -> setGroupLabelName(group.getName()));
     }
 
     private void deleteGroup() throws Exception {
@@ -519,11 +514,11 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         if (!field.getText().equals("delete")) {
             return;
         }
-        conditionService.deleteByGroupId(group.getId(), r -> {});
-        conditionService.deleteByTargetId(group.getId(), r -> {});
-        externalGroupService.deleteByGroup(group.getId(), r -> {});
-        groupAssignationService.deleteByGroupId(group.getId(), r -> {});
-        groupService.deleteById(group.getId(), r -> exit());
+        conditionService.deleteByGroupId(group.getId()).subscribe();
+        conditionService.deleteByTargetId(group.getId()).subscribe();
+        externalGroupService.deleteByGroup(group.getId()).subscribe();
+        groupAssignationService.deleteByGroupId(group.getId()).subscribe();
+        groupService.deleteById(group.getId()).subscribe(r -> exit());
     }
 
     private void addExternalTime() throws Exception {
@@ -547,7 +542,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         ExternalGroup externalGroup = new ExternalGroup();
         externalGroup.setGroup(this.group.getId());
         externalGroup.setFile(file.getPath());
-        externalGroupService.add(externalGroup, r -> {
+        externalGroupService.add(externalGroup).subscribe(r -> {
             try {
                 refreshExternalTime();
             } catch (Exception ex) {
@@ -558,9 +553,25 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
 
     private void refreshExternalTime() throws Exception {
         JPanel panel = (JPanel) getObjectFromPanel(GroupReviewEnum.EXTERNAL_TIME_PANEL, JPanel.class).orElseThrow(() -> new Exception("wrong object"));
-        externalGroupService.findByGroup(this.group.getId(), groupResult -> {
-            panel.removeAll();
-            groupResult.stream()
+        panel.removeAll();
+        Subscriber<RemovableLabel<ExternalGroup>> subscriber = new Subscriber<RemovableLabel<ExternalGroup>>() {
+            @Override
+            public void onCompleted() {
+                panel.revalidate();
+                panel.repaint();
+            }
+
+            @Override
+            public void onError(Throwable thrwbl) {
+                // nothing to do here
+            }
+
+            @Override
+            public void onNext(RemovableLabel<ExternalGroup> t) {
+                panel.add(t);
+            }
+        };
+        externalGroupService.findByGroup(this.group.getId())
                 .map(externalGroup -> {
                     RemovableLabel<ExternalGroup> label = new RemovableLabel<>(externalGroup) {
                         @Override
@@ -584,7 +595,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                     };
                     label.addFeedbackListener((ExternalGroup tipo, RemovableLabel.Action feedback) -> {
                         if (feedback.equals(RemovableLabel.Action.DELETE)) {
-                            externalGroupService.deleteById(tipo.getId(), r -> {});
+                            externalGroupService.deleteById(tipo.getId()).subscribe();
                             try {
                                 refreshExternalTime();
                             } catch (Exception e) {
@@ -593,10 +604,8 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                         }
                     });
                     return label;
-                }).forEach(label -> panel.add(label));
-            panel.revalidate();
-            panel.repaint();
-        });
+                })
+                .subscribe(subscriber);
     }
 
     private void selectFileGroupExporter() throws Exception {
@@ -618,7 +627,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         exportedGroup.setDays((Long) daysSpinner.getValue());
         exportedGroup.setFile(file.getPath());
         exportedGroup.setGroup(this.group.getId());
-        exportedGroupService.add(exportedGroup, r -> {
+        exportedGroupService.add(exportedGroup).subscribe(r -> {
             try {
                 refreshGroupExporter();
             } catch (Exception ex) {
@@ -629,12 +638,12 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
 
     private void updateGroupExporterDays() throws Exception {
         JSpinner daysSpinner = (JSpinner) getObjectFromPanel(GroupReviewEnum.EXPORT_GROUP_DAYS, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
-        exportedGroupService.findById(this.group.getId(), existing -> {
+        exportedGroupService.findById(this.group.getId()).subscribe(existing -> {
             if (Objects.isNull(existing)) {
                 return;
             }
             existing.setDays((Long) daysSpinner.getValue());
-            exportedGroupService.add(existing, r -> {
+            exportedGroupService.add(existing).subscribe(r -> {
                 try {
                     refreshGroupExporter();
                 } catch (Exception ex) {
@@ -648,7 +657,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private void refreshGroupExporter() throws Exception {
         JSpinner daysSpinner = (JSpinner) getObjectFromPanel(GroupReviewEnum.EXPORT_GROUP_DAYS, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         JButton button = (JButton) getObjectFromPanel(GroupReviewEnum.EXPORT_GROUP_TARGET, JButton.class).orElseThrow(() -> new Exception("wrong object"));
-        exportedGroupService.findById(this.group.getId(), existing -> {
+        exportedGroupService.findById(this.group.getId()).subscribe(existing -> {
             if (Objects.isNull(existing)) {
                 return;
             }
@@ -674,7 +683,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                 popupMaker.show(getFrame(), () ->{
                     // positive runnable
                     group.setPreventClose(true);
-                    groupService.update(group, r -> {});
+                    groupService.update(group).subscribe();
                     preventClose.setEnabled(true);
                 }, () -> {
                     // negative runnable
@@ -684,7 +693,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                 });
             } else {
                 group.setPreventClose(false);
-                groupService.update(group, r -> {});
+                groupService.update(group).subscribe();
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error setting prevent close");

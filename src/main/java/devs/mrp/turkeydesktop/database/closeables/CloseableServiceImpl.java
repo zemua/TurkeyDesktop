@@ -5,16 +5,12 @@
  */
 package devs.mrp.turkeydesktop.database.closeables;
 
-import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
-import devs.mrp.turkeydesktop.common.WorkerFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.LongConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import rx.Observable;
+import rx.Single;
 
 /**
  *
@@ -26,36 +22,34 @@ public class CloseableServiceImpl implements CloseableService {
     private static final Logger logger = Logger.getLogger(CloseableServiceImpl.class.getName());
     
     @Override
-    public void add(String element, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
+    public Single<Long> add(String element) {
         if (element == null) {
-            consumer.accept(-1);
+            return Single.just(-1L);
         } else {
             // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            WorkerFactory.runResultSetWorker(() -> repo.findById(element), rs -> {
+            return repo.findById(element).flatMap(rs -> {
                 try{
                     if (rs.next()){
-                        consumer.accept(0);
+                        return Single.just(0L);
                     } else {
-                        WorkerFactory.runLongWorker(() -> repo.add(new Closeable(element)), consumer);
+                        return repo.add(new Closeable(element));
                     }
                 } catch (SQLException ex) {
                     logger.log(Level.SEVERE, null, ex);
+                    return Single.just(0L);
                 }
             });
         }
     }
 
     @Override
-    public void findAll(Consumer<List<Closeable>> c) {
-        Consumer<List<Closeable>> consumer = CloseableServiceFactory.singleListConsumer(c);
-        CloseableServiceFactory.runCloseableListWorker(() -> listFromResultSet(repo.findAll()), CloseableServiceFactory.singleListConsumer(consumer));
+    public Observable<Closeable> findAll() {
+        return repo.findAll().flatMapObservable(this::listFromResultSet);
     }
 
     @Override
-    public void findById(String id, Consumer<Closeable> c) {
-        Consumer<Closeable> consumer = CloseableServiceFactory.singleConsumer(c);
-        WorkerFactory.runResultSetWorker(() -> repo.findById(id), set -> {
+    public Single<Closeable> findById(String id) {
+        return repo.findById(id).map(set -> {
             Closeable closeable = new Closeable();
             try {
                 if (set.next()) {
@@ -64,42 +58,38 @@ public class CloseableServiceImpl implements CloseableService {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-            consumer.accept(closeable);
+            return closeable;
         });
     }
 
     @Override
-    public void canBeClosed(String process, Consumer<Boolean> c) {
-        Consumer<Boolean> consumer = SingleConsumerFactory.getBooleanConsumer(c);
-        WorkerFactory.runResultSetWorker(() -> repo.findById(process), set -> {
+    public Single<Boolean> canBeClosed(String process) {
+        return repo.findById(process).map(set -> {
             try {
-                if (set.next()) {
-                    consumer.accept(false);
-                } else {
-                    consumer.accept(true);
-                }
+                return !set.next();
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
+                return true;
             }
         });
     }
 
     @Override
-    public void deleteById(String id, LongConsumer c) {
-        LongConsumer consumer = SingleConsumerFactory.getLongConsumer(c);
-        WorkerFactory.runLongWorker(() -> repo.deleteById(id), consumer);
+    public Single<Long> deleteById(String id) {
+        return repo.deleteById(id);
     }
     
-    private List<Closeable> listFromResultSet(ResultSet set) {
-        List<Closeable> closeables = new ArrayList<>();
-        try {
-            while(set.next()) {
-                closeables.add(new Closeable(set.getString(Closeable.PROCESS_NAME)));
+    private Observable<Closeable> listFromResultSet(ResultSet set) {       
+        return Observable.create(suscriber -> {
+            try {
+                while(set.next()) {
+                    suscriber.onNext(new Closeable(set.getString(Closeable.PROCESS_NAME)));
+                }
+            } catch (SQLException ex) {
+                suscriber.onError(ex);
             }
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        return closeables;
+            suscriber.onCompleted();
+        });
     }
     
 }

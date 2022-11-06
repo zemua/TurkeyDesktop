@@ -6,6 +6,7 @@
 package devs.mrp.turkeydesktop.database.titledlog;
 
 import java.sql.ResultSet;
+import rx.Single;
 
 /**
  *
@@ -13,6 +14,6 @@ import java.sql.ResultSet;
  */
 public interface TitledLogDaoFacade {
     
-    public ResultSet getTimeFrameOfDependablesGroupedByProcess(long from, long to);
+    public Single<ResultSet> getTimeFrameOfDependablesGroupedByProcess(long from, long to);
     
 }

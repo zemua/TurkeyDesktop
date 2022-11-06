@@ -6,6 +6,7 @@
 package devs.mrp.turkeydesktop.database.group.facade;
 
 import java.sql.ResultSet;
+import rx.Single;
 
 /**
  *
@@ -13,9 +14,9 @@ import java.sql.ResultSet;
  */
 public interface AssignableElementDao {
     
-    public ResultSet findPositiveProcessesWithAssignation();
-    public ResultSet findNegativeProcessesWithAssignation();
-    public ResultSet findPositiveTitlesWithAssignation();
-    public ResultSet findNegativeTitlesWithAssignation();
+    public Single<ResultSet> findPositiveProcessesWithAssignation();
+    public Single<ResultSet> findNegativeProcessesWithAssignation();
+    public Single<ResultSet> findPositiveTitlesWithAssignation();
+    public Single<ResultSet> findNegativeTitlesWithAssignation();
     
 }

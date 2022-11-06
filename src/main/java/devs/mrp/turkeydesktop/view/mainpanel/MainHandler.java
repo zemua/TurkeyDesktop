@@ -163,7 +163,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     
     private void setTimeOnHeaderLabel() {
         JLabel label = (JLabel)this.getPanel().getProperty(MainEnum.LABELIZER);
-        conditionChecker.timeRemaining(remaining -> {
+        conditionChecker.timeRemaining().subscribe(remaining -> {
             label.setText(TimeConverter.millisToHMS(remaining));
         });
     }

@@ -6,13 +6,12 @@
 package devs.mrp.turkeydesktop.database.group.assignations;
 
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.group.Group;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import rx.Single;
 
 /**
  *
@@ -22,7 +21,6 @@ public class GroupAssignationRepository implements GroupAssignationDao {
     
     private Db dbInstance = Db.getInstance();
     private static final Logger logger = Logger.getLogger(GroupAssignationRepository.class.getName());
-    private final Semaphore semaphore = Db.getSemaphore();
     
     private static GroupAssignationRepository instance;
     
@@ -38,10 +36,9 @@ public class GroupAssignationRepository implements GroupAssignationDao {
     }
     
     @Override
-    public ResultSet findByElementId(GroupAssignation.ElementType elementType, String elementId) {
-        ResultSet rs = null;
-        try {
-            semaphore.acquire();
+    public Single<ResultSet> findByElementId(GroupAssignation.ElementType elementType, String elementId) {
+        return Db.singleResultSet(() -> {
+            ResultSet rs = null;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=? AND %s=?",
@@ -52,19 +49,14 @@ public class GroupAssignationRepository implements GroupAssignationDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return rs;
+            return rs;
+        });
     }
 
     @Override
-    public ResultSet findAllElementTypeOfGroup(GroupAssignation.ElementType elementType, Long groupId) {
-        ResultSet rs = null;
-        try {
-            semaphore.acquire();
+    public Single<ResultSet> findAllElementTypeOfGroup(GroupAssignation.ElementType elementType, Long groupId) {
+        return Db.singleResultSet(() -> {
+            ResultSet rs = null;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=? AND %s=?",
@@ -75,19 +67,14 @@ public class GroupAssignationRepository implements GroupAssignationDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return rs;
+            return rs;
+        });
     }
 
     @Override
-    public long add(GroupAssignation element) {
-        long result = -1;
-        try {
-            semaphore.acquire();
+    public Single<Long> add(GroupAssignation element) {
+        return Db.singleLong(() -> {
+            long result = -1;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s, %s) ",
@@ -100,19 +87,14 @@ public class GroupAssignationRepository implements GroupAssignationDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return result;
+            return result;
+        });
     }
 
     @Override
-    public long update(GroupAssignation element) {
-        long result = -1;
-        try {
-            semaphore.acquire();
+    public Single<Long> update(GroupAssignation element) {
+        return Db.singleLong(() -> {
+            long result = -1;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=?, %s=? WHERE %s=? ",
@@ -124,19 +106,15 @@ public class GroupAssignationRepository implements GroupAssignationDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return result;
+            return result;
+        });
+        
     }
 
     @Override
-    public ResultSet findAll() {
-        ResultSet rs = null;
-        try {
-            semaphore.acquire();
+    public Single<ResultSet> findAll() {
+        return Db.singleResultSet(() -> {
+            ResultSet rs = null;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s",
@@ -145,68 +123,26 @@ public class GroupAssignationRepository implements GroupAssignationDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null ,ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null ,ex);
-        } finally {
-            semaphore.release();
-        }
-        return rs;
+            return rs;
+        });
     }
 
     @Deprecated
     @Override
-    public ResultSet findById(Long id) {
-        return null;
-        /*ResultSet rs = null;
-        try {
-            semaphore.acquire();
-            PreparedStatement stm;
-            try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
-                        Db.GROUP_ASSIGNATION_TABLE, GroupAssignation.ID));
-                stm.setLong(1, id);
-                rs = stm.executeQuery();
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return rs;*/
+    public Single<ResultSet> findById(Long id) {
+        return Single.just(null);
     }
 
     @Deprecated
     @Override
-    public long deleteById(Long id) {
-        return 0;
-        /*
-        long delQty = -1;
-        try {
-            semaphore.acquire();
-            PreparedStatement stm;
-            try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
-                        Db.GROUP_ASSIGNATION_TABLE, GroupAssignation.ID));
-                stm.setLong(1, id);
-                delQty = stm.executeUpdate();
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return delQty;*/
+    public Single<Long> deleteById(Long id) {
+        return Single.just(0L);
     }
     
     @Override
-    public long deleteByElementId(GroupAssignation.ElementType elementType, String elementId) {
-        long delQty = -1;
-        try {
-            semaphore.acquire();
+    public Single<Long> deleteByElementId(GroupAssignation.ElementType elementType, String elementId) {
+        return Db.singleLong(() -> {
+            long delQty = -1;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=? AND %s=?",
@@ -217,19 +153,15 @@ public class GroupAssignationRepository implements GroupAssignationDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return delQty;
+            return delQty;
+        });
+        
     }
     
     @Override
-    public ResultSet findAllOfType(GroupAssignation.ElementType elementType) {
-        ResultSet rs = null;
-        try {
-            semaphore.acquire();
+    public Single<ResultSet> findAllOfType(GroupAssignation.ElementType elementType) {
+        return Db.singleResultSet(() -> {
+            ResultSet rs = null;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
@@ -239,19 +171,14 @@ public class GroupAssignationRepository implements GroupAssignationDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return rs;
+            return rs;
+        });
     }
 
     @Override
-    public long deleteByGroupId(long groupId) {
-        long delQty = -1;
-        try {
-            semaphore.acquire();
+    public Single<Long> deleteByGroupId(long groupId) {
+        return Db.singleLong(() -> {
+            long delQty = -1;
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
@@ -261,12 +188,8 @@ public class GroupAssignationRepository implements GroupAssignationDao {
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        } finally {
-            semaphore.release();
-        }
-        return delQty;
+            return delQty;
+        });
     }
     
 }

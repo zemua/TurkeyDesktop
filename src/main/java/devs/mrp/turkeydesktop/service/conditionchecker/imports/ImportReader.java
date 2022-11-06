@@ -7,6 +7,7 @@ package devs.mrp.turkeydesktop.service.conditionchecker.imports;
 
 import java.time.LocalDate;
 import java.util.List;
+import rx.Single;
 
 /**
  *
@@ -15,5 +16,5 @@ import java.util.List;
 public interface ImportReader {
     public List<ImportValue> getValuesFromFile(String path);
     public List<ImportValue> getValuesFromFileBetweenDates(String path, LocalDate dateFrom, LocalDate dateTo);
-    public Long getTotalSpentFromFileBetweenDates(String path, LocalDate dateFrom, LocalDate dateTo);
+    public Single<Long> getTotalSpentFromFileBetweenDates(String path, LocalDate dateFrom, LocalDate dateTo);
 }

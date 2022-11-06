@@ -5,17 +5,16 @@
  */
 package devs.mrp.turkeydesktop.database.imports;
 
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.LongConsumer;
+import rx.Observable;
+import rx.Single;
 
 /**
  *
  * @author miguel
  */
 public interface ImportService {
-    public void add(String path, LongConsumer consumer);
-    public void findAll(Consumer<List<String>> consumer);
-    public void exists(String path, Consumer<Boolean> consumer);
-    public void deleteById(String path, LongConsumer consumer);
+    public Single<Long> add(String path);
+    public Observable<String> findAll();
+    public Single<Boolean> exists(String path);
+    public Single<Long> deleteById(String path);
 }

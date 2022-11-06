@@ -18,10 +18,12 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import devs.mrp.turkeydesktop.database.titledlog.TitledLogServiceFacade;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
+import rx.Subscriber;
 
 /**
  *
@@ -78,22 +80,40 @@ public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, 
         if (panel == null) {
             return;
         }
-        facadeService.getLogsDependablesWithTitleConditions(from, to, titledLogs -> {
-            panel.removeAll(); // clear in case it has been filled before
-            titledLogs.sort((c1, c2) -> Long.valueOf(c2.getElapsed()).compareTo(c1.getElapsed()));
-            titledLogs.stream()
-                    .filter(c -> getFilterText().isEmpty() ? true : StringUtils.containsIgnoreCase(c.getTitle(), getFilterText()))
-                    .forEach(t -> {
+
+        Subscriber<List<TitledLog>> subscriber = new Subscriber<List<TitledLog>>() {
+            @Override
+            public void onCompleted() {
+                panel.updateUI();
+                panel.revalidate();
+            }
+
+            @Override
+            public void onError(Throwable thrwbl) {
+                // nothing to do here
+            }
+
+            @Override
+            public void onNext(List<TitledLog> titledLogs) {
+                titledLogs.forEach(t -> {
                         if (ifPassFilter(t, filter)) {
                             CategorizeTitlesElement element = new CategorizeTitlesElement(t.getTitle(), t.getQtyPositives(), t.getQtyNegatives());
                             element.setTitledLog(t);
                             panel.add(element);
                             setTagClickListener(element, t);
                         }
-            });
-            panel.updateUI();
-            panel.revalidate();
-        });
+                    });
+            }
+        };
+
+        panel.removeAll(); // clear in case it has been filled before
+        facadeService.getLogsDependablesWithTitleConditions(from, to)
+                .filter(c -> getFilterText().isEmpty() ? true : StringUtils.containsIgnoreCase(c.getTitle(), getFilterText()))
+                .toList()
+                .map(list -> {
+                    list.sort((c1, c2) -> Long.valueOf(c2.getElapsed()).compareTo(c1.getElapsed()));
+                    return list;
+                }).subscribe(subscriber);
     }
     
     private String getFilterText() {
@@ -110,13 +130,16 @@ public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, 
         if (filter == CategorizeTitlesFilter.FILTER_ALL.getFilter()) {
             return true;
         }
-        if (filter == CategorizeTitlesFilter.FILTER_NOT_CATEGORIZED.getFilter() && log.getQtyNegatives() == 0 && log.getQtyPositives() == 0) {
+        if (filter == CategorizeTitlesFilter.FILTER_NOT_CATEGORIZED.getFilter() && log.getQtyNegatives() == 0 && log.getQtyPositives() == 0 && log.getQtyNeutral() == 0) {
             return true;
         }
         if (filter == CategorizeTitlesFilter.FILTER_NEGATIVE.getFilter() && log.getQtyNegatives() > 0) {
             return true;
         }
         if (filter == CategorizeTitlesFilter.FILTER_POSITIVE.getFilter() && log.getQtyPositives() > 0) {
+            return true;
+        }
+        if (filter == CategorizeTitlesFilter.FILTER_NEUTRAL.getFilter() && log.getQtyNeutral() > 0) {
             return true;
         }
         return false;
