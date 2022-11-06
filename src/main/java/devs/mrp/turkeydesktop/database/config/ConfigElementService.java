@@ -33,6 +33,8 @@ public class ConfigElementService implements IConfigElementService {
     private void initConfigMap() {
         if (configMap == null) {
             configMap = new HashMap<>();
+        }
+        if (configMap.isEmpty()) {
             // assigns values to the hashmap inside the function
             findAll().subscribe();
         }
