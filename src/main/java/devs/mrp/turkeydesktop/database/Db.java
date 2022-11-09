@@ -55,7 +55,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
     public static final String IMPORTS_TABLE = "IMPORTS_TABLE";
     private static final Semaphore semaphore = new Semaphore(4);
     
-    private static final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private static final ExecutorService executor = Executors.newFixedThreadPool(4);
 
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
 

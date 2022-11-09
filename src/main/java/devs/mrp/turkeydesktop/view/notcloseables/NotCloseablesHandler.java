@@ -19,12 +19,14 @@ import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import lombok.extern.slf4j.Slf4j;
 import rx.Subscriber;
 
 /**
  *
  * @author miguel
  */
+@Slf4j
 public class NotCloseablesHandler extends PanelHandler<NotCloseablesEnum, Object, FeedbackerPanelWithFetcher<NotCloseablesEnum, Object>> {
     
     private ConfirmationWithDelay popupMaker = new ConfirmationWithDelayFactory();
@@ -60,11 +62,13 @@ public class NotCloseablesHandler extends PanelHandler<NotCloseablesEnum, Object
 
     @Override
     protected void doExtraBeforeShow() {
+        log.info("do extra before show");
         try {
             refreshProcesses();
         } catch (Exception e) {
             
         }
+        log.info("finishing do extra before show");
     }
 
     @Override
@@ -85,6 +89,7 @@ public class NotCloseablesHandler extends PanelHandler<NotCloseablesEnum, Object
             public void onCompleted() {
                 panel.revalidate();
                 panel.updateUI();
+                log.debug("updated ui");
             }
 
             @Override
@@ -94,6 +99,7 @@ public class NotCloseablesHandler extends PanelHandler<NotCloseablesEnum, Object
 
             @Override
             public void onNext(Type process) {
+                log.debug("processing {}", process.getProcess());
                 closeableService.canBeClosed(process.getProcess()).subscribe(canClose -> {
                     Switchable switchable = new Switchable(process.getProcess(), !canClose, true);
                     switchable.addFeedbackListener((processId, feedback) -> {
@@ -113,7 +119,8 @@ public class NotCloseablesHandler extends PanelHandler<NotCloseablesEnum, Object
                 });
             }
         };
-        
+        log.debug("subscribing");
         typeService.findByType(Type.Types.DEPENDS).subscribe(subscriber);
+        log.debug("subscribed");
     }
 }
