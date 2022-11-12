@@ -8,6 +8,7 @@ package devs.mrp.turkeydesktop.database.titles;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationDao;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationRepository;
+import io.reactivex.rxjava3.core.Maybe;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
+import java.util.Objects;
 
 /**
  *
@@ -151,14 +153,18 @@ public class TitleServiceImpl implements TitleService {
     }
     
     @Override
-    public Single<Title> findLongestContainedBy(String title) {
-        return Single.create(subscriber -> {
+    public Maybe<Title> findLongestContainedBy(String title) {
+        return Maybe.create(subscriber -> {
             var result = conditionsMap.entrySet().stream()
                 .filter(e -> StringUtils.containsIgnoreCase(title, e.getKey()))
                 .max((e1, e2) -> Long.compare(e1.getKey().length(), e2.getKey().length()))
                 .map(e -> e.getValue())
                 .orElse(null);
-            subscriber.onSuccess(result);
+            if (Objects.nonNull(result)) {
+                subscriber.onSuccess(result);
+            } else {
+                subscriber.onComplete();
+            }
         });
     }
 

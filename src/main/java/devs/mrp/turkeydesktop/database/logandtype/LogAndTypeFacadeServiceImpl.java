@@ -9,6 +9,7 @@ import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.Tripla;
 import devs.mrp.turkeydesktop.database.closeables.CloseableService;
 import devs.mrp.turkeydesktop.database.closeables.CloseableServiceFactory;
+import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.FConfigElementService;
 import devs.mrp.turkeydesktop.database.config.IConfigElementService;
 import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
@@ -28,9 +29,9 @@ import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
 import devs.mrp.turkeydesktop.database.type.TypeService;
-import org.apache.commons.lang3.StringUtils;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -86,76 +87,80 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
         });
     }
     
+    private Single<TimeLog> flatMapFrom(ConfigElement proportionResult, Type myType, TimeLog element, Boolean lockdown, boolean idle) {
+        int proportion = Integer.valueOf(proportionResult.getValue());
+        Type type = myType;
+        if (type == null || type.getType() == null) {
+            type = new Type();
+            type.setType(Type.Types.UNDEFINED);
+        }
+        element.setBlockable(false);
+        switch (type.getType()){ // TODO make chain of responsibility to handle each case in a more clean way
+            case NEUTRAL:
+                element.setType(Type.Types.NEUTRAL);
+                element.setGroupId(-1);
+                element.setCounted(lockdown && !idle ? -1 * proportion * element.getElapsed() : 0);
+                return Single.just(element);
+            case UNDEFINED:
+                element.setType(Type.Types.UNDEFINED);
+                element.setGroupId(-1);
+                element.setCounted(lockdown && !idle ? -1 * proportion * element.getElapsed() : 0);
+                return Single.just(element);
+            case DEPENDS:
+                element.setType(Type.Types.DEPENDS);
+                return titleService.findLongestContainedBy(element.getWindowTitle().toLowerCase())
+                        .switchIfEmpty(Single.just(new Title()))
+                        .flatMap(title -> {
+                            String subStr = title != null ? title.getSubStr() : StringUtils.EMPTY;
+                            return groupAssignationService.findGroupOfAssignation(subStr).flatMap(assignation -> {
+                                element.setGroupId(assignation != null ? assignation.getGroupId() : -1);
+                                if (!lockdown){
+                                    return setCountedDependingOnTitle(element, title, element.getElapsed(), proportion);
+                                }
+                                return setCountedForTitleWhenLockdown(element, title, proportion);
+                            });
+                });
+            case POSITIVE:
+                element.setType(Type.Types.POSITIVE);
+                return groupAssignationService.findByProcessId(element.getProcessName()).flatMap(result -> {
+                    element.setGroupId(result != null ? result.getGroupId() : -1);
+                    if (!lockdown) {
+                        return conditionChecker.areConditionsMet(element.getGroupId()).flatMap(areMet -> {
+                            return conditionChecker.isIdleWithToast(true).map(isIdle -> {
+                                element.setCounted(!isIdle && areMet ? Math.abs(element.getElapsed()) : 0);
+                                return element;
+                            });
+                        });
+                    } // when in lockdown, don't disccount points if idle
+                    return conditionChecker.isIdle().map(isIdle -> {
+                        if (!isIdle) {
+                            element.setCounted(-1 * proportion * element.getElapsed());
+                            return element;
+                        } else {
+                            element.setCounted(0);
+                            return element;
+                        }
+                    });
+                });
+            case NEGATIVE:
+                element.setType(Type.Types.NEGATIVE);
+                return groupAssignationService.findByProcessId(element.getProcessName()).map(result -> {
+                    element.setGroupId(result != null ? result.getGroupId() : -1);
+                    element.setCounted(Math.abs(element.getElapsed()) * proportion * (-1));
+                    element.setBlockable(true);
+                    return element;
+                });
+            default:
+                return Single.just(element);
+        }
+    }
+    
     private Single<TimeLog> adjustDependingOnType(TimeLog element) {
         return typeService.findById(element.getProcessName()).flatMap(myType -> {
             return conditionChecker.isLockDownTime().flatMap(lockdown -> {
                 return conditionChecker.isIdle().flatMap(idle -> {
-                    return configService.configElement(ConfigurationEnum.PROPORTION).flatMap(proportionResult -> {
-                        int proportion = Integer.valueOf(proportionResult.getValue());
-                        Type type = myType;
-                        if (type == null || type.getType() == null) {
-                            type = new Type();
-                            type.setType(Type.Types.UNDEFINED);
-                        }
-                        element.setBlockable(false);
-                        switch (type.getType()){ // TODO make chain of responsibility to handle each case in a more clean way
-                            case NEUTRAL:
-                                element.setType(Type.Types.NEUTRAL);
-                                element.setGroupId(-1);
-                                element.setCounted(lockdown && !idle ? -1 * proportion * element.getElapsed() : 0);
-                                return Single.just(element);
-                            case UNDEFINED:
-                                element.setType(Type.Types.UNDEFINED);
-                                element.setGroupId(-1);
-                                element.setCounted(lockdown && !idle ? -1 * proportion * element.getElapsed() : 0);
-                                return Single.just(element);
-                            case DEPENDS:
-                                element.setType(Type.Types.DEPENDS);
-                                // If title is "hello to you" and we have records "hello" in group1 and "hello to" in group2 the group2 will be chosen
-                                return titleService.findLongestContainedBy(element.getWindowTitle().toLowerCase()).flatMap(title -> {
-                                    String subStr = title != null ? title.getSubStr() : StringUtils.EMPTY;
-                                    return groupAssignationService.findGroupOfAssignation(subStr).flatMap(assignation -> {
-                                        element.setGroupId(assignation != null ? assignation.getGroupId() : -1);
-                                        if (!lockdown){
-                                            return setCountedDependingOnTitle(element, title, element.getElapsed(), proportion);
-                                        }
-                                        return setCountedForTitleWhenLockdown(element, title, proportion);
-                                    });
-                                });
-                            case POSITIVE:
-                                element.setType(Type.Types.POSITIVE);
-                                return groupAssignationService.findByProcessId(element.getProcessName()).flatMap(result -> {
-                                    element.setGroupId(result != null ? result.getGroupId() : -1);
-                                    if (!lockdown) {
-                                        return conditionChecker.areConditionsMet(element.getGroupId()).flatMap(areMet -> {
-                                            return conditionChecker.isIdleWithToast(true).map(isIdle -> {
-                                                element.setCounted(!isIdle && areMet ? Math.abs(element.getElapsed()) : 0);
-                                                return element;
-                                            });
-                                        });
-                                    } // when in lockdown, don't disccount points if idle
-                                    return conditionChecker.isIdle().map(isIdle -> {
-                                        if (!isIdle) {
-                                            element.setCounted(-1 * proportion * element.getElapsed());
-                                            return element;
-                                        } else {
-                                            element.setCounted(0);
-                                            return element;
-                                        }
-                                    });
-                                });
-                            case NEGATIVE:
-                                element.setType(Type.Types.NEGATIVE);
-                                return groupAssignationService.findByProcessId(element.getProcessName()).map(result -> {
-                                    element.setGroupId(result != null ? result.getGroupId() : -1);
-                                    element.setCounted(Math.abs(element.getElapsed()) * proportion * (-1));
-                                    element.setBlockable(true);
-                                    return element;
-                                });
-                            default:
-                                return Single.just(element);
-                        }
-                    });
+                    return configService.configElement(ConfigurationEnum.PROPORTION)
+                            .flatMap(proportionResult -> flatMapFrom(proportionResult, myType, element, lockdown, idle));
                 });
             });
         });
