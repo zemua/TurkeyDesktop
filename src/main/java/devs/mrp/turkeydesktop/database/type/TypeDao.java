@@ -7,7 +7,7 @@ package devs.mrp.turkeydesktop.database.type;
 
 import devs.mrp.turkeydesktop.database.GeneralDao;
 import java.sql.ResultSet;
-import rx.Single;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  *

@@ -20,8 +20,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.text.JTextComponent;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.disposables.Disposable;
 import javax.swing.JTextArea;
-import rx.Subscriber;
 
 /**
  *
@@ -98,9 +99,9 @@ public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AW
         conditionsPanel.removeAll();
         String title = ((JTextComponent)getPanel().getProperty(TitleConditionsEnum.TITLE)).getText();
         
-        Subscriber<Title> subscriber = new Subscriber<Title>() {
+        Observer<Title> subscriber = new Observer<Title>() {
             @Override
-            public void onCompleted() {
+            public void onComplete() {
                 conditionsPanel.revalidate();
                 conditionsPanel.updateUI();
             }
@@ -129,6 +130,11 @@ public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AW
                         }
                     }
                 });
+            }
+
+            @Override
+            public void onSubscribe(Disposable d) {
+                // nothing here
             }
         };
         

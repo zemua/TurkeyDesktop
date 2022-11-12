@@ -18,12 +18,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import devs.mrp.turkeydesktop.database.titledlog.TitledLogServiceFacade;
-import java.util.List;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.disposables.Disposable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
-import rx.Subscriber;
 
 /**
  *
@@ -81,9 +82,9 @@ public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, 
             return;
         }
 
-        Subscriber<List<TitledLog>> subscriber = new Subscriber<List<TitledLog>>() {
+        Observer<TitledLog> subscriber = new Observer<TitledLog>() {
             @Override
-            public void onCompleted() {
+            public void onComplete() {
                 panel.updateUI();
                 panel.revalidate();
             }
@@ -94,26 +95,26 @@ public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, 
             }
 
             @Override
-            public void onNext(List<TitledLog> titledLogs) {
-                titledLogs.forEach(t -> {
-                        if (ifPassFilter(t, filter)) {
-                            CategorizeTitlesElement element = new CategorizeTitlesElement(t.getTitle(), t.getQtyPositives(), t.getQtyNegatives());
-                            element.setTitledLog(t);
-                            panel.add(element);
-                            setTagClickListener(element, t);
-                        }
-                    });
+            public void onNext(TitledLog t) {
+                CategorizeTitlesElement element = new CategorizeTitlesElement(t.getTitle(), t.getQtyPositives(), t.getQtyNegatives());
+                element.setTitledLog(t);
+                panel.add(element);
+                setTagClickListener(element, t);
+            }
+
+            @Override
+            public void onSubscribe(Disposable d) {
+                // nothing here
             }
         };
 
         panel.removeAll(); // clear in case it has been filled before
         facadeService.getLogsDependablesWithTitleConditions(from, to)
                 .filter(c -> getFilterText().isEmpty() ? true : StringUtils.containsIgnoreCase(c.getTitle(), getFilterText()))
-                .toList()
-                .map(list -> {
-                    list.sort((c1, c2) -> Long.valueOf(c2.getElapsed()).compareTo(c1.getElapsed()));
-                    return list;
-                }).subscribe(subscriber);
+                .toSortedList((c1, c2) -> Long.valueOf(c2.getElapsed()).compareTo(c1.getElapsed()))
+                .flatMapObservable(Observable::fromIterable)
+                .filter(t -> ifPassFilter(t, filter))
+                .subscribe(subscriber);
     }
     
     private String getFilterText() {

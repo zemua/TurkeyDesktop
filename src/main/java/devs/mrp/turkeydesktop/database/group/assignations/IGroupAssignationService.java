@@ -5,8 +5,8 @@
  */
 package devs.mrp.turkeydesktop.database.group.assignations;
 
-import rx.Observable;
-import rx.Single;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  *

@@ -52,11 +52,12 @@ import org.apache.commons.lang3.StringUtils;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacade;
 import devs.mrp.turkeydesktop.database.type.Type;
+import devs.mrp.turkeydesktop.database.type.Type.Types;
 import java.util.Optional;
 import javax.swing.JCheckBox;
-import rx.Observable;
-import rx.Subscriber;
-import rx.functions.Func2;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.disposables.Disposable;
 
 /**
  *
@@ -255,8 +256,8 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         return field.getText();
     }
     
-    private Func2<AssignableElement, AssignableElement, Integer> getAssignableComparatorFunction() {
-        return (AssignableElement o1, AssignableElement o2) -> {
+    private Comparator<AssignableElement<Types>> getAssignableComparatorFunction() {
+        return (AssignableElement<Types> o1, AssignableElement<Types> o2) -> {
             try {
                 JComboBox orderDropdown = (JComboBox) getObjectFromPanel(GroupReviewEnum.ORDER_DROPDOWN, JComboBox.class).orElseThrow(() -> new Exception("wrong object"));
                 if (localeMessages.getString(ComboOrderEnum.UNASSIGNED_FIRST.getKey()).equals(orderDropdown.getSelectedItem())){
@@ -405,9 +406,9 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         }
         JPanel panel = (JPanel) conditionsListObject;
         panel.removeAll();
-        Subscriber<GroupConditionFacade> subscriber = new Subscriber<GroupConditionFacade>() {
+        Observer<GroupConditionFacade> subscriber = new Observer<GroupConditionFacade>() {
             @Override
-            public void onCompleted() {
+            public void onComplete() {
                 panel.revalidate();
                 panel.repaint();
             }
@@ -436,6 +437,11 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                             break;
                     }
                 });
+            }
+
+            @Override
+            public void onSubscribe(Disposable d) {
+                // nothing here
             }
         };
         groupConditionFacadeService.findByGroupId(group.getId()).subscribe(subscriber);
@@ -554,9 +560,9 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private void refreshExternalTime() throws Exception {
         JPanel panel = (JPanel) getObjectFromPanel(GroupReviewEnum.EXTERNAL_TIME_PANEL, JPanel.class).orElseThrow(() -> new Exception("wrong object"));
         panel.removeAll();
-        Subscriber<RemovableLabel<ExternalGroup>> subscriber = new Subscriber<RemovableLabel<ExternalGroup>>() {
+        Observer<RemovableLabel<ExternalGroup>> subscriber = new Observer<RemovableLabel<ExternalGroup>>() {
             @Override
-            public void onCompleted() {
+            public void onComplete() {
                 panel.revalidate();
                 panel.repaint();
             }
@@ -569,6 +575,11 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             @Override
             public void onNext(RemovableLabel<ExternalGroup> t) {
                 panel.add(t);
+            }
+
+            @Override
+            public void onSubscribe(Disposable d) {
+                // nothing here
             }
         };
         externalGroupService.findByGroup(this.group.getId())

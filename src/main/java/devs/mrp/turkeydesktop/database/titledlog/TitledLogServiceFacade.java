@@ -6,7 +6,7 @@
 package devs.mrp.turkeydesktop.database.titledlog;
 
 import java.util.Date;
-import rx.Observable;
+import io.reactivex.rxjava3.core.Observable;
 
 /**
  *

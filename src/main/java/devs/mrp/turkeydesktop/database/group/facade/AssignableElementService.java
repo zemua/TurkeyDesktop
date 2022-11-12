@@ -5,7 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.group.facade;
 
-import rx.Observable;
+import io.reactivex.rxjava3.core.Observable;
 
 /**
  *

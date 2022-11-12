@@ -14,7 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import rx.Single;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  *

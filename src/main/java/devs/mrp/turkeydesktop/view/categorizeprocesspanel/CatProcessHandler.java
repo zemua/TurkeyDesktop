@@ -22,11 +22,12 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeService;
 import devs.mrp.turkeydesktop.database.type.TypeService;
-import java.util.List;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.disposables.Disposable;
 import java.util.logging.Level;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
-import rx.Subscriber;
 
 /**
  *
@@ -87,9 +88,9 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
         JPanel panel = (JPanel)this.getPanel().getProperty(CatProcessEnum.LIST_PANEL);
         if (panel == null) {return;}
         panel.removeAll(); // clear in case it has been filled before
-        Subscriber<List<Tripla<String, Long, Type.Types>>> subscriber = new Subscriber<List<Tripla<String, Long, Type.Types>>>() {
+        Observer<Tripla<String, Long, Type.Types>> subscriber = new Observer<Tripla<String, Long, Type.Types>>() {
             @Override
-            public void onCompleted() {
+            public void onComplete() {
                 panel.updateUI();
                 panel.revalidate();
             }
@@ -100,21 +101,25 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
             }
 
             @Override
-            public void onNext(List<Tripla<String, Long, Type.Types>> triplas) {
-                triplas.sort((c1,c2) -> c2.getValue2().compareTo(c1.getValue2()));
-                triplas.stream()
-                        .filter(c -> textFromFilter().isEmpty() ? true : StringUtils.containsIgnoreCase(c.getValue1(), textFromFilter()))
-                        .forEach(t -> {
-                            if (ifPassFilter(t.getValue3(), filter)) {
-                                CategorizerElement element = new CategorizerElement(panel.getWidth(), panel.getHeight());
-                                element.init(t.getValue1(), t.getValue3());
-                                panel.add(element);
-                                setRadioListener(element);
-                            }
-                        });
+            public void onNext(Tripla<String, Long, Type.Types> t) {
+                CategorizerElement element = new CategorizerElement(panel.getWidth(), panel.getHeight());
+                element.init(t.getValue1(), t.getValue3());
+                panel.add(element);
+                setRadioListener(element);
             }
+
+            @Override
+            public void onSubscribe(Disposable d) {
+                // nothing here
+            }
+
         };
-        typedService.getTypedLogGroupedByProcess(from, to).toList().subscribe(subscriber);
+        typedService.getTypedLogGroupedByProcess(from, to)
+                .toSortedList((c1,c2) -> c2.getValue2().compareTo(c1.getValue2()))
+                .flatMapObservable(Observable::fromIterable)
+                .filter(c -> textFromFilter().isEmpty() ? true : StringUtils.containsIgnoreCase(c.getValue1(), textFromFilter()))
+                .filter(t -> ifPassFilter(t.getValue3(), filter))
+                .subscribe(subscriber);
     }
     
     private String textFromFilter() {

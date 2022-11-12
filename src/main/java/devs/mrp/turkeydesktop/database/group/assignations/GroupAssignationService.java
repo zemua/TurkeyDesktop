@@ -10,8 +10,8 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
-import rx.Observable;
-import rx.Single;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  *
@@ -124,6 +124,7 @@ public class GroupAssignationService implements IGroupAssignationService {
                 .toSortedList((ga1, ga2) -> Integer.compare(ga1.getElementId().length(), ga2.getElementId().length()))
                 // get the first one only
                 .map(list -> list.get(0))
+                .toMaybe()
                 .toSingle();
     }
     
@@ -152,7 +153,7 @@ public class GroupAssignationService implements IGroupAssignationService {
             } catch (SQLException ex) {
                 subscriber.onError(ex);
             }
-            subscriber.onCompleted();
+            subscriber.onComplete();
         });
     }
     

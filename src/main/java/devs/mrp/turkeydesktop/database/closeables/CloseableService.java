@@ -5,8 +5,8 @@
  */
 package devs.mrp.turkeydesktop.database.closeables;
 
-import rx.Observable;
-import rx.Single;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.core.Observable;
 
 /**
  *

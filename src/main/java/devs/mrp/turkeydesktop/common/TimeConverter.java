@@ -17,7 +17,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.Formatter;
 import java.util.concurrent.TimeUnit;
-import rx.Single;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  *

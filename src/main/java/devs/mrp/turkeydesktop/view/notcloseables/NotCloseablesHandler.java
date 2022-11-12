@@ -16,11 +16,12 @@ import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.groups.review.switchable.Switchable;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.disposables.Disposable;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import lombok.extern.slf4j.Slf4j;
-import rx.Subscriber;
 
 /**
  *
@@ -84,9 +85,9 @@ public class NotCloseablesHandler extends PanelHandler<NotCloseablesEnum, Object
         JPanel panel = (JPanel) object;
         panel.removeAll();
         
-        Subscriber<Type> subscriber = new Subscriber<Type>() {
+        Observer<Type> subscriber = new Observer<Type>() {
             @Override
-            public void onCompleted() {
+            public void onComplete() {
                 panel.revalidate();
                 panel.updateUI();
                 log.debug("updated ui");
@@ -117,6 +118,11 @@ public class NotCloseablesHandler extends PanelHandler<NotCloseablesEnum, Object
                     });
                     panel.add(switchable);
                 });
+            }
+            
+            @Override
+            public void onSubscribe(Disposable d) {
+                // nothing here
             }
         };
         log.debug("subscribing");

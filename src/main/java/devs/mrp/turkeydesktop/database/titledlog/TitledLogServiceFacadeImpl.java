@@ -19,8 +19,8 @@ import devs.mrp.turkeydesktop.database.titles.Title;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
 import java.util.ArrayList;
 import java.util.List;
-import rx.Observable;
-import rx.Single;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  *
@@ -69,7 +69,7 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
             } catch (SQLException ex) {
                 Logger.getLogger(TitledLogServiceFacadeImpl.class.getName()).log(Level.SEVERE, null, ex);
             }
-            return Observable.from(logs).flatMapSingle(this::completeTitledLog);
+            return Observable.fromIterable(logs).flatMapSingle(this::completeTitledLog);
         });
     }
     
@@ -95,7 +95,7 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
                         .map(contained -> {
                             log.setConditions(contained);
                             return log;
-                        }).toSingle();
+                        }).toMaybe().toSingle();
         });
     }
     

@@ -9,8 +9,8 @@ import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import rx.Observable;
-import rx.Single;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  *
@@ -43,7 +43,7 @@ public class ImportServiceImpl implements ImportService {
                 } catch (SQLException ex) {
                     emitter.onError(ex);
                 }
-                emitter.onCompleted();
+                emitter.onComplete();
             });
         });
     }

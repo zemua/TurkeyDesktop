@@ -12,8 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import rx.Observable;
-import rx.Single;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  *
@@ -87,7 +87,7 @@ public class ConfigElementService implements IConfigElementService {
                 } catch (SQLException ex) {
                     subscriber.onError(ex);
                 }
-                subscriber.onCompleted();
+                subscriber.onComplete();
             });
         });
     }
@@ -136,7 +136,7 @@ public class ConfigElementService implements IConfigElementService {
 
     @Override
     public Observable<ConfigElement> allConfigElements() {
-        return Observable.from(configMap.entrySet())
+        return Observable.fromIterable(configMap.entrySet())
                 .map(e -> {
                     ConfigElement el = new ConfigElement();
                     el.setKey(e.getKey());

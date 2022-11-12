@@ -10,7 +10,7 @@ import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
-import rx.Single;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  *

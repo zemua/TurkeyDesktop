@@ -18,7 +18,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import devs.mrp.turkeydesktop.database.group.GroupService;
-import rx.Subscriber;
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.disposables.Disposable;
 
 /**
  *
@@ -71,9 +72,9 @@ public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, Feedbacker
         JPanel panel = (JPanel)this.getPanel().getProperty(GroupsEnum.PANEL_LIST);
         if (panel == null || !(panel instanceof JPanel)) {return;}
         panel.removeAll();
-        Subscriber<Group> subscriber = new Subscriber<>() {
+        Observer<Group> subscriber = new Observer<>() {
             @Override
-            public void onCompleted() {
+            public void onComplete() {
                 panel.revalidate();
                 panel.updateUI();
             }
@@ -86,6 +87,11 @@ public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, Feedbacker
             @Override
             public void onNext(Group t) {
                 addToPanelList(t, panel);
+            }
+
+            @Override
+            public void onSubscribe(Disposable d) {
+                // nothing to do here
             }
         };
         if (type == Group.GroupType.POSITIVE) {

@@ -16,8 +16,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
-import rx.Observable;
-import rx.Single;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  *
@@ -84,7 +84,7 @@ public class TitleServiceImpl implements TitleService {
                 } catch (SQLException ex) {
                     submitter.onError(ex);
                 }
-                submitter.onCompleted();
+                submitter.onComplete();
             });
         });
     }
@@ -99,7 +99,7 @@ public class TitleServiceImpl implements TitleService {
                     el.setType(e.getValue().getType());
                     return el;
                 }).forEach(title -> emitter.onNext(title));
-            emitter.onCompleted();
+            emitter.onComplete();
         });
     }
 
@@ -146,7 +146,7 @@ public class TitleServiceImpl implements TitleService {
                 .map(e -> e.getValue())
                 .sorted((e1, e2) -> e2.getType().compareTo(e1.getType())) // "NEGATIVE" before "POSITIVE" in natural order
                 .forEach(e -> subscriber.onNext(e));
-            subscriber.onCompleted();
+            subscriber.onComplete();
         });
     }
     

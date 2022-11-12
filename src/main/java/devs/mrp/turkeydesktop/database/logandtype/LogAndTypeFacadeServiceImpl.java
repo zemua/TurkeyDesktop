@@ -29,8 +29,8 @@ import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
 import devs.mrp.turkeydesktop.database.type.TypeService;
 import org.apache.commons.lang3.StringUtils;
-import rx.Observable;
-import rx.Single;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  *
@@ -71,7 +71,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                 } catch (SQLException ex) {
                     emitter.onError(ex);
                 }
-                emitter.onCompleted();
+                emitter.onComplete();
             });
         });
     }

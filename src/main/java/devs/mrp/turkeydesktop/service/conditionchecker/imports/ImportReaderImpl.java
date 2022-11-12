@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import rx.Single;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  *

@@ -18,6 +18,8 @@ import devs.mrp.turkeydesktop.database.imports.ImportServiceFactory;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.disposables.Disposable;
 import java.awt.AWTEvent;
 import java.io.File;
 import java.util.Objects;
@@ -32,7 +34,6 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import rx.Subscriber;
 
 /**
  *
@@ -698,9 +699,9 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         JPanel importPanel = (JPanel) getObjectFromPanel(ConfigurationPanelEnum.IMPORT_PANEL, JPanel.class).orElseThrow(() -> new Exception("wrong object"));
         importPanel.removeAll();
         
-        Subscriber<RemovableLabel<String>> subscriber = new Subscriber<RemovableLabel<String>>() {
+        Observer<RemovableLabel<String>> subscriber = new Observer<RemovableLabel<String>>() {
             @Override
-            public void onCompleted() {
+            public void onComplete() {
                 importPanel.revalidate();
                 importPanel.repaint();
                 importStarted = true;
@@ -714,6 +715,11 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
             @Override
             public void onNext(RemovableLabel<String> label) {
                 importPanel.add(label);
+            }
+
+            @Override
+            public void onSubscribe(Disposable d) {
+                // nothing here
             }
         };
         

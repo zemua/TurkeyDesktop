@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-import rx.Single;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  *

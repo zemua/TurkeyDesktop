@@ -38,8 +38,8 @@ import java.util.regex.Pattern;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicLong;
-import rx.Observable;
-import rx.Single;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  *
@@ -85,6 +85,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
                     .flatMapSingle(file -> importReader.getTotalSpentFromFileBetweenDates(file, from, to))
                     .collect(AtomicLong::new, AtomicLong::addAndGet)
                     .map(AtomicLong::longValue)
+                    .toMaybe()
                     .toSingle();
             });
     }
@@ -94,10 +95,12 @@ public class ConditionCheckerImpl implements ConditionChecker {
         if (conditions.isEmpty()) {
             return Single.just(true);
         }
-        return Observable.from(conditions)
+        return Observable.fromIterable(conditions)
                 .flatMapSingle(this::isConditionMet)
-                .exists(b -> Boolean.FALSE.equals(b))
+                .filter(b -> Boolean.FALSE.equals(b))
                 .map(b -> !b)
+                .first(Boolean.FALSE)
+                .toMaybe()
                 .toSingle();
     }
 
@@ -108,7 +111,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
         }
         return conditionService.findByGroupId(groupId)
                 .toList()
-                .flatMapSingle(conditions -> areConditionsMet(conditions))
+                .flatMapMaybe(conditions -> areConditionsMet(conditions).toMaybe())
                 .toSingle();
     }
 
@@ -230,6 +233,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
                 .map(Long::valueOf)
                 .collect(AtomicLong::new, AtomicLong::addAndGet)
                 .map(AtomicLong::longValue)
+                .toMaybe()
                 .toSingle()
                 .flatMap(totalImported -> {
                         return timeLogService.findMostRecent().flatMap(tl -> {
