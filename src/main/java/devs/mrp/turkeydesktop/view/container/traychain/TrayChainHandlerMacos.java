@@ -20,12 +20,14 @@ import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JFrame;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * there is an error in mac if using dorkbox system tray
  * so we are making use of the java awt default implementation
  * @author ncm55070
  */
+@Slf4j
 public class TrayChainHandlerMacos extends TrayChainBaseHandler {
     
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
@@ -48,11 +50,13 @@ public class TrayChainHandlerMacos extends TrayChainBaseHandler {
 
     @Override
     protected boolean canHandle(String tipo) {
+        log.debug("checking if can handle {} for mac", tipo);
         return Platform.isMac();
     }
 
     @Override
     protected void handle(JFrame frame) {
+        log.debug("handling for mac");
         trayIcon = null;
         if (!SystemTray.isSupported()) {
             throw new RuntimeException("Unable to load SystemTray!");

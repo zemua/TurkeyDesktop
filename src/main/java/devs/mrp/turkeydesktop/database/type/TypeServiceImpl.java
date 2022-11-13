@@ -14,11 +14,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  * @author miguel
  */
+@Slf4j
 public class TypeServiceImpl implements TypeService {
     
     TypeDao repo = TypeRepository.getInstance();
@@ -80,6 +82,7 @@ public class TypeServiceImpl implements TypeService {
                     type.setType(Type.Types.valueOf(set.getString(Type.TYPE)));
                 }
             } catch (SQLException ex) {
+                log.error("Error in findById", ex);
                 logger.log(Level.SEVERE, null, ex);
             }
             return type;
@@ -102,6 +105,7 @@ public class TypeServiceImpl implements TypeService {
                     submitter.onNext(type);
                 }
             } catch (SQLException ex) {
+                log.error("error creating observable from resultSet", ex);
                 submitter.onError(ex);
             }
             submitter.onComplete();

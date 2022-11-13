@@ -26,6 +26,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -79,18 +80,22 @@ public class Db { // TODO create asynchronous listeners to update livedata
     }*/
     
     public static Single<Long> singleLong(Callable<Long> callable) {
+        log.debug("Creating singleLong from {}", Arrays.toString(Thread.currentThread().getStackTrace()));
         return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.from(dbExecutor)).observeOn(Schedulers.computation());
     }
     
     public static Single<Integer> singleInt(Callable<Integer> callable) {
+        log.debug("Creating singleInt from {}", Arrays.toString(Thread.currentThread().getStackTrace()));
         return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.from(dbExecutor)).observeOn(Schedulers.computation());
     }
     
     public static Single<Boolean> singleBoolean(Callable<Boolean> callable) {
+        log.debug("Creating singleBoolean from {}", Arrays.toString(Thread.currentThread().getStackTrace()));
         return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.from(dbExecutor)).observeOn(Schedulers.computation());
     }
     
     public static Single<ResultSet> singleResultSet(Callable<ResultSet> callable) {
+        log.debug("Creating singleResultSet from {}", Arrays.toString(Thread.currentThread().getStackTrace()));
         return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.from(dbExecutor)).observeOn(Schedulers.computation());
     }
 
