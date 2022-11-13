@@ -127,7 +127,7 @@ public class NotCloseablesHandler extends PanelHandler<NotCloseablesEnum, Object
             
             @Override
             public void onSubscribe(Disposable d) {
-                // nothing here
+                log.debug("Subscribing to refreshProcesses");
             }
         };
         log.debug("subscribing");
