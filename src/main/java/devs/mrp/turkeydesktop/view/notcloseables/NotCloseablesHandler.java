@@ -21,6 +21,7 @@ import io.reactivex.rxjava3.disposables.Disposable;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -88,14 +89,12 @@ public class NotCloseablesHandler extends PanelHandler<NotCloseablesEnum, Object
         Observer<Type> subscriber = new Observer<Type>() {
             @Override
             public void onComplete() {
-                panel.revalidate();
-                panel.updateUI();
-                log.debug("updated ui");
+                log.debug("refreshProcesses completed");
             }
 
             @Override
             public void onError(Throwable thrwbl) {
-                // nothing to do here
+                log.debug("Error on refreshProcesses subscriber", (Object[])thrwbl.getStackTrace());
             }
 
             @Override
@@ -117,7 +116,12 @@ public class NotCloseablesHandler extends PanelHandler<NotCloseablesEnum, Object
                             });
                         }
                     });
-                    panel.add(switchable);
+                    SwingUtilities.invokeLater(() -> {
+                                log.debug("adding to panel {}", switchable);
+                                panel.add(switchable);
+                                switchable.revalidate();
+                                switchable.updateUI();
+                            });
                 });
             }
             
