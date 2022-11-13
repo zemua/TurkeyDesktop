@@ -100,6 +100,7 @@ public class NotCloseablesHandler extends PanelHandler<NotCloseablesEnum, Object
 
             @Override
             public void onNext(Type process) {
+                log.debug("thread: {}", Thread.currentThread().getName());
                 log.debug("processing {}", process.getProcess());
                 closeableService.canBeClosed(process.getProcess()).subscribe(canClose -> {
                     Switchable switchable = new Switchable(process.getProcess(), !canClose, true);
