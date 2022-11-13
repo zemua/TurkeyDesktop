@@ -11,11 +11,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  * @author miguel
  */
+@Slf4j
 public class ExternalGroupServiceImpl implements ExternalGroupService {
 
     private static final ExternalGroupDao repo = ExternalGroupRepository.getInstance();
@@ -106,6 +108,7 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
                     subscriber.onNext(elementFromResultSetEntry(set));
                 }
             } catch (SQLException ex) {
+                log.debug("error observing elementFromResultSet", ex);
                 subscriber.onError(ex);
             }
             subscriber.onComplete();

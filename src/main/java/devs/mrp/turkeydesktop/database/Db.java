@@ -28,14 +28,18 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Objects;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  * @author miguel
  */
+@Slf4j
 public class Db { // TODO create asynchronous listeners to update livedata
 
     public static final String WATCHDOG_TABLE = "WATCHDOG_LOG";
@@ -51,6 +55,8 @@ public class Db { // TODO create asynchronous listeners to update livedata
     public static final String CONFIG_TABLE = "CONFIG_TABLE";
     public static final String IMPORTS_TABLE = "IMPORTS_TABLE";
 
+    private static final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
+    
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
 
     private static Db instance = null;
@@ -73,19 +79,19 @@ public class Db { // TODO create asynchronous listeners to update livedata
     }*/
     
     public static Single<Long> singleLong(Callable<Long> callable) {
-        return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.io()).observeOn(Schedulers.computation());
+        return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.from(dbExecutor)).observeOn(Schedulers.computation());
     }
     
     public static Single<Integer> singleInt(Callable<Integer> callable) {
-        return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.io()).observeOn(Schedulers.computation());
+        return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.from(dbExecutor)).observeOn(Schedulers.computation());
     }
     
     public static Single<Boolean> singleBoolean(Callable<Boolean> callable) {
-        return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.io()).observeOn(Schedulers.computation());
+        return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.from(dbExecutor)).observeOn(Schedulers.computation());
     }
     
     public static Single<ResultSet> singleResultSet(Callable<ResultSet> callable) {
-        return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.io()).observeOn(Schedulers.computation());
+        return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.from(dbExecutor)).observeOn(Schedulers.computation());
     }
 
     public boolean verifyCanGetDb() {
@@ -96,13 +102,13 @@ public class Db { // TODO create asynchronous listeners to update livedata
             con = DriverManager.getConnection("jdbc:h2:" + DbFiles.getDbFilePath());
             return Objects.nonNull(con) && !con.isClosed();
         } catch (SQLException ex) {
-            Logger.getLogger(Db.class.getName()).log(Level.SEVERE, "error trying to stablish db connection", ex);
+            log.error("error trying to stablish db connection", ex);
             try {
                 if(con != null) {
                     con.close();
                 }
             } catch (SQLException ex1) {
-                Logger.getLogger(Db.class.getName()).log(Level.SEVERE, "error trying to close db connection", ex1);
+                log.error("error trying to close db connection", ex1);
             }
         }
         return false;
@@ -113,6 +119,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
             if (con != null && !con.isClosed()) {
                 return;
             }
+            log.warn("Connection was not established, setting it up. Connection is: {}", con);
             con = DriverManager.getConnection("jdbc:h2:" + DbFiles.getDbFilePath());
         } catch (SQLException ex) {
             System.out.println("error trying to get DB connection");
@@ -229,7 +236,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
     }
 
     public Connection getConnection() {
-        //setConnection();
+        setConnection();
         return con;
     }
 

@@ -58,11 +58,13 @@ import javax.swing.JCheckBox;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  * @author miguel
  */
+@Slf4j
 public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent>> {
 
     private ConfirmationWithDelay popupMaker = new ConfirmationWithDelayFactory();
@@ -202,6 +204,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     }
     
     private void processAssignableObservable(Observable<AssignableElement<Type.Types>> observable, JPanel panel, GroupAssignation.ElementType type) {
+        log.debug("starting process");
         observable.filter(element -> {
                                 try {
                                     return getFilterText().isEmpty() ||
@@ -213,9 +216,11 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                             })
                     .toSortedList(getAssignableComparatorFunction())
                     .subscribe(result -> {
+                        log.debug("handling result");
                         setSwitchablesFromAssignables(result, panel, type);
                         panel.revalidate();
                         panel.updateUI();
+                        log.debug("updated ui");
                     });
     }
 
@@ -391,6 +396,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             throw new Exception("error getting some fields for condition");
         }
         targetComboBox.removeAllItems();
+        log.debug("filling combo boxes");
         comboItems().subscribe(item -> targetComboBox.addItem(item));
     }
 
@@ -444,6 +450,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                 // nothing here
             }
         };
+        log.debug("handling conditions by this group id");
         groupConditionFacadeService.findByGroupId(group.getId()).subscribe(subscriber);
     }
 
@@ -569,7 +576,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
 
             @Override
             public void onError(Throwable thrwbl) {
-                // nothing to do here
+                log.error("error on refreshExternalTime subscription", thrwbl.getStackTrace());
             }
 
             @Override
@@ -582,8 +589,10 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                 // nothing here
             }
         };
+        log.debug("going to refresh external time");
         externalGroupService.findByGroup(this.group.getId())
                 .map(externalGroup -> {
+                    log.debug("refreshing external time for {}", externalGroup.getFile());
                     RemovableLabel<ExternalGroup> label = new RemovableLabel<>(externalGroup) {
                         @Override
                         protected String getNameFromElement(ExternalGroup element) {
@@ -638,13 +647,15 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         exportedGroup.setDays((Long) daysSpinner.getValue());
         exportedGroup.setFile(file.getPath());
         exportedGroup.setGroup(this.group.getId());
+        log.debug("adding export info");
         exportedGroupService.add(exportedGroup).subscribe(r -> {
+            log.debug("adding export info for {}", r);
             try {
                 refreshGroupExporter();
             } catch (Exception ex) {
                 Logger.getLogger(GroupReviewHandler.class.getName()).log(Level.SEVERE, null, ex);
             }
-        });
+        }, onerror -> {log.debug("error on subcription selectFileGroupExporter", onerror.getStackTrace());});
     }
 
     private void updateGroupExporterDays() throws Exception {
@@ -662,13 +673,15 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                 }
             });
             
-        });
+        }, onerror -> {log.debug("error on subscription to updateGroupExporterDays", onerror.getStackTrace());});
     }
 
     private void refreshGroupExporter() throws Exception {
         JSpinner daysSpinner = (JSpinner) getObjectFromPanel(GroupReviewEnum.EXPORT_GROUP_DAYS, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         JButton button = (JButton) getObjectFromPanel(GroupReviewEnum.EXPORT_GROUP_TARGET, JButton.class).orElseThrow(() -> new Exception("wrong object"));
+        log.debug("refresh group exporter");
         exportedGroupService.findById(this.group.getId()).subscribe(existing -> {
+            log.debug("refreshing {}", existing.getFile());
             if (Objects.isNull(existing)) {
                 return;
             }
@@ -678,7 +691,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                 text = text.substring(text.length() - 25);
             }
             button.setText(text);
-        });
+        }, onerror -> {log.debug("error on refreshGroupExporter", onerror.getStackTrace());});
     }
     
     private void handlePreventClose() {
