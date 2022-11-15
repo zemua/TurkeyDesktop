@@ -5,6 +5,8 @@
  */
 package devs.mrp.turkeydesktop.database.type;
 
+import devs.mrp.turkeydesktop.common.DbCache;
+import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationDao;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationRepository;
@@ -26,6 +28,11 @@ public class TypeServiceImpl implements TypeService {
     TypeDao repo = TypeRepository.getInstance();
     private static final GroupAssignationDao assignationRepo = GroupAssignationRepository.getInstance();
     private static final Logger logger = Logger.getLogger(TypeServiceImpl.class.getName());
+    
+    private final DbCache<String,Type> dbCache = DbCacheFactory.getDbCache(
+            TypeRepository.getInstance(),
+            (Type element) -> element.getProcess(),
+            (ResultSet set) -> listFromResultSet(set));
 
     @Override
     public Single<Long> add(Type element) {

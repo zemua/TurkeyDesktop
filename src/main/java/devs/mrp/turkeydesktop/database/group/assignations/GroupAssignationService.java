@@ -5,6 +5,8 @@
  */
 package devs.mrp.turkeydesktop.database.group.assignations;
 
+import devs.mrp.turkeydesktop.common.DbCache;
+import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -21,6 +23,11 @@ public class GroupAssignationService implements IGroupAssignationService {
     
     private static final GroupAssignationDao repo = GroupAssignationRepository.getInstance();
     private static final Logger logger = Logger.getLogger(GroupAssignationService.class.getName());
+    
+    public static final DbCache<GroupAssignationDao.ElementId,GroupAssignation> dbCache = DbCacheFactory.getDbCache(
+            GroupAssignationRepository.getInstance(),
+            element -> new GroupAssignationDao.ElementId(element.getType(), element.getElementId()),
+            set -> elementsFromResultSet(set));
     
     @Override
     public Single<Long> add(GroupAssignation element) {
@@ -63,23 +70,13 @@ public class GroupAssignationService implements IGroupAssignationService {
     @Deprecated
     @Override
     public Single<GroupAssignation> findById(long id) {
-        return repo.findById(id).map(result -> {
-            GroupAssignation element = null;
-            try {
-                if (result.next()) {
-                    element = elementFromResultSetEntry(result);
-                }
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
-            return element;
-        });
+        return null;
     }
 
     @Deprecated
     @Override
     public Single<Long> deleteById(long id) {
-        return repo.deleteById(id);
+        return null;
     }
 
     @Override
@@ -144,7 +141,7 @@ public class GroupAssignationService implements IGroupAssignationService {
         return repo.findAllElementTypeOfGroup(GroupAssignation.ElementType.TITLE, groupId).flatMapObservable(this::elementsFromResultSet);
     }
     
-    private Observable<GroupAssignation> elementsFromResultSet(ResultSet set) {
+    private static Observable<GroupAssignation> elementsFromResultSet(ResultSet set) {
         return Observable.create(subscriber -> {
             try {
                 while (set.next()) {
@@ -157,7 +154,7 @@ public class GroupAssignationService implements IGroupAssignationService {
         });
     }
     
-    private GroupAssignation elementFromResultSetEntry(ResultSet set) {
+    private static GroupAssignation elementFromResultSetEntry(ResultSet set) {
         GroupAssignation el = new GroupAssignation();
         try {
             el.setType(set.getString(GroupAssignation.TYPE) != null ? GroupAssignation.ElementType.valueOf(set.getString(GroupAssignation.TYPE)) : null);

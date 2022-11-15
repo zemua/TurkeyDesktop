@@ -129,13 +129,13 @@ public class GroupAssignationRepository implements GroupAssignationDao {
 
     @Deprecated
     @Override
-    public Single<ResultSet> findById(Long id) {
+    public Single<ResultSet> findById(GroupAssignationDao.ElementId id) {
         return Single.just(null);
     }
 
     @Deprecated
     @Override
-    public Single<Long> deleteById(Long id) {
+    public Single<Long> deleteById(GroupAssignationDao.ElementId id) {
         return Single.just(0L);
     }
     
