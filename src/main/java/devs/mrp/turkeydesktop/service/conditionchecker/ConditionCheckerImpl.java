@@ -40,6 +40,7 @@ import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicLong;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.core.SingleSource;
 
 /**
  *
@@ -63,16 +64,15 @@ public class ConditionCheckerImpl implements ConditionChecker {
 
     @Override
     public Single<Boolean> isConditionMet(Condition condition) {
-        return TimeConverter.beginningOfOffsetDaysConsideringDayChange(condition.getLastDaysCondition()).flatMap(beginningResult -> {
-            return TimeConverter.endOfTodayConsideringDayChange().flatMap(endResult -> {
-                return timeLogService.timeSpentOnGroupForFrame(condition.getTargetId(), beginningResult, endResult).flatMap(timeSpent -> {
-                    return externalTimeFromCondition(condition).map(external -> {
-                        return timeSpent+external >= condition.getUsageTimeCondition();
-                    });
-                });
-            });
+        SingleSource<Long> beginning = TimeConverter.beginningOfOffsetDaysConsideringDayChange(condition.getLastDaysCondition());
+        SingleSource<Long> end = TimeConverter.endOfTodayConsideringDayChange();
+        return Single.zip(beginning, end, (beginningResult, endResult) -> {
+            Single<Long> spent = timeLogService.timeSpentOnGroupForFrame(condition.getTargetId(), beginningResult, endResult);
+            Single<Long> ext = externalTimeFromCondition(condition);
+            return Single.zip(spent, ext, (timeSpent, external) -> {
+                return timeSpent+external >= condition.getUsageTimeCondition();
+            }).blockingGet();
         });
-        
     }
     
     private Single<Long> externalTimeFromCondition(Condition condition) {

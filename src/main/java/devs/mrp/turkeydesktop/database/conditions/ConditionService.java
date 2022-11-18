@@ -5,6 +5,9 @@
  */
 package devs.mrp.turkeydesktop.database.conditions;
 
+import devs.mrp.turkeydesktop.common.DbCache;
+import devs.mrp.turkeydesktop.common.SaveAction;
+import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -21,39 +24,24 @@ public class ConditionService implements IConditionService {
     private static final ConditionDao repo = ConditionRepository.getInstance();
     private static final Logger logger = Logger.getLogger(ConditionService.class.getName());
     
+    public static final DbCache dbCache = DbCacheFactory.getDbCache(ConditionRepository.getInstance(),
+            c -> c.getId(),
+            ConditionService::elementsFromResultSet);
+    
     @Override
     public Single<Long> add(Condition element) {
         if (element == null) {
             return Single.just(-1L);
-        } else {
-            // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-            return repo.findById(element.getId()).flatMap(rs -> {
-                try {
-                    if (rs.next()) {
-                        Condition condition = elementFromResultSetEntry(rs);
-                        // if the value stored differs from the one received
-                        if (!condition.equals(element)) {
-                            return update(element);
-                        }
-                    } else {
-                        // else there is no element stored with this id
-                        return repo.add(element);
-                    }
-                } catch (SQLException ex) {
-                    Logger.getLogger(ConditionService.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                return Single.just(0L);
-            });
         }
+        return dbCache.save(element).map(SaveAction::get);
     }
 
     @Override
     public Single<Long> update(Condition element) {
         if (element == null) {
             return Single.just(-1L);
-        } else {
-            return repo.update(element);
         }
+        return dbCache.save(element).map(SaveAction::get);
     }
 
     @Override
@@ -96,7 +84,7 @@ public class ConditionService implements IConditionService {
         return repo.deleteByTargetId(id);
     }
     
-    private Observable<Condition> elementsFromResultSet(ResultSet set) {
+    private static Observable<Condition> elementsFromResultSet(ResultSet set) {
         return Observable.create(subscriber -> {
             try {
                 while(set.next()) {
@@ -109,7 +97,7 @@ public class ConditionService implements IConditionService {
         });
     }
     
-    private Condition elementFromResultSetEntry(ResultSet set) {
+    private static Condition elementFromResultSetEntry(ResultSet set) {
         Condition el = new Condition();
         try {
             el.setId(set.getLong(Condition.ID));
