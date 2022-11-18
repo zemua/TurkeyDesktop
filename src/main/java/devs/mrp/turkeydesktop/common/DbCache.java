@@ -18,15 +18,4 @@ public interface DbCache<KEY, VALUE> {
     public Single<Boolean> remove(KEY key);
     public Observable<VALUE> getAll();
     public boolean contains(KEY key);
-    
-    public enum SaveAction {
-        EXISTING(0L), SAVED(1L), UPDATED(2L);
-        private Long l;
-        SaveAction(Long l) {
-            this.l = l;
-        }
-        Long get() {
-            return l;
-        }
-    }
 }

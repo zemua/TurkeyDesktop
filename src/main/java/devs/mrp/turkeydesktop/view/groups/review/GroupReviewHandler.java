@@ -337,10 +337,11 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                     switchable.setSelected(true);
                 });
             } else { // if the checkbox was cheked with this event
-                GroupAssignation ga = new GroupAssignation();
-                ga.setElementId(name);
-                ga.setGroupId(group.getId());
-                ga.setType(processOrTitle);
+                GroupAssignation ga = GroupAssignation.builder()
+                        .elementId(name)
+                        .groupId(group.getId())
+                        .type(processOrTitle)
+                        .build();
                 groupAssignationService.add(ga).subscribe();
             }
         });

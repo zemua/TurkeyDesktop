@@ -13,6 +13,7 @@ import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.FConfigElementService;
 import devs.mrp.turkeydesktop.database.config.IConfigElementService;
 import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
 import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
@@ -112,44 +113,50 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                         .switchIfEmpty(Single.just(new Title()))
                         .flatMap(title -> {
                             String subStr = title != null ? title.getSubStr() : StringUtils.EMPTY;
-                            return groupAssignationService.findGroupOfAssignation(subStr).flatMap(assignation -> {
-                                element.setGroupId(assignation != null ? assignation.getGroupId() : -1);
-                                if (!lockdown){
-                                    return setCountedDependingOnTitle(element, title, element.getElapsed(), proportion);
-                                }
-                                return setCountedForTitleWhenLockdown(element, title, proportion);
-                            });
-                });
+                            return groupAssignationService.findGroupOfAssignation(subStr)
+                                .defaultIfEmpty(GroupAssignation.builder().groupId(-1).build())
+                                .flatMap(assignation -> {
+                                    element.setGroupId(assignation.getGroupId());
+                                    if (!lockdown){
+                                        return setCountedDependingOnTitle(element, title, element.getElapsed(), proportion);
+                                    }
+                                    return setCountedForTitleWhenLockdown(element, title, proportion);
+                                });
+                        });
             case POSITIVE:
                 element.setType(Type.Types.POSITIVE);
-                return groupAssignationService.findByProcessId(element.getProcessName()).flatMap(result -> {
-                    element.setGroupId(result != null ? result.getGroupId() : -1);
-                    if (!lockdown) {
-                        return conditionChecker.areConditionsMet(element.getGroupId()).flatMap(areMet -> {
-                            return conditionChecker.isIdleWithToast(true).map(isIdle -> {
-                                element.setCounted(!isIdle && areMet ? Math.abs(element.getElapsed()) : 0);
-                                return element;
+                return groupAssignationService.findByProcessId(element.getProcessName())
+                        .defaultIfEmpty(GroupAssignation.builder().groupId(-1).build())
+                        .flatMap(result -> {
+                            element.setGroupId(result.getGroupId());
+                            if (!lockdown) {
+                                return conditionChecker.areConditionsMet(element.getGroupId()).flatMap(areMet -> {
+                                    return conditionChecker.isIdleWithToast(true).map(isIdle -> {
+                                        element.setCounted(!isIdle && areMet ? Math.abs(element.getElapsed()) : 0);
+                                        return element;
+                                    });
+                                });
+                            } // when in lockdown, don't disccount points if idle
+                            return conditionChecker.isIdle().map(isIdle -> {
+                                if (!isIdle) {
+                                    element.setCounted(-1 * proportion * element.getElapsed());
+                                    return element;
+                                } else {
+                                    element.setCounted(0);
+                                    return element;
+                                }
                             });
                         });
-                    } // when in lockdown, don't disccount points if idle
-                    return conditionChecker.isIdle().map(isIdle -> {
-                        if (!isIdle) {
-                            element.setCounted(-1 * proportion * element.getElapsed());
-                            return element;
-                        } else {
-                            element.setCounted(0);
-                            return element;
-                        }
-                    });
-                });
             case NEGATIVE:
                 element.setType(Type.Types.NEGATIVE);
-                return groupAssignationService.findByProcessId(element.getProcessName()).map(result -> {
-                    element.setGroupId(result != null ? result.getGroupId() : -1);
-                    element.setCounted(Math.abs(element.getElapsed()) * proportion * (-1));
-                    element.setBlockable(true);
-                    return element;
-                });
+                return groupAssignationService.findByProcessId(element.getProcessName())
+                        .defaultIfEmpty(GroupAssignation.builder().groupId(-1).build())
+                        .map(result -> {
+                            element.setGroupId(result.getGroupId());
+                            element.setCounted(Math.abs(element.getElapsed()) * proportion * (-1));
+                            element.setBlockable(true);
+                            return element;
+                        });
             default:
                 return Single.just(element);
         }
