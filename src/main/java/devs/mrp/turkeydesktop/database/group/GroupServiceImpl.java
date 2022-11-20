@@ -5,21 +5,26 @@
  */
 package devs.mrp.turkeydesktop.database.group;
 
+import devs.mrp.turkeydesktop.common.DbCache;
+import devs.mrp.turkeydesktop.common.SaveAction;
+import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
+import io.reactivex.rxjava3.core.Maybe;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  * @author miguel
  */
+@Slf4j
 public class GroupServiceImpl implements GroupService {
     
-    private static final GroupDao repo = GroupRepository.getInstance();
-    private static final Logger logger = Logger.getLogger(GroupServiceImpl.class.getName());
+    public static final DbCache<Long,Group> dbCache = DbCacheFactory.getDbCache(GroupRepository.getInstance(),
+            Group::getId,
+            GroupServiceImpl::elementsFromResultSet);
     
     @Override
     public Single<Long> add(Group element) {
@@ -27,71 +32,50 @@ public class GroupServiceImpl implements GroupService {
             return Single.just(-1L);
         }
         // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-        return repo.findById(element.getId()).flatMap(rs -> {
-            try {
-                if (rs.next()) {
-                    Group group = elementFromResultSetEntry(rs);
-                    // if the value stored differs from the one received
-                    if (!group.equals(element)) {
-                        return update(element);
-                    }
-                } else {
-                    // else there is no element stored with this id
-                    return repo.add(element);
-                }
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
-            return Single.just(0L);
-        });
+        return dbCache.save(element).map(SaveAction::get);
     }
 
     @Override
     public Single<Long> update(Group element) {
-        if (element == null) {
-            return Single.just(-1L);
-        }
-        return repo.update(element);
+        return dbCache.save(element).map(SaveAction::get);
     }
 
     @Override
     public Observable<Group> findAll() {
-        return repo.findAll().flatMapObservable(this::elementsFromResultSet);
+        return dbCache.getAll();
     }
 
     @Override
-    public Single<Group> findById(long id) {
-        return repo.findById(id).map(set -> {
-            Group element = null;
-            try {
-                if (set.next()) {
-                    element = elementFromResultSetEntry(set);
-                }
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
-            return element;
-        });
+    public Maybe<Group> findById(long id) {
+        return dbCache.read(id);
     }
 
     @Override
     public Single<Long> deleteById(long id) {
-        return repo.deleteById(id);
+        return dbCache.remove(id).map(b -> b?1L:0L);
     }
 
     @Override
     public Observable<Group> findAllPositive() {
-        return repo.findAllOfType(Group.GroupType.POSITIVE).flatMapObservable(this::elementsFromResultSet);
+        return dbCache.getAll().filter(g -> Group.GroupType.POSITIVE.equals(g.getType()));
     }
 
     @Override
     public Observable<Group> findAllNegative() {
-        return repo.findAllOfType(Group.GroupType.NEGATIVE).flatMapObservable(this::elementsFromResultSet);
+        return dbCache.getAll().filter(g -> Group.GroupType.NEGATIVE.equals(g.getType()));
     }
     
     @Override
     public Single<Integer> setPreventClose(long groupId, boolean preventClose) {
-        return repo.setPreventClose(groupId, preventClose);
+        return dbCache.read(groupId)
+                .map(g -> {
+                    g.setPreventClose(preventClose);
+                    return g;
+                })
+                .flatMapSingle(g -> dbCache.save(g))
+                .map(SaveAction::get)
+                .defaultIfEmpty(0L)
+                .map(Long::intValue);
     }
     
     @Override
@@ -99,10 +83,10 @@ public class GroupServiceImpl implements GroupService {
         if (groupId < 1) { // doesn't belong to a group
             return Single.just(false);
         }
-        return findById(groupId).map(group -> group != null && group.isPreventClose());
+        return findById(groupId).map(group -> group != null && group.isPreventClose()).defaultIfEmpty(false);
     }
     
-    private Observable<Group> elementsFromResultSet(ResultSet set) {
+    private static Observable<Group> elementsFromResultSet(ResultSet set) {
         return Observable.create(subscriber -> {
             try {
                 while (set.next()) {
@@ -115,7 +99,7 @@ public class GroupServiceImpl implements GroupService {
         });
     }
     
-    private Group elementFromResultSetEntry(ResultSet set) {
+    private static Group elementFromResultSetEntry(ResultSet set) {
         Group el = new Group();
         try {
             el.setId(set.getLong(Group.ID));
@@ -123,7 +107,7 @@ public class GroupServiceImpl implements GroupService {
             el.setType(Group.GroupType.valueOf(set.getString(Group.TYPE)));
             el.setPreventClose(set.getBoolean(Group.PREVENT_CLOSE));
         } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
+            log.error("Error extracting Group from ResultSet", ex);
         }
         return el;
     }

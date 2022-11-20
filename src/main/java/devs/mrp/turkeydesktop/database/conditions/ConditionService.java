@@ -8,23 +8,21 @@ package devs.mrp.turkeydesktop.database.conditions;
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
 import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
+import io.reactivex.rxjava3.core.Maybe;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  * @author miguel
  */
+@Slf4j
 public class ConditionService implements IConditionService {
     
-    private static final ConditionDao repo = ConditionRepository.getInstance();
-    private static final Logger logger = Logger.getLogger(ConditionService.class.getName());
-    
-    public static final DbCache dbCache = DbCacheFactory.getDbCache(ConditionRepository.getInstance(),
+    public static final DbCache<Long,Condition> dbCache = DbCacheFactory.getDbCache(ConditionRepository.getInstance(),
             c -> c.getId(),
             ConditionService::elementsFromResultSet);
     
@@ -46,42 +44,39 @@ public class ConditionService implements IConditionService {
 
     @Override
     public Observable<Condition> findAll() {
-        return repo.findAll().flatMapObservable(this::elementsFromResultSet);
+        return dbCache.getAll();
     }
 
     @Override
-    public Single<Condition> findById(Long id) {
-        return repo.findById(id).map(set -> {
-            Condition element = null;
-            try {
-                if (set.next()) {
-                    element = elementFromResultSetEntry(set);
-                }
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
-            return element;
-        });
+    public Maybe<Condition> findById(Long id) {
+        return dbCache.read(id);
     }
     
     @Override
     public Observable<Condition> findByGroupId(Long groupId) {
-        return repo.findByGroupId(groupId).flatMapObservable(this::elementsFromResultSet);
+        return dbCache.getAll().filter(c -> groupId.equals(c.getGroupId()));
     }
 
     @Override
     public Single<Long> deleteById(Long id) {
-        return repo.deleteById(id);
+        return dbCache.remove(id).map(b -> b ? 1L : 0L);
     }
     
     @Override
     public Single<Long> deleteByGroupId(long id) {
-        return repo.deleteByGroupId(id);
+        return findByGroupId(id)
+                .flatMapSingle(c -> dbCache.remove(c.getId()))
+                .filter(Boolean::booleanValue)
+                .count();
     }
     
     @Override
     public Single<Long> deleteByTargetId(long id) {
-        return repo.deleteByTargetId(id);
+        return dbCache.getAll()
+                .filter(c -> id == c.getTargetId())
+                .flatMapSingle(c -> dbCache.remove(c.getId()))
+                .filter(Boolean::booleanValue)
+                .count();
     }
     
     private static Observable<Condition> elementsFromResultSet(ResultSet set) {
@@ -106,7 +101,7 @@ public class ConditionService implements IConditionService {
             el.setUsageTimeCondition(set.getLong(Condition.USAGE_TIME_CONDITION));
             el.setLastDaysCondition(set.getLong(Condition.LAST_DAYS_CONDITION));
         } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
+            log.error("Error creating Condition from ResultSet", ex);
         }
         return el;
     }
