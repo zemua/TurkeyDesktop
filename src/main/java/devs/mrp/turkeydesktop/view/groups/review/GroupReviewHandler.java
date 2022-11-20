@@ -661,7 +661,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
 
     private void updateGroupExporterDays() throws Exception {
         JSpinner daysSpinner = (JSpinner) getObjectFromPanel(GroupReviewEnum.EXPORT_GROUP_DAYS, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
-        exportedGroupService.findById(this.group.getId()).subscribe(existing -> {
+        exportedGroupService.findByGroup(this.group.getId()).subscribe(existing -> {
             if (Objects.isNull(existing)) {
                 return;
             }
@@ -681,7 +681,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         JSpinner daysSpinner = (JSpinner) getObjectFromPanel(GroupReviewEnum.EXPORT_GROUP_DAYS, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         JButton button = (JButton) getObjectFromPanel(GroupReviewEnum.EXPORT_GROUP_TARGET, JButton.class).orElseThrow(() -> new Exception("wrong object"));
         log.debug("refresh group exporter");
-        exportedGroupService.findById(this.group.getId()).subscribe(existing -> {
+        exportedGroupService.findByGroup(this.group.getId()).subscribe(existing -> {
             log.debug("refreshing {}", existing.getFile());
             if (Objects.isNull(existing)) {
                 return;

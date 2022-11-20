@@ -13,7 +13,7 @@ import io.reactivex.rxjava3.core.Single;
  *
  * @author miguel
  */
-public interface ExportedGroupDao extends GeneralDao<ExportedGroup, Long> {
+public interface ExportedGroupDao extends GeneralDao<ExportedGroup, ExportedGroupId> {
     public Single<ResultSet> findByGroup(Long id);
     public Single<ResultSet> findByGroupAndFile(Long groupId, String file);
     public Single<Long> deleteByGroup(Long id);

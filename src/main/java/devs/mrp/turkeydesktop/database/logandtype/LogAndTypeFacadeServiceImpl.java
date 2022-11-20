@@ -25,7 +25,6 @@ import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.logging.Logger;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
@@ -47,10 +46,8 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
     private final TitleService titleService = TitleServiceFactory.getService();
     private final IGroupAssignationService groupAssignationService = FGroupAssignationService.getService();
     private final CloseableService closeableService = CloseableServiceFactory.getService();
-    
+
     private final ConditionChecker conditionChecker = ConditionCheckerFactory.getConditionChecker();
-    
-    private static final Logger LOGGER = Logger.getLogger(LogAndTypeFacadeServiceImpl.class.getName());
 
     @Override
     public Observable<Tripla<String, Long, Type.Types>> getTypedLogGroupedByProcess(Date from, Date to) {
@@ -87,7 +84,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
             });
         });
     }
-    
+
     private Single<TimeLog> flatMapFrom(ConfigElement proportionResult, Type myType, TimeLog element, Boolean lockdown, boolean idle) {
         int proportion = Integer.valueOf(proportionResult.getValue());
         Type type = myType;
@@ -161,18 +158,17 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                 return Single.just(element);
         }
     }
-    
+
     private Single<TimeLog> adjustDependingOnType(TimeLog element) {
-        return typeService.findById(element.getProcessName()).flatMap(myType -> {
-            return conditionChecker.isLockDownTime().flatMap(lockdown -> {
-                return conditionChecker.isIdle().flatMap(idle -> {
-                    return configService.configElement(ConfigurationEnum.PROPORTION)
-                            .flatMap(proportionResult -> flatMapFrom(proportionResult, myType, element, lockdown, idle));
-                });
-            });
+        Single<Type> ty = typeService.findById(element.getProcessName());
+        Single<Boolean> lock = conditionChecker.isLockDownTime();
+        Single<Boolean> idl = conditionChecker.isIdle();
+        Single<ConfigElement> prop = configService.configElement(ConfigurationEnum.PROPORTION);
+        return Single.zip(ty, lock, idl, prop, (myType, lockdown, idle, proportionResult) -> {
+            return flatMapFrom(proportionResult, myType, element, lockdown, idle).blockingGet();
         });
     }
-    
+
     private Single<TimeLog> setCountedForTitleWhenLockdown(TimeLog element, Title title, long proportion) {
         if (title != null && title.getType().equals(Title.Type.NEGATIVE)) {
             return closeableService.canBeClosed(element.getProcessName()).map(b -> {
@@ -190,7 +186,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
             return element;
         });
     }
-    
+
     private Single<TimeLog> setCountedDependingOnTitle(TimeLog element, Title title, long elapsed, int proportion) {
         if (title == null) {
             element.setCounted(0);
@@ -212,7 +208,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
             });
         });
     }
-    
+
     private Single<TimeLog> adjustAccumulated(TimeLog element, long counted) {
         return logService.findMostRecent().map(last -> {
             long lastAccumulated = 0;

@@ -21,11 +21,11 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class CloseableServiceImpl implements CloseableService {
-    
+
     public static final DbCache<String,Closeable> dbCache = DbCacheFactory.getDbCache(CloseableRepository.getInstance(),
             Closeable::getProcess,
             CloseableServiceImpl::listFromResultSet);
-    
+
     @Override
     public Single<Long> add(String element) {
         if (element == null) {
@@ -53,8 +53,8 @@ public class CloseableServiceImpl implements CloseableService {
     public Single<Long> deleteById(String id) {
         return dbCache.remove(id).map(b -> b?1L:0L);
     }
-    
-    private static Observable<Closeable> listFromResultSet(ResultSet set) {       
+
+    private static Observable<Closeable> listFromResultSet(ResultSet set) {
         return Observable.create(suscriber -> {
             try {
                 while(set.next()) {
@@ -66,5 +66,5 @@ public class CloseableServiceImpl implements CloseableService {
             suscriber.onComplete();
         });
     }
-    
+
 }

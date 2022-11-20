@@ -5,21 +5,27 @@
  */
 package devs.mrp.turkeydesktop.database.group.expor;
 
+import devs.mrp.turkeydesktop.common.DbCache;
+import devs.mrp.turkeydesktop.common.SaveAction;
+import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
+import io.reactivex.rxjava3.core.Maybe;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
  * @author miguel
  */
+@Slf4j
 public class ExportedGroupServiceImpl implements ExportedGroupService {
-
-    private static final ExportedGroupDao repo = ExportedGroupRepository.getInstance();
-    private static final Logger logger = Logger.getLogger(ExportedGroupServiceImpl.class.getName());
+    
+    public static final DbCache<ExportedGroupId,ExportedGroup> dbCache = DbCacheFactory.getDbCache(ExportedGroupRepository.getInstance(),
+            exportedGroup -> new ExportedGroupId(exportedGroup.getGroup(), exportedGroup.getFile()),
+            ExportedGroupServiceImpl::elementsFromResultSet);
 
     @Override
     public Single<Long> add(ExportedGroup element) {
@@ -27,27 +33,11 @@ public class ExportedGroupServiceImpl implements ExportedGroupService {
             return Single.just(-1L);
         }
         if (element.getFile() != null && element.getFile().length() > 500) {
-            logger.log(Level.SEVERE, "File path cannot be longer than 500 characters");
+            log.error("File path cannot be longer than 500 characters");
             return Single.just(-1L);
         }
         // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-        return repo.findById(element.getGroup()).flatMap(rs -> {
-            try {
-                if (rs.next()) {
-                    ExportedGroup group = elementFromResultSetEntry(rs);
-                    // if the value stored differs from the one received
-                    if (!group.equals(element)) {
-                        return update(element);
-                    }
-                } else {
-                    // else there is no element stored with this id
-                    return repo.add(element);
-                }
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
-            return Single.just(0L);
-        });
+        return dbCache.save(element).map(SaveAction::get);
     }
 
     @Override
@@ -56,53 +46,47 @@ public class ExportedGroupServiceImpl implements ExportedGroupService {
             return Single.just(-1L);
         }
         if (element.getFile() != null && element.getFile().length() > 500) {
-            logger.log(Level.SEVERE, "File path cannot be longer than 500 characters");
+            log.error("File path cannot be longer than 500 characters");
             return Single.just(-1L);
         }
-        return repo.update(element);
+        return dbCache.save(element).map(SaveAction::get);
     }
 
     @Override
     public Observable<ExportedGroup> findAll() {
-        return repo.findAll().flatMapObservable(this::elementsFromResultSet);
+        return dbCache.getAll();
     }
 
     @Override
-    public Single<ExportedGroup> findById(long id) {
-        return repo.findById(id).map(set -> {
-            ExportedGroup element = null;
-            try {
-                if (set.next()) {
-                    element = elementFromResultSetEntry(set);
-                }
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
-            return element;
-        });
+    public Maybe<ExportedGroup> findById(ExportedGroupId id) {
+        return dbCache.read(id);
     }
 
     @Override
-    public Single<Long> deleteById(long id) {
-        return repo.deleteById(id);
+    public Single<Long> deleteById(ExportedGroupId id) {
+        return dbCache.remove(id).map(b -> b?1L:0L);
     }
 
     @Override
     public Observable<ExportedGroup> findByGroup(long id) {
-        return repo.findByGroup(id).flatMapObservable(this::elementsFromResultSet);
+        return dbCache.getAll().filter(eg -> id == eg.getGroup());
     }
 
     @Override
     public Observable<ExportedGroup> findByFileAndGroup(long groupId, String file) {
-        return repo.findByGroupAndFile(groupId, file).flatMapObservable(this::elementsFromResultSet);
+        return dbCache.getAll().filter(eg -> groupId == eg.getGroup()).filter(eg -> StringUtils.equals(file, eg.getFile()));
     }
 
     @Override
     public Single<Long> deleteByGroup(long id) {
-        return repo.deleteByGroup(id);
+        return dbCache.getAll()
+                .filter(eg -> id == eg.getGroup())
+                .flatMapSingle(eg -> dbCache.remove(new ExportedGroupId(eg.getGroup(), eg.getFile())))
+                .filter(Boolean::booleanValue)
+                .count();
     }
 
-    private Observable<ExportedGroup> elementsFromResultSet(ResultSet set) {
+    private static Observable<ExportedGroup> elementsFromResultSet(ResultSet set) {
         return Observable.create(subscribe -> {
             try {
                 while (set.next()) {
@@ -115,14 +99,14 @@ public class ExportedGroupServiceImpl implements ExportedGroupService {
         });
     }
 
-    private ExportedGroup elementFromResultSetEntry(ResultSet set) {
+    private static ExportedGroup elementFromResultSetEntry(ResultSet set) {
         ExportedGroup el = new ExportedGroup();
         try {
             el.setGroup(set.getLong(ExportedGroup.GROUP));
             el.setFile(set.getString(ExportedGroup.FILE));
             el.setDays(set.getLong(ExportedGroup.DAYS));
         } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
+            log.error("Error extracting ExportedGroup from ResultSet", ex);
         }
         return el;
     }

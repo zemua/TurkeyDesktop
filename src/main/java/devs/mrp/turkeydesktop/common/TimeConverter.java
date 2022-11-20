@@ -106,10 +106,11 @@ public class TimeConverter {
     }
     
     public static Single<Long> endOfTodayConsideringDayChange() {
-        return configService.configElement(ConfigurationEnum.CHANGE_OF_DAY).map(changeOfDayResult -> {
-            Long changeOfDayMilis = hoursToMilis(Long.valueOf(changeOfDayResult.getValue()));
-            return endOfToday()+changeOfDayMilis;
-        });
+        return configService.configElement(ConfigurationEnum.CHANGE_OF_DAY)
+                .map(changeOfDayResult -> {
+                    Long changeOfDayMilis = hoursToMilis(Long.valueOf(changeOfDayResult.getValue()));
+                    return endOfToday()+changeOfDayMilis;
+                });
     }
     
     public static long beginningOfOffsetDays(long offsetDays) {
@@ -119,12 +120,13 @@ public class TimeConverter {
     }
     
     public static Single<Long> beginningOfOffsetDaysConsideringDayChange(long offsetDays) {
-        return configService.configElement(ConfigurationEnum.CHANGE_OF_DAY).map(changeOfDayResult -> {
-            Long changeOfDay = Long.valueOf(changeOfDayResult.getValue());
-            LocalDateTime start = LocalDateTime.now().minusHours(changeOfDay).toLocalDate().atStartOfDay().minusDays(offsetDays).plusHours(changeOfDay);
-            ZonedDateTime zdt = start.atZone(ZoneId.systemDefault());
-            return zdt.toInstant().toEpochMilli();
-        });
+        return configService.configElement(ConfigurationEnum.CHANGE_OF_DAY)
+                .map(changeOfDayResult -> {
+                    Long changeOfDay = Long.valueOf(changeOfDayResult.getValue());
+                    LocalDateTime start = LocalDateTime.now().minusHours(changeOfDay).toLocalDate().atStartOfDay().minusDays(offsetDays).plusHours(changeOfDay);
+                    ZonedDateTime zdt = start.atZone(ZoneId.systemDefault());
+                    return zdt.toInstant().toEpochMilli();
+                });
     }
     
     public static long endOfOffsetDays(long offsetDays) {
@@ -134,12 +136,13 @@ public class TimeConverter {
     }
     
     public static Single<Long> endOfOffsetDaysConsideringDayChange(long offsetDays) {
-        return configService.configElement(ConfigurationEnum.CHANGE_OF_DAY).map(changeOfDayResult -> {
-            Long changeOfDay = Long.valueOf(changeOfDayResult.getValue());
-            LocalDateTime end = LocalDateTime.now().minusHours(changeOfDay).toLocalDate().atStartOfDay().plusHours(24).minusDays(offsetDays).plusHours(changeOfDay);
-            ZonedDateTime zdt = end.atZone(ZoneId.systemDefault());
-            return zdt.toInstant().toEpochMilli();
-        });
+        return configService.configElement(ConfigurationEnum.CHANGE_OF_DAY)
+                .map(changeOfDayResult -> {
+                    Long changeOfDay = Long.valueOf(changeOfDayResult.getValue());
+                    LocalDateTime end = LocalDateTime.now().minusHours(changeOfDay).toLocalDate().atStartOfDay().plusHours(24).minusDays(offsetDays).plusHours(changeOfDay);
+                    ZonedDateTime zdt = end.atZone(ZoneId.systemDefault());
+                    return zdt.toInstant().toEpochMilli();
+                });
     }
     
     public static long epochToMilisOnGivenDay(long epoch) {

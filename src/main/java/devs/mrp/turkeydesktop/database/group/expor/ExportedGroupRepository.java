@@ -144,14 +144,15 @@ public class ExportedGroupRepository implements ExportedGroupDao {
     }
 
     @Override
-    public Single<ResultSet> findById(Long id) {
+    public Single<ResultSet> findById(ExportedGroupId id) {
         return Db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
-                        Db.GROUPS_EXPORT_TABLE, ExportedGroup.GROUP));
-                stm.setLong(1, id);
+                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=? AND %s=?",
+                        Db.GROUPS_EXPORT_TABLE, ExportedGroup.GROUP, ExportedGroup.FILE));
+                stm.setLong(1, id.getGroup());
+                stm.setString(2, id.getFile());
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
@@ -161,14 +162,15 @@ public class ExportedGroupRepository implements ExportedGroupDao {
     }
 
     @Override
-    public Single<Long> deleteById(Long id) {
+    public Single<Long> deleteById(ExportedGroupId id) {
         return Db.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
-                        Db.GROUPS_EXPORT_TABLE, ExportedGroup.GROUP));
-                stm.setLong(1, id);
+                stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=? AND %s=?",
+                        Db.GROUPS_EXPORT_TABLE, ExportedGroup.GROUP, ExportedGroup.FILE));
+                stm.setLong(1, id.getGroup());
+                stm.setString(2, id.getFile());
                 delQty = stm.executeUpdate();
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
