@@ -28,7 +28,7 @@ public class GroupAssignationRepository implements GroupAssignationDao {
         
     }
     
-    public static GroupAssignationRepository getInstance() {
+    static GroupAssignationRepository getInstance() {
         if (instance == null) {
             instance = new GroupAssignationRepository();
         }

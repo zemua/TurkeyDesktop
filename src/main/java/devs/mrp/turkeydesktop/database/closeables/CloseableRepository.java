@@ -26,7 +26,7 @@ public class CloseableRepository implements CloseableDao {
     
     private CloseableRepository() {}
     
-    public static CloseableRepository getInstance() {
+    static CloseableRepository getInstance() {
         if (instance == null) {
             instance = new CloseableRepository();
         }

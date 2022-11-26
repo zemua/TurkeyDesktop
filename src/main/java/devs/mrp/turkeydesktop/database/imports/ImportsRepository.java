@@ -29,7 +29,7 @@ public class ImportsRepository implements ImportsDao {
         
     }
     
-    public static ImportsRepository getInstance() {
+    static ImportsRepository getInstance() {
         if (instance == null) {
             instance = new ImportsRepository();
         }

@@ -28,7 +28,7 @@ public class ConditionRepository implements ConditionDao {
         
     }
     
-    public static ConditionRepository getInstance() {
+    static ConditionRepository getInstance() {
         if (instance == null) {
             instance = new ConditionRepository();
         }

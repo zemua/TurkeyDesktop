@@ -28,7 +28,7 @@ public class ExternalGroupRepository implements ExternalGroupDao {
         
     }
     
-    public static ExternalGroupRepository getInstance() {
+    static ExternalGroupRepository getInstance() {
         if (instance == null) {
             instance = new ExternalGroupRepository();
         }

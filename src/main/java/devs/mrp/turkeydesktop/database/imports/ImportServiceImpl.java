@@ -5,21 +5,31 @@
  */
 package devs.mrp.turkeydesktop.database.imports;
 
+import devs.mrp.turkeydesktop.common.DbCache;
+import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
+import java.sql.ResultSet;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
  * @author miguel
  */
+@Slf4j
 public class ImportServiceImpl implements ImportService {
 
     private static final ImportsDao repo = ImportsRepository.getInstance();
     private static final Logger logger = Logger.getLogger(ImportServiceImpl.class.getName());
+    
+    public static final DbCache<String,String> dbCache = DbCacheFactory.getDbCache(ImportsRepository.getInstance(),
+            s -> s,
+            ImportServiceImpl::elementsFromSet);
 
     @Override
     public Single<Long> add(String path) {
@@ -69,6 +79,28 @@ public class ImportServiceImpl implements ImportService {
             return Single.just(-1L);
         }
         return repo.deleteById(path);
+    }
+    
+    private static Observable<String> elementsFromSet(ResultSet set) {
+        return Observable.create(subscribe -> {
+            try {
+                while (set.next()) {
+                    subscribe.onNext(elementFromResultSetEntry(set));
+                }
+            } catch (SQLException ex) {
+                subscribe.onError(ex);
+            }
+            subscribe.onComplete();
+        });
+    }
+    
+    private static String elementFromResultSetEntry(ResultSet set) {
+        try {
+            return set.getString(ConfigurationEnum.IMPORT_PATH.toString());
+        } catch (SQLException ex) {
+            log.error("Error extracting ExportedGroup from ResultSet", ex);
+        }
+        return StringUtils.EMPTY;
     }
 
 }

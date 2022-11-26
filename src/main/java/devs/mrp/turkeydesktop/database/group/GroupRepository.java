@@ -28,7 +28,7 @@ public class GroupRepository implements GroupDao {
         
     }
     
-    public static GroupRepository getInstance() {
+    static GroupRepository getInstance() {
         if (instance == null) {
             instance = new GroupRepository();
         }

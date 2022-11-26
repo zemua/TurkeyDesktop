@@ -28,7 +28,7 @@ public class ConfigElementRepository implements ConfigElementDao {
         
     }
     
-    public static ConfigElementRepository getInstance() {
+    static ConfigElementRepository getInstance() {
         if (instance == null) {
             instance = new ConfigElementRepository();
         }
