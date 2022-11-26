@@ -223,5 +223,5 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
             return element;
         });
     }
-
+    
 }

@@ -29,7 +29,7 @@ public class LogAndTypeFacadeRepository implements LogAndTypeFacadeDao {
     
     private LogAndTypeFacadeRepository() {}
     
-    public static LogAndTypeFacadeRepository getInstance() {
+    static LogAndTypeFacadeRepository getInstance() {
         if (instance == null) {
             instance = new LogAndTypeFacadeRepository();
         }

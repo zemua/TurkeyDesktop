@@ -6,11 +6,17 @@
 package devs.mrp.turkeydesktop.database.logandtype;
 
 import devs.mrp.turkeydesktop.database.type.Type;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 /**
  *
  * @author miguel
  */
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class LogAndTypeFacade {
     
     private long id;

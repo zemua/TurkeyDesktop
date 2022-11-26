@@ -5,6 +5,8 @@
  */
 package devs.mrp.turkeydesktop.database.logs;
 
+import devs.mrp.turkeydesktop.common.GenericCache;
+import devs.mrp.turkeydesktop.common.impl.GenericCacheImpl;
 import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.type.Type;
@@ -15,6 +17,10 @@ import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import io.reactivex.rxjava3.core.Single;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 
 /**
  *
@@ -27,11 +33,13 @@ public class TimeLogRepository implements TimeLogDao {
     
     private static TimeLogRepository instance;
     
+    private static final GenericCache<Long,TimeLog> cache = new GenericCacheImpl<>();
+    
     private TimeLogRepository(){
         
     }
     
-    public static TimeLogRepository getInstance() {
+    static TimeLogRepository getInstance() {
         if (instance == null) {
             instance = new TimeLogRepository();
         }
@@ -73,6 +81,7 @@ public class TimeLogRepository implements TimeLogDao {
                 if (generatedId.next()) {
                     result = generatedId.getLong(1);
                 }
+                cache.put(element.getId(), element);
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, "SQL exception", ex);
             }
@@ -98,6 +107,7 @@ public class TimeLogRepository implements TimeLogDao {
                 stm.setLong(8, element.getGroupId());
                 stm.setString(9, element.getType().toString());
                 entriesUpdated = stm.executeUpdate();
+                cache.put(element.getId(), element);
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
@@ -112,7 +122,10 @@ public class TimeLogRepository implements TimeLogDao {
             PreparedStatement stm;
             try {
                 // get from last 24 hours only by default to not overload memory
-                long frame = System.currentTimeMillis() - (24*60*60*1000);
+                LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES).minusHours(24);
+                ZonedDateTime zdt = ZonedDateTime.of(now, ZoneId.systemDefault());
+                zdt.toInstant().toEpochMilli();
+                long frame = zdt.toInstant().toEpochMilli();
                 stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s>?",
                         Db.WATCHDOG_TABLE, TimeLog.EPOCH));
                 stm.setLong(1, frame);
