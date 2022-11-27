@@ -43,6 +43,11 @@ public class GenericCacheImpl<K,T> implements GenericCache<K,T> {
         return tsd.data;
     }
     
+    @Override
+    public T remove(K key) {
+        return cache.remove(key).data;
+    }
+    
     private class TimeStampedData {
         LocalDateTime timeStamp;
         T data;

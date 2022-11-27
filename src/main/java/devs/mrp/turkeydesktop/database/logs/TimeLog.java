@@ -17,6 +17,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import io.reactivex.rxjava3.core.Single;
+import lombok.EqualsAndHashCode;
 
 /**
  *
@@ -25,6 +26,7 @@ import io.reactivex.rxjava3.core.Single;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class TimeLog {
     
     public static final String ID = "ID";

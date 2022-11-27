@@ -13,4 +13,5 @@ import java.util.function.Supplier;
 public interface GenericCache<K,T> {
     public T put(K key, T data);
     public T get(K key, Supplier<T> compute);
+    public T remove(K key);
 }

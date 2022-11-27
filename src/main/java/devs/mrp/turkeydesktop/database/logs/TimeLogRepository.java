@@ -14,8 +14,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import io.reactivex.rxjava3.core.Single;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -33,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 public class TimeLogRepository implements TimeLogDao {
     
     private final Db dbInstance = Db.getInstance();
-    private Logger logger = Logger.getLogger(TimeLogRepository.class.getName());
     
     private static TimeLogRepository instance;
     
@@ -90,7 +87,7 @@ public class TimeLogRepository implements TimeLogDao {
                     result = generatedId.getLong(1);
                 }
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, "SQL exception", ex);
+                log.error("SQL exception addint Time Log", ex);
             }
             return result;
         });
@@ -115,7 +112,7 @@ public class TimeLogRepository implements TimeLogDao {
                 stm.setString(9, element.getType().toString());
                 entriesUpdated = stm.executeUpdate();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                log.error("Error updating TimeLog", ex);
             }
             return entriesUpdated;
         });
@@ -250,7 +247,7 @@ public class TimeLogRepository implements TimeLogDao {
                         Db.WATCHDOG_TABLE, TimeLog.EPOCH));
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null ,ex);
+                log.error("Error getting most recent" ,ex);
             }
             return rs;
         });
@@ -273,7 +270,7 @@ public class TimeLogRepository implements TimeLogDao {
                     stm.setLong(2, to);
                     return stm.executeQuery();
                 } catch (SQLException ex) {
-                    logger.log(Level.SEVERE, null ,ex);
+                    log.error("Error getting entries grouped by title" ,ex);
                 }
                 return null;
             });
