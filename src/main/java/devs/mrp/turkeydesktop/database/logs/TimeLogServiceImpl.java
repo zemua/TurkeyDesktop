@@ -14,29 +14,30 @@ import devs.mrp.turkeydesktop.database.type.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableOnSubscribe;
 import io.reactivex.rxjava3.core.Single;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  * @author miguel
  */
+@Slf4j
 public class TimeLogServiceImpl implements TimeLogService {
 
     private final TimeLogDao repo = TimeLogRepository.getInstance();
-    private static final Logger logger = Logger.getLogger(TimeLogServiceImpl.class.getName());
     
-    private static TimeLog lastTimeLog;
+    private static volatile TimeLog lastTimeLog;
     
     private static GenericCache<Long,Single<TimeLog>> byIdCache = new GenericCacheImpl<>();
     private static GenericCache<Boolean,Observable<TimeLog>> last24cache = new GenericCacheImpl<>();
     private static GenericCache<FromTo,Observable<Dupla<String,Long>>> processTimeCache = new GenericCacheImpl<>();
+    private static GenericCache<FromTo,Observable<Dupla<String,Long>>> processGroupedByTitle = new GenericCacheImpl<>();
+    private static GenericCache<GroupFromTo,Single<Long>> timeSpentForFrame = new GenericCacheImpl<>();
 
     /**
      * @deprecated
@@ -49,7 +50,7 @@ public class TimeLogServiceImpl implements TimeLogService {
             return Single.just(-1L);
         } else {
             if (element.getWindowTitle().length() > 500) {
-                logger.log(Level.SEVERE, String.format("Window title too long: %s", element.getWindowTitle()));
+                log.warn(String.format("Window title too long: %s", element.getWindowTitle()));
                 element.setWindowTitle(element.getWindowTitle().substring(0, 499));
             }
             lastTimeLog = element;
@@ -63,7 +64,7 @@ public class TimeLogServiceImpl implements TimeLogService {
             return Single.just(-1L);
         } else {
             if (element.getWindowTitle().length() > 500) {
-                logger.log(Level.SEVERE, String.format("Window title too long: %s", element.getWindowTitle()));
+                log.warn(String.format("Window title too long: %s", element.getWindowTitle()));
                 element.setWindowTitle(element.getWindowTitle().substring(0, 499));
             }
             if (lastTimeLog != null && element.getId() == lastTimeLog.getId() && element.getEpoch() == lastTimeLog.getEpoch()) {
@@ -81,8 +82,8 @@ public class TimeLogServiceImpl implements TimeLogService {
     @EqualsAndHashCode
     @AllArgsConstructor
     private class FromTo {
-        Date from;
-        Date to;
+        long from;
+        long to;
     }
     
     @Override
@@ -92,7 +93,7 @@ public class TimeLogServiceImpl implements TimeLogService {
         // Set "to" to the last second of the day
         long toMilis = TimeConverter.millisToEndOfDay(to.getTime());
         // use calendar objects to get milliseconds
-        return processTimeCache.get(new FromTo(from, to), () -> {
+        return processTimeCache.get(new FromTo(fromMilis, toMilis), () -> {
             List<Dupla<String,Long>> list = repo.getTimeFrameGroupedByProcess(fromMilis, toMilis).flatMapObservable(set -> {
                 return Observable.create((ObservableOnSubscribe<Dupla<String,Long>>)emitter -> {
                     try {
@@ -123,7 +124,7 @@ public class TimeLogServiceImpl implements TimeLogService {
                         timeLog = setTimeLogFromResultSetEntry(set);
                     }
                 } catch (SQLException ex) {
-                    logger.log(Level.SEVERE, null, ex);
+                    log.error("Error finding timelog with id {}", id, ex);
                 }
                 return timeLog;
             }).blockingGet())); // we make the single from a blocked element to save it in cache and not re-use the chain
@@ -171,8 +172,9 @@ public class TimeLogServiceImpl implements TimeLogService {
                             .windowTitle("")
                             .build();
                 }
+                lastTimeLog = entry;
             } catch (SQLException ex) {
-                Logger.getLogger(TimeLogServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+                log.error("Error getting the most recent timelog", ex);
             }
             return entry;
         });
@@ -194,7 +196,7 @@ public class TimeLogServiceImpl implements TimeLogService {
                 entry.setType(Type.Types.valueOf(set.getString(Type.TYPE)));
             }
         } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
+            log.error("Error setting TimeLog from ResultSet entry", ex);
         }
         return entry;
     }
@@ -206,34 +208,51 @@ public class TimeLogServiceImpl implements TimeLogService {
         // Set 'to' to the last second of the day
         long toMilis = TimeConverter.millisToEndOfDay(to.getTime());
         // use calendar objects to get milliseconds
-        return repo.getGroupedByTitle(fromMilis, toMilis).flatMapObservable(set -> {
-            return Observable.create(emitter -> {
-                try {
-                    while (set.next()) {
-                        Dupla<String, Long> dupla = new Dupla<>();
-                        dupla.setValue1(set.getString(TimeLog.WINDOW_TITLE));
-                        dupla.setValue2(set.getLong(2));
-                        emitter.onNext(dupla);
+        return processGroupedByTitle.get(new FromTo(fromMilis, toMilis), () -> {
+            return repo.getGroupedByTitle(fromMilis, toMilis).flatMapObservable(set -> {
+                List<Dupla<String,Long>> list = Observable.create((ObservableOnSubscribe<Dupla<String,Long>>)emitter -> {
+                    try {
+                        while (set.next()) {
+                            Dupla<String, Long> dupla = new Dupla<>();
+                            dupla.setValue1(set.getString(TimeLog.WINDOW_TITLE));
+                            dupla.setValue2(set.getLong(2));
+                            emitter.onNext(dupla);
+                        }
+                    } catch (SQLException ex) {
+                        emitter.onError(ex);
                     }
-                } catch (SQLException ex) {
-                    emitter.onError(ex);
-                }
-                emitter.onComplete();
-            });
+                    emitter.onComplete();
+                }).toList().blockingGet();
+                // return observable from a blocked object to read it from cache later and not invoke the full chain
+                return Observable.fromIterable(list);
+                });
         });
+    }
+    
+    private class GroupFromTo {
+        long groupId;
+        long from;
+        long to;
+        GroupFromTo(long groupId, long from, long to) {
+            this.groupId = groupId;
+            this.from = from;
+            this.to = to;
+        }
     }
     
     @Override
     public Single<Long> timeSpentOnGroupForFrame(long groupId, long from, long to) {
-        return repo.getTimeFrameOfGroup(groupId, from, to).map(set -> {
-            try {
-                if (set.next()) {
-                    return set.getLong(2);
+        return timeSpentForFrame.get(new GroupFromTo(groupId, from, to), () -> {
+            return Single.just(repo.getTimeFrameOfGroup(groupId, from, to).map(set -> {
+                try {
+                    if (set.next()) {
+                        return set.getLong(2);
+                    }
+                } catch (SQLException ex) {
+                    log.error("Error getting time spent on group for frame", ex);
                 }
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
-            return 0L;
+                return 0L;
+            }).blockingGet()); // return single of blocking to not call the repo chain from the cache
         });
     }
 
