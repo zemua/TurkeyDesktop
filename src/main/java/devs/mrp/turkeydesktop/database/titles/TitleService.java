@@ -20,7 +20,7 @@ public interface TitleService {
     public Observable<Title> findAll();
     public Observable<Title> findContainedByAndNegativeFirst(String title);
     public Maybe<Title> findLongestContainedBy(String title);
-    public Single<Title> findBySubString(String subStr);
+    public Maybe<Title> findBySubString(String subStr);
     public Single<Long> deleteBySubString(String subStr);
     public Single<Long> countTypesOf(Title.Type type, String title);
     public Single<Map<Title.Type,Integer>> getQtyPerCategory(String title);

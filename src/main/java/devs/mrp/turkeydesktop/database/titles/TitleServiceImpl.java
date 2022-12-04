@@ -5,193 +5,152 @@
  */
 package devs.mrp.turkeydesktop.database.titles;
 
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationDao;
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationRepository;
+import devs.mrp.turkeydesktop.common.DbCache;
+import devs.mrp.turkeydesktop.common.SaveAction;
+import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
+import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
+import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
 import io.reactivex.rxjava3.core.Maybe;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
-import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  * @author miguel
  */
+@Slf4j
 public class TitleServiceImpl implements TitleService {
 
-    private final TitleDao repo = TitleRepository.getInstance();
-    private static final GroupAssignationDao assignationRepo = GroupAssignationRepository.getInstance();
-    private static final Logger logger = Logger.getLogger(TitleServiceImpl.class.getName());
-
-    private static Map<String, Title> conditionsMap;
-
-    public TitleServiceImpl() {
-        initConditionsMap();
-    }
-
-    private void initConditionsMap() {
-        if (conditionsMap == null) {
-            conditionsMap = new ConcurrentHashMap<>();
-            retrieveAll().subscribe(); // it assigns values to the hashmap inside the function
-        }
-    }
+    public static final DbCache<String,Title> dbCache = DbCacheFactory.getDbCache(TitleRepository.getInstance(),
+            Title::getSubStr,
+            TitleServiceImpl::elementsFromResultEntry);
+    private static final IGroupAssignationService assignationService = FGroupAssignationService.getService();
 
     @Override
     public Single<Long> save(Title element) {
         if (element == null) {
             return Single.just(-1L);
-        } else {
-            element.setSubStr(element.getSubStr().toLowerCase());
-            if (conditionsMap.containsKey(element.getSubStr())) {
-                if (conditionsMap.get(element.getSubStr()).getType() != element.getType()) {
-                    // we have this value but is different, so we update
-                    conditionsMap.put(element.getSubStr(), element);
-                    return update(element);
-                } // else the value is the same as the one stored
-                return Single.just(0L);
-            } // we don't have this value so we add new
-            conditionsMap.put(element.getSubStr(), element);
-            return repo.add(element);
         }
+        return dbCache.save(element).map(SaveAction::get);
     }
 
     private Single<Long> update(Title element) {
         if (element == null || element.getSubStr() == null) {
             return Single.just(-1L);
-        } else {
-            element.setSubStr(element.getSubStr().toLowerCase());
-            conditionsMap.put(element.getSubStr(), element);
-            return repo.update(element);
         }
-    }
-
-    private Observable<Title> retrieveAll() {
-        conditionsMap.clear();
-        return repo.findAll().flatMapObservable(set -> {
-            return Observable.create(submitter -> {
-                try {
-                    while (set.next()) {
-                        Title el = elementFromResultSetEntry(set);
-                        submitter.onNext(el);
-                        conditionsMap.put(el.getSubStr(), el);
-                    }
-                } catch (SQLException ex) {
-                    submitter.onError(ex);
-                }
-                submitter.onComplete();
-            });
-        });
+        return dbCache.save(element).map(SaveAction::get);
     }
 
     @Override
     public Observable<Title> findAll() {
-        return Observable.create(emitter -> {
-            conditionsMap.entrySet().stream()
-                .map(e -> {
-                    Title el = new Title();
-                    el.setSubStr(e.getKey());
-                    el.setType(e.getValue().getType());
-                    return el;
-                }).forEach(title -> emitter.onNext(title));
-            emitter.onComplete();
-        });
+        return dbCache.getAll();
     }
 
     @Override
-    public Single<Title> findBySubString(String subStr) {
+    public Maybe<Title> findBySubString(String subStr) {
         String lowerCaseSubStr = subStr.toLowerCase();
-        if (conditionsMap.containsKey(lowerCaseSubStr)) {
-            Title el = new Title();
-            el.setSubStr(lowerCaseSubStr);
-            el.setType(conditionsMap.get(lowerCaseSubStr).getType());
-            return Single.just(el);
-        }
-        return Single.just(null);
+        return dbCache.read(lowerCaseSubStr);
     }
 
     @Override
     public Single<Long> deleteBySubString(String subStr) {
         if (subStr == null) {
             return Single.just(-1L);
-        } else {
-            String lowerCased = subStr.toLowerCase();
-            conditionsMap.remove(lowerCased);
-            return assignationRepo.deleteByElementId(GroupAssignation.ElementType.TITLE, lowerCased)
-                    .flatMap(r -> repo.deleteById(lowerCased));
         }
+        return Single.zip(dbCache.remove(subStr).map(b -> b?1L:0L),
+                assignationService.deleteByTitleId(subStr),
+                (r1,r2) ->{
+                    return r1;
+                });
+    }
+    
+    private static Observable<Title> elementsFromResultEntry(ResultSet set) {
+        return Observable.create(subscribe -> {
+            try {
+                while (set.next()) {
+                    subscribe.onNext(elementFromResultSetEntry(set));
+                }
+            } catch (SQLException ex) {
+                subscribe.onError(ex);
+            }
+            subscribe.onComplete();
+        });
     }
 
-    private Title elementFromResultSetEntry(ResultSet set) {
+    private static Title elementFromResultSetEntry(ResultSet set) {
         Title el = new Title();
         try {
             el.setSubStr(set.getString(Title.SUB_STR).toLowerCase());
             el.setType(Title.Type.valueOf(set.getString(Title.TYPE)));
         } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
+            log.error("Error transforming Title from ResultSet entry", ex);
         }
         return el;
     }
 
     @Override
     public Observable<Title> findContainedByAndNegativeFirst(String title) {
-        return Observable.create(subscriber -> {
-            conditionsMap.entrySet().stream()
-                .filter(e -> StringUtils.containsIgnoreCase(title, e.getKey()))
-                .map(e -> e.getValue())
-                .sorted((e1, e2) -> e2.getType().compareTo(e1.getType())) // "NEGATIVE" before "POSITIVE" in natural order
-                .forEach(e -> subscriber.onNext(e));
-            subscriber.onComplete();
-        });
+        return dbCache.getAll()
+                .filter(e -> StringUtils.containsIgnoreCase(title, e.getSubStr()))
+                .sorted((e1, e2) -> e2.getType().compareTo(e1.getType())); // "NEGATIVE" comes before "POSITIVE" in natural order
     }
     
     @Override
     public Maybe<Title> findLongestContainedBy(String title) {
-        return Maybe.create(subscriber -> {
-            var result = conditionsMap.entrySet().stream()
-                .filter(e -> StringUtils.containsIgnoreCase(title, e.getKey()))
-                .max((e1, e2) -> Long.compare(e1.getKey().length(), e2.getKey().length()))
-                .map(e -> e.getValue())
-                .orElse(null);
-            if (Objects.nonNull(result)) {
-                subscriber.onSuccess(result);
-            } else {
-                subscriber.onComplete();
-            }
-        });
+        return dbCache.getAll()
+                .filter(e -> StringUtils.containsIgnoreCase(title, e.getSubStr()))
+                .reduce((e1,e2) -> {
+                    if (e1.getSubStr().length() > e2.getSubStr().length()) {
+                        return e1;
+                    }
+                    if (e2.getSubStr().length() > e1.getSubStr().length()) {
+                        return e2;
+                    }
+                    if (e1.getType().equals(e2.getType())) {
+                        return e1;
+                    }
+                    if (e1.getType().equals(Title.Type.NEGATIVE)) {
+                        return e1;
+                    }
+                    if (e2.getType().equals(Title.Type.NEGATIVE)) {
+                        return e2;
+                    }
+                    if (e1.getType().equals(Title.Type.NEUTRAL)) {
+                        return e1;
+                    }
+                    if (e2.getType().equals(Title.Type.NEUTRAL)) {
+                        return e2;
+                    }
+                    // when same length and both are POSITIVE, then default to the first one
+                    return e1;
+                });
     }
 
     @Override
     public Single<Long> countTypesOf(Title.Type type, String title) {
-        return Single.create(subscriber -> {
-            var count = conditionsMap.entrySet().stream()
-                .filter(e -> StringUtils.containsIgnoreCase(title, e.getKey()))
-                .filter(e -> e.getValue().getType().equals(type))
-                .count();
-            subscriber.onSuccess(count);
-        });
+        return dbCache.getAll().filter(e -> StringUtils.containsIgnoreCase(title, e.getSubStr())).count();
+    }
+    
+    private class TypeQty {
+        Title.Type type;
+        Long qty;
+        TypeQty(Title.Type t, Long q) {
+            this.type = t;
+            this.qty = q;
+        }
     }
 
     @Override
     public Single<Map<Title.Type, Integer>> getQtyPerCategory(String title) {
-        return Single.create(subscriber -> {
-            Map<Title.Type, Integer> map = new HashMap<>();
-            Title.Type[] types = Title.Type.values();
-            for (Title.Type type : types) {
-                map.put(type, 0);
-            }
-            conditionsMap.entrySet().stream()
-                    .filter(e -> StringUtils.containsIgnoreCase(title, e.getKey()))
-                    .forEach(e -> map.put(e.getValue().getType(), map.get(e.getValue().getType())+1));
-            subscriber.onSuccess(map);
-        });
+        return dbCache.getAll()
+                    .groupBy(Title::getType)
+                    .map(go -> new TypeQty(go.firstElement().map(Title::getType).blockingGet(), go.count().blockingGet()))
+                    .toMap(tq -> tq.type, tq -> tq.qty.intValue());
     }
 
 }

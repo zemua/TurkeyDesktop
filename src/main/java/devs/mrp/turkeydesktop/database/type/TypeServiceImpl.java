@@ -7,9 +7,8 @@ package devs.mrp.turkeydesktop.database.type;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationDao;
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationRepository;
+import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
+import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -26,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class TypeServiceImpl implements TypeService {
     
     TypeDao repo = TypeRepository.getInstance();
-    private static final GroupAssignationDao assignationRepo = GroupAssignationRepository.getInstance();
+    private static final IGroupAssignationService assignationService = FGroupAssignationService.getService();
     private static final Logger logger = Logger.getLogger(TypeServiceImpl.class.getName());
     
     private final DbCache<String,Type> dbCache = DbCacheFactory.getDbCache(
@@ -61,8 +60,9 @@ public class TypeServiceImpl implements TypeService {
             return findById(element.getProcess()).flatMap(saved -> {
                 if (saved != null && saved.getType() != null && !saved.getType().equals(element.getType())) {
                     // if we are changing the type of the process, then remove from any existing groups
-                    return assignationRepo.deleteByElementId(GroupAssignation.ElementType.PROCESS, element.getProcess())
-                            .flatMap(r -> repo.update(element));
+                    return Single.zip(assignationService.deleteByProcessId(element.getProcess()), repo.update(element), (r1,r2) -> {
+                        return r1;
+                    });
                 }
                 return repo.update(element);
             });
@@ -98,8 +98,9 @@ public class TypeServiceImpl implements TypeService {
 
     @Override
     public Single<Long> deleteById(String id) {
-        return assignationRepo.deleteByElementId(GroupAssignation.ElementType.PROCESS, id)
-                .flatMap(r -> repo.deleteById(id));
+        return Single.zip(assignationService.deleteByProcessId(id), repo.deleteById(id), (r1,r2) -> {
+            return r1;
+        });
     }
     
     private Observable<Type> listFromResultSet(ResultSet set) {
