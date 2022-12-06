@@ -87,9 +87,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
                     .map(ExternalGroup::getFile)
                     .flatMapSingle(file -> importReader.getTotalSpentFromFileBetweenDates(file, from, to))
                     .collect(AtomicLong::new, AtomicLong::addAndGet)
-                    .map(AtomicLong::longValue)
-                    .toMaybe()
-                    .toSingle();
+                    .map(AtomicLong::longValue);
             });
     }
 
@@ -99,12 +97,11 @@ public class ConditionCheckerImpl implements ConditionChecker {
             return Single.just(true);
         }
         return Observable.fromIterable(conditions)
+                .doOnNext(cond -> log.debug("Checking condition for target groupId {}",cond.getTargetId()))
                 .flatMapSingle(this::isConditionMet)
+                .doOnNext(isMet -> log.debug("Condition met: {}", isMet))
                 .filter(b -> Boolean.FALSE.equals(b))
-                .map(b -> !b)
-                .first(Boolean.FALSE)
-                .toMaybe()
-                .toSingle();
+                .first(Boolean.TRUE);
     }
 
     @Override
@@ -114,8 +111,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
         }
         return conditionService.findByGroupId(groupId)
                 .toList()
-                .flatMapMaybe(conditions -> areConditionsMet(conditions).toMaybe())
-                .toSingle();
+                .flatMap(conditions -> areConditionsMet(conditions));
     }
 
     @Override
@@ -236,8 +232,6 @@ public class ConditionCheckerImpl implements ConditionChecker {
                 .map(Long::valueOf)
                 .collect(AtomicLong::new, AtomicLong::addAndGet)
                 .map(AtomicLong::longValue)
-                .toMaybe()
-                .toSingle()
                 .flatMap(totalImported -> {
                         return timeLogService.findMostRecent().flatMap(tl -> {
                             Long accumulated = tl != null ? tl.getAccumulated() : 0;
