@@ -127,11 +127,9 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                         .flatMap(result -> {
                             element.setGroupId(result.getGroupId());
                             if (!lockdown) {
-                                return conditionChecker.areConditionsMet(element.getGroupId()).flatMap(areMet -> {
-                                    return conditionChecker.isIdleWithToast(true).map(isIdle -> {
-                                        element.setCounted(!isIdle && areMet ? Math.abs(element.getElapsed()) : 0);
-                                        return element;
-                                    });
+                                return Single.zip(conditionChecker.areConditionsMet(element.getGroupId()), conditionChecker.isIdleWithToast(true), (areMet, isIdle) -> {
+                                    element.setCounted(!isIdle && areMet ? Math.abs(element.getElapsed()) : 0);
+                                    return element;
                                 });
                             } // when in lockdown, don't disccount points if idle
                             return conditionChecker.isIdle().map(isIdle -> {
