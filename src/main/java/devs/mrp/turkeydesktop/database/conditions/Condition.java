@@ -5,10 +5,13 @@
  */
 package devs.mrp.turkeydesktop.database.conditions;
 
+import lombok.ToString;
+
 /**
  *
  * @author miguel
  */
+@ToString
 public class Condition extends AbstractCondition<Condition> {
     
     public static final String TARGET_ID = "TARGET_ID";

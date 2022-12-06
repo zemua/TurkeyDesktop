@@ -97,7 +97,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
             return Single.just(true);
         }
         return Observable.fromIterable(conditions)
-                .doOnNext(cond -> log.debug("Checking condition for target groupId {}",cond.getTargetId()))
+                .doOnNext(cond -> log.debug("Checking condition for target groupId {}",cond.toString()))
                 .flatMapSingle(this::isConditionMet)
                 .doOnNext(isMet -> log.debug("Condition met: {}", isMet))
                 .filter(b -> Boolean.FALSE.equals(b))
