@@ -38,7 +38,8 @@ public class GenericCacheImpl<K,T> implements GenericCache<K,T> {
     public T get(K key, Supplier<T> compute) {
         TimeStampedData tsd = cache.get(key);
         if (tsd == null || tsd.isExpired()) {
-            return cache.put(key, new TimeStampedData(compute.get())).data;
+            tsd = new TimeStampedData(compute.get());
+            cache.put(key, tsd);
         }
         return tsd.data;
     }
