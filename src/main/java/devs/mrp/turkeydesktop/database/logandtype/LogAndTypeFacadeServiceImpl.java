@@ -170,7 +170,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
     }
 
     private Single<TimeLog> adjustDependingOnType(TimeLog element) {
-        Single<Type> ty = typeService.findById(element.getProcessName());
+        Single<Type> ty = typeService.findById(element.getProcessName()).defaultIfEmpty(Type.builder().process(StringUtils.EMPTY).type(Type.Types.UNDEFINED).build());
         Single<Boolean> lock = conditionChecker.isLockDownTime();
         Single<Boolean> idl = conditionChecker.isIdle();
         Single<ConfigElement> prop = configService.configElement(ConfigurationEnum.PROPORTION);
