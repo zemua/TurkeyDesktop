@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ConfigElementService implements IConfigElementService {
     
-    public static final DbCache<ConfigurationEnum,ConfigElement> dbCache = DbCacheFactory.getDbCache(ConfigElementRepository.getInstance(),
+    public static final DbCache<String,ConfigElement> dbCache = DbCacheFactory.getDbCache(ConfigElementRepository.getInstance(),
             c -> c.getKey().toString(),
             ConfigElementService::elementsFromResultSet);
 
@@ -50,7 +50,7 @@ public class ConfigElementService implements IConfigElementService {
 
     @Override
     public Single<ConfigElement> findById(ConfigurationEnum key) {
-        return dbCache.read(key).defaultIfEmpty(new ConfigElement(key, key.getDefault()));
+        return dbCache.read(key.toString()).defaultIfEmpty(new ConfigElement(key, key.getDefault()));
     }
 
     @Override
@@ -58,7 +58,7 @@ public class ConfigElementService implements IConfigElementService {
         if (key == null) {
             return Single.just(-1L);
         }
-        return dbCache.remove(key).map(b -> b?1L:0L);
+        return dbCache.remove(key.toString()).map(b -> b?1L:0L);
     }
 
     private static Observable<ConfigElement> elementsFromResultSet(ResultSet set) {
