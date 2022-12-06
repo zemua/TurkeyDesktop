@@ -115,6 +115,13 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                             if (title.getType() == null) {
                                 title.setType(Title.Type.NEUTRAL);
                             }
+                            if (StringUtils.EMPTY.equals(title.getSubStr())){
+                                element.setGroupId(-1);
+                                if (!lockdown){
+                                    return setCountedDependingOnTitle(element, title, element.getElapsed(), proportion);
+                                }
+                                return setCountedForTitleWhenLockdown(element, title, proportion);
+                            }
                             return groupAssignationService.findGroupOfAssignation(title.getSubStr())
                                 .defaultIfEmpty(GroupAssignation.builder().groupId(-1).build())
                                 .flatMap(assignation -> {
