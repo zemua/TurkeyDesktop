@@ -109,8 +109,13 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                 return titleService.findLongestContainedBy(element.getWindowTitle().toLowerCase())
                         .switchIfEmpty(Single.just(new Title()))
                         .flatMap(title -> {
-                            String subStr = title != null ? title.getSubStr() : StringUtils.EMPTY;
-                            return groupAssignationService.findGroupOfAssignation(subStr)
+                            if (title.getSubStr() == null) {
+                                title.setSubStr(StringUtils.EMPTY);
+                            }
+                            if (title.getType() == null) {
+                                title.setType(Title.Type.NEUTRAL);
+                            }
+                            return groupAssignationService.findGroupOfAssignation(title.getSubStr())
                                 .defaultIfEmpty(GroupAssignation.builder().groupId(-1).build())
                                 .flatMap(assignation -> {
                                     element.setGroupId(assignation.getGroupId());
