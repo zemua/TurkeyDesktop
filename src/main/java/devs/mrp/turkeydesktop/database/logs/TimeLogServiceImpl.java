@@ -229,6 +229,7 @@ public class TimeLogServiceImpl implements TimeLogService {
         });
     }
     
+    @EqualsAndHashCode
     private class GroupFromTo {
         long groupId;
         long from;

@@ -40,11 +40,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  * @author miguel
  */
+@Slf4j
 public class WatchDogImpl implements WatchDog {
     
     private List<FeedbackListener<String,TimeLog>> listeners = new ArrayList<>();
@@ -168,6 +170,8 @@ public class WatchDogImpl implements WatchDog {
             conditionChecker.notifyCloseToConditionsRefresh().subscribe();
             
             Single.zip(condsMet, lockDown, remain, (conditionsMet, isLockDown, remaining) -> {
+                log.debug("Conditions Met: {}", conditionsMet);
+                log.debug("Lock Down: {}", isLockDown);
                 if (entry.isBlockable() && (remaining <= 0 || !conditionsMet || isLockDown)) {
                     killerHandler.receiveRequest(null, processChecker.currentProcessPid());
                     Toaster.sendToast(localeMessages.getString("killingProcess"));

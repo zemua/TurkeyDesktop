@@ -41,11 +41,13 @@ import java.util.concurrent.atomic.AtomicLong;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.core.SingleSource;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  * @author miguel
  */
+@Slf4j
 public class ConditionCheckerImpl implements ConditionChecker {
 
     private IConditionService conditionService = FConditionService.getService();
@@ -67,6 +69,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
         SingleSource<Long> beginning = TimeConverter.beginningOfOffsetDaysConsideringDayChange(condition.getLastDaysCondition());
         SingleSource<Long> end = TimeConverter.endOfTodayConsideringDayChange();
         return Single.zip(beginning, end, (beginningResult, endResult) -> {
+            log.debug("Getting time spent on group {} from epoch {} to {}", condition.getTargetId(), beginningResult, endResult);
             Single<Long> spent = timeLogService.timeSpentOnGroupForFrame(condition.getTargetId(), beginningResult, endResult);
             Single<Long> ext = externalTimeFromCondition(condition);
             return Single.zip(spent, ext, (timeSpent, external) -> {
