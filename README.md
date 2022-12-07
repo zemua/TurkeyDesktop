@@ -112,3 +112,8 @@ For this to work in Ubuntu you need to install the following
 xdotool works with X.org so if you have installed some recent version of Ubuntu you may probably be running Wayland and the program will not be able to detect the current window. Currently there are no substitutes for xdotool that work with Wayland, only partially https://github.com/atx/wtype and https://github.com/ReimuNotMoe/ydotool can perform some keyboard/mouse actions.
 
 You can still choose to use X.org from the login screen in the configuration cog, details here: https://itsfoss.com/switch-xorg-wayland/
+
+# MAC
+
+To disable the application from closing instantly in Mac when you have the window focused and press "command+q" you can use the following workaround:
+Go to System Preferences, then Keyboard. Select Shortcuts. On the left pane, find Accessibility. Now on the right pane enable Invert colors and then click on the shortcut box to reassign the shortcut to Cmd+Q
