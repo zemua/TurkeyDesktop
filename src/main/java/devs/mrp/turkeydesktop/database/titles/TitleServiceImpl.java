@@ -17,6 +17,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
+import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -147,10 +148,19 @@ public class TitleServiceImpl implements TitleService {
 
     @Override
     public Single<Map<Title.Type, Integer>> getQtyPerCategory(String title) {
+        log.debug("Getting quantities for title: {}", title);
         return dbCache.getAll()
-                    .groupBy(Title::getType)
-                    .map(go -> new TypeQty(go.firstElement().map(Title::getType).blockingGet(), go.count().blockingGet()))
-                    .toMap(tq -> tq.type, tq -> tq.qty.intValue());
+                .filter(t -> !t.getSubStr().isBlank())
+                .filter(t -> StringUtils.containsIgnoreCase(title, t.getSubStr()))
+                .groupBy(t -> t.getType())
+                .flatMapSingle(groupedObs -> groupedObs.toList())
+                .map(list -> {
+                    log.debug("grouped object list: {}", list);
+                    Title.Type type = list.get(0).getType();
+                    return new TypeQty(type,Long.valueOf(list.size()));
+                })
+                .toMap(tq -> tq.type, tq -> tq.qty.intValue())
+                .toMaybe().defaultIfEmpty(Collections.EMPTY_MAP);
     }
 
 }

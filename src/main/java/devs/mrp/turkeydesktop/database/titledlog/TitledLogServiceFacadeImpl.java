@@ -54,15 +54,18 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
                 tl.setTitle(e.getValue1());
                 tl.setElapsed(e.getValue2());
                 return titleService.getQtyPerCategory(e.getValue1()).flatMapObservable(map -> {
-                    tl.setQtyNegatives(map.get(Title.Type.NEGATIVE));
-                    tl.setQtyNeutral(map.get(Title.Type.NEUTRAL));
-                    tl.setQtyPositives(map.get(Title.Type.POSITIVE));
+                    tl.setQtyNegatives(map.getOrDefault(Title.Type.NEGATIVE,0));
+                    tl.setQtyNeutral(map.getOrDefault(Title.Type.NEUTRAL,0));
+                    tl.setQtyPositives(map.getOrDefault(Title.Type.POSITIVE,0));
                     return titleService.findContainedByAndNegativeFirst(e.getValue1()).map(cond -> {
                         tl.addCondition(cond);
                         return tl;
                     });
                 });
-            }).toList().blockingGet();
+            })
+                .filter(t -> !t.getTitle().isBlank())
+                .toList()
+                .blockingGet();
             // return observable from blocked object for the cache
             return Observable.fromIterable(titledLogList);
         });
@@ -88,7 +91,11 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
                     log.error("Exception getting next row from ResultSet", ex);
                 }
                 log.debug("Dependable titles grouped: {}", titledLogs.toString());
-                List<TitledLog> completedLogs = Observable.fromIterable(titledLogs).flatMapSingle(this::completeTitledLog).toList().blockingGet();
+                List<TitledLog> completedLogs = Observable.fromIterable(titledLogs)
+                        .filter(t -> !t.getTitle().isBlank())
+                        .flatMapSingle(this::completeTitledLog)
+                        .toList()
+                        .blockingGet();
                 // return observable from blocked object for the cache
                 return Observable.fromIterable(completedLogs);
             });
@@ -107,16 +114,18 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
         return Single.just(titledLog);
     }
     
-    private Single<TitledLog> completeTitledLog(TitledLog log) {
-        return titleService.getQtyPerCategory(log.getTitle()).flatMap(map -> {
-                log.setQtyNegatives(map.get(Title.Type.NEGATIVE));
-                log.setQtyNeutral(map.get(Title.Type.NEUTRAL));
-                log.setQtyPositives(map.get(Title.Type.POSITIVE));
-                return titleService.findContainedByAndNegativeFirst(log.getTitle())
+    private Single<TitledLog> completeTitledLog(TitledLog titledLog) {
+        return titleService.getQtyPerCategory(titledLog.getTitle()).flatMap(map -> {
+                log.debug("Setting quantities per type");
+                titledLog.setQtyNegatives(map.getOrDefault(Title.Type.NEGATIVE, 0));
+                titledLog.setQtyNeutral(map.getOrDefault(Title.Type.NEUTRAL, 0));
+                titledLog.setQtyPositives(map.getOrDefault(Title.Type.POSITIVE, 0));
+                return titleService.findContainedByAndNegativeFirst(titledLog.getTitle())
                         .toList()
                         .map(contained -> {
-                            log.setConditions(contained);
-                            return log;
+                            log.debug("Setting conditions for {}", titledLog.getTitle());
+                            titledLog.setConditions(contained);
+                            return titledLog;
                         });
         });
     }
