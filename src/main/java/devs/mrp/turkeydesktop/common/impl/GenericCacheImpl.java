@@ -7,7 +7,7 @@ package devs.mrp.turkeydesktop.common.impl;
 import devs.mrp.turkeydesktop.common.GenericCache;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -17,7 +17,7 @@ import java.util.function.Supplier;
  */
 public class GenericCacheImpl<K,T> implements GenericCache<K,T> {
     
-    private Map<K,TimeStampedData> cache = new HashMap<>();
+    private Map<K,TimeStampedData> cache = Collections.synchronizedMap(new CacheMap<>(500));
     
     private long millisToExpire;
     

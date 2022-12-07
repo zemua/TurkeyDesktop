@@ -11,9 +11,9 @@ import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.sql.ResultSet;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 /**
@@ -22,7 +22,7 @@ import java.util.function.Function;
  */
 public class DbCacheImpl<KEY, VALUE> implements DbCache<KEY, VALUE> {
     
-    private Map<KEY, VALUE> map = new ConcurrentHashMap<>();
+    private Map<KEY, VALUE> map = Collections.synchronizedMap(new CacheMap<>(500));
     private GeneralDao<VALUE, KEY> repo;
     private Function<VALUE,KEY> keyExtractor;
     private Function<ResultSet,Observable<VALUE>> listFromResultSet;
