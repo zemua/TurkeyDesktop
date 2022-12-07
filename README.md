@@ -117,3 +117,4 @@ You can still choose to use X.org from the login screen in the configuration cog
 
 To disable the application from closing instantly in Mac when you have the window focused and press "command+q" you can use the following workaround:
 Go to System Preferences, then Keyboard. Select Shortcuts. On the left pane, find Accessibility. Now on the right pane enable Invert colors and then click on the shortcut box to reassign the shortcut to Cmd+Q
+This may also save you a lot of pain when you have several tabs open in your browser or your PDF reader for example.
