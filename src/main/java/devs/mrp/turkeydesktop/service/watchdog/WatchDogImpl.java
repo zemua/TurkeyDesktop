@@ -21,7 +21,6 @@ import devs.mrp.turkeydesktop.service.watchdog.logger.DbLoggerFactory;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Logger;
 import javax.swing.JTextArea;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritter;
@@ -49,8 +48,6 @@ import lombok.extern.slf4j.Slf4j;
 public class WatchDogImpl implements WatchDog {
     
     private List<FeedbackListener<String,TimeLog>> listeners = new ArrayList<>();
-    
-    private static final Logger LOGGER = Logger.getLogger(WatchDogImpl.class.getName());
 
     private static final long SLEEP_MILIS = 3000;
     private static final Semaphore semaphore = new Semaphore(1);
@@ -66,13 +63,10 @@ public class WatchDogImpl implements WatchDog {
     private LocaleMessages localeMessages;
     private ConditionChecker conditionChecker;
     private ChainHandler<String> killerHandler = new KillerChainCommander().getHandlerChain();
-    private Logger logger = Logger.getLogger(WatchDogImpl.class.getName());
     private ExportWritter exportWritter = ExportWritterFactory.getWritter();
     private TrayChainBaseHandler trayHandler = TrayChainFactory.getChain();
     private ResourceHandler<Image,ImagesEnum> imageHandler = ResourceHandlerFactory.getImagesHandler();
     private GroupService groupService = GroupServiceFactory.getService();
-    
-    private ExecutorService singleThreadExecutor = WorkerFactory.getSingleThreadExecutor();
     
     private ExecutorService loopedExecutor = WorkerFactory.getSingleThreadExecutor();
     Future<?> loopFuture = null;
