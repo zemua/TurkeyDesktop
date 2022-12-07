@@ -21,7 +21,6 @@ import devs.mrp.turkeydesktop.service.watchdog.logger.DbLoggerFactory;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JTextArea;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
@@ -125,10 +124,10 @@ public class WatchDogImpl implements WatchDog {
                             try {
                                 doLoopedStuff();
                             } catch (Exception e) {
-                                LOGGER.log(Level.SEVERE, "Exception while running watchdog", e);
+                                log.error("Exception while running watchdog loop", e);
                             }
                         } catch (InterruptedException ex) {
-                            Logger.getLogger(WatchDogImpl.class.getName()).log(Level.SEVERE, null, ex);
+                            log.error("Interrupted Exception on watchdog", ex);
                         }
                     }
                 });
@@ -154,7 +153,7 @@ public class WatchDogImpl implements WatchDog {
         if (mLogger != null) {
             mLogger.append(String.format("%s \n", text));
         }
-        LOGGER.log(Level.INFO, text);
+        log.info(text);
     }
 
     private void doLoopedStuff() {
@@ -189,7 +188,7 @@ public class WatchDogImpl implements WatchDog {
                 try {
                     FileHandler.exportAccumulated(entry.getAccumulated());
                 } catch (IOException e) {
-                    logger.log(Level.SEVERE, "Error exporting accumulated time to file", e);
+                    log.error("Error exporting accumulated time to file", e);
                 }
                 exportWritter.exportChanged();
 
