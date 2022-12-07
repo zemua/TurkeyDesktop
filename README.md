@@ -113,7 +113,7 @@ xdotool works with X.org so if you have installed some recent version of Ubuntu 
 
 You can still choose to use X.org from the login screen in the configuration cog, details here: https://itsfoss.com/switch-xorg-wayland/
 
-# MAC
+# Mac
 
 To disable the application from closing instantly in Mac when you have the window focused and press "command+q" you can use the following workaround:
 Go to System Preferences, then Keyboard. Select Shortcuts. On the left pane, find Accessibility. Now on the right pane enable Invert colors and then click on the shortcut box to reassign the shortcut to Cmd+Q
