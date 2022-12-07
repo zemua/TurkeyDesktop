@@ -37,6 +37,7 @@ public class TitleServiceImpl implements TitleService {
         if (element == null) {
             return Single.just(-1L);
         }
+        element.setSubStr(element.getSubStr().toLowerCase());
         return dbCache.save(element).map(SaveAction::get);
     }
 
@@ -44,6 +45,7 @@ public class TitleServiceImpl implements TitleService {
         if (element == null || element.getSubStr() == null) {
             return Single.just(-1L);
         }
+        element.setSubStr(element.getSubStr().toLowerCase());
         return dbCache.save(element).map(SaveAction::get);
     }
 
