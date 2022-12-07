@@ -7,7 +7,7 @@ package devs.mrp.turkeydesktop.service.conditionchecker.imports;
 
 import java.time.LocalDate;
 import java.util.List;
-import rx.Single;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  *

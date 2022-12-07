@@ -6,7 +6,7 @@
 package devs.mrp.turkeydesktop.database.logandtype;
 
 import java.sql.ResultSet;
-import rx.Single;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  *

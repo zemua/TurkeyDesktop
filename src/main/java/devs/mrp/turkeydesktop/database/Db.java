@@ -19,26 +19,28 @@ import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.watchdog.WatchDogImpl;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import rx.Observable;
-import rx.Single;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  * @author miguel
  */
+@Slf4j
 public class Db { // TODO create asynchronous listeners to update livedata
 
     public static final String WATCHDOG_TABLE = "WATCHDOG_LOG";
@@ -53,10 +55,9 @@ public class Db { // TODO create asynchronous listeners to update livedata
     public static final String ACCUMULATED_TIME_TABLE = "ACCUMULATED_TIME";
     public static final String CONFIG_TABLE = "CONFIG_TABLE";
     public static final String IMPORTS_TABLE = "IMPORTS_TABLE";
-    private static final Semaphore semaphore = new Semaphore(4);
-    
-    private static final ExecutorService executor = Executors.newSingleThreadExecutor();
 
+    private static final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
+    
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
 
     private static Db instance = null;
@@ -78,36 +79,24 @@ public class Db { // TODO create asynchronous listeners to update livedata
         return semaphore;
     }*/
     
-    public static Observable<Long> observableLong(Callable<Long> callable) {
-        return Observable.from(executor.submit(callable));
-    }
-    
-    public static Observable<Integer> observableInt(Callable<Integer> callable) {
-        return Observable.from(executor.submit(callable));
-    }
-    
-    public static Observable<Boolean> observableBoolean(Callable<Boolean> callable) {
-        return Observable.from(executor.submit(callable));
-    }
-    
-    public static Observable<ResultSet> observableResultSet(Callable<ResultSet> callable) {
-        return Observable.from(executor.submit(callable));
-    }
-    
     public static Single<Long> singleLong(Callable<Long> callable) {
-        return Single.from(executor.submit(callable));
+        log.debug("Creating singleLong from {}", Arrays.toString(Thread.currentThread().getStackTrace()));
+        return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.from(dbExecutor)).observeOn(Schedulers.computation());
     }
     
     public static Single<Integer> singleInt(Callable<Integer> callable) {
-        return Single.from(executor.submit(callable));
+        log.debug("Creating singleInt from {}", Arrays.toString(Thread.currentThread().getStackTrace()));
+        return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.from(dbExecutor)).observeOn(Schedulers.computation());
     }
     
     public static Single<Boolean> singleBoolean(Callable<Boolean> callable) {
-        return Single.from(executor.submit(callable));
+        log.debug("Creating singleBoolean from {}", Arrays.toString(Thread.currentThread().getStackTrace()));
+        return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.from(dbExecutor)).observeOn(Schedulers.computation());
     }
     
     public static Single<ResultSet> singleResultSet(Callable<ResultSet> callable) {
-        return Single.from(executor.submit(callable));
+        log.debug("Creating singleResultSet from {}", Arrays.toString(Thread.currentThread().getStackTrace()));
+        return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.from(dbExecutor)).observeOn(Schedulers.computation());
     }
 
     public boolean verifyCanGetDb() {
@@ -118,13 +107,13 @@ public class Db { // TODO create asynchronous listeners to update livedata
             con = DriverManager.getConnection("jdbc:h2:" + DbFiles.getDbFilePath());
             return Objects.nonNull(con) && !con.isClosed();
         } catch (SQLException ex) {
-            Logger.getLogger(Db.class.getName()).log(Level.SEVERE, "error trying to stablish db connection", ex);
+            log.error("error trying to stablish db connection", ex);
             try {
                 if(con != null) {
                     con.close();
                 }
             } catch (SQLException ex1) {
-                Logger.getLogger(Db.class.getName()).log(Level.SEVERE, "error trying to close db connection", ex1);
+                log.error("error trying to close db connection", ex1);
             }
         }
         return false;
@@ -135,6 +124,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
             if (con != null && !con.isClosed()) {
                 return;
             }
+            log.warn("Connection was not established, setting it up. Connection is: {}", con);
             con = DriverManager.getConnection("jdbc:h2:" + DbFiles.getDbFilePath());
         } catch (SQLException ex) {
             System.out.println("error trying to get DB connection");
@@ -251,7 +241,7 @@ public class Db { // TODO create asynchronous listeners to update livedata
     }
 
     public Connection getConnection() {
-        //setConnection();
+        setConnection();
         return con;
     }
 

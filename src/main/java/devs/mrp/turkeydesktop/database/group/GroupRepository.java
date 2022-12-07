@@ -6,12 +6,12 @@
 package devs.mrp.turkeydesktop.database.group;
 
 import devs.mrp.turkeydesktop.database.Db;
+import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import rx.Single;
 
 /**
  *
@@ -28,7 +28,7 @@ public class GroupRepository implements GroupDao {
         
     }
     
-    public static GroupRepository getInstance() {
+    static GroupRepository getInstance() {
         if (instance == null) {
             instance = new GroupRepository();
         }

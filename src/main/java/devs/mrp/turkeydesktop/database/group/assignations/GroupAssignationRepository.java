@@ -11,7 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import rx.Single;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  *
@@ -28,7 +28,7 @@ public class GroupAssignationRepository implements GroupAssignationDao {
         
     }
     
-    public static GroupAssignationRepository getInstance() {
+    static GroupAssignationRepository getInstance() {
         if (instance == null) {
             instance = new GroupAssignationRepository();
         }
@@ -129,13 +129,13 @@ public class GroupAssignationRepository implements GroupAssignationDao {
 
     @Deprecated
     @Override
-    public Single<ResultSet> findById(Long id) {
+    public Single<ResultSet> findById(GroupAssignationDao.ElementId id) {
         return Single.just(null);
     }
 
     @Deprecated
     @Override
-    public Single<Long> deleteById(Long id) {
+    public Single<Long> deleteById(GroupAssignationDao.ElementId id) {
         return Single.just(0L);
     }
     

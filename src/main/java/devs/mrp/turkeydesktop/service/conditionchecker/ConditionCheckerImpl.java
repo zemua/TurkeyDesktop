@@ -38,13 +38,16 @@ import java.util.regex.Pattern;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicLong;
-import rx.Observable;
-import rx.Single;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.core.SingleSource;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  * @author miguel
  */
+@Slf4j
 public class ConditionCheckerImpl implements ConditionChecker {
 
     private IConditionService conditionService = FConditionService.getService();
@@ -63,16 +66,16 @@ public class ConditionCheckerImpl implements ConditionChecker {
 
     @Override
     public Single<Boolean> isConditionMet(Condition condition) {
-        return TimeConverter.beginningOfOffsetDaysConsideringDayChange(condition.getLastDaysCondition()).flatMap(beginningResult -> {
-            return TimeConverter.endOfTodayConsideringDayChange().flatMap(endResult -> {
-                return timeLogService.timeSpentOnGroupForFrame(condition.getTargetId(), beginningResult, endResult).flatMap(timeSpent -> {
-                    return externalTimeFromCondition(condition).map(external -> {
-                        return timeSpent+external >= condition.getUsageTimeCondition();
-                    });
-                });
-            });
+        SingleSource<Long> beginning = TimeConverter.beginningOfOffsetDaysConsideringDayChange(condition.getLastDaysCondition());
+        SingleSource<Long> end = TimeConverter.endOfTodayConsideringDayChange();
+        return Single.zip(beginning, end, (beginningResult, endResult) -> {
+            log.debug("Getting time spent on group {} from epoch {} to {}", condition.getTargetId(), beginningResult, endResult);
+            Single<Long> spent = timeLogService.timeSpentOnGroupForFrame(condition.getTargetId(), beginningResult, endResult);
+            Single<Long> ext = externalTimeFromCondition(condition);
+            return Single.zip(spent, ext, (timeSpent, external) -> {
+                return timeSpent+external >= condition.getUsageTimeCondition();
+            }).blockingGet();
         });
-        
     }
     
     private Single<Long> externalTimeFromCondition(Condition condition) {
@@ -84,8 +87,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
                     .map(ExternalGroup::getFile)
                     .flatMapSingle(file -> importReader.getTotalSpentFromFileBetweenDates(file, from, to))
                     .collect(AtomicLong::new, AtomicLong::addAndGet)
-                    .map(AtomicLong::longValue)
-                    .toSingle();
+                    .map(AtomicLong::longValue);
             });
     }
 
@@ -94,11 +96,12 @@ public class ConditionCheckerImpl implements ConditionChecker {
         if (conditions.isEmpty()) {
             return Single.just(true);
         }
-        return Observable.from(conditions)
+        return Observable.fromIterable(conditions)
+                .doOnNext(cond -> log.debug("Checking condition for target groupId {}",cond.toString()))
                 .flatMapSingle(this::isConditionMet)
-                .exists(b -> Boolean.FALSE.equals(b))
-                .map(b -> !b)
-                .toSingle();
+                .doOnNext(isMet -> log.debug("Condition met: {}", isMet))
+                .filter(b -> Boolean.FALSE.equals(b))
+                .first(Boolean.TRUE);
     }
 
     @Override
@@ -108,8 +111,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
         }
         return conditionService.findByGroupId(groupId)
                 .toList()
-                .flatMapSingle(conditions -> areConditionsMet(conditions))
-                .toSingle();
+                .flatMap(conditions -> areConditionsMet(conditions));
     }
 
     @Override
@@ -230,7 +232,6 @@ public class ConditionCheckerImpl implements ConditionChecker {
                 .map(Long::valueOf)
                 .collect(AtomicLong::new, AtomicLong::addAndGet)
                 .map(AtomicLong::longValue)
-                .toSingle()
                 .flatMap(totalImported -> {
                         return timeLogService.findMostRecent().flatMap(tl -> {
                             Long accumulated = tl != null ? tl.getAccumulated() : 0;

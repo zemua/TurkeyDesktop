@@ -5,8 +5,9 @@
  */
 package devs.mrp.turkeydesktop.database.closeables;
 
-import rx.Observable;
-import rx.Single;
+import io.reactivex.rxjava3.core.Maybe;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.core.Observable;
 
 /**
  *
@@ -16,7 +17,7 @@ public interface CloseableService {
     
     public Single<Long> add(String element);
     public Observable<Closeable> findAll();
-    public Single<Closeable> findById(String id);
+    public Maybe<Closeable> findById(String id);
     public Single<Boolean> canBeClosed(String process);
     public Single<Long> deleteById(String id);
     

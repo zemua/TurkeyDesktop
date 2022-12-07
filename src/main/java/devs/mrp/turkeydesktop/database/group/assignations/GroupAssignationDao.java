@@ -7,13 +7,17 @@ package devs.mrp.turkeydesktop.database.group.assignations;
 
 import devs.mrp.turkeydesktop.database.GeneralDao;
 import java.sql.ResultSet;
-import rx.Single;
+import io.reactivex.rxjava3.core.Single;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 /**
  *
  * @author miguel
  */
-public interface GroupAssignationDao extends GeneralDao<GroupAssignation, Long> {
+public interface GroupAssignationDao extends GeneralDao<GroupAssignation, GroupAssignationDao.ElementId> {
     
     public Single<ResultSet> findByElementId(GroupAssignation.ElementType elementType, String elementId);
     public Single<Long> deleteByElementId(GroupAssignation.ElementType elementType, String elementId);
@@ -21,4 +25,12 @@ public interface GroupAssignationDao extends GeneralDao<GroupAssignation, Long> 
     public Single<ResultSet> findAllOfType(GroupAssignation.ElementType elementType);
     public Single<Long> deleteByGroupId(long groupId);
     
+    @EqualsAndHashCode
+    @Getter
+    @AllArgsConstructor
+    @Builder
+    public static class ElementId {
+        GroupAssignation.ElementType type;
+        String elementId;
+    }
 }

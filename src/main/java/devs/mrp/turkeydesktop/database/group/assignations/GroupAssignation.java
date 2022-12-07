@@ -5,10 +5,13 @@
  */
 package devs.mrp.turkeydesktop.database.group.assignations;
 
+import lombok.Builder;
+
 /**
  *
  * @author miguel
  */
+@Builder
 public class GroupAssignation {
     
     public static final String TYPE = "TYPE";

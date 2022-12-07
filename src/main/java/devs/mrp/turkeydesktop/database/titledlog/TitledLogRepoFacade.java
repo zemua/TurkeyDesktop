@@ -13,7 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import rx.Single;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  *
@@ -38,7 +38,7 @@ public class TitledLogRepoFacade implements TitledLogDaoFacade {
     }
     
     @Override
-    public Single<ResultSet> getTimeFrameOfDependablesGroupedByProcess(long from, long to) {
+    public Single<ResultSet> getTimeFrameOfDependablesGroupedByTitle(long from, long to) {
         return Db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;

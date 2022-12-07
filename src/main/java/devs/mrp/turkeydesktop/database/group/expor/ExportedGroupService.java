@@ -5,8 +5,9 @@
  */
 package devs.mrp.turkeydesktop.database.group.expor;
 
-import rx.Observable;
-import rx.Single;
+import io.reactivex.rxjava3.core.Maybe;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  *
@@ -16,8 +17,8 @@ public interface ExportedGroupService {
     public Single<Long> add(ExportedGroup element);
     public Single<Long> update(ExportedGroup element);
     public Observable<ExportedGroup> findAll();
-    public Single<ExportedGroup> findById(long id);
-    public Single<Long> deleteById(long id);
+    public Maybe<ExportedGroup> findById(ExportedGroupId id);
+    public Single<Long> deleteById(ExportedGroupId id);
     public Observable<ExportedGroup> findByGroup(long id);
     public Observable<ExportedGroup> findByFileAndGroup(long groupId, String file);
     public Single<Long> deleteByGroup(long id);

@@ -7,7 +7,7 @@ package devs.mrp.turkeydesktop.service.conditionchecker;
 
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import java.util.List;
-import rx.Single;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  *

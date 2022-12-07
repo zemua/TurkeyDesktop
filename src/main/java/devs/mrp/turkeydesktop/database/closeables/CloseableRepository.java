@@ -11,7 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import rx.Single;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  *
@@ -26,7 +26,7 @@ public class CloseableRepository implements CloseableDao {
     
     private CloseableRepository() {}
     
-    public static CloseableRepository getInstance() {
+    static CloseableRepository getInstance() {
         if (instance == null) {
             instance = new CloseableRepository();
         }

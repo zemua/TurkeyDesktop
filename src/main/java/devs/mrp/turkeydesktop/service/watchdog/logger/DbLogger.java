@@ -6,7 +6,7 @@
 package devs.mrp.turkeydesktop.service.watchdog.logger;
 
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
-import rx.Single;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  *

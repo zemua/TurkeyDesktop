@@ -5,8 +5,9 @@
  */
 package devs.mrp.turkeydesktop.database.group.assignations;
 
-import rx.Observable;
-import rx.Single;
+import io.reactivex.rxjava3.core.Maybe;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  *
@@ -22,11 +23,11 @@ public interface IGroupAssignationService {
     public Single<Long> deleteById(long id);
     public Single<Long> deleteByGroupId(long id);
     
-    public Single<GroupAssignation> findByProcessId(String processId);
+    public Maybe<GroupAssignation> findByProcessId(String processId);
     public Single<Long> deleteByProcessId(String processId);
-    public Single<GroupAssignation> findByTitleId(String titleId);
-    public Single<GroupAssignation> findLongestTitleIdContainedIn(String titleId);
-    public Single<GroupAssignation> findGroupOfAssignation(String assignation);
+    public Maybe<GroupAssignation> findByTitleId(String titleId);
+    public Maybe<GroupAssignation> findLongestTitleIdContainedIn(String titleId);
+    public Maybe<GroupAssignation> findGroupOfAssignation(String assignation);
     public Single<Long> deleteByTitleId(String titleId);
     public Observable<GroupAssignation> findProcessesOfGroup(Long groupId);
     public Observable<GroupAssignation> findTitlesOfGroup(Long groupId);

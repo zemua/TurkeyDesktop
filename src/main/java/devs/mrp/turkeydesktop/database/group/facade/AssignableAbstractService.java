@@ -9,7 +9,7 @@ import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationServi
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
 import java.util.Map;
-import rx.Single;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  *
@@ -23,6 +23,7 @@ public abstract class AssignableAbstractService {
         return assignationService.findAll()
                 .filter(a -> type.equals(a.getType()))
                 .toMap((a -> a.getElementId()),(a -> a))
+                .toMaybe()
                 .toSingle();
     }
 }

@@ -11,7 +11,7 @@ import devs.mrp.turkeydesktop.database.type.Type;
 import java.util.Map;
 import java.util.logging.Logger;
 import devs.mrp.turkeydesktop.database.type.TypeService;
-import rx.Observable;
+import io.reactivex.rxjava3.core.Observable;
 
 /**
  *

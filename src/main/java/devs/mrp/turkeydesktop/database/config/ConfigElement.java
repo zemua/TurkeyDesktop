@@ -6,11 +6,15 @@
 package devs.mrp.turkeydesktop.database.config;
 
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 /**
  *
  * @author miguel
  */
+@NoArgsConstructor
+@AllArgsConstructor
 public class ConfigElement {
     
     public static final String KEY = "KEY";

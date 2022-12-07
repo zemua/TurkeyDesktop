@@ -5,49 +5,69 @@
  */
 package devs.mrp.turkeydesktop.database.titledlog;
 
+import devs.mrp.turkeydesktop.common.GenericCache;
 import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.common.impl.GenericCacheImpl;
 import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.titles.TitleServiceFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.database.titles.Title;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
 import java.util.ArrayList;
 import java.util.List;
-import rx.Observable;
-import rx.Single;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  * @author miguel
  */
+@Slf4j
 public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
     
     private TitleService titleService = TitleServiceFactory.getService();
     private TimeLogService logService = TimeLogServiceFactory.getService();
-    private TitledLogDaoFacade titleFacade = TitledLogRepoFacade.getInstance();
-    private static final Logger logger = Logger.getLogger(TitledLogServiceFacadeImpl.class.getName());
+    private TitledLogDaoFacade titleFacadeRepo = TitledLogRepoFacade.getInstance();
+    
+    private static GenericCache<FromTo,Observable<TitledLog>> logsWithTitle = new GenericCacheImpl<>();
+    private static GenericCache<FromTo,Observable<TitledLog>> groupedByTitle = new GenericCacheImpl<>();
+    
+    @EqualsAndHashCode
+    @AllArgsConstructor
+    private class FromTo {
+        Date from;
+        Date to;
+    }
 
     @Override
     public Observable<TitledLog> getLogsWithTitleConditions(Date from, Date to) {
-        return logService.logsGroupedByTitle(from, to).flatMap(e -> {
-            TitledLog tl = new TitledLog();
-            tl.setTitle(e.getValue1());
-            tl.setElapsed(e.getValue2());
-            return titleService.getQtyPerCategory(e.getValue1()).flatMapObservable(map -> {
-                tl.setQtyNegatives(map.get(Title.Type.NEGATIVE));
-                tl.setQtyNeutral(map.get(Title.Type.NEUTRAL));
-                tl.setQtyPositives(map.get(Title.Type.POSITIVE));
-                return titleService.findContainedByAndNegativeFirst(e.getValue1()).map(cond -> {
-                    tl.addCondition(cond);
-                    return tl;
+        return logsWithTitle.get(new FromTo(from,to), () -> {
+            List<TitledLog> titledLogList = logService.logsGroupedByTitle(from, to).flatMap(e -> {
+                TitledLog tl = new TitledLog();
+                tl.setTitle(e.getValue1());
+                tl.setElapsed(e.getValue2());
+                return titleService.getQtyPerCategory(e.getValue1()).flatMapObservable(map -> {
+                    tl.setQtyNegatives(map.getOrDefault(Title.Type.NEGATIVE,0));
+                    tl.setQtyNeutral(map.getOrDefault(Title.Type.NEUTRAL,0));
+                    tl.setQtyPositives(map.getOrDefault(Title.Type.POSITIVE,0));
+                    return titleService.findContainedByAndNegativeFirst(e.getValue1()).map(cond -> {
+                        tl.addCondition(cond);
+                        return tl;
+                    });
                 });
-            });
+            })
+                .filter(t -> !t.getTitle().isBlank())
+                .toList()
+                .blockingGet();
+            // return observable from blocked object for the cache
+            return Observable.fromIterable(titledLogList);
         });
     }
 
@@ -56,46 +76,57 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
         long fromMillis = TimeConverter.millisToBeginningOfDay(from.getTime());
         long toMillis = TimeConverter.millisToEndOfDay(to.getTime());
         
-        return titleFacade.getTimeFrameOfDependablesGroupedByProcess(fromMillis, toMillis).flatMapObservable(set -> {
-            List<TitledLog> logs = new ArrayList<>();
-            try {
-                while (set.next()) {
-                    TitledLog log = TitledLog.builder()
-                            .title(set.getString(TimeLog.WINDOW_TITLE))
-                            .elapsed(set.getLong(2))
-                            .build();
-                    logs.add(log);
+        return groupedByTitle.get(new FromTo(from,to), () -> {
+            return titleFacadeRepo.getTimeFrameOfDependablesGroupedByTitle(fromMillis, toMillis).flatMapObservable(set -> {
+                List<TitledLog> titledLogs = new ArrayList<>();
+                try {
+                    while (set.next()) {
+                        TitledLog titledLog = TitledLog.builder()
+                                .title(set.getString(TimeLog.WINDOW_TITLE))
+                                .elapsed(set.getLong(2))
+                                .build();
+                        titledLogs.add(titledLog);
+                    }
+                } catch (SQLException ex) {
+                    log.error("Exception getting next row from ResultSet", ex);
                 }
-            } catch (SQLException ex) {
-                Logger.getLogger(TitledLogServiceFacadeImpl.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            return Observable.from(logs).flatMapSingle(this::completeTitledLog);
+                log.debug("Dependable titles grouped: {}", titledLogs.toString());
+                List<TitledLog> completedLogs = Observable.fromIterable(titledLogs)
+                        .filter(t -> !t.getTitle().isBlank())
+                        .flatMapSingle(this::completeTitledLog)
+                        .toList()
+                        .blockingGet();
+                // return observable from blocked object for the cache
+                return Observable.fromIterable(completedLogs);
+            });
         });
     }
     
     private Single<TitledLog> titledLogFromResultSetEntry(ResultSet entry) {
-        TitledLog log = new TitledLog();
+        TitledLog titledLog = new TitledLog();
         try {
-            log.setTitle(entry.getString(TimeLog.WINDOW_TITLE));
-            log.setElapsed(entry.getLong(2));
-            return completeTitledLog(log);
+            titledLog.setTitle(entry.getString(TimeLog.WINDOW_TITLE));
+            titledLog.setElapsed(entry.getLong(2));
+            return completeTitledLog(titledLog);
         } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
+            log.error("Error extracting TitledLog from Result Set", ex);
         }
-        return Single.just(log);
+        return Single.just(titledLog);
     }
     
-    private Single<TitledLog> completeTitledLog(TitledLog log) {
-        return titleService.getQtyPerCategory(log.getTitle()).flatMap(map -> {
-                log.setQtyNegatives(map.get(Title.Type.NEGATIVE));
-                log.setQtyNeutral(map.get(Title.Type.NEUTRAL));
-                log.setQtyPositives(map.get(Title.Type.POSITIVE));
-                return titleService.findContainedByAndNegativeFirst(log.getTitle())
+    private Single<TitledLog> completeTitledLog(TitledLog titledLog) {
+        return titleService.getQtyPerCategory(titledLog.getTitle()).flatMap(map -> {
+                log.debug("Setting quantities per type");
+                titledLog.setQtyNegatives(map.getOrDefault(Title.Type.NEGATIVE, 0));
+                titledLog.setQtyNeutral(map.getOrDefault(Title.Type.NEUTRAL, 0));
+                titledLog.setQtyPositives(map.getOrDefault(Title.Type.POSITIVE, 0));
+                return titleService.findContainedByAndNegativeFirst(titledLog.getTitle())
                         .toList()
                         .map(contained -> {
-                            log.setConditions(contained);
-                            return log;
-                        }).toSingle();
+                            log.debug("Setting conditions for {}", titledLog.getTitle());
+                            titledLog.setConditions(contained);
+                            return titledLog;
+                        });
         });
     }
     

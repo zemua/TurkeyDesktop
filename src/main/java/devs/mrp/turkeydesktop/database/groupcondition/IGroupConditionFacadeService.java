@@ -5,8 +5,8 @@
  */
 package devs.mrp.turkeydesktop.database.groupcondition;
 
-import rx.Observable;
-import rx.Single;
+import io.reactivex.rxjava3.core.Maybe;
+import io.reactivex.rxjava3.core.Observable;
 
 /**
  *
@@ -14,7 +14,7 @@ import rx.Single;
  */
 public interface IGroupConditionFacadeService {
     
-    public Single<GroupConditionFacade> findByConditionId(long conditionId);
+    public Maybe<GroupConditionFacade> findByConditionId(long conditionId);
     public Observable<GroupConditionFacade> findByGroupId(long groupId);
     
 }

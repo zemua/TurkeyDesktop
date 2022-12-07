@@ -10,7 +10,7 @@ import devs.mrp.turkeydesktop.database.titles.TitleServiceFactory;
 import devs.mrp.turkeydesktop.database.titles.Title;
 import java.util.Map;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
-import rx.Observable;
+import io.reactivex.rxjava3.core.Observable;
 
 /**
  *
