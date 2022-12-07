@@ -27,6 +27,7 @@ import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
 import java.util.logging.Level;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -81,7 +82,8 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
 
     @Override
     protected void doExtraBeforeShow() {
-        attachItemsToListPanel(new Date(), new Date(), FILTER_NOT_CATEGORIZED);
+        int filter = (Integer)this.getPanel().getProperty(CatProcessEnum.FILTER);
+        attachItemsToListPanel(new Date(), new Date(), filter);
     }
     
     private void attachItemsToListPanel(Date from, Date to, int filter) {
@@ -91,8 +93,10 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
         Observer<Tripla<String, Long, Type.Types>> subscriber = new Observer<Tripla<String, Long, Type.Types>>() {
             @Override
             public void onComplete() {
-                panel.updateUI();
-                panel.revalidate();
+                SwingUtilities.invokeLater(() -> {
+                    panel.updateUI();
+                    panel.revalidate();
+                });
             }
 
             @Override
