@@ -14,6 +14,6 @@ import io.reactivex.rxjava3.core.Single;
  */
 public interface TitledLogDaoFacade {
     
-    public Single<ResultSet> getTimeFrameOfDependablesGroupedByProcess(long from, long to);
+    public Single<ResultSet> getTimeFrameOfDependablesGroupedByTitle(long from, long to);
     
 }

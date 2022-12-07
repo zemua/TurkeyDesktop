@@ -38,7 +38,7 @@ public class TitledLogRepoFacade implements TitledLogDaoFacade {
     }
     
     @Override
-    public Single<ResultSet> getTimeFrameOfDependablesGroupedByProcess(long from, long to) {
+    public Single<ResultSet> getTimeFrameOfDependablesGroupedByTitle(long from, long to) {
         return Db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;

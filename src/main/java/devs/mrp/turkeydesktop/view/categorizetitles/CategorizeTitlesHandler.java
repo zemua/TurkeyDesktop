@@ -24,12 +24,15 @@ import io.reactivex.rxjava3.disposables.Disposable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  *
  * @author miguel
  */
+@Slf4j
 public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, AWTEvent, FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent>> {
 
     TitledLogServiceFacade facadeService = TitledLogServiceFacadeFactory.getService();
@@ -85,8 +88,10 @@ public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, 
         Observer<TitledLog> subscriber = new Observer<TitledLog>() {
             @Override
             public void onComplete() {
-                panel.updateUI();
-                panel.revalidate();
+                SwingUtilities.invokeLater(() -> {
+                    panel.updateUI();
+                    panel.revalidate();
+                });
             }
 
             @Override
@@ -96,6 +101,7 @@ public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, 
 
             @Override
             public void onNext(TitledLog t) {
+                log.debug("Adding TitledLog to Panel: {}", t.toString());
                 CategorizeTitlesElement element = new CategorizeTitlesElement(t.getTitle(), t.getQtyPositives(), t.getQtyNegatives());
                 element.setTitledLog(t);
                 panel.add(element);
