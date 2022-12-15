@@ -166,7 +166,7 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
     }
     
     private void addCategorization(String process, Type.Types targetType) {
-        typeService.findById(process).subscribe(savedType -> {
+        typeService.findById(process).defaultIfEmpty(new Type(process, Type.Types.UNDEFINED)).subscribe(savedType -> {
             Type t = new Type();
             t.setProcess(process);
             t.setType(targetType);
