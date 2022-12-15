@@ -8,6 +8,7 @@ package devs.mrp.turkeydesktop.common;
 import devs.mrp.turkeydesktop.database.config.FConfigElementService;
 import devs.mrp.turkeydesktop.database.config.IConfigElementService;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
+import io.reactivex.rxjava3.core.Single;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -85,18 +86,19 @@ public class FileHandler {
             return;
         }
         lastExport = now;
-        configService.configElement(ConfigurationEnum.EXPORT_PATH).subscribe(configElementResult -> {
-            String exportPath = configElementResult.getValue();
-            configService.configElement(ConfigurationEnum.EXPORT_TOGGLE).subscribe(exportToggleResult -> {
-                if (!Objects.isNull(exportPath) && !exportPath.isEmpty() && Boolean.valueOf(exportToggleResult.getValue())) {
-                    try {
-                        exportToFile(createFileIfNotExists(new File(exportPath), "txt"), String.valueOf(time));
-                    } catch (IOException ex) {
-                        Logger.getLogger(FileHandler.class.getName()).log(Level.SEVERE, null, ex);
+        Single.zip(configService.configElement(ConfigurationEnum.EXPORT_PATH),
+                configService.configElement(ConfigurationEnum.EXPORT_TOGGLE),
+                (configElementResult, exportToggleResult) -> {
+                    String exportPath = configElementResult.getValue();
+                    if (!Objects.isNull(exportPath) && !exportPath.isEmpty() && Boolean.valueOf(exportToggleResult.getValue())) {
+                        try {
+                            exportToFile(createFileIfNotExists(new File(exportPath), "txt"), String.valueOf(time));
+                        } catch (IOException ex) {
+                            Logger.getLogger(FileHandler.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                     }
-                }
-            });
-        });
+                    return exportPath;
+                }).subscribe();
     }
     
     private static void exportToFile(File file, String text) throws IOException {
