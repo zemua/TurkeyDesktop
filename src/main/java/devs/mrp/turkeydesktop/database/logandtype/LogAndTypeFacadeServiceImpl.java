@@ -98,12 +98,12 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                 element.setType(Type.Types.NEUTRAL);
                 element.setGroupId(-1);
                 element.setCounted(lockdown && !idle ? -1 * proportion * element.getElapsed() : 0);
-                return Single.just(element);
+                return element.setBlockable(false);
             case UNDEFINED:
                 element.setType(Type.Types.UNDEFINED);
                 element.setGroupId(-1);
                 element.setCounted(lockdown && !idle ? -1 * proportion * element.getElapsed() : 0);
-                return Single.just(element);
+                return element.setBlockable(false);
             case DEPENDS:
                 element.setType(Type.Types.DEPENDS);
                 return titleService.findLongestContainedBy(element.getWindowTitle().toLowerCase())
@@ -141,16 +141,16 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                             if (!lockdown) {
                                 return Single.zip(conditionChecker.areConditionsMet(element.getGroupId()), conditionChecker.isIdleWithToast(true), (areMet, isIdle) -> {
                                     element.setCounted(!isIdle && areMet ? Math.abs(element.getElapsed()) : 0);
-                                    return element;
+                                    return element.setBlockable(false).blockingGet();
                                 });
                             } // when in lockdown, don't disccount points if idle
-                            return conditionChecker.isIdle().map(isIdle -> {
+                            return conditionChecker.isIdle().flatMap(isIdle -> {
                                 if (!isIdle) {
                                     element.setCounted(-1 * proportion * element.getElapsed());
-                                    return element;
+                                    return element.setBlockable(false);
                                 } else {
                                     element.setCounted(0);
-                                    return element;
+                                    return element.setBlockable(false);
                                 }
                             });
                         });
@@ -158,14 +158,13 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                 element.setType(Type.Types.NEGATIVE);
                 return groupAssignationService.findByProcessId(element.getProcessName())
                         .defaultIfEmpty(GroupAssignation.builder().groupId(-1).build())
-                        .map(result -> {
+                        .flatMap(result -> {
                             element.setGroupId(result.getGroupId());
                             element.setCounted(Math.abs(element.getElapsed()) * proportion * (-1));
-                            element.setBlockable(true);
-                            return element;
+                            return element.setBlockable(true);
                         });
             default:
-                return Single.just(element);
+                return element.setBlockable(false);
         }
     }
 
@@ -181,10 +180,9 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
 
     private Single<TimeLog> setCountedForTitleWhenLockdown(TimeLog element, Title title, long proportion) {
         if (title != null && title.getType().equals(Title.Type.NEGATIVE)) {
-            return closeableService.canBeClosed(element.getProcessName()).map(b -> {
-                element.setBlockable(b);
+            return closeableService.canBeClosed(element.getProcessName()).flatMap(b -> {
                 element.setCounted(-1 * proportion * element.getElapsed());
-                return element;
+                return element.setBlockable(b);
             });
         } // when not negative, don't disccount points if idle
         return conditionChecker.isIdle().map(isIdle -> {
@@ -211,10 +209,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                     return Single.just(element);
                 }
                 element.setCounted(isPositive ? Math.abs(elapsed) : - Math.abs(elapsed) * proportion);
-                return closeableService.canBeClosed(element.getProcessName()).map(b -> {
-                    element.setBlockable(b);
-                    return element;
-                });
+                return closeableService.canBeClosed(element.getProcessName()).flatMap(b -> element.setBlockable(b));
             });
         });
     }
