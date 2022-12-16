@@ -368,6 +368,11 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                 orderDropdownItemStateChanged(evt);
             }
         });
+        orderDropdown.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                orderDropdownActionPerformed(evt);
+            }
+        });
 
         jLabel11.setText(bundle.getString("filter")); // NOI18N
 
@@ -501,7 +506,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
     }//GEN-LAST:event_exportGroupDaysSpinnerStateChanged
 
     private void orderDropdownItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_orderDropdownItemStateChanged
-        giveFeedback(GroupReviewEnum.ORDER_DROPDOWN, evt);
+        // nothing to do here
     }//GEN-LAST:event_orderDropdownItemStateChanged
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
@@ -516,6 +521,10 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
     private void preventCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_preventCloseActionPerformed
         giveFeedback(GroupReviewEnum.PREVENT_CLOSE, evt);
     }//GEN-LAST:event_preventCloseActionPerformed
+
+    private void orderDropdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_orderDropdownActionPerformed
+        giveFeedback(GroupReviewEnum.ORDER_DROPDOWN, evt);
+    }//GEN-LAST:event_orderDropdownActionPerformed
 
     @Override
     public Object getProperty(GroupReviewEnum property) {

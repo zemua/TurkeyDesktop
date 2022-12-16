@@ -24,7 +24,7 @@ public class TypeServiceImpl implements TypeService {
     
     TypeDao repo = TypeRepository.getInstance();
     
-    private final DbCache<String,Type> dbCache = DbCacheFactory.getDbCache(
+    private static final DbCache<String,Type> dbCache = DbCacheFactory.getDbCache(
             TypeRepository.getInstance(),
             (Type element) -> element.getProcess(),
             (ResultSet set) -> listFromResultSet(set));
@@ -65,7 +65,7 @@ public class TypeServiceImpl implements TypeService {
         return dbCache.remove(id).map(b -> b?1L:0L);
     }
     
-    private Observable<Type> listFromResultSet(ResultSet set) {
+    private static Observable<Type> listFromResultSet(ResultSet set) {
         return Observable.create(submitter -> {
             try {
                 while (set.next()) {
