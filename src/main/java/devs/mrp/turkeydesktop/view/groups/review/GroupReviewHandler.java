@@ -216,7 +216,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                             })
                     .toSortedList(getAssignableComparatorFunction())
                     .subscribe(result -> {
-                        log.debug("handling result");
+                        log.debug("handling result for type: {} -> {}", type, result);
                         setSwitchablesFromAssignables(result, panel, type);
                         panel.revalidate();
                         panel.updateUI();
