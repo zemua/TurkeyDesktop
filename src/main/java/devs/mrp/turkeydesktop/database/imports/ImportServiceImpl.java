@@ -25,7 +25,12 @@ public class ImportServiceImpl implements ImportService {
     
     public static final DbCache<String,String> dbCache = DbCacheFactory.getDbCache(ImportsRepository.getInstance(),
             s -> s,
+            key -> isValidKey(key),
             ImportServiceImpl::elementsFromSet);
+    
+    private static boolean isValidKey(String titleSubString) {
+        return titleSubString != null && !titleSubString.isEmpty();
+    }
 
     @Override
     public Single<Long> add(String path) {

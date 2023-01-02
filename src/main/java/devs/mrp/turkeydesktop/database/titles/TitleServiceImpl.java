@@ -29,8 +29,13 @@ public class TitleServiceImpl implements TitleService {
 
     public static final DbCache<String,Title> dbCache = DbCacheFactory.getDbCache(TitleRepository.getInstance(),
             Title::getSubStr,
+            key -> isValidKey(key),
             TitleServiceImpl::elementsFromResultEntry);
     private static final IGroupAssignationService assignationService = FGroupAssignationService.getService();
+    
+    private static boolean isValidKey(String titleSubString) {
+        return titleSubString != null && !titleSubString.isEmpty();
+    }
 
     @Override
     public Single<Long> save(Title element) {

@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import io.reactivex.rxjava3.core.Single;
+import java.sql.Statement;
 
 /**
  *
@@ -37,16 +38,21 @@ public class ImportsRepository implements ImportsDao {
     }
     
     @Override
-    public Single<Long> add(String element) {
-        return Db.singleLong(() -> {
-            long result = -1;
+    public Single<String> add(String element) {
+        return Db.singleString(() -> {
+            String result = "";
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s) ",
                         Db.IMPORTS_TABLE, ConfigurationEnum.IMPORT_PATH.toString())
-                        + "VALUES (?)");
+                        + "VALUES (?)",
+                        Statement.RETURN_GENERATED_KEYS);
                 stm.setString(1, element);
-                result = stm.executeUpdate();
+                stm.executeUpdate();
+                ResultSet generatedId = stm.getGeneratedKeys();
+                if (generatedId.next()) {
+                    result = element;
+                }
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }

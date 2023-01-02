@@ -34,9 +34,9 @@ public class TypeRepository implements TypeDao {
     }
     
     @Override
-    public Single<Long> add(Type element) {
-        return Db.singleLong(() -> {
-            long result = -1;
+    public Single<String> add(Type element) {
+        return Db.singleString(() -> {
+            String result = "";
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s) ",
@@ -46,10 +46,7 @@ public class TypeRepository implements TypeDao {
                 stm.setString(1, element.getProcess());
                 stm.setString(2, element.getType().toString());
                 stm.executeUpdate();
-                ResultSet generatedId = stm.getGeneratedKeys();
-                if (generatedId.next()) {
-                    result = 1;
-                }
+                result = element.getProcess();
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }

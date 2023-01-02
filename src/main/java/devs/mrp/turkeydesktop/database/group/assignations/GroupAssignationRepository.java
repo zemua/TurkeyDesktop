@@ -72,18 +72,20 @@ public class GroupAssignationRepository implements GroupAssignationDao {
     }
 
     @Override
-    public Single<Long> add(GroupAssignation element) {
-        return Db.singleLong(() -> {
-            long result = -1;
+    public Single<ElementId> add(GroupAssignation element) {
+        return Db.<ElementId>singleGeneric(() -> {
+            ElementId result = new ElementId(element.getType(), "");
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s, %s) ",
                         Db.GROUP_ASSIGNATION_TABLE, GroupAssignation.TYPE, GroupAssignation.ELEMENT_ID, GroupAssignation.GROUP_ID)
                         + "VALUES (?, ?, ?)");
+                        // we don't retrieve generated keys because we are providing them
                 stm.setString(1, element.getType().toString());
                 stm.setString(2, element.getElementId());
                 stm.setLong(3, element.getGroupId());
-                result = stm.executeUpdate();
+                stm.executeUpdate();
+                result = new ElementId(element.getType(), element.getElementId());
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }

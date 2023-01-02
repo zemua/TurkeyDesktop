@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import io.reactivex.rxjava3.core.Single;
+import java.sql.Statement;
 
 /**
  *
@@ -36,17 +37,22 @@ public class ConfigElementRepository implements ConfigElementDao {
     }
     
     @Override
-    public Single<Long> add(ConfigElement element) {
-        return Db.singleLong(() -> {
-            long result = -1;
+    public Single<String> add(ConfigElement element) {
+        return Db.singleString(() -> {
+            String result = "";
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s) ",
                         Db.CONFIG_TABLE, ConfigElement.KEY, ConfigElement.VALUE)
-                        + "VALUES (?, ?)");
+                        + "VALUES (?, ?)",
+                        Statement.RETURN_GENERATED_KEYS);
                 stm.setString(1, element.getKey().toString());
                 stm.setString(2, element.getValue());
-                result = stm.executeUpdate();
+                stm.executeUpdate();
+                ResultSet generatedId = stm.getGeneratedKeys();
+                if (generatedId.next()) {
+                    result = element.getKey().toString();
+                }
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }

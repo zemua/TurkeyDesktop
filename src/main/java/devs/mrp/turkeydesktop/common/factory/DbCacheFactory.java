@@ -18,7 +18,8 @@ import java.util.function.Function;
 public class DbCacheFactory {
     public static <KEY,VALUE> DbCache getDbCache(GeneralDao<VALUE, KEY> repo,
             Function<VALUE,KEY> keyExtractor,
+            Function<KEY,Boolean> isNewKey,
             Function<ResultSet,Observable<VALUE>> listFromResultSet) {
-        return new DbCacheImpl<>(repo, keyExtractor, listFromResultSet);
+        return new DbCacheImpl<>(repo, keyExtractor, isNewKey, listFromResultSet);
     }
 }

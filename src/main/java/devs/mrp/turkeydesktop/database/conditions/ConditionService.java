@@ -24,7 +24,12 @@ public class ConditionService implements IConditionService {
     
     public static final DbCache<Long,Condition> dbCache = DbCacheFactory.getDbCache(ConditionRepository.getInstance(),
             c -> c.getId(),
+            key -> isValidKey(key),
             ConditionService::elementsFromResultSet);
+    
+    private static boolean isValidKey(Long rowId) {
+        return rowId != null && rowId > 0;
+    }
     
     @Override
     public Single<Long> add(Condition element) {

@@ -25,7 +25,12 @@ public class ExportedGroupServiceImpl implements ExportedGroupService {
     
     public static final DbCache<ExportedGroupId,ExportedGroup> dbCache = DbCacheFactory.getDbCache(ExportedGroupRepository.getInstance(),
             exportedGroup -> new ExportedGroupId(exportedGroup.getGroup(), exportedGroup.getFile()),
+            key -> isValidKey(key),
             ExportedGroupServiceImpl::elementsFromResultSet);
+    
+    private static boolean isValidKey(ExportedGroupId rowId) {
+        return rowId.getFile() != null && !rowId.getFile().isEmpty() && rowId.getGroup() > 0;
+    }
 
     @Override
     public Single<Long> add(ExportedGroup element) {

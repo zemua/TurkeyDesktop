@@ -24,7 +24,12 @@ public class GroupServiceImpl implements GroupService {
     
     public static final DbCache<Long,Group> dbCache = DbCacheFactory.getDbCache(GroupRepository.getInstance(),
             Group::getId,
+            key -> isValidKey(key),
             GroupServiceImpl::elementsFromResultSet);
+    
+    private static boolean isValidKey(Long rowId) {
+        return rowId != null && rowId > 0;
+    }
     
     @Override
     public Single<Long> add(Group element) {

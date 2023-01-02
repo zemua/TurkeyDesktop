@@ -25,13 +25,16 @@ public class DbCacheImpl<KEY, VALUE> implements DbCache<KEY, VALUE> {
     private Map<KEY, VALUE> map = Collections.synchronizedMap(new CacheMap<>(500));
     private GeneralDao<VALUE, KEY> repo;
     private Function<VALUE,KEY> keyExtractor;
+    private Function<KEY,Boolean> isValidKey;
     private Function<ResultSet,Observable<VALUE>> listFromResultSet;
     
     public DbCacheImpl(GeneralDao<VALUE, KEY> repo,
             Function<VALUE,KEY> keyExtractor,
+            Function<KEY,Boolean> isValidKey,
             Function<ResultSet,Observable<VALUE>> listFromResultSet) {
         this.repo = repo;
         this.keyExtractor = keyExtractor;
+        this.isValidKey = isValidKey;
         this.listFromResultSet = listFromResultSet;
         loadDb();
     }
@@ -39,15 +42,25 @@ public class DbCacheImpl<KEY, VALUE> implements DbCache<KEY, VALUE> {
     @Override
     public Single<SaveAction> save(VALUE value) {
         KEY key = keyExtractor.apply(value);
-        if (Objects.isNull(map.get(key))) {
-            map.put(key, value);
-            return repo.add(value).map(r -> SaveAction.SAVED);
+        if (canAddNew(key)) {
+            return repo.add(value)
+                    .doOnSuccess(id -> map.put(id, value))
+                    .map(r -> SaveAction.SAVED);
         }
-        if (!map.get(key).equals(value)) {
-            map.put(key, value);
-            return repo.update(value).map(r -> SaveAction.UPDATED);
+        if (canUpdate(key, value)) {
+            return repo.update(value)
+                    .doOnSuccess(qty -> map.put(key,value))
+                    .map(r -> SaveAction.UPDATED);
         }
         return Single.just(SaveAction.EXISTING);
+    }
+    
+    private boolean canAddNew(KEY key) {
+        return (isValidKey.apply(key) || Objects.isNull(map.get(key))) && !map.containsKey(key);
+    }
+    
+    private boolean canUpdate(KEY key, VALUE value) {
+        return isValidKey.apply(key) && map.containsKey(key) && !map.get(key).equals(value);
     }
 
     @Override

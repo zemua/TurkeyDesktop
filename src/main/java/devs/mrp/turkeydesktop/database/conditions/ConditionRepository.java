@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import io.reactivex.rxjava3.core.Single;
+import java.sql.Statement;
 
 /**
  *
@@ -43,12 +44,17 @@ public class ConditionRepository implements ConditionDao {
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s, %s, %s) ",
                         Db.CONDITIONS_TABLE, Condition.GROUP_ID, Condition.TARGET_ID, Condition.USAGE_TIME_CONDITION, Condition.LAST_DAYS_CONDITION)
-                        + "VALUES (?, ?, ?, ?)");
+                        + "VALUES (?, ?, ?, ?)",
+                        Statement.RETURN_GENERATED_KEYS);
                 stm.setLong(1, element.getGroupId());
                 stm.setLong(2, element.getTargetId());
                 stm.setLong(3, element.getUsageTimeCondition());
                 stm.setLong(4, element.getLastDaysCondition());
-                result = stm.executeUpdate();
+                stm.executeUpdate();
+                ResultSet generatedId = stm.getGeneratedKeys();
+                if (generatedId.next()) {
+                    result = generatedId.getLong(1);
+                }
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }

@@ -30,7 +30,12 @@ public class GroupAssignationService implements IGroupAssignationService {
     public static final DbCache<GroupAssignationDao.ElementId,GroupAssignation> dbCache = DbCacheFactory.getDbCache(
             GroupAssignationRepository.getInstance(),
             element -> new GroupAssignationDao.ElementId(element.getType(), element.getElementId()),
+            key -> isValidKey(key),
             set -> elementsFromResultSet(set));
+    
+    private static boolean isValidKey(GroupAssignationDao.ElementId rowId) {
+        return rowId.getElementId() != null && rowId.getType() != null && !rowId.getElementId().isEmpty();
+    }
     
     @Override
     public Single<Long> add(GroupAssignation element) {

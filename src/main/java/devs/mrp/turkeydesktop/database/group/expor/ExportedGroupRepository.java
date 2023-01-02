@@ -89,18 +89,20 @@ public class ExportedGroupRepository implements ExportedGroupDao {
     }
 
     @Override
-    public Single<Long> add(ExportedGroup element) {
-        return Db.singleLong(() -> {
-            long result = -1;
+    public Single<ExportedGroupId> add(ExportedGroup element) {
+        return Db.<ExportedGroupId>singleGeneric(() -> {
+            ExportedGroupId result = new ExportedGroupId(-1, "");
             PreparedStatement stm;
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s, %s) ",
                         Db.GROUPS_EXPORT_TABLE, ExportedGroup.GROUP, ExportedGroup.FILE, ExportedGroup.DAYS)
                         + "VALUES (?, ?, ?)");
+                        // we don't retrieve generated keys as we are providing them
                 stm.setLong(1, element.getGroup());
                 stm.setString(2, element.getFile());
                 stm.setLong(3, element.getDays());
-                result = stm.executeUpdate();
+                stm.executeUpdate();
+                result = new ExportedGroupId(element.getGroup(), element.getFile());
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }

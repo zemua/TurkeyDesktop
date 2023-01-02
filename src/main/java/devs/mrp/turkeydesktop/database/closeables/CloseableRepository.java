@@ -34,9 +34,10 @@ public class CloseableRepository implements CloseableDao {
     }
     
     @Override
-    public Single<Long> add(Closeable element) {
-        return Db.singleLong(()-> {
+    public Single<String> add(Closeable element) {
+        return Db.singleString(()-> {
             PreparedStatement stm;
+            String result = "";
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s) ",
                         Db.CLOSEABLES_TABLE, Closeable.PROCESS_NAME)
@@ -44,11 +45,11 @@ public class CloseableRepository implements CloseableDao {
                         // we don't retrieve generated keys as no keys are generated, we provide them
                 stm.setString(1, element.getProcess());
                 stm.executeUpdate();
+                result = element.getProcess();
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
-                return 0L;
             }
-            return 1L;
+            return result;
         });
         
     }

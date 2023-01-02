@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import io.reactivex.rxjava3.core.Single;
+import java.sql.Statement;
 
 /**
  *
@@ -43,10 +44,15 @@ public class ExternalGroupRepository implements ExternalGroupDao {
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s) ",
                         Db.GROUPS_EXTERNAL_TABLE, ExternalGroup.GROUP, ExternalGroup.FILE)
-                        + "VALUES (?, ?)");
+                        + "VALUES (?, ?)",
+                        Statement.RETURN_GENERATED_KEYS);
                 stm.setLong(1, element.getGroup());
                 stm.setString(2, element.getFile());
-                result = stm.executeUpdate();
+                stm.executeUpdate();
+                ResultSet generatedId = stm.getGeneratedKeys();
+                if (generatedId.next()) {
+                    result = generatedId.getLong(1);
+                }
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }

@@ -74,10 +74,11 @@ public class Db { // TODO create asynchronous listeners to update livedata
         }
         return instance;
     }
-
-    /*public static Semaphore getSemaphore() {
-        return semaphore;
-    }*/
+    
+    public static Single<String> singleString(Callable<String> callable) {
+        log.debug("Creating singleString from {}", Arrays.toString(Thread.currentThread().getStackTrace()));
+        return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.from(dbExecutor)).observeOn(Schedulers.computation());
+    }
     
     public static Single<Long> singleLong(Callable<Long> callable) {
         log.debug("Creating singleLong from {}", Arrays.toString(Thread.currentThread().getStackTrace()));
@@ -96,6 +97,11 @@ public class Db { // TODO create asynchronous listeners to update livedata
     
     public static Single<ResultSet> singleResultSet(Callable<ResultSet> callable) {
         log.debug("Creating singleResultSet from {}", Arrays.toString(Thread.currentThread().getStackTrace()));
+        return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.from(dbExecutor)).observeOn(Schedulers.computation());
+    }
+    
+    public static <T> Single<T> singleGeneric(Callable<T> callable) {
+        log.debug("Creating singleGeneric from {}", Arrays.toString(Thread.currentThread().getStackTrace()));
         return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.from(dbExecutor)).observeOn(Schedulers.computation());
     }
 

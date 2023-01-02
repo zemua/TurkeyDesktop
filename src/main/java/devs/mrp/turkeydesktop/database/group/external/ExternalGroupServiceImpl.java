@@ -24,7 +24,12 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     
     public static final DbCache<Long,ExternalGroup> dbCache = DbCacheFactory.getDbCache(ExternalGroupRepository.getInstance(),
             ExternalGroup::getId,
+            key -> isValidKey(key),
             ExternalGroupServiceImpl::elementsFromResultSet);
+    
+    private static boolean isValidKey(Long rowId) {
+        return rowId != null && rowId > 0;
+    }
 
     @Override
     public Single<Long> add(ExternalGroup element) {

@@ -10,6 +10,7 @@ import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,10 +44,15 @@ public class GroupRepository implements GroupDao {
             try {
                 stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s) ",
                         Db.GROUPS_TABLE, Group.NAME, Group.TYPE)
-                        + "VALUES (?, ?)");
+                        + "VALUES (?, ?)",
+                        Statement.RETURN_GENERATED_KEYS);
                 stm.setString(1, element.getName());
                 stm.setString(2, element.getType().toString());
-                result = stm.executeUpdate();
+                stm.executeUpdate();
+                ResultSet generatedId = stm.getGeneratedKeys();
+                if (generatedId.next()) {
+                    result = generatedId.getLong(1);
+                }
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }

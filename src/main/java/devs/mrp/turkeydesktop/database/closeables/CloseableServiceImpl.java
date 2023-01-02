@@ -24,7 +24,12 @@ public class CloseableServiceImpl implements CloseableService {
 
     public static final DbCache<String,Closeable> dbCache = DbCacheFactory.getDbCache(CloseableRepository.getInstance(),
             Closeable::getProcess,
+            key -> isValidKey(key),
             CloseableServiceImpl::listFromResultSet);
+    
+    private static boolean isValidKey(String elementName) {
+        return elementName != null && !elementName.isEmpty();
+    }
 
     @Override
     public Single<Long> add(String element) {

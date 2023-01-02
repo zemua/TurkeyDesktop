@@ -24,7 +24,12 @@ public class ConfigElementService implements IConfigElementService {
     
     public static final DbCache<String,ConfigElement> dbCache = DbCacheFactory.getDbCache(ConfigElementRepository.getInstance(),
             c -> c.getKey().toString(),
+            key -> isValidKey(key),
             ConfigElementService::elementsFromResultSet);
+    
+    private static boolean isValidKey(String elementName) {
+        return elementName != null && !elementName.isEmpty();
+    }
 
     @Override
     public Single<Long> add(ConfigElement element) {

@@ -27,7 +27,12 @@ public class TypeServiceImpl implements TypeService {
     private static final DbCache<String,Type> dbCache = DbCacheFactory.getDbCache(
             TypeRepository.getInstance(),
             (Type element) -> element.getProcess(),
+            key -> isValidKey(key),
             (ResultSet set) -> listFromResultSet(set));
+    
+    private static boolean isValidKey(String rowId) {
+        return rowId != null && !rowId.isEmpty();
+    }
 
     @Override
     public Single<Long> add(Type element) {
