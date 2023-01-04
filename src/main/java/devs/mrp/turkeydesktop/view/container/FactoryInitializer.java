@@ -31,7 +31,7 @@ class FactoryInitializer {
     private void initTitleDbCache() {
         TitleFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(TitleRepository.getInstance(),
             Title::getSubStr,
-            key -> Title.isValidKey(key),
+            key -> TitleValidator.isValidKey(key),
             TitleFactory::elementsFromResultEntry));
     }
     

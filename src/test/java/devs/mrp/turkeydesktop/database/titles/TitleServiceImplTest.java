@@ -5,25 +5,31 @@ import devs.mrp.turkeydesktop.common.SaveAction;
 import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
+import io.reactivex.rxjava3.core.Single;
 import static org.junit.Assert.assertEquals;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class TitleServiceImplTest {
     
-    static Db db = mock(Db.class);
-    static DbCache<String,Title> dbCache = mock(DbCache.class);
-    static TitleRepository titleRepository = mock(TitleRepository.class);
-    static IGroupAssignationService groupAssignationService = mock(IGroupAssignationService.class);
+    static final Db db = mock(Db.class);
+    static final DbCache<String,Title> dbCache = mock(DbCache.class);
+    static final TitleRepository titleRepository = mock(TitleRepository.class);
+    static final IGroupAssignationService groupAssignationService = mock(IGroupAssignationService.class);
     
     @BeforeClass
-    public static void classSetup() {
+    public static void setup() {
         TitleFactory.setDbSupplier(() -> db);
         TitleFactory.setDbCacheSupplier(() -> dbCache);
         GroupAssignationFactory.setGroupAssignationServiceSupplier(() -> groupAssignationService);
     }
-
+    
     @Test
     public void testSaveNullTitle() {
         TitleService service = new TitleServiceImpl();
@@ -62,8 +68,26 @@ public class TitleServiceImplTest {
         title.setSubStr("my title");
         title.setType(Title.Type.POSITIVE);
         
+        when(dbCache.save(ArgumentMatchers.any(Title.class))).thenReturn(Single.just(SaveAction.SAVED));
+        
         Long result = service.save(title).blockingGet();
-        assertEquals(SaveAction.SAVED, result);
+        assertEquals(SaveAction.SAVED.get(), result);
+    }
+    
+    @Test
+    public void testStringIsLowerCased() {
+        TitleService service = new TitleServiceImpl();
+        Title title = new Title();
+        title.setSubStr("My uPPeR CaSeD TiTle");
+        title.setType(Title.Type.POSITIVE);
+        
+        ArgumentCaptor<Title> argumentCaptor = ArgumentCaptor.forClass(Title.class);
+        
+        when(dbCache.save(ArgumentMatchers.any(Title.class))).thenReturn(Single.just(SaveAction.SAVED));
+        
+        service.save(title).blockingGet();
+        verify(dbCache, atLeast(1)).save(argumentCaptor.capture());
+        assertEquals("my upper cased title", argumentCaptor.getValue().getSubStr());
     }
     
 }

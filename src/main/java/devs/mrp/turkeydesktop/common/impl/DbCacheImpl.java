@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package devs.mrp.turkeydesktop.common.impl;
 
 import devs.mrp.turkeydesktop.common.DbCache;
@@ -16,10 +12,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-/**
- *
- * @author ncm55070
- */
 public class DbCacheImpl<KEY, VALUE> implements DbCache<KEY, VALUE> {
     
     private Map<KEY, VALUE> cacheMap = Collections.synchronizedMap(new CacheMap<>(500));

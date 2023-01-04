@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.titles;
 
 import devs.mrp.turkeydesktop.common.DbCache;
@@ -17,10 +12,6 @@ import io.reactivex.rxjava3.core.Single;
 import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- *
- * @author miguel
- */
 @Slf4j
 public class TitleServiceImpl implements TitleService {
 
@@ -28,12 +19,20 @@ public class TitleServiceImpl implements TitleService {
     private static final IGroupAssignationService assignationService = GroupAssignationFactory.getService();
 
     @Override
-    public Single<Long> save(Title element) {
-        if (element == null) {
-            return Single.just(-1L);
+    public Single<Long> save(Title title) {
+        Single<Long> result;
+        if (TitleValidator.isInvalid(title)) {
+            result = Single.just(-1L);
+        } else {
+            result = saveLowerCasedCopy(title);
         }
-        element.setSubStr(element.getSubStr().toLowerCase());
-        return dbCache.save(element).map(SaveAction::get);
+        return result;
+    }
+    
+    private Single<Long> saveLowerCasedCopy(Title title) {
+        Title titleCopy = Title.from(title);
+        titleCopy.setSubStr(StringUtils.lowerCase(titleCopy.getSubStr()));
+        return dbCache.save(titleCopy).map(SaveAction::get);
     }
 
     @Override
