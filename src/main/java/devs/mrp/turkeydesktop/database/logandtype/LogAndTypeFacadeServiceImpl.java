@@ -12,12 +12,12 @@ import devs.mrp.turkeydesktop.database.closeables.CloseableServiceFactory;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.FConfigElementService;
 import devs.mrp.turkeydesktop.database.config.IConfigElementService;
-import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
 import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
-import devs.mrp.turkeydesktop.database.titles.TitleServiceFactory;
+import devs.mrp.turkeydesktop.database.titles.TitleFactory;
 import devs.mrp.turkeydesktop.database.titles.Title;
 import devs.mrp.turkeydesktop.database.type.TypeServiceFactory;
 import devs.mrp.turkeydesktop.database.type.Type;
@@ -43,8 +43,8 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
     private final TimeLogService logService = TimeLogServiceFactory.getService();
     private final TypeService typeService = TypeServiceFactory.getService();
     private final IConfigElementService configService = FConfigElementService.getService();
-    private final TitleService titleService = TitleServiceFactory.getService();
-    private final IGroupAssignationService groupAssignationService = FGroupAssignationService.getService();
+    private final TitleService titleService = TitleFactory.getService();
+    private final IGroupAssignationService groupAssignationService = GroupAssignationFactory.getService();
     private final CloseableService closeableService = CloseableServiceFactory.getService();
 
     private final ConditionChecker conditionChecker = ConditionCheckerFactory.getConditionChecker();

@@ -19,10 +19,16 @@ import javax.swing.SwingWorker;
  *
  * @author miguel
  */
-public class FGroupAssignationService {
+public class GroupAssignationFactory {
+    
+    private static Supplier<IGroupAssignationService> groupAssignationServiceSupplier;
+
+    public static void setGroupAssignationServiceSupplier(Supplier<IGroupAssignationService> groupAssignationServiceSupplier) {
+        GroupAssignationFactory.groupAssignationServiceSupplier = groupAssignationServiceSupplier;
+    }
     
     public static IGroupAssignationService getService() {
-        return new GroupAssignationService();
+        return groupAssignationServiceSupplier.get();
     }
     
     public static void runGroupAssignationWorker(Supplier<GroupAssignation> supplier, Consumer<GroupAssignation> consumer) {

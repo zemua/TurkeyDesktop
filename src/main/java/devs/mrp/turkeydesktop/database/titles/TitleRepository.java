@@ -1,32 +1,18 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.titles;
 
 import devs.mrp.turkeydesktop.database.Db;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.sql.*;
 import io.reactivex.rxjava3.core.Single;
-import java.sql.Statement;
+import lombok.extern.slf4j.Slf4j;
 
-/**
- *
- * @author miguel
- */
+@Slf4j
 public class TitleRepository implements TitleDao {
-    
-    private final Db dbInstance = Db.getInstance();
-    private Logger logger = Logger.getLogger(TitleRepository.class.getName());
     
     private static TitleRepository instance;
     
+    private final Db dbInstance = TitleFactory.getDb();
+    
     private TitleRepository() {
-        
     }
     
     public static TitleRepository getInstance() {
@@ -38,26 +24,32 @@ public class TitleRepository implements TitleDao {
     
     @Override
     public Single<String> add(Title element) {
-        return Db.singleString(() -> {
-            String result = "";
-            PreparedStatement stm;
-            try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s) ", 
-                        Db.TITLES_TABLE, Title.SUB_STR, Title.TYPE)
-                        + "VALUES (?,?)",
-                        Statement.RETURN_GENERATED_KEYS);
-                stm.setString(1, element.getSubStr());
-                stm.setString(2, element.getType().toString());
-                stm.executeUpdate();
-                ResultSet generatedId = stm.getGeneratedKeys();
-                if (generatedId.next()) {
-                    result = element.getSubStr();
-                }
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
-            return result;
-        });
+        return Db.singleString(() -> tryAddingElement(element));
+    }
+    
+    private String tryAddingElement(Title element) {
+        String result = "";
+        try {
+            result = runDbAddStatement(element);
+        } catch (SQLException ex) {
+            log.error("Error adding element", ex);
+        }
+        return result;
+    }
+    
+    private String runDbAddStatement(Title element) throws SQLException {
+        PreparedStatement statement = buildDbAddStatement(element);
+        statement.executeUpdate();
+        return element.getSubStr();
+    }
+    
+    private PreparedStatement buildDbAddStatement(Title element) throws SQLException {
+        PreparedStatement statement = dbInstance.prepareStatementWithGeneratedKeys(String.format("INSERT INTO %s (%s, %s) ", 
+                Db.TITLES_TABLE, Title.SUB_STR, Title.TYPE)
+                + "VALUES (?,?)");
+        statement.setString(1, element.getSubStr());
+        statement.setString(2, element.getTypeString());
+        return statement;
     }
 
     @Override
@@ -72,7 +64,7 @@ public class TitleRepository implements TitleDao {
                 stm.setString(2, element.getSubStr());
                 entriesUpdated = stm.executeUpdate();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                log.error("Error updating element", ex);
             }
             return entriesUpdated;
         });
@@ -88,7 +80,7 @@ public class TitleRepository implements TitleDao {
                         Db.TITLES_TABLE));
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null ,ex);
+                log.error("Error finding all", ex);
             }
             return rs;
         });
@@ -100,12 +92,12 @@ public class TitleRepository implements TitleDao {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+                stm = dbInstance.prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
                         Db.TITLES_TABLE, Title.SUB_STR));
                 stm.setString(1, id);
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                log.error("Error in find by id", ex);
             }
             return rs;
         });
@@ -123,7 +115,7 @@ public class TitleRepository implements TitleDao {
                 stm.setString(1, id);
                 delQty = stm.executeUpdate();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                log.error("Error deleting by id", ex);
             }
             return delQty;
         });

@@ -22,7 +22,7 @@ import java.util.function.Function;
  */
 public class DbCacheImpl<KEY, VALUE> implements DbCache<KEY, VALUE> {
     
-    private Map<KEY, VALUE> map = Collections.synchronizedMap(new CacheMap<>(500));
+    private Map<KEY, VALUE> cacheMap = Collections.synchronizedMap(new CacheMap<>(500));
     private GeneralDao<VALUE, KEY> repo;
     private Function<VALUE,KEY> keyExtractor;
     private Function<KEY,Boolean> isValidKey;
@@ -42,39 +42,47 @@ public class DbCacheImpl<KEY, VALUE> implements DbCache<KEY, VALUE> {
     @Override
     public Single<SaveAction> save(VALUE value) {
         KEY key = keyExtractor.apply(value);
+        Maybe<KEY> result = addOrUpdate(key, value)
+                .doOnSuccess(id -> cacheMap.put(id, value));
+        return whichSaveAction(result);
+    }
+    
+    private Single<SaveAction> whichSaveAction(Maybe<KEY> repoResult) {
+        return repoResult.isEmpty().map(isEmpty -> isEmpty ? SaveAction.SAVED : SaveAction.EXISTING);
+    }
+    
+    private Maybe<KEY> addOrUpdate(KEY key, VALUE value) {
+        Maybe<KEY> result;
         if (canAddNew(key)) {
-            return repo.add(value)
-                    .doOnSuccess(id -> map.put(id, value))
-                    .map(r -> SaveAction.SAVED);
+            result = Maybe.fromSingle(repo.add(value));
+        } else if (canUpdate(key, value)) {
+            result = Maybe.fromSingle(repo.update(value).map(qty -> key));
+        } else {
+            result = Maybe.empty();
         }
-        if (canUpdate(key, value)) {
-            return repo.update(value)
-                    .doOnSuccess(qty -> map.put(key,value))
-                    .map(r -> SaveAction.UPDATED);
-        }
-        return Single.just(SaveAction.EXISTING);
+        return result;
     }
     
     private boolean canAddNew(KEY key) {
-        return (isValidKey.apply(key) || Objects.isNull(map.get(key))) && !map.containsKey(key);
+        return (isValidKey.apply(key) || Objects.isNull(cacheMap.get(key))) && !cacheMap.containsKey(key);
     }
     
     private boolean canUpdate(KEY key, VALUE value) {
-        return isValidKey.apply(key) && map.containsKey(key) && !map.get(key).equals(value);
+        return isValidKey.apply(key) && cacheMap.containsKey(key) && !cacheMap.get(key).equals(value);
     }
 
     @Override
     public Maybe<VALUE> read(KEY key) {
-        if (map.containsKey(key)) {
-            return Maybe.just(map.get(key));
+        if (cacheMap.containsKey(key)) {
+            return Maybe.just(cacheMap.get(key));
         }
         return Maybe.empty();
     }
     
     @Override
     public Single<Boolean> remove(KEY key) {
-        if (map.containsKey(key)) {
-            map.remove(key);
+        if (cacheMap.containsKey(key)) {
+            cacheMap.remove(key);
             return repo.deleteById(key).map(l -> l>0);
         }
         return Single.just(Boolean.FALSE);
@@ -82,18 +90,18 @@ public class DbCacheImpl<KEY, VALUE> implements DbCache<KEY, VALUE> {
 
     @Override
     public Observable<VALUE> getAll() {
-        return Observable.fromIterable(map.values());
+        return Observable.fromIterable(cacheMap.values());
     }
 
     @Override
     public boolean contains(KEY key) {
-        return map.containsKey(key);
+        return cacheMap.containsKey(key);
     }
     
     private void loadDb() {
         repo.findAll()
                 .flatMapObservable(listFromResultSet::apply)
-                .doOnNext(value -> map.put(keyExtractor.apply(value), value))
+                .doOnNext(value -> cacheMap.put(keyExtractor.apply(value), value))
                 .subscribe();
     }
     

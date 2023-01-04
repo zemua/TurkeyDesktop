@@ -23,6 +23,7 @@ import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -249,6 +250,14 @@ public class Db { // TODO create asynchronous listeners to update livedata
     public Connection getConnection() {
         setConnection();
         return con;
+    }
+    
+    public PreparedStatement prepareStatement(String statement) throws SQLException {
+        return con.prepareStatement(statement);
+    }
+    
+    public PreparedStatement prepareStatementWithGeneratedKeys(String statement) throws SQLException {
+        return con.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS);
     }
 
     private void close() {

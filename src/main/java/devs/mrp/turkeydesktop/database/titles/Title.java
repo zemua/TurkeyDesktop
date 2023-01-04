@@ -1,14 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.titles;
 
-/**
- *
- * @author miguel
- */
 public class Title {
     
     public static final String SUB_STR = "SUB_STR";
@@ -32,6 +23,10 @@ public class Title {
     public Type getType() {
         return type;
     }
+    
+    public String getTypeString() {
+        return type.toString();
+    }
 
     public void setType(Type type) {
         this.type = type;
@@ -41,6 +36,10 @@ public class Title {
     public String toString() {
         String sign = type.equals(Title.Type.POSITIVE) ? "+" : "-";
         return "[" + sign + "] " + subStr;
+    }
+    
+    public static boolean isValidKey(String titleSubString) {
+        return titleSubString != null && !titleSubString.isEmpty();
     }
     
 }

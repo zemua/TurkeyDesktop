@@ -6,7 +6,7 @@
 package devs.mrp.turkeydesktop.database.group.facade;
 
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
-import devs.mrp.turkeydesktop.database.titles.TitleServiceFactory;
+import devs.mrp.turkeydesktop.database.titles.TitleFactory;
 import devs.mrp.turkeydesktop.database.titles.Title;
 import java.util.Map;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
@@ -18,7 +18,7 @@ import io.reactivex.rxjava3.core.Observable;
  */
 public class AssignableTitleServiceImpl extends AssignableAbstractService implements AssignableElementService<Title.Type> {
     
-    private final TitleService titleService = TitleServiceFactory.getService();
+    private final TitleService titleService = TitleFactory.getService();
     
     @Override
     public Observable<AssignableElement<Title.Type>> positiveElementsWithAssignation() {

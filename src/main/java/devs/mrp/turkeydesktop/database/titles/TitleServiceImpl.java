@@ -7,12 +7,9 @@ package devs.mrp.turkeydesktop.database.titles;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
-import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
-import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
 import io.reactivex.rxjava3.core.Maybe;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import io.reactivex.rxjava3.core.Observable;
@@ -27,27 +24,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TitleServiceImpl implements TitleService {
 
-    public static final DbCache<String,Title> dbCache = DbCacheFactory.getDbCache(TitleRepository.getInstance(),
-            Title::getSubStr,
-            key -> isValidKey(key),
-            TitleServiceImpl::elementsFromResultEntry);
-    private static final IGroupAssignationService assignationService = FGroupAssignationService.getService();
-    
-    private static boolean isValidKey(String titleSubString) {
-        return titleSubString != null && !titleSubString.isEmpty();
-    }
+    public static final DbCache<String,Title> dbCache = TitleFactory.getDbCache();
+    private static final IGroupAssignationService assignationService = GroupAssignationFactory.getService();
 
     @Override
     public Single<Long> save(Title element) {
         if (element == null) {
-            return Single.just(-1L);
-        }
-        element.setSubStr(element.getSubStr().toLowerCase());
-        return dbCache.save(element).map(SaveAction::get);
-    }
-
-    private Single<Long> update(Title element) {
-        if (element == null || element.getSubStr() == null) {
             return Single.just(-1L);
         }
         element.setSubStr(element.getSubStr().toLowerCase());
@@ -75,30 +57,6 @@ public class TitleServiceImpl implements TitleService {
                 (r1,r2) ->{
                     return r1;
                 });
-    }
-    
-    private static Observable<Title> elementsFromResultEntry(ResultSet set) {
-        return Observable.create(subscribe -> {
-            try {
-                while (set.next()) {
-                    subscribe.onNext(elementFromResultSetEntry(set));
-                }
-            } catch (SQLException ex) {
-                subscribe.onError(ex);
-            }
-            subscribe.onComplete();
-        });
-    }
-
-    private static Title elementFromResultSetEntry(ResultSet set) {
-        Title el = new Title();
-        try {
-            el.setSubStr(set.getString(Title.SUB_STR).toLowerCase());
-            el.setType(Title.Type.valueOf(set.getString(Title.TYPE)));
-        } catch (SQLException ex) {
-            log.error("Error transforming Title from ResultSet entry", ex);
-        }
-        return el;
     }
 
     @Override

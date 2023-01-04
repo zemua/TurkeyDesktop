@@ -21,6 +21,7 @@ public class TurkeyDesktop extends javax.swing.JFrame {
 
     private static WatchDog watchDog;
     private static PanelHandler handler;
+    private static FactoryInitializer factoryInitializer = new FactoryInitializer();
 
     /**
      * Creates new form MainContainer
@@ -70,6 +71,7 @@ public class TurkeyDesktop extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
+        factoryInitializer.initialize();
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
