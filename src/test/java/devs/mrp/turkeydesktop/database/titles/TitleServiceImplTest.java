@@ -3,8 +3,8 @@ package devs.mrp.turkeydesktop.database.titles;
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
 import devs.mrp.turkeydesktop.database.Db;
+import devs.mrp.turkeydesktop.database.DbFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
-import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
 import io.reactivex.rxjava3.core.Single;
 import static org.junit.Assert.assertEquals;
 import org.junit.BeforeClass;
@@ -15,17 +15,17 @@ import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
 
 public class TitleServiceImplTest {
     
     static final Db db = mock(Db.class);
     static final DbCache<String,Title> dbCache = mock(DbCache.class);
-    static final TitleRepository titleRepository = mock(TitleRepository.class);
-    static final IGroupAssignationService groupAssignationService = mock(IGroupAssignationService.class);
+    static final GroupAssignationService groupAssignationService = mock(GroupAssignationService.class);
     
     @BeforeClass
     public static void setup() {
-        TitleFactory.setDbSupplier(() -> db);
+        DbFactory.setDbSupplier(() -> db);
         TitleFactory.setDbCacheSupplier(() -> dbCache);
         GroupAssignationFactory.setGroupAssignationServiceSupplier(() -> groupAssignationService);
     }

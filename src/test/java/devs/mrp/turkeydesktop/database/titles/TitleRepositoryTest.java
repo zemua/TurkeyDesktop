@@ -1,6 +1,7 @@
 package devs.mrp.turkeydesktop.database.titles;
 
 import devs.mrp.turkeydesktop.database.Db;
+import devs.mrp.turkeydesktop.database.DbFactory;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -28,7 +29,7 @@ public class TitleRepositoryTest {
     
     @BeforeClass
     public static void classSetup() {
-        TitleFactory.setDbSupplier(() -> db);
+        DbFactory.setDbSupplier(() -> db);
         titleRepository = TitleRepository.getInstance();
     }
     

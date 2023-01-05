@@ -58,14 +58,12 @@ public class Db { // TODO create asynchronous listeners to update livedata
     public static final String IMPORTS_TABLE = "IMPORTS_TABLE";
 
     private static final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
-    
-    private LocaleMessages localeMessages = LocaleMessages.getInstance();
-
     private static Db instance = null;
     private static Connection con = null;
-
+    
+    private LocaleMessages localeMessages = LocaleMessages.getInstance();
+    
     private Db() {
-
     }
 
     public static Db getInstance() {

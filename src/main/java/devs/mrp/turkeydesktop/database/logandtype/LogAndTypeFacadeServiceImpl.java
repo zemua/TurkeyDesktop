@@ -14,7 +14,6 @@ import devs.mrp.turkeydesktop.database.config.FConfigElementService;
 import devs.mrp.turkeydesktop.database.config.IConfigElementService;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
-import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
 import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.titles.TitleFactory;
@@ -32,6 +31,7 @@ import devs.mrp.turkeydesktop.database.type.TypeService;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import org.apache.commons.lang3.StringUtils;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
 
 /**
  *
@@ -44,7 +44,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
     private final TypeService typeService = TypeServiceFactory.getService();
     private final IConfigElementService configService = FConfigElementService.getService();
     private final TitleService titleService = TitleFactory.getService();
-    private final IGroupAssignationService groupAssignationService = GroupAssignationFactory.getService();
+    private final GroupAssignationService groupAssignationService = GroupAssignationFactory.getService();
     private final CloseableService closeableService = CloseableServiceFactory.getService();
 
     private final ConditionChecker conditionChecker = ConditionCheckerFactory.getConditionChecker();

@@ -21,13 +21,13 @@ import javax.swing.SwingWorker;
  */
 public class GroupAssignationFactory {
     
-    private static Supplier<IGroupAssignationService> groupAssignationServiceSupplier;
+    private static Supplier<GroupAssignationService> groupAssignationServiceSupplier;
 
-    public static void setGroupAssignationServiceSupplier(Supplier<IGroupAssignationService> groupAssignationServiceSupplier) {
+    public static void setGroupAssignationServiceSupplier(Supplier<GroupAssignationService> groupAssignationServiceSupplier) {
         GroupAssignationFactory.groupAssignationServiceSupplier = groupAssignationServiceSupplier;
     }
     
-    public static IGroupAssignationService getService() {
+    public static GroupAssignationService getService() {
         return groupAssignationServiceSupplier.get();
     }
     

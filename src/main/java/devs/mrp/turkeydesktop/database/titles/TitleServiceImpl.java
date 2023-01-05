@@ -3,7 +3,6 @@ package devs.mrp.turkeydesktop.database.titles;
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
-import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
 import io.reactivex.rxjava3.core.Maybe;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -11,12 +10,13 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
 
 @Slf4j
 public class TitleServiceImpl implements TitleService {
 
     public static final DbCache<String,Title> dbCache = TitleFactory.getDbCache();
-    private static final IGroupAssignationService assignationService = GroupAssignationFactory.getService();
+    private static final GroupAssignationService assignationService = GroupAssignationFactory.getService();
 
     @Override
     public Single<Long> save(Title title) {

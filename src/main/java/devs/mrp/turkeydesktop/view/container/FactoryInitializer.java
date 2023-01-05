@@ -6,8 +6,12 @@ package devs.mrp.turkeydesktop.view.container;
 
 import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
 import devs.mrp.turkeydesktop.database.Db;
+import devs.mrp.turkeydesktop.database.DbFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationServiceImpl;
+import devs.mrp.turkeydesktop.database.imports.ImportFactory;
+import devs.mrp.turkeydesktop.database.imports.ImportValidator;
+import devs.mrp.turkeydesktop.database.imports.ImportsRepository;
 import devs.mrp.turkeydesktop.database.titles.*;
 import java.util.function.Supplier;
 
@@ -18,14 +22,16 @@ import java.util.function.Supplier;
 class FactoryInitializer {
     
     public void initialize() {
-        initTitleDb();
+        initGeneralDb();
+        
         initTitleDbCache();
+        initImportsDbCache();
         
         initGroupAssignationService();
     }
     
-    private void initTitleDb() {
-        TitleFactory.setDbSupplier(dbSupplier());
+    private void initGeneralDb() {
+        DbFactory.setDbSupplier(dbSupplier());
     }
     
     private void initTitleDbCache() {
@@ -35,8 +41,15 @@ class FactoryInitializer {
             TitleFactory::elementsFromResultEntry));
     }
     
+    private void initImportsDbCache() {
+        ImportFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(ImportsRepository.getInstance(),
+            s -> s,
+            key -> ImportValidator.isValidKey(key),
+            ImportFactory::elementsFromSet));
+    }
+    
     private void initGroupAssignationService() {
-        GroupAssignationFactory.setGroupAssignationServiceSupplier(() -> new GroupAssignationService());
+        GroupAssignationFactory.setGroupAssignationServiceSupplier(() -> new GroupAssignationServiceImpl());
     }
     
     private Supplier<Db> dbSupplier() {

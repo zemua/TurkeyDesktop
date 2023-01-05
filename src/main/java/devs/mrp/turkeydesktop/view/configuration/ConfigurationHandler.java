@@ -14,7 +14,7 @@ import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.FConfigElementService;
 import devs.mrp.turkeydesktop.database.config.IConfigElementService;
 import devs.mrp.turkeydesktop.database.imports.ImportService;
-import devs.mrp.turkeydesktop.database.imports.ImportServiceFactory;
+import devs.mrp.turkeydesktop.database.imports.ImportFactory;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
@@ -42,7 +42,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, AWTEvent, FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent>> {
 
     private IConfigElementService configService = FConfigElementService.getService();
-    private ImportService importService = ImportServiceFactory.getService();
+    private ImportService importService = ImportFactory.getService();
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
     private Logger logger = Logger.getLogger(ConfigurationHandler.class.getName());
     private JFrame frame;

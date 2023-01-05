@@ -18,7 +18,7 @@ import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupServiceFactory;
 import devs.mrp.turkeydesktop.database.imports.ImportService;
-import devs.mrp.turkeydesktop.database.imports.ImportServiceFactory;
+import devs.mrp.turkeydesktop.database.imports.ImportFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.conditionchecker.idle.IdleChainCommander;
@@ -53,7 +53,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
     private IConditionService conditionService = FConditionService.getService();
     private TimeLogService timeLogService = TimeLogServiceFactory.getService();
     private IConfigElementService configService = FConfigElementService.getService();
-    private ImportService importService = ImportServiceFactory.getService();
+    private ImportService importService = ImportFactory.getService();
     private ChainHandler<LongWrapper> idleHandler = new IdleChainCommander().getHandlerChain();
     private ExternalGroupService externalGroupService = ExternalGroupServiceFactory.getService();
     private ImportReader importReader = ImportReaderFactory.getReader();

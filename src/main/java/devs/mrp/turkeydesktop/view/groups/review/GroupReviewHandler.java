@@ -16,7 +16,6 @@ import devs.mrp.turkeydesktop.database.group.GroupServiceFactory;
 import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
-import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroup;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupService;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupServiceFactory;
@@ -59,6 +58,7 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
 import lombok.extern.slf4j.Slf4j;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
 
 /**
  *
@@ -74,7 +74,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
 
     private Group group;
     private final GroupService groupService = GroupServiceFactory.getService();
-    private final IGroupAssignationService groupAssignationService = GroupAssignationFactory.getService();
+    private final GroupAssignationService groupAssignationService = GroupAssignationFactory.getService();
     private final AssignableElementService assignableProcessService = AssignableElementServiceFactory.getProcessesService();
     private final AssignableElementService assignableTitlesService = AssignableElementServiceFactory.getTitlesService();
     private final IConditionService conditionService = FConditionService.getService();
