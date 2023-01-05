@@ -5,7 +5,7 @@
  */
 package devs.mrp.turkeydesktop.common;
 
-import devs.mrp.turkeydesktop.database.config.FConfigElementService;
+import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
 import devs.mrp.turkeydesktop.database.config.IConfigElementService;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import io.reactivex.rxjava3.core.Single;
@@ -31,7 +31,7 @@ public class FileHandler {
     
     private static final long millisBetweenOperations = 60*1000;
     private static long lastExport = 0;
-    private static IConfigElementService configService = FConfigElementService.getService();
+    private static IConfigElementService configService = ConfigElementFactory.getService();
     private static Map<String,CachedValue> readerCache = new HashMap<>();
     private static Map<String,Long> lastWrittings = new HashMap<>();
     

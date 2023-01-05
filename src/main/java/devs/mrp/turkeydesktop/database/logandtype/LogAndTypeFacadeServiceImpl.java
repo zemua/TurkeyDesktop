@@ -10,7 +10,7 @@ import devs.mrp.turkeydesktop.common.Tripla;
 import devs.mrp.turkeydesktop.database.closeables.CloseableService;
 import devs.mrp.turkeydesktop.database.closeables.CloseableServiceFactory;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
-import devs.mrp.turkeydesktop.database.config.FConfigElementService;
+import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
 import devs.mrp.turkeydesktop.database.config.IConfigElementService;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
@@ -42,7 +42,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
     private final LogAndTypeFacadeDao repo = LogAndTypeFacadeRepository.getInstance();
     private final TimeLogService logService = TimeLogServiceFactory.getService();
     private final TypeService typeService = TypeServiceFactory.getService();
-    private final IConfigElementService configService = FConfigElementService.getService();
+    private final IConfigElementService configService = ConfigElementFactory.getService();
     private final TitleService titleService = TitleFactory.getService();
     private final GroupAssignationService groupAssignationService = GroupAssignationFactory.getService();
     private final CloseableService closeableService = CloseableServiceFactory.getService();
