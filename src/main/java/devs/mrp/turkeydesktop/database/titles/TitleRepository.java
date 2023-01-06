@@ -24,20 +24,20 @@ public class TitleRepository implements TitleDao {
     
     @Override
     public Single<String> add(Title element) {
-        return Db.singleString(() -> tryAddingElement(element));
+        return Db.singleString(() -> retrieveAddResult(element));
     }
     
-    private String tryAddingElement(Title element) {
+    private String retrieveAddResult(Title element) {
         String result = "";
         try {
-            result = runDbAddStatement(element);
+            result = executeAdd(element);
         } catch (SQLException ex) {
             log.error("Error adding element", ex);
         }
         return result;
     }
     
-    private String runDbAddStatement(Title element) throws SQLException {
+    private String executeAdd(Title element) throws SQLException {
         PreparedStatement statement = buildDbAddStatement(element);
         statement.executeUpdate();
         return element.getSubStr();

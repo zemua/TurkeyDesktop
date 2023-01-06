@@ -10,8 +10,7 @@ import devs.mrp.turkeydesktop.common.RemovableLabel;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
-import devs.mrp.turkeydesktop.database.conditions.FConditionService;
-import devs.mrp.turkeydesktop.database.conditions.IConditionService;
+import devs.mrp.turkeydesktop.database.conditions.ConditionFactory;
 import devs.mrp.turkeydesktop.database.group.GroupServiceFactory;
 import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
@@ -59,6 +58,7 @@ import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
 import lombok.extern.slf4j.Slf4j;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
+import devs.mrp.turkeydesktop.database.conditions.ConditionService;
 
 /**
  *
@@ -77,7 +77,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private final GroupAssignationService groupAssignationService = GroupAssignationFactory.getService();
     private final AssignableElementService assignableProcessService = AssignableElementServiceFactory.getProcessesService();
     private final AssignableElementService assignableTitlesService = AssignableElementServiceFactory.getTitlesService();
-    private final IConditionService conditionService = FConditionService.getService();
+    private final ConditionService conditionService = ConditionFactory.getService();
     private final ExternalGroupService externalGroupService = ExternalGroupServiceFactory.getService();
     private final ExportedGroupService exportedGroupService = ExportedGroupServiceFactory.getService();
     private final IGroupConditionFacadeService groupConditionFacadeService = FGroupConditionFacadeService.getService();

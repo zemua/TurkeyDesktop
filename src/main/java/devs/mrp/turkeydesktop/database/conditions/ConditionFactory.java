@@ -17,10 +17,10 @@ import javax.swing.SwingWorker;
  *
  * @author miguel
  */
-public class FConditionService {
+public class ConditionFactory {
     
-    public static IConditionService getService() {
-        return new ConditionService();
+    public static ConditionService getService() {
+        return new ConditionServiceImpl();
     }
     
     public static void runConditionListWorker(Supplier<List<Condition>> supplier, Consumer<List<Condition>> consumer) {
@@ -34,9 +34,9 @@ public class FConditionService {
                 try {
                     consumer.accept(get());
                 } catch (InterruptedException ex) {
-                    Logger.getLogger(FConditionService.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(ConditionFactory.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (ExecutionException ex) {
-                    Logger.getLogger(FConditionService.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(ConditionFactory.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };
@@ -54,9 +54,9 @@ public class FConditionService {
                 try {
                     consumer.accept(get());
                 } catch (InterruptedException ex) {
-                    Logger.getLogger(FConditionService.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(ConditionFactory.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (ExecutionException ex) {
-                    Logger.getLogger(FConditionService.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(ConditionFactory.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };

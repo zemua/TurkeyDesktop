@@ -1,20 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.conditions;
 
 import lombok.ToString;
 
-/**
- *
- * @author miguel
- */
 @ToString
 public class Condition extends AbstractCondition<Condition> {
     
     public static final String TARGET_ID = "TARGET_ID";
+    
+    static final int ID_POSITION = 1;
     
     private long targetId;
     

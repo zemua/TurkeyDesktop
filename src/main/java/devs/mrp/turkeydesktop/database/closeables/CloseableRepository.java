@@ -26,20 +26,20 @@ public class CloseableRepository implements CloseableDao {
     
     @Override
     public Single<String> add(Closeable element) {
-        return Db.singleString(()-> doAdd(element));
+        return Db.singleString(()-> retrieveAddResult(element));
     }
     
-    public String doAdd(Closeable element) {
+    public String retrieveAddResult(Closeable element) {
         String result = "";
         try {
-            result = tryExecuteAdd(element);
+            result = executeAdd(element);
         } catch (SQLException ex) {
             log.error("Error adding closeable", ex);
         }
         return result;
     }
     
-    private String tryExecuteAdd(Closeable element) throws SQLException {
+    private String executeAdd(Closeable element) throws SQLException {
         PreparedStatement preparedStatement = buildAddQuery(element);
         preparedStatement.executeUpdate();
         return element.getProcess();
@@ -77,20 +77,20 @@ public class CloseableRepository implements CloseableDao {
 
     @Override
     public Single<ResultSet> findById(String id) {
-        return Db.singleResultSet(() -> doFindById(id));
+        return Db.singleResultSet(() -> retrieveFindByIdResult(id));
     }
     
-    private ResultSet doFindById(String id) {
+    private ResultSet retrieveFindByIdResult(String id) {
         ResultSet result = null;
         try {
-            result = tryFindById(id);
+            result = executeFindById(id);
         } catch (SQLException ex) {
             log.error("Error finding by Id", ex);
         }
         return result;
     }
     
-    private ResultSet tryFindById(String id) throws SQLException {
+    private ResultSet executeFindById(String id) throws SQLException {
         PreparedStatement preparedStatement = buildFindByIdQuery(id);
         return preparedStatement.executeQuery();
     }

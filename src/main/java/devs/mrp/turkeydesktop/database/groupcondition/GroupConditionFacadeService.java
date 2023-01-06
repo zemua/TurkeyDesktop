@@ -6,13 +6,13 @@
 package devs.mrp.turkeydesktop.database.groupcondition;
 
 import devs.mrp.turkeydesktop.database.conditions.Condition;
-import devs.mrp.turkeydesktop.database.conditions.FConditionService;
-import devs.mrp.turkeydesktop.database.conditions.IConditionService;
+import devs.mrp.turkeydesktop.database.conditions.ConditionFactory;
 import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.group.GroupServiceFactory;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Observable;
+import devs.mrp.turkeydesktop.database.conditions.ConditionService;
 
 /**
  *
@@ -20,7 +20,7 @@ import io.reactivex.rxjava3.core.Observable;
  */
 public class GroupConditionFacadeService implements IGroupConditionFacadeService {
     
-    private final IConditionService conditionService = FConditionService.getService();
+    private final ConditionService conditionService = ConditionFactory.getService();
     private final GroupService groupService = GroupServiceFactory.getService();
     
     @Override

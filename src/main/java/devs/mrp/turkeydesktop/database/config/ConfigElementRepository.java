@@ -28,18 +28,20 @@ public class ConfigElementRepository implements ConfigElementDao {
     
     @Override
     public Single<String> add(ConfigElement element) {
-        return Db.singleString(() -> {
-            String result = "";
-            try {
-                result = tryAdd(element);
-            } catch (SQLException ex) {
-                log.error("Error adding config element", ex);
-            }
-            return result;
-        });
+        return Db.singleString(() -> retrieveAddResult(element));
     }
     
-    private String tryAdd(ConfigElement element) throws SQLException {
+    private String retrieveAddResult(ConfigElement element) {
+        String result = "";
+        try {
+            result = executeAdd(element);
+        } catch (SQLException ex) {
+            log.error("Error adding config element", ex);
+        }
+        return result;
+    }
+    
+    private String executeAdd(ConfigElement element) throws SQLException {
         PreparedStatement preparedStatement = buildAddQuery(element);
         preparedStatement.executeUpdate();
         return element.getKey().toString();
@@ -92,22 +94,20 @@ public class ConfigElementRepository implements ConfigElementDao {
 
     @Override
     public Single<ResultSet> findById(String id) {
-        return Db.singleResultSet(() -> {
-            return doFind(id);
-        });
+        return Db.singleResultSet(() -> retrieveFindBiIdResult(id));
     }
     
-    private ResultSet doFind(String id) {
+    private ResultSet retrieveFindBiIdResult(String id) {
         ResultSet resultSet = null;
         try {
-            resultSet = tryFindById(id);
+            resultSet = executeFindById(id);
         } catch (SQLException ex) {
             log.error("Error finding by id", ex);
         }
         return resultSet;
     }
     
-    private ResultSet tryFindById(String id) throws SQLException {
+    private ResultSet executeFindById(String id) throws SQLException {
         PreparedStatement statement = buildFindByIdQuery(id);
         return statement.executeQuery();
     }

@@ -27,22 +27,33 @@ public class ImportsRepository implements ImportsDao {
     }
     
     @Override
-    public Single<String> add(String element) {
-        return Db.singleString(() -> {
-            String result = "";
-            PreparedStatement stm;
-            try {
-                stm = dbInstance.prepareStatement(String.format("INSERT INTO %s (%s) ",
-                        Db.IMPORTS_TABLE, ConfigurationEnum.IMPORT_PATH.toString())
-                        + "VALUES (?)");
-                stm.setString(1, element);
-                stm.executeUpdate();
-                result = element;
-            } catch (SQLException ex) {
-                log.error("Error adding Imports", ex);
-            }
-            return result;
-        });
+    public Single<String> add(String importPath) {
+        return Db.singleString(() -> retrieveAddResult(importPath));
+    }
+    
+    private String retrieveAddResult(String importPath) {
+        String result = "";
+        try {
+            result = executeAdd(importPath);
+        } catch (SQLException ex) {
+            log.error("Error adding Imports", ex);
+        }
+        return result;
+    }
+    
+    private String executeAdd(String importPath) throws SQLException {
+        PreparedStatement preparedStatement = buildAddQuery(importPath);
+        preparedStatement.executeUpdate();
+        return importPath;
+    }
+    
+    private PreparedStatement buildAddQuery(String importPath) throws SQLException {
+        PreparedStatement preparedStatement;
+        preparedStatement = dbInstance.prepareStatement(String.format("INSERT INTO %s (%s) ",
+                Db.IMPORTS_TABLE, ConfigurationEnum.IMPORT_PATH.toString())
+                + "VALUES (?)");
+        preparedStatement.setString(1, importPath);
+        return preparedStatement;
     }
 
     @Deprecated
@@ -69,20 +80,20 @@ public class ImportsRepository implements ImportsDao {
 
     @Override
     public Single<ResultSet> findById(String id) {
-        return Db.singleResultSet(() -> doFindById(id));
+        return Db.singleResultSet(() -> retrieveFindByIdResult(id));
     }
     
-    private ResultSet doFindById(String id) {
+    private ResultSet retrieveFindByIdResult(String id) {
         ResultSet resultSet = null;
         try {
-            resultSet = tryFindById(id);
+            resultSet = executeFindById(id);
         } catch (SQLException ex) {
             log.error("Error finding Import by id", ex);
         }
         return resultSet;
     }
     
-    private ResultSet tryFindById(String id) throws SQLException {
+    private ResultSet executeFindById(String id) throws SQLException {
         return buildFindByIdQuery(id)
                 .executeQuery();
     }
