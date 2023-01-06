@@ -13,7 +13,6 @@ import devs.mrp.turkeydesktop.database.conditions.FConditionService;
 import devs.mrp.turkeydesktop.database.conditions.IConditionService;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
-import devs.mrp.turkeydesktop.database.config.IConfigElementService;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupServiceFactory;
@@ -42,6 +41,7 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.core.SingleSource;
 import lombok.extern.slf4j.Slf4j;
+import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 
 /**
  *
@@ -52,7 +52,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
 
     private IConditionService conditionService = FConditionService.getService();
     private TimeLogService timeLogService = TimeLogServiceFactory.getService();
-    private IConfigElementService configService = ConfigElementFactory.getService();
+    private ConfigElementService configService = ConfigElementFactory.getService();
     private ImportService importService = ImportFactory.getService();
     private ChainHandler<LongWrapper> idleHandler = new IdleChainCommander().getHandlerChain();
     private ExternalGroupService externalGroupService = ExternalGroupServiceFactory.getService();

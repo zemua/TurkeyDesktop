@@ -24,8 +24,8 @@ public class ConfigElementFactory {
         return dbCacheSupplier.get();
     }
     
-    public static IConfigElementService getService() {
-        return new ConfigElementService();
+    public static ConfigElementService getService() {
+        return new ConfigElementServiceImplementation();
     }
     
     public static void runConditionListWorker(Supplier<List<ConfigElement>> supplier, Consumer<List<ConfigElement>> consumer) {

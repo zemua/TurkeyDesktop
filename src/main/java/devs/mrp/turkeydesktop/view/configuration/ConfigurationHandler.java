@@ -12,7 +12,6 @@ import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
-import devs.mrp.turkeydesktop.database.config.IConfigElementService;
 import devs.mrp.turkeydesktop.database.imports.ImportService;
 import devs.mrp.turkeydesktop.database.imports.ImportFactory;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
@@ -34,6 +33,7 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 
 /**
  *
@@ -41,7 +41,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  */
 public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, AWTEvent, FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent>> {
 
-    private IConfigElementService configService = ConfigElementFactory.getService();
+    private ConfigElementService configService = ConfigElementFactory.getService();
     private ImportService importService = ImportFactory.getService();
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
     private Logger logger = Logger.getLogger(ConfigurationHandler.class.getName());

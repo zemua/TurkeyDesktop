@@ -6,10 +6,10 @@ package devs.mrp.turkeydesktop.service.toaster.voice;
 
 import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
-import devs.mrp.turkeydesktop.database.config.IConfigElementService;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.util.HashMap;
 import java.util.Map;
+import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 
 /**
  *
@@ -19,7 +19,7 @@ public class VoiceNotificator {
     private static final ChainHandler<String> speaker = new VoiceNotificatorChainCommander().getHandlerChain();
     private static final Map<String,Long> messagesTimestamp = new HashMap<>();
     private static final long sleep = 1000*59; // 1 minute in milliseconds between toasts of same message
-    private static final IConfigElementService config = ConfigElementFactory.getService();
+    private static final ConfigElementService config = ConfigElementFactory.getService();
     
     public static void speakMessage(String msg) {
         long now = System.currentTimeMillis();

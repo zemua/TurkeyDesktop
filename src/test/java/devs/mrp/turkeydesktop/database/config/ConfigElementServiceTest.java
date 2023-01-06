@@ -26,7 +26,7 @@ public class ConfigElementServiceTest {
 
     @Test
     public void testAddInvalidNull() {
-        ConfigElementService service = new ConfigElementService();
+        ConfigElementServiceImplementation service = new ConfigElementServiceImplementation();
         ConfigElement element = null;
         
         Long result = service.add(element).blockingGet();
@@ -35,7 +35,7 @@ public class ConfigElementServiceTest {
     
     @Test
     public void testAddNullKey() {
-        ConfigElementService service = new ConfigElementService();
+        ConfigElementServiceImplementation service = new ConfigElementServiceImplementation();
         ConfigElement element = new ConfigElement(null, "some value");
         
         Long result = service.add(element).blockingGet();
@@ -44,7 +44,7 @@ public class ConfigElementServiceTest {
     
     @Test
     public void testAddNullValue() {
-        ConfigElementService service = new ConfigElementService();
+        ConfigElementServiceImplementation service = new ConfigElementServiceImplementation();
         ConfigElement element = new ConfigElement(ConfigurationEnum.IDLE, null);
         
         Long result = service.add(element).blockingGet();
@@ -53,7 +53,7 @@ public class ConfigElementServiceTest {
     
     @Test
     public void testSaveInvalidTooLongValue() {
-        ConfigElementService service = new ConfigElementService();
+        ConfigElementServiceImplementation service = new ConfigElementServiceImplementation();
         ConfigElement element = new ConfigElement(ConfigurationEnum.IDLE ,"12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
         
         Long result = service.add(element).blockingGet();
@@ -62,7 +62,7 @@ public class ConfigElementServiceTest {
     
     @Test
     public void testSaveSuccess() {
-        ConfigElementService service = new ConfigElementService();
+        ConfigElementServiceImplementation service = new ConfigElementServiceImplementation();
         ConfigElement element = new ConfigElement(ConfigurationEnum.IDLE, "some short string");
         
         when(dbCache.save(element)).thenReturn(Single.just(SaveAction.SAVED));
