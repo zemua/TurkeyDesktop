@@ -15,8 +15,18 @@ import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationServic
 @Slf4j
 public class TitleServiceImpl implements TitleService {
 
-    public static final DbCache<String,Title> dbCache = TitleFactory.getDbCache();
+    private static DbCache<String,Title> dbCache;
     private static final GroupAssignationService assignationService = GroupAssignationFactory.getService();
+    
+    public TitleServiceImpl() {
+        setCacheInstance();
+    }
+    
+    private void setCacheInstance() {
+        if (dbCache == null) {
+            dbCache = TitleFactory.getDbCache();
+        }
+    }
 
     @Override
     public Single<Long> save(Title title) {

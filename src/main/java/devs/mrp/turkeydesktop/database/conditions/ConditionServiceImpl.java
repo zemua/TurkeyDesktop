@@ -1,42 +1,33 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.conditions;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
-import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
 import io.reactivex.rxjava3.core.Maybe;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- *
- * @author miguel
- */
 @Slf4j
 public class ConditionServiceImpl implements ConditionService {
     
-    public static final DbCache<Long,Condition> dbCache = DbCacheFactory.getDbCache(ConditionRepository.getInstance(),
-            c -> c.getId(),
-            key -> isValidKey(key),
-            ConditionServiceImpl::elementsFromResultSet);
+    public static DbCache<Long,Condition> dbCache;
     
-    private static boolean isValidKey(Long rowId) {
-        return rowId != null && rowId > 0;
+    public ConditionServiceImpl() {
+        setCacheInstance();
+    }
+    
+    private void setCacheInstance() {
+        if (dbCache == null) {
+            dbCache = ConditionFactory.getDbCache();
+        }
     }
     
     @Override
-    public Single<Long> add(Condition element) {
-        if (element == null) {
+    public Single<Long> add(Condition condition) {
+        if (ConditionValidator.isInvalidCondition(condition)) {
             return Single.just(-1L);
         }
-        return dbCache.save(element).map(SaveAction::get);
+        return dbCache.save(condition).map(SaveAction::get);
     }
 
     @Override
@@ -82,33 +73,6 @@ public class ConditionServiceImpl implements ConditionService {
                 .flatMapSingle(c -> dbCache.remove(c.getId()))
                 .filter(Boolean::booleanValue)
                 .count();
-    }
-    
-    private static Observable<Condition> elementsFromResultSet(ResultSet set) {
-        return Observable.create(subscriber -> {
-            try {
-                while(set.next()) {
-                    subscriber.onNext(elementFromResultSetEntry(set));
-                }
-            } catch (SQLException ex) {
-                subscriber.onError(ex);
-            }
-            subscriber.onComplete();
-        });
-    }
-    
-    private static Condition elementFromResultSetEntry(ResultSet set) {
-        Condition el = new Condition();
-        try {
-            el.setId(set.getLong(Condition.ID));
-            el.setGroupId(set.getLong(Condition.GROUP_ID));
-            el.setTargetId(set.getLong(Condition.TARGET_ID));
-            el.setUsageTimeCondition(set.getLong(Condition.USAGE_TIME_CONDITION));
-            el.setLastDaysCondition(set.getLong(Condition.LAST_DAYS_CONDITION));
-        } catch (SQLException ex) {
-            log.error("Error creating Condition from ResultSet", ex);
-        }
-        return el;
     }
     
 }

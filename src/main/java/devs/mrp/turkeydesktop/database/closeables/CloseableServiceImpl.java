@@ -10,7 +10,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CloseableServiceImpl implements CloseableService {
 
-    public static final DbCache<String,Closeable> dbCache = CloseableFactory.getDbCache();
+    public static DbCache<String,Closeable> dbCache;
+    
+    public CloseableServiceImpl() {
+        setCacheInstance();
+    }
+    
+    private void setCacheInstance() {
+        if (dbCache == null) {
+            dbCache = CloseableFactory.getDbCache();
+        }
+    }
 
     @Override
     public Single<Long> add(String element) {

@@ -1,66 +1,54 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.conditions;
 
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
+import devs.mrp.turkeydesktop.common.DbCache;
+import io.reactivex.rxjava3.core.Observable;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.SwingWorker;
+import lombok.extern.slf4j.Slf4j;
 
-/**
- *
- * @author miguel
- */
+@Slf4j
 public class ConditionFactory {
+    
+    private static Supplier<DbCache<Long, Condition>> dbCacheSupplier;
+
+    public static void setDbCacheSupplier(Supplier<DbCache<Long, Condition>> dbCacheSupplier) {
+        ConditionFactory.dbCacheSupplier = dbCacheSupplier;
+    }
+    
+    public static DbCache<Long, Condition> getDbCache() {
+        return dbCacheSupplier.get();
+    }
     
     public static ConditionService getService() {
         return new ConditionServiceImpl();
     }
     
-    public static void runConditionListWorker(Supplier<List<Condition>> supplier, Consumer<List<Condition>> consumer) {
-        var worker = new SwingWorker<List<Condition>, Object>() {
-            @Override
-            protected List<Condition> doInBackground() throws Exception {
-                return supplier.get();
-            }
-            @Override
-            protected void done() {
-                try {
-                    consumer.accept(get());
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(ConditionFactory.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (ExecutionException ex) {
-                    Logger.getLogger(ConditionFactory.class.getName()).log(Level.SEVERE, null, ex);
+    public static Observable<Condition> elementsFromResultSet(ResultSet set) {
+        return Observable.create(subscriber -> {
+            try {
+                while(set.next()) {
+                    subscriber.onNext(elementFromResultSetEntry(set));
                 }
+            } catch (SQLException ex) {
+                subscriber.onError(ex);
             }
-        };
-        worker.execute();
+            subscriber.onComplete();
+        });
     }
     
-    public static void runConditionWorker(Supplier<Condition> supplier, Consumer<Condition> consumer) {
-        var worker = new SwingWorker<Condition, Object>() {
-            @Override
-            protected Condition doInBackground() throws Exception {
-                return supplier.get();
-            }
-            @Override
-            protected void done() {
-                try {
-                    consumer.accept(get());
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(ConditionFactory.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (ExecutionException ex) {
-                    Logger.getLogger(ConditionFactory.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        };
-        worker.execute();
+    private static Condition elementFromResultSetEntry(ResultSet set) {
+        Condition el = new Condition();
+        try {
+            el.setId(set.getLong(Condition.ID));
+            el.setGroupId(set.getLong(Condition.GROUP_ID));
+            el.setTargetId(set.getLong(Condition.TARGET_ID));
+            el.setUsageTimeCondition(set.getLong(Condition.USAGE_TIME_CONDITION));
+            el.setLastDaysCondition(set.getLong(Condition.LAST_DAYS_CONDITION));
+        } catch (SQLException ex) {
+            log.error("Error creating Condition from ResultSet", ex);
+        }
+        return el;
     }
     
 }

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database;
 
 import devs.mrp.turkeydesktop.common.TimeConverter;
@@ -37,12 +32,8 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- *
- * @author miguel
- */
 @Slf4j
-public class Db { // TODO create asynchronous listeners to update livedata
+public class Db {
 
     public static final String WATCHDOG_TABLE = "WATCHDOG_LOG";
     public static final String GROUPS_TABLE = "GROUPS_OF_APPS";

@@ -10,7 +10,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ConfigElementServiceImplementation implements ConfigElementService {
     
-    public static final DbCache<String,ConfigElement> dbCache = ConfigElementFactory.getDbCache();
+    private static DbCache<String,ConfigElement> dbCache;
+    
+    public ConfigElementServiceImplementation() {
+        setCacheInstance();
+    }
+    
+    private void setCacheInstance() {
+        if (dbCache == null) {
+            dbCache = ConfigElementFactory.getDbCache();
+        }
+    }
 
     @Override
     public Single<Long> add(ConfigElement element) {

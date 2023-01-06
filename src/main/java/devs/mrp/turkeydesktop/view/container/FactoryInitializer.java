@@ -7,6 +7,9 @@ import devs.mrp.turkeydesktop.database.closeables.Closeable;
 import devs.mrp.turkeydesktop.database.closeables.CloseableFactory;
 import devs.mrp.turkeydesktop.database.closeables.CloseableRepository;
 import devs.mrp.turkeydesktop.database.closeables.CloseableValidator;
+import devs.mrp.turkeydesktop.database.conditions.ConditionFactory;
+import devs.mrp.turkeydesktop.database.conditions.ConditionRepository;
+import devs.mrp.turkeydesktop.database.conditions.ConditionValidator;
 import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
 import devs.mrp.turkeydesktop.database.config.ConfigElementRepository;
 import devs.mrp.turkeydesktop.database.config.ConfigElementValidator;
@@ -20,12 +23,24 @@ import java.util.function.Supplier;
 
 class FactoryInitializer {
     
+    private Supplier<Db> dbSupplier = () -> Db.getInstance();
+
+    public void setDbSupplier(Supplier<Db> dbSupplier) {
+        this.dbSupplier = dbSupplier;
+    }
+    
+    private Supplier<Db> dbSupplier() {
+        return dbSupplier;
+    }
+    
     public void initialize() {
         initGeneralDb();
         
         initTitleDbCache();
         initImportsDbCache();
         initConfigDbCache();
+        initCloseableDbCache();
+        initConditionDbCache();
         
         initGroupAssignationService();
     }
@@ -62,12 +77,15 @@ class FactoryInitializer {
             CloseableFactory::listFromResultSet));
     }
     
-    private void initGroupAssignationService() {
-        GroupAssignationFactory.setGroupAssignationServiceSupplier(() -> new GroupAssignationServiceImpl());
+    private void initConditionDbCache() {
+        ConditionFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(ConditionRepository.getInstance(),
+            c -> c.getId(),
+            key -> ConditionValidator.isValidKey(key),
+            ConditionFactory::elementsFromResultSet));
     }
     
-    private Supplier<Db> dbSupplier() {
-        return () -> Db.getInstance();
+    private void initGroupAssignationService() {
+        GroupAssignationFactory.setGroupAssignationServiceSupplier(() -> new GroupAssignationServiceImpl());
     }
     
 }
