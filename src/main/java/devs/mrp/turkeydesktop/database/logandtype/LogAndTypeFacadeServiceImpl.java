@@ -8,7 +8,7 @@ package devs.mrp.turkeydesktop.database.logandtype;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.Tripla;
 import devs.mrp.turkeydesktop.database.closeables.CloseableService;
-import devs.mrp.turkeydesktop.database.closeables.CloseableServiceFactory;
+import devs.mrp.turkeydesktop.database.closeables.CloseableFactory;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
@@ -45,7 +45,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
     private final ConfigElementService configService = ConfigElementFactory.getService();
     private final TitleService titleService = TitleFactory.getService();
     private final GroupAssignationService groupAssignationService = GroupAssignationFactory.getService();
-    private final CloseableService closeableService = CloseableServiceFactory.getService();
+    private final CloseableService closeableService = CloseableFactory.getService();
 
     private final ConditionChecker conditionChecker = ConditionCheckerFactory.getConditionChecker();
 

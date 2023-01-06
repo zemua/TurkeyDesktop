@@ -52,7 +52,7 @@ public class ConfigElementServiceTest {
     }
     
     @Test
-    public void testSaveInvalidTooLongValue() {
+    public void testAddInvalidTooLongValue() {
         ConfigElementServiceImplementation service = new ConfigElementServiceImplementation();
         ConfigElement element = new ConfigElement(ConfigurationEnum.IDLE ,"12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
         
@@ -61,7 +61,7 @@ public class ConfigElementServiceTest {
     }
     
     @Test
-    public void testSaveSuccess() {
+    public void testAddSuccess() {
         ConfigElementServiceImplementation service = new ConfigElementServiceImplementation();
         ConfigElement element = new ConfigElement(ConfigurationEnum.IDLE, "some short string");
         

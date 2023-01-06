@@ -2,10 +2,7 @@ package devs.mrp.turkeydesktop.database.closeables;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
-import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
 import io.reactivex.rxjava3.core.Maybe;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import lombok.extern.slf4j.Slf4j;
@@ -13,19 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CloseableServiceImpl implements CloseableService {
 
-    public static final DbCache<String,Closeable> dbCache = DbCacheFactory.getDbCache(CloseableRepository.getInstance(),
-            Closeable::getProcess,
-            key -> isValidKey(key),
-            CloseableServiceImpl::listFromResultSet);
-    
-    private static boolean isValidKey(String elementName) {
-        return elementName != null && !elementName.isEmpty();
-    }
+    public static final DbCache<String,Closeable> dbCache = CloseableFactory.getDbCache();
 
     @Override
     public Single<Long> add(String element) {
-        if (element == null) {
-            return Single.just(-1L);
+        if (CloseableValidator.isInvalidKey(element)) {
+            return Single.just(SaveAction.ERROR.get());
         }
         return dbCache.save(new Closeable(element)).map(SaveAction::get);
     }
@@ -48,19 +38,6 @@ public class CloseableServiceImpl implements CloseableService {
     @Override
     public Single<Long> deleteById(String id) {
         return dbCache.remove(id).map(b -> b?1L:0L);
-    }
-
-    private static Observable<Closeable> listFromResultSet(ResultSet set) {
-        return Observable.create(suscriber -> {
-            try {
-                while(set.next()) {
-                    suscriber.onNext(new Closeable(set.getString(Closeable.PROCESS_NAME)));
-                }
-            } catch (SQLException ex) {
-                suscriber.onError(ex);
-            }
-            suscriber.onComplete();
-        });
     }
 
 }

@@ -15,7 +15,7 @@ public class ImportServiceImpl implements ImportService {
     public Single<Long> add(String path) {
         Single<Long> result;
         if (ImportValidator.isInvalid(path)) {
-            result = Single.just(-1L);
+            result = Single.just(SaveAction.ERROR.get());
         } else {
             result = dbCache.save(path).map(SaveAction::get);
         }

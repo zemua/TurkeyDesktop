@@ -15,7 +15,7 @@ public class ConfigElementServiceImplementation implements ConfigElementService 
     @Override
     public Single<Long> add(ConfigElement element) {
         if (isInvalid(element)) {
-            return Single.just(-1L);
+            return Single.just(SaveAction.ERROR.get());
         }
         return dbCache.save(element).map(SaveAction::get);
     }

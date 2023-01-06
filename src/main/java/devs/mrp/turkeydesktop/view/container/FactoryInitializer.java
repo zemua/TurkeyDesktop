@@ -3,6 +3,10 @@ package devs.mrp.turkeydesktop.view.container;
 import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
 import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.database.DbFactory;
+import devs.mrp.turkeydesktop.database.closeables.Closeable;
+import devs.mrp.turkeydesktop.database.closeables.CloseableFactory;
+import devs.mrp.turkeydesktop.database.closeables.CloseableRepository;
+import devs.mrp.turkeydesktop.database.closeables.CloseableValidator;
 import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
 import devs.mrp.turkeydesktop.database.config.ConfigElementRepository;
 import devs.mrp.turkeydesktop.database.config.ConfigElementValidator;
@@ -49,6 +53,13 @@ class FactoryInitializer {
             c -> c.getKey().toString(),
             key -> ConfigElementValidator.isValidKey(key),
             ConfigElementFactory::elementsFromResultSet));
+    }
+    
+    private void initCloseableDbCache() {
+        CloseableFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(CloseableRepository.getInstance(),
+            Closeable::getProcess,
+            key -> CloseableValidator.isValidKey(key),
+            CloseableFactory::listFromResultSet));
     }
     
     private void initGroupAssignationService() {

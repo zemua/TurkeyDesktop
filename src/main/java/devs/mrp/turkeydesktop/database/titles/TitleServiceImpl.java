@@ -22,7 +22,7 @@ public class TitleServiceImpl implements TitleService {
     public Single<Long> save(Title title) {
         Single<Long> result;
         if (TitleValidator.isInvalid(title)) {
-            result = Single.just(-1L);
+            result = Single.just(SaveAction.ERROR.get());
         } else {
             result = saveLowerCasedCopy(title);
         }
