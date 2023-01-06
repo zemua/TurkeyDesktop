@@ -2,7 +2,6 @@ package devs.mrp.turkeydesktop.database.config;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
-import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,22 +12,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ConfigElementService implements IConfigElementService {
     
-    public static final DbCache<String,ConfigElement> dbCache = DbCacheFactory.getDbCache(ConfigElementRepository.getInstance(),
-            c -> c.getKey().toString(),
-            key -> isValidKey(key),
-            ConfigElementService::elementsFromResultSet);
-    
-    private static boolean isValidKey(String elementName) {
-        return elementName != null && !elementName.isEmpty();
-    }
+    public static final DbCache<String,ConfigElement> dbCache = ConfigElementFactory.getDbCache();
 
     @Override
     public Single<Long> add(ConfigElement element) {
-        if (element == null || element.getKey() == null || element.getValue().length() > 150) {
+        if (isInvalid(element)) {
             return Single.just(-1L);
         }
-        // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
         return dbCache.save(element).map(SaveAction::get);
+    }
+    
+    private boolean isInvalid(ConfigElement element) {
+        return element == null || element.getKey() == null || element.getValue() == null || element.getValue().length() > ConfigElement.MAX_LENGTH;
     }
 
     @Override

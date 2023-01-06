@@ -1,12 +1,11 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package devs.mrp.turkeydesktop.view.container;
 
 import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
 import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.database.DbFactory;
+import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
+import devs.mrp.turkeydesktop.database.config.ConfigElementRepository;
+import devs.mrp.turkeydesktop.database.config.ConfigElementValidator;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationServiceImpl;
 import devs.mrp.turkeydesktop.database.imports.ImportFactory;
@@ -15,10 +14,6 @@ import devs.mrp.turkeydesktop.database.imports.ImportsRepository;
 import devs.mrp.turkeydesktop.database.titles.*;
 import java.util.function.Supplier;
 
-/**
- *
- * @author ncm55070
- */
 class FactoryInitializer {
     
     public void initialize() {
@@ -26,6 +21,7 @@ class FactoryInitializer {
         
         initTitleDbCache();
         initImportsDbCache();
+        initConfigDbCache();
         
         initGroupAssignationService();
     }
@@ -46,6 +42,13 @@ class FactoryInitializer {
             s -> s,
             key -> ImportValidator.isValidKey(key),
             ImportFactory::elementsFromSet));
+    }
+    
+    private void initConfigDbCache() {
+        ConfigElementFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(ConfigElementRepository.getInstance(),
+            c -> c.getKey().toString(),
+            key -> ConfigElementValidator.isValidKey(key),
+            ConfigElementFactory::elementsFromResultSet));
     }
     
     private void initGroupAssignationService() {

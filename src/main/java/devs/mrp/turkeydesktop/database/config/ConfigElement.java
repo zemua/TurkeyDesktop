@@ -10,6 +10,7 @@ public class ConfigElement {
     
     public static final String KEY = "KEY";
     public static final String VALUE = "VALUE";
+    public static final long MAX_LENGTH = 150;
     
     private ConfigurationEnum key;
     private String value;
