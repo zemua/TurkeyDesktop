@@ -32,7 +32,6 @@ public class ExportedGroupServiceImpl implements ExportedGroupService {
             log.error("File path cannot be longer than 500 characters");
             return Single.just(-1L);
         }
-        // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
         return dbCache.save(element).map(SaveAction::get);
     }
 
