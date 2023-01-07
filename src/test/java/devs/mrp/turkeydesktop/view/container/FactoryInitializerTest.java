@@ -1,7 +1,9 @@
 package devs.mrp.turkeydesktop.view.container;
 
+import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.database.titles.Title;
+import devs.mrp.turkeydesktop.database.titles.TitleFactory;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
 import devs.mrp.turkeydesktop.database.titles.TitleServiceImpl;
 import java.util.List;
@@ -23,6 +25,7 @@ public class FactoryInitializerTest {
 
     @Test
     public void testTitleDbCache() {
+        DbCache<String, Title> dbCache = TitleFactory.getDbCache();
         TitleService service = new TitleServiceImpl();
         List<Title> titles = service.findAll().toList().blockingGet();
         

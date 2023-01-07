@@ -1,23 +1,21 @@
 package devs.mrp.turkeydesktop.database.group;
 
 import devs.mrp.turkeydesktop.database.Db;
+import devs.mrp.turkeydesktop.database.DbFactory;
 import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class GroupRepository implements GroupDao {
     
-    private Db dbInstance = Db.getInstance();
-    private static final Logger logger = Logger.getLogger(GroupRepository.class.getName());
+    private Db dbInstance = DbFactory.getDb();
     
     private static GroupRepository instance;
     
     private GroupRepository() {
-        
     }
     
     static GroupRepository getInstance() {
@@ -28,27 +26,42 @@ public class GroupRepository implements GroupDao {
     }
     
     @Override
-    public Single<Long> add(Group element) {
-        return Db.singleLong(() -> {
-            long result = -1;
-            PreparedStatement stm;
-            try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s) ",
-                        Db.GROUPS_TABLE, Group.NAME, Group.TYPE)
-                        + "VALUES (?, ?)",
-                        Statement.RETURN_GENERATED_KEYS);
-                stm.setString(1, element.getName());
-                stm.setString(2, element.getType().toString());
-                stm.executeUpdate();
-                ResultSet generatedId = stm.getGeneratedKeys();
-                if (generatedId.next()) {
-                    result = generatedId.getLong(1);
-                }
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
-            return result;
-        });
+    public Single<Long> add(Group group) {
+        return Db.singleLong(() -> retrieveAddGeneratedId(group));
+    }
+    
+    private long retrieveAddGeneratedId(Group group) {
+        long longGeneratedId = -1;
+        try {
+            longGeneratedId = executeAdd(group);
+        } catch (SQLException ex) {
+            log.error("Error adding Group " + group, ex);
+        }
+        return longGeneratedId;
+    }
+    
+    private long executeAdd(Group group) throws SQLException {
+        PreparedStatement preparedStatement = buildAddQuery(group);
+        preparedStatement.executeUpdate();
+        return retrieveGeneratedId(preparedStatement);
+    }
+    
+    private PreparedStatement buildAddQuery(Group group) throws SQLException {
+        PreparedStatement preparedStatement = dbInstance.prepareStatementWithGeneratedKeys(String.format("INSERT INTO %s (%s, %s) ",
+                Db.GROUPS_TABLE, Group.NAME, Group.TYPE)
+                + "VALUES (?, ?)");
+        preparedStatement.setString(1, group.getName());
+        preparedStatement.setString(2, group.getType().toString());
+        return preparedStatement;
+    }
+    
+    private long retrieveGeneratedId(PreparedStatement preparedStatement) throws SQLException {
+        ResultSet generatedId = preparedStatement.getGeneratedKeys();
+        if (generatedId.next()) {
+            return generatedId.getLong(Group.ID_COLUMN);
+        } else {
+            throw new SQLException("Could not retrieve generated id");
+        }
     }
 
     @Override
@@ -65,7 +78,7 @@ public class GroupRepository implements GroupDao {
                 stm.setLong(4, element.getId());
                 result = stm.executeUpdate();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                log.error("Error updating Group " + element, ex);
             }
             return result;
         });
@@ -81,7 +94,7 @@ public class GroupRepository implements GroupDao {
                             Db.GROUPS_TABLE));
                     rs = stm.executeQuery();
                 } catch (SQLException ex) {
-                    logger.log(Level.SEVERE, null ,ex);
+                    log.error("Error finding all Groups", ex);
                 }
             return rs;
         });
@@ -90,18 +103,26 @@ public class GroupRepository implements GroupDao {
     @Override
     public Single<ResultSet> findById(Long id) {
         return Db.singleResultSet(() -> {
-            ResultSet rs = null;
-            PreparedStatement stm;
+            ResultSet resultSet = null;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
-                        Db.GROUPS_TABLE, Group.ID));
-                stm.setLong(1, id);
-                rs = stm.executeQuery();
+                resultSet = retrieveById(id);
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                log.error("Error finding Group by id " + id, ex);
             }
-            return rs;
+            return resultSet;
         });
+    }
+    
+    private ResultSet retrieveById(Long id) throws SQLException {
+        PreparedStatement preparedStatement = buildFindByIdQuery(id);
+        return preparedStatement.executeQuery();
+    }
+    
+    private PreparedStatement buildFindByIdQuery(Long id) throws SQLException {
+        PreparedStatement preparedStatement = dbInstance.prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+                Db.GROUPS_TABLE, Group.ID));
+        preparedStatement.setLong(1, id);
+        return preparedStatement;
     }
 
     @Override
@@ -115,7 +136,7 @@ public class GroupRepository implements GroupDao {
                 stm.setLong(1, id);
                 delQty = stm.executeUpdate();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                log.error("Error deleting Group by id " + id, ex);
             }
             return delQty;
         });
@@ -132,7 +153,7 @@ public class GroupRepository implements GroupDao {
                 stm.setString(1, type.toString());
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null ,ex);
+                log.error("Error finding all groups of type " + type, ex);
             }
             return rs;
         });
@@ -150,7 +171,7 @@ public class GroupRepository implements GroupDao {
                 stm.setLong(2, groupId);
                 affectedRows = stm.executeUpdate();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null ,ex);
+                log.error("Error setting prevent close " + preventClose +  " for groupId " + groupId, ex);
             }
             return affectedRows;
         });
