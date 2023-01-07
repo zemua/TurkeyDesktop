@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.group.external;
 
 import devs.mrp.turkeydesktop.database.Db;
@@ -14,10 +9,6 @@ import java.util.logging.Logger;
 import io.reactivex.rxjava3.core.Single;
 import java.sql.Statement;
 
-/**
- *
- * @author miguel
- */
 public class ExternalGroupRepository implements ExternalGroupDao {
     
     private Db dbInstance = Db.getInstance();

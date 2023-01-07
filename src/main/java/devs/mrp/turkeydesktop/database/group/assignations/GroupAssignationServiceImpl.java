@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.group.assignations;
 
 import devs.mrp.turkeydesktop.common.DbCache;
@@ -19,10 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 
-/**
- *
- * @author miguel
- */
 public class GroupAssignationServiceImpl implements GroupAssignationService {
     
     private static final Logger logger = Logger.getLogger(GroupAssignationServiceImpl.class.getName());

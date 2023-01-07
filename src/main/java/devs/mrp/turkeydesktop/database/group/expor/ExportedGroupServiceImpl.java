@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.group.expor;
 
 import devs.mrp.turkeydesktop.common.DbCache;
@@ -16,10 +11,6 @@ import io.reactivex.rxjava3.core.Single;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-/**
- *
- * @author miguel
- */
 @Slf4j
 public class ExportedGroupServiceImpl implements ExportedGroupService {
     
