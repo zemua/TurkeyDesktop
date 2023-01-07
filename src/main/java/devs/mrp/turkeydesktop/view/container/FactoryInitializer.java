@@ -17,8 +17,6 @@ import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.group.GroupFactory;
 import devs.mrp.turkeydesktop.database.group.GroupRepository;
 import devs.mrp.turkeydesktop.database.group.GroupValidator;
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationServiceImpl;
 import devs.mrp.turkeydesktop.database.imports.ImportFactory;
 import devs.mrp.turkeydesktop.database.imports.ImportValidator;
 import devs.mrp.turkeydesktop.database.imports.ImportsRepository;
@@ -46,8 +44,6 @@ class FactoryInitializer {
         initCloseableDbCache();
         initConditionDbCache();
         initGroupDbCache();
-        
-        initGroupAssignationService();
     }
     
     private void initGeneralDb() {
@@ -94,10 +90,6 @@ class FactoryInitializer {
             Group::getId,
             key -> GroupValidator.isValidKey(key),
             GroupFactory::elementsFromResultSet));
-    }
-    
-    private void initGroupAssignationService() {
-        GroupAssignationFactory.setGroupAssignationServiceSupplier(() -> new GroupAssignationServiceImpl());
     }
     
 }

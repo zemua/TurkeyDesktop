@@ -1,17 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.group.assignations;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 
-/**
- *
- * @author miguel
- */
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class GroupAssignation {
     
     public static final String TYPE = "TYPE";
