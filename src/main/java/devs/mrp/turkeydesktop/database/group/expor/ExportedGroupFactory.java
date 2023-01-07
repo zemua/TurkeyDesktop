@@ -15,7 +15,7 @@ import java.util.function.Supplier;
  *
  * @author miguel
  */
-public class ExportedGroupServiceFactory {
+public class ExportedGroupFactory {
     
     public static ExportedGroupService getService() {
         return new ExportedGroupServiceImpl();
