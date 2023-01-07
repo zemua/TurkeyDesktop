@@ -1,27 +1,17 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.group.assignations;
 
-import devs.mrp.turkeydesktop.common.SingleConsumer;
-import devs.mrp.turkeydesktop.common.WorkerFactory;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
+import devs.mrp.turkeydesktop.common.DbCache;
+import io.reactivex.rxjava3.core.Observable;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.SwingWorker;
+import lombok.extern.slf4j.Slf4j;
 
-/**
- *
- * @author miguel
- */
+@Slf4j
 public class GroupAssignationFactory {
     
     private static Supplier<GroupAssignationService> groupAssignationServiceSupplier;
+    private static Supplier<DbCache<GroupAssignationDao.ElementId, GroupAssignation>> dbCacheSupplier;
 
     public static void setGroupAssignationServiceSupplier(Supplier<GroupAssignationService> groupAssignationServiceSupplier) {
         GroupAssignationFactory.groupAssignationServiceSupplier = groupAssignationServiceSupplier;
@@ -30,53 +20,38 @@ public class GroupAssignationFactory {
     public static GroupAssignationService getService() {
         return groupAssignationServiceSupplier.get();
     }
+
+    public static void setDbCacheSupplier(Supplier<DbCache<GroupAssignationDao.ElementId, GroupAssignation>> dbCacheSupplier) {
+        GroupAssignationFactory.dbCacheSupplier = dbCacheSupplier;
+    }
     
-    public static void runGroupAssignationWorker(Supplier<GroupAssignation> supplier, Consumer<GroupAssignation> consumer) {
-        var worker = new SwingWorker<GroupAssignation, Object>() {
-            @Override
-            protected GroupAssignation doInBackground() throws Exception {
-                return supplier.get();
-            }
-            @Override
-            protected void done() {
-                try {
-                    consumer.accept(get());
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(WorkerFactory.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (ExecutionException ex) {
-                    Logger.getLogger(WorkerFactory.class.getName()).log(Level.SEVERE, null, ex);
+    public static DbCache<GroupAssignationDao.ElementId, GroupAssignation> getDbCache() {
+        return dbCacheSupplier.get();
+    }
+    
+    public static Observable<GroupAssignation> elementsFromResultSet(ResultSet set) {
+        return Observable.create(subscriber -> {
+            try {
+                while (set.next()) {
+                    subscriber.onNext(elementFromResultSetEntry(set));
                 }
+            } catch (SQLException ex) {
+                subscriber.onError(ex);
             }
-        };
-        worker.execute();
+            subscriber.onComplete();
+        });
     }
     
-    public static void runGroupAssignationListWoker(Supplier<List<GroupAssignation>> supplier, Consumer<List<GroupAssignation>> consumer) {
-        var worker = new SwingWorker<List<GroupAssignation>, Object>() {
-            @Override
-            protected List<GroupAssignation> doInBackground() throws Exception {
-                return supplier.get();
-            }
-            @Override
-            protected void done() {
-                try {
-                    consumer.accept(get());
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(WorkerFactory.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (ExecutionException ex) {
-                    Logger.getLogger(WorkerFactory.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        };
-        worker.execute();
-    }
-    
-    public static Consumer<GroupAssignation> groupAssignationConsumer(Consumer<GroupAssignation> consumer) {
-        return new SingleConsumer<>(consumer);
-    }
-    
-    public static Consumer<List<GroupAssignation>> groupAssignationListConsumer(Consumer<List<GroupAssignation>> consumer) {
-        return new SingleConsumer<>(consumer);
+    private static GroupAssignation elementFromResultSetEntry(ResultSet set) {
+        GroupAssignation.GroupAssignationBuilder el = GroupAssignation.builder();
+        try {
+            el.type(set.getString(GroupAssignation.TYPE) != null ? GroupAssignation.ElementType.valueOf(set.getString(GroupAssignation.TYPE)) : null);
+            el.elementId(set.getString(GroupAssignation.ELEMENT_ID));
+            el.groupId(set.getLong(GroupAssignation.GROUP_ID));
+        } catch (SQLException ex) {
+            log.error("Error extracting group assignation from result set", ex);
+        }
+        return el.build();
     }
     
 }

@@ -17,6 +17,11 @@ import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.group.GroupFactory;
 import devs.mrp.turkeydesktop.database.group.GroupRepository;
 import devs.mrp.turkeydesktop.database.group.GroupValidator;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationDao;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationRepository;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationServiceImpl;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationValidator;
 import devs.mrp.turkeydesktop.database.imports.ImportFactory;
 import devs.mrp.turkeydesktop.database.imports.ImportValidator;
 import devs.mrp.turkeydesktop.database.imports.ImportsRepository;
@@ -44,6 +49,9 @@ class FactoryInitializer {
         initCloseableDbCache();
         initConditionDbCache();
         initGroupDbCache();
+        initGroupAssignationDbCache();
+        
+        initGroupAssignationService();
     }
     
     private void initGeneralDb() {
@@ -90,6 +98,18 @@ class FactoryInitializer {
             Group::getId,
             key -> GroupValidator.isValidKey(key),
             GroupFactory::elementsFromResultSet));
+    }
+
+    private void initGroupAssignationDbCache() {
+        GroupAssignationFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(
+            GroupAssignationRepository.getInstance(),
+            element -> new GroupAssignationDao.ElementId(element.getType(), element.getElementId()),
+            GroupAssignationValidator::isValidKey,
+            GroupAssignationFactory::elementsFromResultSet));
+    }
+
+    private void initGroupAssignationService() {
+        GroupAssignationFactory.setGroupAssignationServiceSupplier(() -> new GroupAssignationServiceImpl());
     }
     
 }

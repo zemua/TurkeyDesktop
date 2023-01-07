@@ -2,39 +2,22 @@ package devs.mrp.turkeydesktop.database.group.assignations;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
-import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation.GroupAssignationBuilder;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationDao.ElementId;
 import io.reactivex.rxjava3.core.Maybe;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 
 public class GroupAssignationServiceImpl implements GroupAssignationService {
     
-    private static final Logger logger = Logger.getLogger(GroupAssignationServiceImpl.class.getName());
-    
-    public static final DbCache<GroupAssignationDao.ElementId,GroupAssignation> dbCache = DbCacheFactory.getDbCache(
-            GroupAssignationRepository.getInstance(),
-            element -> new GroupAssignationDao.ElementId(element.getType(), element.getElementId()),
-            key -> isValidKey(key),
-            set -> elementsFromResultSet(set));
-    
-    private static boolean isValidKey(GroupAssignationDao.ElementId rowId) {
-        return rowId.getElementId() != null && rowId.getType() != null && !rowId.getElementId().isEmpty();
-    }
+    public static final DbCache<GroupAssignationDao.ElementId,GroupAssignation> dbCache = GroupAssignationFactory.getDbCache();
     
     @Override
-    public Single<Long> add(GroupAssignation element) {
-        if (element == null) {
+    public Single<Long> add(GroupAssignation assignation) {
+        if (GroupAssignationValidator.isInvalidAssignation(assignation)) {
             return Single.just(-1L);
         }
-        // because H2 doesn't support INSERT OR REPLACE we have to check manually if it exists
-        return dbCache.save(element).map(SaveAction::get);
+        return dbCache.save(assignation).map(SaveAction::get);
     }
 
     @Override
@@ -83,9 +66,7 @@ public class GroupAssignationServiceImpl implements GroupAssignationService {
         return dbCache.getAll()
                 .filter(ga -> GroupAssignation.ElementType.TITLE.equals(ga.getType()))
                 .filter(ga -> StringUtils.containsIgnoreCase(titleId, ga.getElementId()))
-                // sort longest first
                 .sorted((ga1, ga2) -> Integer.compare(ga1.getElementId().length(), ga2.getElementId().length()))
-                // get the first one only
                 .firstElement();
     }
     
@@ -107,31 +88,6 @@ public class GroupAssignationServiceImpl implements GroupAssignationService {
         return dbCache.getAll()
                 .filter(ga -> GroupAssignation.ElementType.TITLE.equals(ga.getType()))
                 .filter(ga -> groupId.equals(ga.getGroupId()));
-    }
-    
-    private static Observable<GroupAssignation> elementsFromResultSet(ResultSet set) {
-        return Observable.create(subscriber -> {
-            try {
-                while (set.next()) {
-                    subscriber.onNext(elementFromResultSetEntry(set));
-                }
-            } catch (SQLException ex) {
-                subscriber.onError(ex);
-            }
-            subscriber.onComplete();
-        });
-    }
-    
-    private static GroupAssignation elementFromResultSetEntry(ResultSet set) {
-        GroupAssignationBuilder el = GroupAssignation.builder();
-        try {
-            el.type(set.getString(GroupAssignation.TYPE) != null ? GroupAssignation.ElementType.valueOf(set.getString(GroupAssignation.TYPE)) : null);
-            el.elementId(set.getString(GroupAssignation.ELEMENT_ID));
-            el.groupId(set.getLong(GroupAssignation.GROUP_ID));
-        } catch (SQLException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        return el.build();
     }
 
     @Override
