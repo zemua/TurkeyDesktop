@@ -11,7 +11,7 @@ import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.ConditionFactory;
-import devs.mrp.turkeydesktop.database.group.GroupServiceFactory;
+import devs.mrp.turkeydesktop.database.group.GroupFactory;
 import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
@@ -73,7 +73,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private final LocaleMessages localeMessages = LocaleMessages.getInstance();
 
     private Group group;
-    private final GroupService groupService = GroupServiceFactory.getService();
+    private final GroupService groupService = GroupFactory.getService();
     private final GroupAssignationService groupAssignationService = GroupAssignationFactory.getService();
     private final AssignableElementService assignableProcessService = AssignableElementServiceFactory.getProcessesService();
     private final AssignableElementService assignableTitlesService = AssignableElementServiceFactory.getTitlesService();

@@ -13,6 +13,10 @@ import devs.mrp.turkeydesktop.database.conditions.ConditionValidator;
 import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
 import devs.mrp.turkeydesktop.database.config.ConfigElementRepository;
 import devs.mrp.turkeydesktop.database.config.ConfigElementValidator;
+import devs.mrp.turkeydesktop.database.group.Group;
+import devs.mrp.turkeydesktop.database.group.GroupFactory;
+import devs.mrp.turkeydesktop.database.group.GroupRepository;
+import devs.mrp.turkeydesktop.database.group.GroupValidator;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationServiceImpl;
 import devs.mrp.turkeydesktop.database.imports.ImportFactory;
@@ -41,6 +45,7 @@ class FactoryInitializer {
         initConfigDbCache();
         initCloseableDbCache();
         initConditionDbCache();
+        initGroupDbCache();
         
         initGroupAssignationService();
     }
@@ -82,6 +87,13 @@ class FactoryInitializer {
             c -> c.getId(),
             key -> ConditionValidator.isValidKey(key),
             ConditionFactory::elementsFromResultSet));
+    }
+    
+    private void initGroupDbCache() {
+        GroupFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(GroupRepository.getInstance(),
+            Group::getId,
+            key -> GroupValidator.isValidKey(key),
+            GroupFactory::elementsFromResultSet));
     }
     
     private void initGroupAssignationService() {

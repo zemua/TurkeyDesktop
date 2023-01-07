@@ -25,7 +25,7 @@ public class ConditionServiceImplTest {
     }
     
     @Test
-    public void testNullCondition() {
+    public void testAddNullCondition() {
         ConditionService service = new ConditionServiceImpl();
         Condition condition = null;
         
@@ -34,7 +34,7 @@ public class ConditionServiceImplTest {
     }
     
     @Test
-    public void testInvalidGroup() {
+    public void testAddInvalidGroup() {
         ConditionService service = new ConditionServiceImpl();
         Condition condition = new Condition();
         condition.setGroupId(0);
@@ -47,7 +47,7 @@ public class ConditionServiceImplTest {
     }
     
     @Test
-    public void testInvalidTarget() {
+    public void testAddInvalidTarget() {
         ConditionService service = new ConditionServiceImpl();
         Condition condition = new Condition();
         condition.setGroupId(2);
@@ -60,7 +60,7 @@ public class ConditionServiceImplTest {
     }
     
     @Test
-    public void testSuccess() {
+    public void testAddSuccess() {
         ConditionService service = new ConditionServiceImpl();
         Condition condition = new Condition();
         condition.setGroupId(2);

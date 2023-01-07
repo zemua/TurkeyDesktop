@@ -5,7 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.logs;
 
-import devs.mrp.turkeydesktop.database.group.GroupServiceFactory;
+import devs.mrp.turkeydesktop.database.group.GroupFactory;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
@@ -49,7 +49,7 @@ public class TimeLog {
     private long groupId;
     private Type.Types type;
     
-    private GroupService groupService = GroupServiceFactory.getService();
+    private GroupService groupService = GroupFactory.getService();
     
     private boolean blockable;
 
