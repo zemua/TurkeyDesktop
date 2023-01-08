@@ -16,21 +16,19 @@ public class ExportedGroupServiceImpl implements ExportedGroupService {
     @Override
     public Single<Long> add(ExportedGroup exportedGroup) {
         if (ExportedGroupValidator.isInvalid(exportedGroup)) {
+            log.error("Cannot save invalid exported group: " + exportedGroup);
             return Single.just(-1L);
         }
         return dbCache.save(exportedGroup).map(SaveAction::get);
     }
 
     @Override
-    public Single<Long> update(ExportedGroup element) {
-        if (element == null) {
+    public Single<Long> update(ExportedGroup exportedGroup) {
+        if (ExportedGroupValidator.isInvalid(exportedGroup)) {
+            log.error("Cannot update invalid exported group: " + exportedGroup);
             return Single.just(-1L);
         }
-        if (element.getFile() != null && element.getFile().length() > 500) {
-            log.error("File path cannot be longer than 500 characters");
-            return Single.just(-1L);
-        }
-        return dbCache.save(element).map(SaveAction::get);
+        return dbCache.save(exportedGroup).map(SaveAction::get);
     }
 
     @Override
