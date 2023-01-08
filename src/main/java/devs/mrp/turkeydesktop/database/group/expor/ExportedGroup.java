@@ -4,6 +4,7 @@ import java.util.Objects;
 
 public class ExportedGroup {
     
+    public static final int MAX_PATH_SIZE = 500;
     public static final String GROUP = "GROUP_COLUMN";
     public static final String FILE = "FILE";
     public static final String DAYS = "FOR_DAYS";

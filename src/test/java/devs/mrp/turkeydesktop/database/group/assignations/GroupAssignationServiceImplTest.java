@@ -69,7 +69,7 @@ public class GroupAssignationServiceImplTest {
     }
     
     @Test
-    public void testSuccess() {
+    public void testAddSuccess() {
         GroupAssignationService service = new GroupAssignationServiceImpl();
         GroupAssignation assignation = new GroupAssignation();
         assignation.setElementId("some title");

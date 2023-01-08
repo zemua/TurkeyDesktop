@@ -22,6 +22,10 @@ import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactor
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationRepository;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationServiceImpl;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationValidator;
+import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupFactory;
+import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupId;
+import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupRepository;
+import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupValidator;
 import devs.mrp.turkeydesktop.database.imports.ImportFactory;
 import devs.mrp.turkeydesktop.database.imports.ImportValidator;
 import devs.mrp.turkeydesktop.database.imports.ImportsRepository;
@@ -50,6 +54,7 @@ class FactoryInitializer {
         initConditionDbCache();
         initGroupDbCache();
         initGroupAssignationDbCache();
+        initExportedGroupDbCache();
         
         initGroupAssignationService();
     }
@@ -106,6 +111,13 @@ class FactoryInitializer {
             element -> new GroupAssignationDao.ElementId(element.getType(), element.getElementId()),
             GroupAssignationValidator::isValidKey,
             GroupAssignationFactory::elementsFromResultSet));
+    }
+    
+    private void initExportedGroupDbCache() {
+        ExportedGroupFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(ExportedGroupRepository.getInstance(),
+            exportedGroup -> new ExportedGroupId(exportedGroup.getGroup(), exportedGroup.getFile()),
+            ExportedGroupValidator::isValidKey,
+            ExportedGroupFactory::elementsFromResultSet));
     }
 
     private void initGroupAssignationService() {

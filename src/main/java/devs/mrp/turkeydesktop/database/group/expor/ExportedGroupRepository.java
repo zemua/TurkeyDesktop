@@ -19,7 +19,7 @@ public class ExportedGroupRepository implements ExportedGroupDao {
         
     }
     
-    static ExportedGroupRepository getInstance() {
+    public static ExportedGroupRepository getInstance() {
         if (instance == null) {
             instance = new ExportedGroupRepository();
         }
