@@ -7,7 +7,7 @@ public class GroupValidator {
     }
     
     public static boolean isInvalid(Group group) {
-        return group.getName() == null || group.getName().isBlank() || group.getType() == null;
+        return group == null || group.getName() == null || group.getName().isBlank() || group.getType() == null;
     }
     
 }
