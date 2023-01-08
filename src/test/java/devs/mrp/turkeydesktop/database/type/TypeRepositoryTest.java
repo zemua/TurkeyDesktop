@@ -17,7 +17,7 @@ import static org.mockito.Mockito.when;
 
 public class TypeRepositoryTest {
     
-    static final Db db = mock(Db.class);
+    static Db db = mock(Db.class);
     PreparedStatement allPreparedStatement = mock(PreparedStatement.class);
     ResultSet allResultSet = mock(ResultSet.class);
     
