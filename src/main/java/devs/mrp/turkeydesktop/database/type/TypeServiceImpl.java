@@ -2,10 +2,7 @@ package devs.mrp.turkeydesktop.database.type;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
-import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
 import io.reactivex.rxjava3.core.Maybe;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import lombok.extern.slf4j.Slf4j;
@@ -15,22 +12,14 @@ public class TypeServiceImpl implements TypeService {
     
     TypeDao repo = TypeRepository.getInstance();
     
-    private static final DbCache<String,Type> dbCache = DbCacheFactory.getDbCache(
-            TypeRepository.getInstance(),
-            (Type element) -> element.getProcess(),
-            key -> isValidKey(key),
-            (ResultSet set) -> listFromResultSet(set));
-    
-    private static boolean isValidKey(String rowId) {
-        return rowId != null && !rowId.isEmpty();
-    }
+    private static final DbCache<String,Type> dbCache = TypeFactory.getDbCache();
 
     @Override
-    public Single<Long> add(Type element) {
-        if (element == null) {
+    public Single<Long> add(Type type) {
+        if (TypeValidator.isInvalid(type)) {
             return Single.just(-1L);
         }
-        return dbCache.save(element).map(SaveAction::get);
+        return dbCache.save(type).map(SaveAction::get);
     }
 
     @Override
@@ -60,22 +49,5 @@ public class TypeServiceImpl implements TypeService {
     public Single<Long> deleteById(String id) {
         return dbCache.remove(id).map(b -> b?1L:0L);
     }
-    
-    private static Observable<Type> listFromResultSet(ResultSet set) {
-        return Observable.create(submitter -> {
-            try {
-                while (set.next()) {
-                    Type type = new Type();
-                    type.setProcess(set.getString(Type.PROCESS_NAME));
-                    type.setType(Type.Types.valueOf(set.getString(Type.TYPE)));
-                    submitter.onNext(type);
-                }
-            } catch (SQLException ex) {
-                log.error("error creating observable from resultSet", ex);
-                submitter.onError(ex);
-            }
-            submitter.onComplete();
-        });
-    }
-    
+
 }

@@ -34,6 +34,9 @@ import devs.mrp.turkeydesktop.database.imports.ImportFactory;
 import devs.mrp.turkeydesktop.database.imports.ImportValidator;
 import devs.mrp.turkeydesktop.database.imports.ImportsRepository;
 import devs.mrp.turkeydesktop.database.titles.*;
+import devs.mrp.turkeydesktop.database.type.TypeFactory;
+import devs.mrp.turkeydesktop.database.type.TypeRepository;
+import devs.mrp.turkeydesktop.database.type.TypeValidator;
 import java.util.function.Supplier;
 
 class FactoryInitializer {
@@ -60,6 +63,7 @@ class FactoryInitializer {
         initGroupAssignationDbCache();
         initExportedGroupDbCache();
         initExternalGroupDbCache();
+        initTypeDbCache();
         
         initGroupAssignationService();
     }
@@ -130,6 +134,13 @@ class FactoryInitializer {
             ExternalGroup::getId,
             ExternalGroupValidator::isValidKey,
             ExternalGroupFactory::elementsFromResultSet));
+    }
+    
+    private void initTypeDbCache() {
+        TypeFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(TypeRepository.getInstance(),
+            type -> type.getProcess(),
+            TypeValidator::isValidKey,
+            TypeFactory::listFromResultSet));
     }
 
     private void initGroupAssignationService() {

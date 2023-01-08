@@ -39,8 +39,8 @@ public class ExternalGroupServiceImplTest {
         externalGroup.setFile("some/path");
         externalGroup.setGroup(0);
         
-        long idResult = service.add(externalGroup).blockingGet();
-        assertEquals(SaveAction.ERROR.get().longValue(), idResult);
+        long saveResult = service.add(externalGroup).blockingGet();
+        assertEquals(SaveAction.ERROR.get().longValue(), saveResult);
     }
     
     @Test
@@ -50,8 +50,8 @@ public class ExternalGroupServiceImplTest {
         externalGroup.setFile(null);
         externalGroup.setGroup(4);
         
-        long idResult = service.add(externalGroup).blockingGet();
-        assertEquals(SaveAction.ERROR.get().longValue(), idResult);
+        long saveResult = service.add(externalGroup).blockingGet();
+        assertEquals(SaveAction.ERROR.get().longValue(), saveResult);
     }
     
     @Test
@@ -61,8 +61,8 @@ public class ExternalGroupServiceImplTest {
         externalGroup.setFile("");
         externalGroup.setGroup(4);
         
-        long idResult = service.add(externalGroup).blockingGet();
-        assertEquals(SaveAction.ERROR.get().longValue(), idResult);
+        long saveResult = service.add(externalGroup).blockingGet();
+        assertEquals(SaveAction.ERROR.get().longValue(), saveResult);
     }
     
     @Test
@@ -72,8 +72,9 @@ public class ExternalGroupServiceImplTest {
         String longString = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
         externalGroup.setFile(longString + longString + longString + longString + longString + longString);
         externalGroup.setGroup(4);
-        long idResult = service.add(externalGroup).blockingGet();
-        assertEquals(SaveAction.ERROR.get().longValue(), idResult);
+        
+        long saveResult = service.add(externalGroup).blockingGet();
+        assertEquals(SaveAction.ERROR.get().longValue(), saveResult);
     }
     
     @Test
@@ -85,8 +86,8 @@ public class ExternalGroupServiceImplTest {
         
         when(dbCache.save(externalGroup)).thenReturn(Single.just(SaveAction.SAVED));
         
-        long idResult = service.add(externalGroup).blockingGet();
-        assertEquals(SaveAction.SAVED.get().longValue(), idResult);
+        long saveResult = service.add(externalGroup).blockingGet();
+        assertEquals(SaveAction.SAVED.get().longValue(), saveResult);
     }
     
 }
