@@ -63,7 +63,10 @@ class FactoryInitializer {
         initGroupAssignationDbCache();
         initExportedGroupDbCache();
         initExternalGroupDbCache();
+        
+        initTypeDb();
         initTypeDbCache();
+        initTypeRepo();
         
         initGroupAssignationService();
     }
@@ -136,11 +139,19 @@ class FactoryInitializer {
             ExternalGroupFactory::elementsFromResultSet));
     }
     
+    private void initTypeDb() {
+        TypeFactory.setDbSupplier(dbSupplier);
+    }
+    
     private void initTypeDbCache() {
         TypeFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(TypeRepository.getInstance(),
             type -> type.getProcess(),
             TypeValidator::isValidKey,
             TypeFactory::listFromResultSet));
+    }
+    
+    private void initTypeRepo() {
+        TypeFactory.setRepoSupplier(() -> TypeRepository.getInstance());
     }
 
     private void initGroupAssignationService() {

@@ -1,7 +1,6 @@
 package devs.mrp.turkeydesktop.database.type;
 
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TypeRepository implements TypeDao {
     
-    private Db dbInstance = DbFactory.getDb();
+    private Db dbInstance = TypeFactory.getDb();
     
     private static TypeRepository instance;
     

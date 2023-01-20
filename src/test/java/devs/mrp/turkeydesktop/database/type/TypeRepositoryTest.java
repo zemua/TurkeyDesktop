@@ -1,10 +1,10 @@
 package devs.mrp.turkeydesktop.database.type;
 
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import lombok.extern.slf4j.Slf4j;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -15,10 +15,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@Slf4j
 public class TypeRepositoryTest {
     
     static Db db = mock(Db.class);
-    PreparedStatement allPreparedStatement = mock(PreparedStatement.class);
+    PreparedStatement allPreparedStatement;
     ResultSet allResultSet = mock(ResultSet.class);
     
     static TypeRepository typeRepository;
@@ -27,12 +28,13 @@ public class TypeRepositoryTest {
     
     @BeforeClass
     public static void classSetup() {
-        DbFactory.setDbSupplier(() -> db);
+        TypeFactory.setDbSupplier(() -> db);
         typeRepository = TypeRepository.getInstance();
     }
     
     @Before
     public void setup() throws SQLException {
+        allPreparedStatement = mock(PreparedStatement.class);
         when(allPreparedStatement.executeQuery()).thenReturn(allResultSet);
         
         type = new Type();
@@ -61,6 +63,7 @@ public class TypeRepositoryTest {
         
         when(db.prepareStatement(ArgumentMatchers.contains("INSERT INTO TYPES_CATEGORIZATION (PROCESS_NAME, TYPE) VALUES (?,?)")))
                 .thenReturn(preparedStatement);
+        when(db.prepareStatement(ArgumentMatchers.any())).thenReturn(preparedStatement);
         
         String idResult = typeRepository.add(type).blockingGet();
         assertEquals(expectedResult, idResult);

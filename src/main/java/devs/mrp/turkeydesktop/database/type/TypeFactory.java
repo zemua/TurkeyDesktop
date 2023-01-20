@@ -2,6 +2,7 @@ package devs.mrp.turkeydesktop.database.type;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SingleConsumer;
+import devs.mrp.turkeydesktop.database.Db;
 import io.reactivex.rxjava3.core.Observable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,6 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 public class TypeFactory {
     
     private static Supplier<DbCache<String,Type>> dbCacheSupplier;
+    
+    private static Supplier<Db> dbSupplier;
+    
+    private static Supplier<TypeDao> repoSupplier;
 
     public static void setDbCacheSupplier(Supplier<DbCache<String, Type>> dbCacheSupplier) {
         TypeFactory.dbCacheSupplier = dbCacheSupplier;
@@ -21,6 +26,22 @@ public class TypeFactory {
     
     public static DbCache<String,Type> getDbCache() {
         return dbCacheSupplier.get();
+    }
+    
+    public static void setDbSupplier(Supplier<Db> dbSupplier) {
+        TypeFactory.dbSupplier = dbSupplier;
+    }
+    
+    public static Db getDb() {
+        return dbSupplier.get();
+    }
+    
+    public static void setRepoSupplier(Supplier<TypeDao> repoSupplier) {
+        TypeFactory.repoSupplier = repoSupplier;
+    }
+    
+    public static TypeDao getTypeRepo() {
+        return repoSupplier.get();
     }
     
     public static TypeService getService() {

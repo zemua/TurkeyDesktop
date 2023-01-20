@@ -2,8 +2,6 @@ package devs.mrp.turkeydesktop.database.type;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
-import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
 import io.reactivex.rxjava3.core.Single;
 import static org.junit.Assert.assertEquals;
 import org.junit.BeforeClass;
@@ -12,14 +10,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class TypeServiceImplTest {
-    
-    static final Db db = mock(Db.class);
+
     static final DbCache<String,Type> dbCache = mock(DbCache.class);
     static final TypeRepository typeRepository = mock(TypeRepository.class);
     
     @BeforeClass
     public static void setupClass() {
-        DbFactory.setDbSupplier(() -> db);
+        TypeFactory.setRepoSupplier(() -> typeRepository);
         TypeFactory.setDbCacheSupplier(() -> dbCache);
     }
 
