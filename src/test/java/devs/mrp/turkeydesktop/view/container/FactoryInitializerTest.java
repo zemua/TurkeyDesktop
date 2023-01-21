@@ -10,6 +10,8 @@ import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.ConditionFactory;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationServiceImpl;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroup;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupFactory;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupId;
@@ -18,11 +20,15 @@ import devs.mrp.turkeydesktop.database.group.external.ExternalGroupFactory;
 import devs.mrp.turkeydesktop.database.imports.ImportFactory;
 import devs.mrp.turkeydesktop.database.titles.Title;
 import devs.mrp.turkeydesktop.database.titles.TitleFactory;
+import devs.mrp.turkeydesktop.database.type.Type;
+import devs.mrp.turkeydesktop.database.type.TypeFactory;
+import devs.mrp.turkeydesktop.database.type.TypeRepository;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -163,6 +169,36 @@ public class FactoryInitializerTest {
         var result = cache.read(14L).blockingGet();
         
         assertEquals(expected, result);
+    }
+    
+    @Test
+    public void testTypeFactoryDb() {
+        assertEquals(db, TypeFactory.getDb());
+    }
+    
+    @Test
+    public void testTypeDbCache() throws SQLException {
+        when(db.prepareStatement(ArgumentMatchers.any())).thenReturn(preparedStatement);
+        var cache = TypeFactory.getDbCache();
+        Type expected = new Type();
+        expected.setProcess("some process");
+        expected.setType(Type.Types.DEPENDS);
+        
+        cache.save(expected).blockingGet();
+        var result = cache.read(expected.getProcess()).blockingGet();
+        
+        assertEquals(expected, result);
+    }
+    
+    @Test
+    public void testTypeRepo() {
+        assertEquals(TypeRepository.getInstance(), TypeFactory.getTypeRepo());
+    }
+    
+    @Test
+    public void testGroupAssignationService() {
+        var result = GroupAssignationFactory.getService();
+        assertTrue(result instanceof GroupAssignationServiceImpl);
     }
     
 }
