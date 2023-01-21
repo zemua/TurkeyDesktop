@@ -10,6 +10,11 @@ import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.ConditionFactory;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
+import devs.mrp.turkeydesktop.database.group.expor.ExportedGroup;
+import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupFactory;
+import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupId;
+import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
+import devs.mrp.turkeydesktop.database.group.external.ExternalGroupFactory;
 import devs.mrp.turkeydesktop.database.imports.ImportFactory;
 import devs.mrp.turkeydesktop.database.titles.Title;
 import devs.mrp.turkeydesktop.database.titles.TitleFactory;
@@ -123,6 +128,39 @@ public class FactoryInitializerTest {
         
         cache.save(expected).blockingGet();
         var result = cache.read(9L).blockingGet();
+        
+        assertEquals(expected, result);
+    }
+    
+    @Test
+    public void testExportedGroupDbCache() throws SQLException {
+        when(db.prepareStatement(ArgumentMatchers.any())).thenReturn(preparedStatement);
+        var cache = ExportedGroupFactory.getDbCache();
+        ExportedGroup expected = new ExportedGroup();
+        expected.setDays(4);
+        expected.setFile("some file path");
+        expected.setGroup(7);
+        ExportedGroupId expectedId = new ExportedGroupId(expected.getGroup(), expected.getFile());
+        
+        cache.save(expected).blockingGet();
+        var result = cache.read(expectedId).blockingGet();
+        
+        assertEquals(expected, result);
+    }
+    
+    @Test
+    public void testExternalGroupDbCache() throws SQLException {
+        when(db.prepareStatementWithGeneratedKeys(ArgumentMatchers.any())).thenReturn(preparedStatement);
+        when(preparedStatement.getGeneratedKeys()).thenReturn(generatedKeysResultSet);
+        when(generatedKeysResultSet.next()).thenReturn(Boolean.TRUE);
+        when(generatedKeysResultSet.getLong(ArgumentMatchers.anyInt())).thenReturn(14L);
+        var cache = ExternalGroupFactory.getDbCache();
+        ExternalGroup expected = new ExternalGroup();
+        expected.setFile("some file");
+        expected.setGroup(6);
+        
+        cache.save(expected).blockingGet();
+        var result = cache.read(14L).blockingGet();
         
         assertEquals(expected, result);
     }
