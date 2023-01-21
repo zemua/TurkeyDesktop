@@ -1,5 +1,6 @@
 package devs.mrp.turkeydesktop.database.type;
 
+import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,7 +19,7 @@ import static org.mockito.Mockito.when;
 @Slf4j
 public class TypeRepositoryTest {
     
-    static Db db = mock(Db.class);
+    static Db db = CommonMocks.getMock(Db.class);
     PreparedStatement allPreparedStatement;
     ResultSet allResultSet = mock(ResultSet.class);
     

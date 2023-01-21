@@ -1,5 +1,6 @@
 package devs.mrp.turkeydesktop.database.closeables;
 
+import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.database.DbFactory;
 import java.sql.PreparedStatement;
@@ -17,7 +18,7 @@ import static org.mockito.Mockito.when;
 
 public class CloseableRepositoryTest {
     
-    static Db db = mock(Db.class);
+    static Db db = CommonMocks.getMock(Db.class);
     PreparedStatement allPreparedStatement = mock(PreparedStatement.class);
     ResultSet allResultSet = mock(ResultSet.class);
     

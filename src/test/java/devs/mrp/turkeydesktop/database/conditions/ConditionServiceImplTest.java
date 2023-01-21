@@ -2,6 +2,7 @@ package devs.mrp.turkeydesktop.database.conditions;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
+import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.database.DbFactory;
 import io.reactivex.rxjava3.core.Single;
@@ -14,7 +15,7 @@ import static org.mockito.Mockito.when;
 
 public class ConditionServiceImplTest {
     
-    static final Db db = mock(Db.class);
+    static final Db db = CommonMocks.getMock(Db.class);
     static final DbCache<Long, Condition> dbCache = mock(DbCache.class);
     static final ConditionRepository conditionRepository = mock(ConditionRepository.class);
 

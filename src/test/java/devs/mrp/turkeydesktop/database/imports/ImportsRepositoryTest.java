@@ -1,5 +1,6 @@
 package devs.mrp.turkeydesktop.database.imports;
 
+import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.database.DbFactory;
 import java.sql.Connection;
@@ -18,7 +19,7 @@ import static org.mockito.Mockito.when;
 
 public class ImportsRepositoryTest {
     
-    static Db db = mock(Db.class);
+    static Db db = CommonMocks.getMock(Db.class);
     Connection connection = mock(Connection.class);
     PreparedStatement allPreparedStatement = mock(PreparedStatement.class);
     ResultSet allResultSet = mock(ResultSet.class);

@@ -2,6 +2,7 @@ package devs.mrp.turkeydesktop.database.titles;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
+import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.database.DbFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
@@ -19,7 +20,7 @@ import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationServic
 
 public class TitleServiceImplTest {
     
-    static final Db db = mock(Db.class);
+    static final Db db = CommonMocks.getMock(Db.class);
     static final DbCache<String,Title> dbCache = mock(DbCache.class);
     static final GroupAssignationService groupAssignationService = mock(GroupAssignationService.class);
     
