@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.view.groups;
 
 import devs.mrp.turkeydesktop.database.group.GroupFactory;
@@ -21,10 +16,6 @@ import devs.mrp.turkeydesktop.database.group.GroupService;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
 
-/**
- *
- * @author miguel
- */
 public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>> {
 
     private Group.GroupType type;
@@ -109,9 +100,12 @@ public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, Feedbacker
         Group group = new Group();
         group.setName(name);
         group.setType(this.type);
-        groupService.add(group).subscribe();
-        field.setText("");
-        refreshPanelList();
+        groupService.add(group)
+                .doOnSuccess(r -> {
+                    field.setText("");
+                    refreshPanelList();
+                })
+                .subscribe();
     }
     
     private void setClickListener(JLabel label, Group group){
