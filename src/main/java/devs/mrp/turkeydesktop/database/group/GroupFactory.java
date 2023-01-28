@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 public class GroupFactory {
     
     private static Supplier<DbCache<Long, Group>> dbCacheSupplier;
+    
+    private static Supplier<GroupService> groupServiceSupplier;
 
     public static void setDbCacheSupplier(Supplier<DbCache<Long, Group>> dbCacheSupplier) {
         GroupFactory.dbCacheSupplier = dbCacheSupplier;
@@ -19,9 +21,19 @@ public class GroupFactory {
     public static DbCache<Long, Group> getDbCache() {
         return dbCacheSupplier.get();
     }
+
+    public static void setGroupServiceSupplier(Supplier<GroupService> groupServiceSupplier) {
+        GroupFactory.groupServiceSupplier = groupServiceSupplier;
+    }
     
     public static GroupService getService() {
-        return new GroupServiceImpl();
+        GroupService result;
+        if (groupServiceSupplier == null) {
+            result = new GroupServiceImpl();
+        } else {
+            result = groupServiceSupplier.get();
+        }
+        return result;
     }
     
     public static Observable<Group> elementsFromResultSet(ResultSet set) {
