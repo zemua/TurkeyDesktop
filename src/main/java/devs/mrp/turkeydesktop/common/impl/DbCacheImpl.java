@@ -2,8 +2,8 @@ package devs.mrp.turkeydesktop.common.impl;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
-import devs.mrp.turkeydesktop.database.TurkeyDbException;
 import devs.mrp.turkeydesktop.database.GeneralDao;
+import devs.mrp.turkeydesktop.database.TurkeyDbException;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,15 +23,18 @@ public class DbCacheImpl<KEY, VALUE> implements DbCache<KEY, VALUE> {
     private Function<VALUE,KEY> keyExtractor;
     private Function<KEY,Boolean> isValidKey;
     private Function<ResultSet,Observable<VALUE>> streamFromResultSet;
+    private BiFunction<VALUE,KEY,VALUE> keySetter;
     
     public DbCacheImpl(GeneralDao<VALUE, KEY> repo,
             Function<VALUE,KEY> keyExtractor,
             Function<KEY,Boolean> isValidKey,
-            Function<ResultSet,Observable<VALUE>> streamFromResultSet) {
+            Function<ResultSet,Observable<VALUE>> streamFromResultSet,
+            BiFunction<VALUE,KEY,VALUE> keySetter) {
         this.repo = repo;
         this.keyExtractor = keyExtractor;
         this.isValidKey = isValidKey;
         this.streamFromResultSet = streamFromResultSet;
+        this.keySetter = keySetter;
         loadDb();
     }
 
@@ -38,7 +42,7 @@ public class DbCacheImpl<KEY, VALUE> implements DbCache<KEY, VALUE> {
     public Single<SaveAction> save(VALUE value) {
         KEY key = keyExtractor.apply(value);
         Single<KeyAndAction> updateOutput = addOrUpdate(key, value)
-            .doOnSuccess(keyAndAction -> cacheMap.put(keyAndAction.key, value));
+            .doOnSuccess(keyAndAction ->  cacheMap.put(keyAndAction.key, keySetter.apply(value, keyAndAction.key)));
         return updateOutput.map(output -> output.action);
     }
     

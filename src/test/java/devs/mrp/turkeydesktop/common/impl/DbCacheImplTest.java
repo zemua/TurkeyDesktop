@@ -5,7 +5,9 @@ import devs.mrp.turkeydesktop.database.GeneralDao;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.sql.ResultSet;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import lombok.AllArgsConstructor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
@@ -22,6 +24,7 @@ public class DbCacheImplTest {
     Function<String, Long> keyExtractor = s -> Long.parseLong(s.substring(0, 1));
     Function<Long ,Boolean> isValidKey = l -> l > 0;
     Function<ResultSet,Observable<String>> listFromResultSet;
+    BiFunction<String,Long,String> keySetter;
     
     DbCacheImpl<Long,String> dbCacheImpl;
     
@@ -29,12 +32,13 @@ public class DbCacheImplTest {
     public void setup() throws InterruptedException {
         repo = mock(GeneralDao.class);
         listFromResultSet = mock(Function.class);
+        keySetter = (s,l) -> s;
         
         ResultSet findAllSet = mock(ResultSet.class);
         when(repo.findAll()).thenReturn(Single.just(findAllSet));
         when(listFromResultSet.apply(ArgumentMatchers.eq(findAllSet))).thenReturn(Observable.just("1as", "2qw", "3er", "4vb", "5ty"));
         
-        dbCacheImpl = new DbCacheImpl(repo, keyExtractor, isValidKey, listFromResultSet);
+        dbCacheImpl = new DbCacheImpl(repo, keyExtractor, isValidKey, listFromResultSet, keySetter);
     }
     
     @Test
@@ -93,6 +97,39 @@ public class DbCacheImplTest {
         
         verify(repo, times(1)).add(ArgumentMatchers.matches("7op"));
         verify(repo, times(1)).add(ArgumentMatchers.matches("8op"));
+    }
+    
+    @Test
+    public void save_new_saves_in_cache_with_repo_generated_id(){
+        GeneralDao<TestObject, Long> testRepo = mock(GeneralDao.class);
+        Function<TestObject, Long> testKeyExtractor = testObject -> testObject.key;
+        Function<Long ,Boolean> testIsValidKey = l -> true;
+        Function<ResultSet,Observable<TestObject>> testListFromResultSet = mock(Function.class);
+        BiFunction<TestObject, Long, TestObject> testKeySetter = (o,l) -> {
+            o.key = l;
+            return o;
+        };
+
+        ResultSet testFindAllSet = mock(ResultSet.class);
+        when(testRepo.findAll()).thenReturn(Single.just(testFindAllSet));
+        when(testListFromResultSet.apply(ArgumentMatchers.eq(testFindAllSet))).thenReturn(Observable.just(new TestObject(1L, "hola"), new TestObject(2L, "adios")));
+        DbCacheImpl<Long,TestObject> testDbCacheImpl = new DbCacheImpl(testRepo, testKeyExtractor, testIsValidKey, testListFromResultSet, testKeySetter);
+        
+        TestObject toBeSaved = new TestObject(8L, "salam malicum");
+        long generatedId = 3L;
+        when(testRepo.add(ArgumentMatchers.refEq(toBeSaved))).thenReturn(Single.just(generatedId));
+        
+        testDbCacheImpl.save(toBeSaved).blockingGet();
+        
+        var retrieveResult = testDbCacheImpl.read(3L).blockingGet();
+        assertEquals(toBeSaved.content, retrieveResult.content);
+        assertEquals(generatedId, retrieveResult.key.longValue());
+    }
+    
+    @AllArgsConstructor
+    class TestObject {
+        Long key;
+        String content;
     }
     
 }
