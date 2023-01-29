@@ -39,7 +39,7 @@ import devs.mrp.turkeydesktop.database.type.TypeRepository;
 import devs.mrp.turkeydesktop.database.type.TypeValidator;
 import java.util.function.Supplier;
 
-class FactoryInitializer {
+public class FactoryInitializer {
     
     private Supplier<Db> dbSupplier = () -> Db.getInstance();
 

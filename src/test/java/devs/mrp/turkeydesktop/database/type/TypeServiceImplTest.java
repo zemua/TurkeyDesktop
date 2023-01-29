@@ -4,6 +4,7 @@ import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
 import io.reactivex.rxjava3.core.Single;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.mockito.Mockito.mock;
@@ -73,6 +74,12 @@ public class TypeServiceImplTest {
         
         long saveResult = service.add(type).blockingGet();
         assertEquals(SaveAction.SAVED.get().longValue(), saveResult);
+    }
+    
+    @Test
+    public void test_add_sets_object_id_in_cache() {
+        
+        fail();
     }
     
 }

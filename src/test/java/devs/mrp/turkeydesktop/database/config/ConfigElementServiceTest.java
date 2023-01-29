@@ -8,6 +8,7 @@ import devs.mrp.turkeydesktop.database.DbFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import io.reactivex.rxjava3.core.Single;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.mockito.Mockito.mock;
@@ -70,6 +71,12 @@ public class ConfigElementServiceTest {
         
         Long result = service.add(element).blockingGet();
         assertEquals(SaveAction.SAVED.get().longValue(), result.longValue());
+    }
+    
+    @Test
+    public void test_add_sets_object_id_in_cache() {
+        
+        fail();
     }
 
 }

@@ -7,6 +7,7 @@ import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.database.DbFactory;
 import io.reactivex.rxjava3.core.Single;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
@@ -56,6 +57,12 @@ public class CloseableServiceImplTest {
         
         Long result = service.add(closeable).blockingGet();
         assertEquals(SaveAction.SAVED.get(), result);
+    }
+    
+    @Test
+    public void test_add_sets_object_id_in_cache() {
+        
+        fail();
     }
     
 }

@@ -6,6 +6,8 @@ import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.database.DbFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
+import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Single;
 import static org.junit.Assert.assertEquals;
 import org.junit.BeforeClass;
@@ -16,7 +18,6 @@ import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
 
 public class TitleServiceImplTest {
     
@@ -89,6 +90,23 @@ public class TitleServiceImplTest {
         service.save(title).blockingGet();
         verify(dbCache, atLeast(1)).save(argumentCaptor.capture());
         assertEquals("my upper cased title", argumentCaptor.getValue().getSubStr());
+    }
+    
+    @Test
+    public void test_add_sets_object_id_in_cache() {
+        FactoryInitializer factoryInitializer = new FactoryInitializer();
+        factoryInitializer.initialize();
+        
+        TitleService service = new TitleServiceImpl();
+        Title title = new Title();
+        title.setSubStr("My uPPeR CaSeD TiTle");
+        title.setType(Title.Type.POSITIVE);
+        
+        service.save(title).blockingGet();
+        
+        var retrieved = service.findBySubString(title.getSubStr()).blockingGet();
+        
+        assertEquals("my upper cased title", retrieved.getSubStr());
     }
     
 }

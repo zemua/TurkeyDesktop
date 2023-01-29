@@ -7,6 +7,7 @@ import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.database.DbFactory;
 import io.reactivex.rxjava3.core.Single;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.mockito.Mockito.mock;
@@ -81,6 +82,12 @@ public class GroupAssignationServiceImplTest {
         
         Long addResult = service.add(assignation).blockingGet();
         assertEquals(SaveAction.SAVED.get(), addResult);
+    }
+    
+    @Test
+    public void test_add_sets_object_id_in_cache() {
+        
+        fail();
     }
     
 }
