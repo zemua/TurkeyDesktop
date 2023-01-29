@@ -6,10 +6,14 @@ import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.group.GroupFactory;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.observers.TestObserver;
 import java.awt.AWTEvent;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -39,7 +43,7 @@ public class GroupsHandlerTest {
     }
 
     @Test
-    public void add_triggers_and_subscribes_groupservice_add() {
+    public void add_triggers_and_subscribes_groupservice_add() throws InterruptedException {
         ArgumentCaptor<FeedbackListener<GroupsEnum,AWTEvent>> feedbackCaptor = ArgumentCaptor.forClass(FeedbackListener.class);
         verify(panel, times(1)).addFeedbackListener(feedbackCaptor.capture());
         var feedbackLister = feedbackCaptor.getValue();
@@ -49,16 +53,23 @@ public class GroupsHandlerTest {
         group.setType(Group.GroupType.POSITIVE);
         
         JTextField field = mock(JTextField.class);
-        Single<Long> addResult = mock(Single.class);
+        JPanel list = mock(JPanel.class);
+        TestObserver testObserver = TestObserver.create();
+        Single<Long> addResult = Single.just(1L).doOnSubscribe(d -> testObserver.onSubscribe(d));
+        Observable<Group> groups = Observable.just(group);
+        
         when(panel.getProperty(GroupsEnum.TEXT)).thenReturn(field);
         when(field.getText()).thenReturn(group.getName());
         when(groupService.add(ArgumentMatchers.refEq(group))).thenReturn(addResult);
-        when(addResult.doOnSuccess(ArgumentMatchers.any())).thenReturn(addResult);
+        when(panel.getProperty(GroupsEnum.PANEL_LIST)).thenReturn(list);
+        when(groupService.findAllPositive()).thenReturn(groups);
         
         feedbackLister.giveFeedback(GroupsEnum.ADD, null);
         
         verify(groupService, times(1)).add(ArgumentMatchers.refEq(group));
-        verify(addResult, times(1)).subscribe();
+        assertTrue(testObserver.hasSubscription());
+        verify(list).revalidate();
+        verify(list).updateUI();
     }
     
 }
