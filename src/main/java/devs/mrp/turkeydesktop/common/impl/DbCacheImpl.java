@@ -1,12 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package devs.mrp.turkeydesktop.common.impl;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
 import devs.mrp.turkeydesktop.database.GeneralDao;
+import devs.mrp.turkeydesktop.database.TurkeyDbException;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
@@ -14,54 +11,89 @@ import java.sql.ResultSet;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import lombok.extern.slf4j.Slf4j;
 
-/**
- *
- * @author ncm55070
- */
+@Slf4j
 public class DbCacheImpl<KEY, VALUE> implements DbCache<KEY, VALUE> {
     
-    private Map<KEY, VALUE> map = Collections.synchronizedMap(new CacheMap<>(500));
+    private Map<KEY, VALUE> cacheMap = Collections.synchronizedMap(new CacheMap<>(500));
     private GeneralDao<VALUE, KEY> repo;
     private Function<VALUE,KEY> keyExtractor;
-    private Function<ResultSet,Observable<VALUE>> listFromResultSet;
+    private Function<KEY,Boolean> isValidKey;
+    private Function<ResultSet,Observable<VALUE>> streamFromResultSet;
+    private BiFunction<VALUE,KEY,VALUE> keySetter;
     
     public DbCacheImpl(GeneralDao<VALUE, KEY> repo,
             Function<VALUE,KEY> keyExtractor,
-            Function<ResultSet,Observable<VALUE>> listFromResultSet) {
+            Function<KEY,Boolean> isValidKey,
+            Function<ResultSet,Observable<VALUE>> streamFromResultSet,
+            BiFunction<VALUE,KEY,VALUE> keySetter) {
         this.repo = repo;
         this.keyExtractor = keyExtractor;
-        this.listFromResultSet = listFromResultSet;
+        this.isValidKey = isValidKey;
+        this.streamFromResultSet = streamFromResultSet;
+        this.keySetter = keySetter;
         loadDb();
     }
 
     @Override
     public Single<SaveAction> save(VALUE value) {
         KEY key = keyExtractor.apply(value);
-        if (Objects.isNull(map.get(key))) {
-            map.put(key, value);
-            return repo.add(value).map(r -> SaveAction.SAVED);
+        Single<KeyAndAction> updateOutput = addOrUpdate(key, value)
+            .doOnSuccess(keyAndAction ->  cacheMap.put(keyAndAction.key, keySetter.apply(value, keyAndAction.key)));
+        return updateOutput.map(output -> output.action);
+    }
+    
+    private Single<KeyAndAction> addOrUpdate(KEY key, VALUE value) throws TurkeyDbException {
+        Single<KeyAndAction> result;
+        if (canAddNew(key)) {
+            result = repo.add(value).map(id -> new KeyAndAction(id, SaveAction.SAVED));
+        } else if (canUpdate(key, value)) {
+            result = repo.update(value).map(qty -> new KeyAndAction(key, SaveAction.UPDATED));
+        } else if (existing(key, value)) {
+            result = Single.just(new KeyAndAction(key, SaveAction.EXISTING));
+        } else {
+            log.error("Neither canAddNew, canUpdate, nor existing");
+            throw new TurkeyDbException();
         }
-        if (!map.get(key).equals(value)) {
-            map.put(key, value);
-            return repo.update(value).map(r -> SaveAction.UPDATED);
+        return result;
+    }
+    
+    private class KeyAndAction {
+        KEY key;
+        SaveAction action;
+        KeyAndAction(KEY k, SaveAction a) {
+            key = k;
+            action = a;
         }
-        return Single.just(SaveAction.EXISTING);
+    }
+    
+    private boolean canAddNew(KEY key) {
+        return (isValidKey.apply(key) || Objects.isNull(cacheMap.get(key))) && !cacheMap.containsKey(key);
+    }
+    
+    private boolean canUpdate(KEY key, VALUE value) {
+        return isValidKey.apply(key) && cacheMap.containsKey(key) && !cacheMap.get(key).equals(value);
+    }
+    
+    private boolean existing(KEY key, VALUE value) {
+        return isValidKey.apply(key) && cacheMap.containsKey(key) && cacheMap.get(key).equals(value);
     }
 
     @Override
     public Maybe<VALUE> read(KEY key) {
-        if (map.containsKey(key)) {
-            return Maybe.just(map.get(key));
+        if (cacheMap.containsKey(key)) {
+            return Maybe.just(cacheMap.get(key));
         }
         return Maybe.empty();
     }
     
     @Override
     public Single<Boolean> remove(KEY key) {
-        if (map.containsKey(key)) {
-            map.remove(key);
+        if (cacheMap.containsKey(key)) {
+            cacheMap.remove(key);
             return repo.deleteById(key).map(l -> l>0);
         }
         return Single.just(Boolean.FALSE);
@@ -69,18 +101,18 @@ public class DbCacheImpl<KEY, VALUE> implements DbCache<KEY, VALUE> {
 
     @Override
     public Observable<VALUE> getAll() {
-        return Observable.fromIterable(map.values());
+        return Observable.fromIterable(cacheMap.values());
     }
 
     @Override
     public boolean contains(KEY key) {
-        return map.containsKey(key);
+        return cacheMap.containsKey(key);
     }
     
     private void loadDb() {
         repo.findAll()
-                .flatMapObservable(listFromResultSet::apply)
-                .doOnNext(value -> map.put(keyExtractor.apply(value), value))
+                .flatMapObservable(streamFromResultSet::apply)
+                .doOnNext(value -> cacheMap.put(keyExtractor.apply(value), value))
                 .subscribe();
     }
     

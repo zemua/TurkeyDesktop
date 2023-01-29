@@ -1,26 +1,17 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.conditions;
 
 import devs.mrp.turkeydesktop.database.Db;
+import devs.mrp.turkeydesktop.database.DbFactory;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import io.reactivex.rxjava3.core.Single;
+import lombok.extern.slf4j.Slf4j;
 
-/**
- *
- * @author miguel
- */
+@Slf4j
 public class ConditionRepository implements ConditionDao {
     
-    private Db dbInstance = Db.getInstance();
-    private Logger logger = Logger.getLogger(ConditionRepository.class.getName());
+    private Db dbInstance = DbFactory.getDb();
     
     private static ConditionRepository instance;
     
@@ -28,7 +19,7 @@ public class ConditionRepository implements ConditionDao {
         
     }
     
-    static ConditionRepository getInstance() {
+    public static ConditionRepository getInstance() {
         if (instance == null) {
             instance = new ConditionRepository();
         }
@@ -36,24 +27,45 @@ public class ConditionRepository implements ConditionDao {
     }
     
     @Override
-    public Single<Long> add(Condition element) {
-        return Db.singleLong(() -> {
-            long result = -1;
-            PreparedStatement stm;
-            try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s, %s, %s) ",
-                        Db.CONDITIONS_TABLE, Condition.GROUP_ID, Condition.TARGET_ID, Condition.USAGE_TIME_CONDITION, Condition.LAST_DAYS_CONDITION)
-                        + "VALUES (?, ?, ?, ?)");
-                stm.setLong(1, element.getGroupId());
-                stm.setLong(2, element.getTargetId());
-                stm.setLong(3, element.getUsageTimeCondition());
-                stm.setLong(4, element.getLastDaysCondition());
-                result = stm.executeUpdate();
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
-            return result;
-        });
+    public Single<Long> add(Condition condition) {
+        return Db.singleLong(() -> retrieveAddResultingId(condition));
+    }
+    
+    private long retrieveAddResultingId(Condition condition) {
+        long result = -1;
+        try {
+            result = executeAddReturningId(condition);
+        } catch (SQLException ex) {
+            log.error("Error adding condition", ex);
+        }
+        return result;
+    }
+    
+    private long executeAddReturningId(Condition condition) throws SQLException {
+        PreparedStatement preparedStatement = buildAddQuery(condition);
+        preparedStatement.executeUpdate();
+        return retrieveGeneratedId(preparedStatement);
+    }
+    
+    private PreparedStatement buildAddQuery(Condition condition) throws SQLException {
+        PreparedStatement preparedStatement;
+        preparedStatement = dbInstance.prepareStatementWithGeneratedKeys(String.format("INSERT INTO %s (%s, %s, %s, %s) ",
+                Db.CONDITIONS_TABLE, Condition.GROUP_ID, Condition.TARGET_ID, Condition.USAGE_TIME_CONDITION, Condition.LAST_DAYS_CONDITION)
+                + "VALUES (?, ?, ?, ?)");
+        preparedStatement.setLong(1, condition.getGroupId());
+        preparedStatement.setLong(2, condition.getTargetId());
+        preparedStatement.setLong(3, condition.getUsageTimeCondition());
+        preparedStatement.setLong(4, condition.getLastDaysCondition());
+        return preparedStatement;
+    }
+    
+    private long retrieveGeneratedId(PreparedStatement preparedStatement) throws SQLException {
+        ResultSet generatedId = preparedStatement.getGeneratedKeys();
+        if (generatedId.next()) {
+            return generatedId.getLong(Condition.ID_POSITION);
+        } else {
+            throw new SQLException("Couldn't get a generated id");
+        }
     }
 
     @Override
@@ -70,7 +82,7 @@ public class ConditionRepository implements ConditionDao {
                 stm.setLong(4, element.getId());
                 result = stm.executeUpdate();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                log.error("Error updating condition", ex);
             }
             return result;
         });
@@ -86,7 +98,7 @@ public class ConditionRepository implements ConditionDao {
                         Db.CONDITIONS_TABLE));
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null ,ex);
+                log.error("Error finding all conditions", ex);
             }
             return rs;
         });
@@ -94,19 +106,30 @@ public class ConditionRepository implements ConditionDao {
 
     @Override
     public Single<ResultSet> findById(Long id) {
-        return Db.singleResultSet(() -> {
-            ResultSet rs = null;
-            PreparedStatement stm;
-            try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
-                        Db.CONDITIONS_TABLE, Condition.ID));
-                stm.setLong(1, id);
-                rs = stm.executeQuery();
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
-            return rs;
-        });
+        return Db.singleResultSet(() -> retrieveFindByIdResultSet(id));
+    }
+    
+    private ResultSet retrieveFindByIdResultSet(Long id) {
+        ResultSet resultSet = null;
+        try {
+            resultSet = executeFindById(id);
+        } catch (SQLException ex) {
+            log.error("Error finding condition by id", ex);
+        }
+        return resultSet;
+    }
+    
+    private ResultSet executeFindById(Long id) throws SQLException {
+        PreparedStatement preparedStatement = buildFindByIdQuery(id);
+        return preparedStatement.executeQuery();
+    }
+    
+    private PreparedStatement buildFindByIdQuery(Long id) throws SQLException {
+        PreparedStatement preparedStatement;
+        preparedStatement = dbInstance.prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+                Db.CONDITIONS_TABLE, Condition.ID));
+        preparedStatement.setLong(1, id);
+        return preparedStatement;
     }
     
     @Override
@@ -120,7 +143,7 @@ public class ConditionRepository implements ConditionDao {
                 stm.setLong(1, groupId);
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                log.error("Error finding condition by group id", ex);
             }
             return rs;
         });
@@ -137,7 +160,7 @@ public class ConditionRepository implements ConditionDao {
                 stm.setLong(1, id);
                 delQty = stm.executeUpdate();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                log.error("Error deleting condition by id", ex);
             }
             return delQty;
         });
@@ -154,7 +177,7 @@ public class ConditionRepository implements ConditionDao {
                     stm.setLong(1, id);
                     delQty = stm.executeUpdate();
                 } catch (SQLException ex) {
-                    logger.log(Level.SEVERE, null, ex);
+                    log.error("Error deleting condition by group id", ex);
                 }
             return delQty;
         });
@@ -171,7 +194,7 @@ public class ConditionRepository implements ConditionDao {
                 stm.setLong(1, id);
                 delQty = stm.executeUpdate();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                log.error("Error deleting condition by target id", ex);
             }
             return delQty;
         });

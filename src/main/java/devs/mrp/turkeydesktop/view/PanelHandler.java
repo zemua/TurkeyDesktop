@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.view;
 
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
@@ -10,13 +5,6 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.swing.JFrame;
 
-/**
- *
- * @author miguel
- * 
- * @T type of the feedback, could be an enum usually
- * @E event, for swing usually AWTEvent
- */
 public abstract class PanelHandler<T, E, P extends FeedbackerPanelWithFetcher<T,E>> {
     
     private PanelHandler<?, ?, ?> caller;
@@ -35,7 +23,6 @@ public abstract class PanelHandler<T, E, P extends FeedbackerPanelWithFetcher<T,
         doExtraBeforeShow();
         frame.setContentPane(panel);
         frame.revalidate();
-        //panel.revalidate();
         panel.updateUI();
         listening = true;
     }

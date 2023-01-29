@@ -8,18 +8,16 @@ package devs.mrp.turkeydesktop.database.logandtype;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.Tripla;
 import devs.mrp.turkeydesktop.database.closeables.CloseableService;
-import devs.mrp.turkeydesktop.database.closeables.CloseableServiceFactory;
+import devs.mrp.turkeydesktop.database.closeables.CloseableFactory;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
-import devs.mrp.turkeydesktop.database.config.FConfigElementService;
-import devs.mrp.turkeydesktop.database.config.IConfigElementService;
-import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
+import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
-import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
 import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
-import devs.mrp.turkeydesktop.database.titles.TitleServiceFactory;
+import devs.mrp.turkeydesktop.database.titles.TitleFactory;
 import devs.mrp.turkeydesktop.database.titles.Title;
-import devs.mrp.turkeydesktop.database.type.TypeServiceFactory;
+import devs.mrp.turkeydesktop.database.type.TypeFactory;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
@@ -32,6 +30,8 @@ import devs.mrp.turkeydesktop.database.type.TypeService;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import org.apache.commons.lang3.StringUtils;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
+import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 
 /**
  *
@@ -41,11 +41,11 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
 
     private final LogAndTypeFacadeDao repo = LogAndTypeFacadeRepository.getInstance();
     private final TimeLogService logService = TimeLogServiceFactory.getService();
-    private final TypeService typeService = TypeServiceFactory.getService();
-    private final IConfigElementService configService = FConfigElementService.getService();
-    private final TitleService titleService = TitleServiceFactory.getService();
-    private final IGroupAssignationService groupAssignationService = FGroupAssignationService.getService();
-    private final CloseableService closeableService = CloseableServiceFactory.getService();
+    private final TypeService typeService = TypeFactory.getService();
+    private final ConfigElementService configService = ConfigElementFactory.getService();
+    private final TitleService titleService = TitleFactory.getService();
+    private final GroupAssignationService groupAssignationService = GroupAssignationFactory.getService();
+    private final CloseableService closeableService = CloseableFactory.getService();
 
     private final ConditionChecker conditionChecker = ConditionCheckerFactory.getConditionChecker();
 

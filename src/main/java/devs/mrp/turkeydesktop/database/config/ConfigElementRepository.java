@@ -1,26 +1,17 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.config;
 
 import devs.mrp.turkeydesktop.database.Db;
+import devs.mrp.turkeydesktop.database.DbFactory;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import io.reactivex.rxjava3.core.Single;
+import lombok.extern.slf4j.Slf4j;
 
-/**
- *
- * @author miguel
- */
+@Slf4j
 public class ConfigElementRepository implements ConfigElementDao {
     
-    private Db dbInstance = Db.getInstance();
-    private Logger logger = Logger.getLogger(ConfigElementRepository.class.getName());
+    private Db dbInstance = DbFactory.getDb();
     
     private static ConfigElementRepository instance;
     
@@ -28,7 +19,7 @@ public class ConfigElementRepository implements ConfigElementDao {
         
     }
     
-    static ConfigElementRepository getInstance() {
+    public static ConfigElementRepository getInstance() {
         if (instance == null) {
             instance = new ConfigElementRepository();
         }
@@ -36,22 +27,34 @@ public class ConfigElementRepository implements ConfigElementDao {
     }
     
     @Override
-    public Single<Long> add(ConfigElement element) {
-        return Db.singleLong(() -> {
-            long result = -1;
-            PreparedStatement stm;
-            try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s) ",
-                        Db.CONFIG_TABLE, ConfigElement.KEY, ConfigElement.VALUE)
-                        + "VALUES (?, ?)");
-                stm.setString(1, element.getKey().toString());
-                stm.setString(2, element.getValue());
-                result = stm.executeUpdate();
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
-            return result;
-        });
+    public Single<String> add(ConfigElement element) {
+        return Db.singleString(() -> retrieveAddResult(element));
+    }
+    
+    private String retrieveAddResult(ConfigElement element) {
+        String result = "";
+        try {
+            result = executeAdd(element);
+        } catch (SQLException ex) {
+            log.error("Error adding config element", ex);
+        }
+        return result;
+    }
+    
+    private String executeAdd(ConfigElement element) throws SQLException {
+        PreparedStatement preparedStatement = buildAddQuery(element);
+        preparedStatement.executeUpdate();
+        return element.getKey().toString();
+    }
+    
+    private PreparedStatement buildAddQuery(ConfigElement element) throws SQLException {
+        PreparedStatement preparedStatement;
+        preparedStatement = dbInstance.prepareStatementWithGeneratedKeys(String.format("INSERT INTO %s (%s, %s) ",
+                Db.CONFIG_TABLE, ConfigElement.KEY, ConfigElement.VALUE)
+                + "VALUES (?, ?)");
+        preparedStatement.setString(1, element.getKey().toString());
+        preparedStatement.setString(2, element.getValue());
+        return preparedStatement;
     }
 
     @Override
@@ -66,7 +69,7 @@ public class ConfigElementRepository implements ConfigElementDao {
                 stm.setString(2, element.getKey().toString());
                 result = stm.executeUpdate();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                log.error("Error updating config element", ex);
             }
             return result;
         });
@@ -83,7 +86,7 @@ public class ConfigElementRepository implements ConfigElementDao {
                         Db.CONFIG_TABLE));
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null ,ex);
+                log.error("Error finding all config elements", ex);
             }
             return rs;
         });
@@ -91,19 +94,29 @@ public class ConfigElementRepository implements ConfigElementDao {
 
     @Override
     public Single<ResultSet> findById(String id) {
-        return Db.singleResultSet(() -> {
-            ResultSet rs = null;
-            PreparedStatement stm;
-            try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
-                        Db.CONFIG_TABLE, ConfigElement.KEY));
-                stm.setString(1, id);
-                rs = stm.executeQuery();
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
-            return rs;
-        });
+        return Db.singleResultSet(() -> retrieveFindBiIdResult(id));
+    }
+    
+    private ResultSet retrieveFindBiIdResult(String id) {
+        ResultSet resultSet = null;
+        try {
+            resultSet = executeFindById(id);
+        } catch (SQLException ex) {
+            log.error("Error finding by id", ex);
+        }
+        return resultSet;
+    }
+    
+    private ResultSet executeFindById(String id) throws SQLException {
+        PreparedStatement statement = buildFindByIdQuery(id);
+        return statement.executeQuery();
+    }
+    
+    private PreparedStatement buildFindByIdQuery(String id) throws SQLException {
+        PreparedStatement statement = dbInstance.prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+                Db.CONFIG_TABLE, ConfigElement.KEY));
+        statement.setString(1, id);
+        return statement;
     }
 
     @Override
@@ -117,7 +130,7 @@ public class ConfigElementRepository implements ConfigElementDao {
                 stm.setString(1, id);
                 delQty = stm.executeUpdate();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                log.error("Error deleting by id", ex);
             }
             return delQty;
         });

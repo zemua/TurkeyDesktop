@@ -6,12 +6,12 @@
 package devs.mrp.turkeydesktop.service.toaster;
 
 import devs.mrp.turkeydesktop.common.ChainHandler;
-import devs.mrp.turkeydesktop.database.config.FConfigElementService;
-import devs.mrp.turkeydesktop.database.config.IConfigElementService;
+import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
 import devs.mrp.turkeydesktop.service.toaster.voice.VoiceNotificator;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.util.HashMap;
 import java.util.Map;
+import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 
 /**
  *

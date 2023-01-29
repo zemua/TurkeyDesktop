@@ -1,14 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.titles;
 
-/**
- *
- * @author miguel
- */
+import java.util.Objects;
+
 public class Title {
     
     public static final String SUB_STR = "SUB_STR";
@@ -16,6 +9,16 @@ public class Title {
     
     private String subStr;
     private Title.Type type;
+    
+    public Title(){
+    }
+    
+    public static Title from(Title title) {
+        Title result = new Title();
+        result.setSubStr(title.getSubStr());
+        result.setType(title.getType());
+        return result;
+    }
     
     public enum Type {
         POSITIVE, NEGATIVE, NEUTRAL;
@@ -32,6 +35,10 @@ public class Title {
     public Type getType() {
         return type;
     }
+    
+    public String getTypeString() {
+        return type.toString();
+    }
 
     public void setType(Type type) {
         this.type = type;
@@ -42,5 +49,33 @@ public class Title {
         String sign = type.equals(Title.Type.POSITIVE) ? "+" : "-";
         return "[" + sign + "] " + subStr;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 37 * hash + Objects.hashCode(this.subStr);
+        hash = 37 * hash + Objects.hashCode(this.type);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Title other = (Title) obj;
+        if (!Objects.equals(this.subStr, other.subStr)) {
+            return false;
+        }
+        return this.type == other.type;
+    }
+    
+    
     
 }

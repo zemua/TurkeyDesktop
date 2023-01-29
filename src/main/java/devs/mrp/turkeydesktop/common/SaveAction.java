@@ -9,7 +9,7 @@ package devs.mrp.turkeydesktop.common;
  * @author ncm55070
  */
 public enum SaveAction {
-    EXISTING(0L), SAVED(1L), UPDATED(2L);
+    EXISTING(0L), SAVED(1L), UPDATED(2L), ERROR(-1L);
     private Long l;
     SaveAction(Long l) {
         this.l = l;

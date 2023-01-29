@@ -9,16 +9,14 @@ import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
-import devs.mrp.turkeydesktop.database.conditions.FConditionService;
-import devs.mrp.turkeydesktop.database.conditions.IConditionService;
+import devs.mrp.turkeydesktop.database.conditions.ConditionFactory;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
-import devs.mrp.turkeydesktop.database.config.FConfigElementService;
-import devs.mrp.turkeydesktop.database.config.IConfigElementService;
+import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
-import devs.mrp.turkeydesktop.database.group.external.ExternalGroupServiceFactory;
+import devs.mrp.turkeydesktop.database.group.external.ExternalGroupFactory;
 import devs.mrp.turkeydesktop.database.imports.ImportService;
-import devs.mrp.turkeydesktop.database.imports.ImportServiceFactory;
+import devs.mrp.turkeydesktop.database.imports.ImportFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.conditionchecker.idle.IdleChainCommander;
@@ -42,6 +40,8 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.core.SingleSource;
 import lombok.extern.slf4j.Slf4j;
+import devs.mrp.turkeydesktop.database.config.ConfigElementService;
+import devs.mrp.turkeydesktop.database.conditions.ConditionService;
 
 /**
  *
@@ -50,12 +50,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ConditionCheckerImpl implements ConditionChecker {
 
-    private IConditionService conditionService = FConditionService.getService();
+    private ConditionService conditionService = ConditionFactory.getService();
     private TimeLogService timeLogService = TimeLogServiceFactory.getService();
-    private IConfigElementService configService = FConfigElementService.getService();
-    private ImportService importService = ImportServiceFactory.getService();
+    private ConfigElementService configService = ConfigElementFactory.getService();
+    private ImportService importService = ImportFactory.getService();
     private ChainHandler<LongWrapper> idleHandler = new IdleChainCommander().getHandlerChain();
-    private ExternalGroupService externalGroupService = ExternalGroupServiceFactory.getService();
+    private ExternalGroupService externalGroupService = ExternalGroupFactory.getService();
     private ImportReader importReader = ImportReaderFactory.getReader();
     private static long avoidMessageFlood = 1000*90; // if the idle time surpases 2+ minutes stop flooding notifications
     

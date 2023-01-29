@@ -10,7 +10,7 @@ import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.impl.GenericCacheImpl;
 import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
-import devs.mrp.turkeydesktop.database.titles.TitleServiceFactory;
+import devs.mrp.turkeydesktop.database.titles.TitleFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
     
-    private TitleService titleService = TitleServiceFactory.getService();
+    private TitleService titleService = TitleFactory.getService();
     private TimeLogService logService = TimeLogServiceFactory.getService();
     private TitledLogDaoFacade titleFacadeRepo = TitledLogRepoFacade.getInstance();
     

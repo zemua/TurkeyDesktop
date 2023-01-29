@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database;
 
 import devs.mrp.turkeydesktop.common.TimeConverter;
@@ -23,6 +18,7 @@ import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -36,12 +32,8 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- *
- * @author miguel
- */
 @Slf4j
-public class Db { // TODO create asynchronous listeners to update livedata
+public class Db {
 
     public static final String WATCHDOG_TABLE = "WATCHDOG_LOG";
     public static final String GROUPS_TABLE = "GROUPS_OF_APPS";
@@ -57,14 +49,12 @@ public class Db { // TODO create asynchronous listeners to update livedata
     public static final String IMPORTS_TABLE = "IMPORTS_TABLE";
 
     private static final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
-    
-    private LocaleMessages localeMessages = LocaleMessages.getInstance();
-
     private static Db instance = null;
     private static Connection con = null;
-
+    
+    private LocaleMessages localeMessages = LocaleMessages.getInstance();
+    
     private Db() {
-
     }
 
     public static Db getInstance() {
@@ -74,10 +64,11 @@ public class Db { // TODO create asynchronous listeners to update livedata
         }
         return instance;
     }
-
-    /*public static Semaphore getSemaphore() {
-        return semaphore;
-    }*/
+    
+    public static Single<String> singleString(Callable<String> callable) {
+        log.debug("Creating singleString from {}", Arrays.toString(Thread.currentThread().getStackTrace()));
+        return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.from(dbExecutor)).observeOn(Schedulers.computation());
+    }
     
     public static Single<Long> singleLong(Callable<Long> callable) {
         log.debug("Creating singleLong from {}", Arrays.toString(Thread.currentThread().getStackTrace()));
@@ -96,6 +87,11 @@ public class Db { // TODO create asynchronous listeners to update livedata
     
     public static Single<ResultSet> singleResultSet(Callable<ResultSet> callable) {
         log.debug("Creating singleResultSet from {}", Arrays.toString(Thread.currentThread().getStackTrace()));
+        return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.from(dbExecutor)).observeOn(Schedulers.computation());
+    }
+    
+    public static <T> Single<T> singleGeneric(Callable<T> callable) {
+        log.debug("Creating singleGeneric from {}", Arrays.toString(Thread.currentThread().getStackTrace()));
         return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.from(dbExecutor)).observeOn(Schedulers.computation());
     }
 
@@ -243,6 +239,14 @@ public class Db { // TODO create asynchronous listeners to update livedata
     public Connection getConnection() {
         setConnection();
         return con;
+    }
+    
+    public PreparedStatement prepareStatement(String statement) throws SQLException {
+        return con.prepareStatement(statement);
+    }
+    
+    public PreparedStatement prepareStatementWithGeneratedKeys(String statement) throws SQLException {
+        return con.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS);
     }
 
     private void close() {

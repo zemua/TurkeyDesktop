@@ -10,7 +10,7 @@ import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.common.Tripla;
 import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeServiceFactory;
-import devs.mrp.turkeydesktop.database.type.TypeServiceFactory;
+import devs.mrp.turkeydesktop.database.type.TypeFactory;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.list.CategorizerElement;
@@ -53,7 +53,7 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
     
     public CatProcessHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
         super(frame, caller);
-        typeService = TypeServiceFactory.getService();
+        typeService = TypeFactory.getService();
     }
     
     @Override

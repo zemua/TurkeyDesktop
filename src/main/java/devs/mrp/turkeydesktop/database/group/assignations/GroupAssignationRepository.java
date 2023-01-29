@@ -1,34 +1,24 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.group.assignations;
 
 import devs.mrp.turkeydesktop.database.Db;
+import devs.mrp.turkeydesktop.database.DbFactory;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import io.reactivex.rxjava3.core.Single;
+import lombok.extern.slf4j.Slf4j;
 
-/**
- *
- * @author miguel
- */
+@Slf4j
 public class GroupAssignationRepository implements GroupAssignationDao {
     
-    private Db dbInstance = Db.getInstance();
-    private static final Logger logger = Logger.getLogger(GroupAssignationRepository.class.getName());
+    private Db dbInstance = DbFactory.getDb();
     
     private static GroupAssignationRepository instance;
     
     private GroupAssignationRepository() {
-        
     }
     
-    static GroupAssignationRepository getInstance() {
+    public static GroupAssignationRepository getInstance() {
         if (instance == null) {
             instance = new GroupAssignationRepository();
         }
@@ -37,20 +27,30 @@ public class GroupAssignationRepository implements GroupAssignationDao {
     
     @Override
     public Single<ResultSet> findByElementId(GroupAssignation.ElementType elementType, String elementId) {
-        return Db.singleResultSet(() -> {
-            ResultSet rs = null;
-            PreparedStatement stm;
-            try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=? AND %s=?",
-                        Db.GROUP_ASSIGNATION_TABLE, GroupAssignation.TYPE, GroupAssignation.ELEMENT_ID));
-                stm.setString(1, elementType.toString());
-                stm.setString(2, elementId);
-                rs = stm.executeQuery();
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
-            return rs;
-        });
+        return Db.singleResultSet(() -> retrieveFindResult(elementType, elementId));
+    }
+    
+    private ResultSet retrieveFindResult(GroupAssignation.ElementType elementType, String elementId) {
+        ResultSet resultSet = null;
+        try {
+            resultSet = executeFindElement(elementType, elementId);
+        } catch (SQLException ex) {
+            log.error("Error finding Group Assignation by id " + elementId + " and type " + elementType, ex);
+        }
+        return resultSet;
+    }
+    
+    private ResultSet executeFindElement(GroupAssignation.ElementType elementType, String elementId) throws SQLException {
+        PreparedStatement preparedStatement = buildFindQuery(elementType, elementId);
+        return preparedStatement.executeQuery();
+    }
+    
+    private PreparedStatement buildFindQuery(GroupAssignation.ElementType elementType, String elementId) throws SQLException {
+        PreparedStatement preparedStatement = dbInstance.prepareStatement(String.format("SELECT * FROM %s WHERE %s=? AND %s=?",
+                Db.GROUP_ASSIGNATION_TABLE, GroupAssignation.TYPE, GroupAssignation.ELEMENT_ID));
+        preparedStatement.setString(1, elementType.toString());
+        preparedStatement.setString(2, elementId);
+        return preparedStatement;
     }
 
     @Override
@@ -65,30 +65,41 @@ public class GroupAssignationRepository implements GroupAssignationDao {
                 stm.setLong(2, groupId);
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                log.error("Error finding all elements of type " + elementType + " for group " + groupId, ex);
             }
             return rs;
         });
     }
 
     @Override
-    public Single<Long> add(GroupAssignation element) {
-        return Db.singleLong(() -> {
-            long result = -1;
-            PreparedStatement stm;
-            try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s, %s) ",
-                        Db.GROUP_ASSIGNATION_TABLE, GroupAssignation.TYPE, GroupAssignation.ELEMENT_ID, GroupAssignation.GROUP_ID)
-                        + "VALUES (?, ?, ?)");
-                stm.setString(1, element.getType().toString());
-                stm.setString(2, element.getElementId());
-                stm.setLong(3, element.getGroupId());
-                result = stm.executeUpdate();
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }
-            return result;
-        });
+    public Single<ElementId> add(GroupAssignation groupAssignation) {
+        return Db.<ElementId>singleGeneric(() -> retrieveAddResult(groupAssignation));
+    }
+    
+    private ElementId retrieveAddResult(GroupAssignation groupAssignation) {
+        ElementId elementIdResult = new ElementId(groupAssignation.getType(), "");
+        try {
+            elementIdResult = executeAdd(groupAssignation);
+        } catch (SQLException ex) {
+            log.error("Error adding group assignation " + groupAssignation, ex);
+        }
+        return elementIdResult;
+    }
+    
+    private ElementId executeAdd(GroupAssignation groupAssignation) throws SQLException {
+        PreparedStatement preparedStatement = buildAddQuery(groupAssignation);
+        preparedStatement.executeUpdate();
+        return new ElementId(groupAssignation.getType(), groupAssignation.getElementId());
+    }
+    
+    private PreparedStatement buildAddQuery(GroupAssignation groupAssignation) throws SQLException {
+        PreparedStatement preparedStatement = dbInstance.prepareStatement(String.format("INSERT INTO %s (%s, %s, %s) ",
+                Db.GROUP_ASSIGNATION_TABLE, GroupAssignation.TYPE, GroupAssignation.ELEMENT_ID, GroupAssignation.GROUP_ID)
+                + "VALUES (?, ?, ?)");
+        preparedStatement.setString(1, groupAssignation.getType().toString());
+        preparedStatement.setString(2, groupAssignation.getElementId());
+        preparedStatement.setLong(3, groupAssignation.getGroupId());
+        return preparedStatement;
     }
 
     @Override
@@ -104,7 +115,7 @@ public class GroupAssignationRepository implements GroupAssignationDao {
                 stm.setLong(3, element.getGroupId());
                 result = stm.executeUpdate();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                log.error("Error updating group assignation " + element, ex);
             }
             return result;
         });
@@ -121,7 +132,7 @@ public class GroupAssignationRepository implements GroupAssignationDao {
                         Db.GROUP_ASSIGNATION_TABLE));
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null ,ex);
+                log.error("Error finding all group assignations", ex);
             }
             return rs;
         });
@@ -130,13 +141,13 @@ public class GroupAssignationRepository implements GroupAssignationDao {
     @Deprecated
     @Override
     public Single<ResultSet> findById(GroupAssignationDao.ElementId id) {
-        return Single.just(null);
+        throw new RuntimeException("Not supported operation");
     }
 
     @Deprecated
     @Override
     public Single<Long> deleteById(GroupAssignationDao.ElementId id) {
-        return Single.just(0L);
+        throw new RuntimeException("Not supported operation");
     }
     
     @Override
@@ -151,7 +162,7 @@ public class GroupAssignationRepository implements GroupAssignationDao {
                 stm.setString(2, elementId);
                 delQty = stm.executeUpdate();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                log.error("Error deleting assignation by id " + elementId + " of type " + elementType, ex);
             }
             return delQty;
         });
@@ -169,7 +180,7 @@ public class GroupAssignationRepository implements GroupAssignationDao {
                 stm.setString(1, elementType.toString());
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                log.error("Error finding all assignations of type " + elementType, ex);
             }
             return rs;
         });
@@ -186,7 +197,7 @@ public class GroupAssignationRepository implements GroupAssignationDao {
                 stm.setLong(1, groupId);
                 delQty = stm.executeUpdate();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                log.error("Error deleting assignations by group id " + groupId, ex);
             }
             return delQty;
         });

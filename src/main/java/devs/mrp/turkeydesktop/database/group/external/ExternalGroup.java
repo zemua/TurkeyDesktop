@@ -1,18 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.group.external;
 
 import java.util.Objects;
 
-/**
- *
- * @author miguel
- */
 public class ExternalGroup {
     
+    public static final int ID_COLUMN = 1;
     public static final String ID = "ID";
     public static final String GROUP = "GROUP_COLUMN";
     public static final String FILE = "FILE";

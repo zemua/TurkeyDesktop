@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.view.groups;
 
 import devs.mrp.turkeydesktop.common.FeedbackListener;
@@ -11,10 +6,6 @@ import java.awt.AWTEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * @author miguel
- */
 public class GroupsPanel extends FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent> {
 
     private List<FeedbackListener<GroupsEnum, AWTEvent>> listeners = new ArrayList<>();

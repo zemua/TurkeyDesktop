@@ -1,52 +1,48 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.titles;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
-import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
-import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
-import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
 import io.reactivex.rxjava3.core.Maybe;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
 
-/**
- *
- * @author miguel
- */
 @Slf4j
 public class TitleServiceImpl implements TitleService {
 
-    public static final DbCache<String,Title> dbCache = DbCacheFactory.getDbCache(TitleRepository.getInstance(),
-            Title::getSubStr,
-            TitleServiceImpl::elementsFromResultEntry);
-    private static final IGroupAssignationService assignationService = FGroupAssignationService.getService();
-
-    @Override
-    public Single<Long> save(Title element) {
-        if (element == null) {
-            return Single.just(-1L);
+    private static DbCache<String,Title> dbCache;
+    private static final GroupAssignationService assignationService = GroupAssignationFactory.getService();
+    
+    public TitleServiceImpl() {
+        setCacheInstance();
+    }
+    
+    private void setCacheInstance() {
+        if (dbCache == null) {
+            dbCache = TitleFactory.getDbCache();
         }
-        element.setSubStr(element.getSubStr().toLowerCase());
-        return dbCache.save(element).map(SaveAction::get);
     }
 
-    private Single<Long> update(Title element) {
-        if (element == null || element.getSubStr() == null) {
-            return Single.just(-1L);
+    @Override
+    public Single<Long> save(Title title) {
+        Single<Long> result;
+        if (TitleValidator.isInvalid(title)) {
+            result = Single.just(SaveAction.ERROR.get());
+        } else {
+            result = saveLowerCasedCopy(title);
         }
-        element.setSubStr(element.getSubStr().toLowerCase());
-        return dbCache.save(element).map(SaveAction::get);
+        return result;
+    }
+    
+    private Single<Long> saveLowerCasedCopy(Title title) {
+        Title titleCopy = Title.from(title);
+        titleCopy.setSubStr(StringUtils.lowerCase(titleCopy.getSubStr()));
+        return dbCache.save(titleCopy).map(SaveAction::get);
     }
 
     @Override
@@ -70,30 +66,6 @@ public class TitleServiceImpl implements TitleService {
                 (r1,r2) ->{
                     return r1;
                 });
-    }
-    
-    private static Observable<Title> elementsFromResultEntry(ResultSet set) {
-        return Observable.create(subscribe -> {
-            try {
-                while (set.next()) {
-                    subscribe.onNext(elementFromResultSetEntry(set));
-                }
-            } catch (SQLException ex) {
-                subscribe.onError(ex);
-            }
-            subscribe.onComplete();
-        });
-    }
-
-    private static Title elementFromResultSetEntry(ResultSet set) {
-        Title el = new Title();
-        try {
-            el.setSubStr(set.getString(Title.SUB_STR).toLowerCase());
-            el.setType(Title.Type.valueOf(set.getString(Title.TYPE)));
-        } catch (SQLException ex) {
-            log.error("Error transforming Title from ResultSet entry", ex);
-        }
-        return el;
     }
 
     @Override

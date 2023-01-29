@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.group.assignations;
 
 import devs.mrp.turkeydesktop.database.GeneralDao;
@@ -13,10 +8,6 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
-/**
- *
- * @author miguel
- */
 public interface GroupAssignationDao extends GeneralDao<GroupAssignation, GroupAssignationDao.ElementId> {
     
     public Single<ResultSet> findByElementId(GroupAssignation.ElementType elementType, String elementId);

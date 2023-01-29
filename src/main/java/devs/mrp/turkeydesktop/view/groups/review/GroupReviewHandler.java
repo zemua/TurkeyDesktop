@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.view.groups.review;
 
 import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
@@ -10,34 +5,45 @@ import devs.mrp.turkeydesktop.common.RemovableLabel;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
-import devs.mrp.turkeydesktop.database.conditions.FConditionService;
-import devs.mrp.turkeydesktop.database.conditions.IConditionService;
-import devs.mrp.turkeydesktop.database.group.GroupServiceFactory;
+import devs.mrp.turkeydesktop.database.conditions.ConditionFactory;
+import devs.mrp.turkeydesktop.database.conditions.ConditionService;
 import devs.mrp.turkeydesktop.database.group.Group;
-import devs.mrp.turkeydesktop.database.group.assignations.FGroupAssignationService;
+import devs.mrp.turkeydesktop.database.group.GroupFactory;
+import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
-import devs.mrp.turkeydesktop.database.group.assignations.IGroupAssignationService;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroup;
+import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupFactory;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupService;
-import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupServiceFactory;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
+import devs.mrp.turkeydesktop.database.group.external.ExternalGroupFactory;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
-import devs.mrp.turkeydesktop.database.group.external.ExternalGroupServiceFactory;
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElement;
+import devs.mrp.turkeydesktop.database.group.facade.AssignableElementService;
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElementServiceFactory;
 import devs.mrp.turkeydesktop.database.groupcondition.FGroupConditionFacadeService;
+import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacade;
 import devs.mrp.turkeydesktop.database.groupcondition.IGroupConditionFacadeService;
+import devs.mrp.turkeydesktop.database.type.Type;
+import devs.mrp.turkeydesktop.database.type.Type.Types;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.groups.review.switchable.Switchable;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.disposables.Disposable;
 import java.awt.AWTEvent;
 import java.io.File;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -46,24 +52,9 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import devs.mrp.turkeydesktop.database.group.facade.AssignableElementService;
-import java.util.Comparator;
-import org.apache.commons.lang3.StringUtils;
-import devs.mrp.turkeydesktop.database.group.GroupService;
-import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacade;
-import devs.mrp.turkeydesktop.database.type.Type;
-import devs.mrp.turkeydesktop.database.type.Type.Types;
-import java.util.Optional;
-import javax.swing.JCheckBox;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.Observer;
-import io.reactivex.rxjava3.disposables.Disposable;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
-/**
- *
- * @author miguel
- */
 @Slf4j
 public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent>> {
 
@@ -73,20 +64,19 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private final LocaleMessages localeMessages = LocaleMessages.getInstance();
 
     private Group group;
-    private final GroupService groupService = GroupServiceFactory.getService();
-    private final IGroupAssignationService groupAssignationService = FGroupAssignationService.getService();
+    private final GroupService groupService = GroupFactory.getService();
+    private final GroupAssignationService groupAssignationService = GroupAssignationFactory.getService();
     private final AssignableElementService assignableProcessService = AssignableElementServiceFactory.getProcessesService();
     private final AssignableElementService assignableTitlesService = AssignableElementServiceFactory.getTitlesService();
-    private final IConditionService conditionService = FConditionService.getService();
-    private final ExternalGroupService externalGroupService = ExternalGroupServiceFactory.getService();
-    private final ExportedGroupService exportedGroupService = ExportedGroupServiceFactory.getService();
+    private final ConditionService conditionService = ConditionFactory.getService();
+    private final ExternalGroupService externalGroupService = ExternalGroupFactory.getService();
+    private final ExportedGroupService exportedGroupService = ExportedGroupFactory.getService();
     private final IGroupConditionFacadeService groupConditionFacadeService = FGroupConditionFacadeService.getService();
 
     private JComboBox<Group> targetComboBox;
     private JSpinner hourSpinner;
     private JSpinner minuteSpinner;
     private JSpinner daySpinner;
-    private JPanel conditionsListPanel;
 
     public GroupReviewHandler(JFrame frame, PanelHandler<?, ?, ?> caller, Group group) {
         super(frame, caller);
@@ -175,12 +165,11 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             setGroupLabelName();
             setProcesses();
             setTitles();
-            setConditions();
+            setConditionFields();
             refreshExternalTime();
             setConfiguration();
             showHideSetPreventClosing();
         } catch (Exception e) {
-            // print error and go back
             logger.log(Level.SEVERE, "error setting up UI", e);
             exit();
         }
@@ -307,8 +296,8 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private void setSwitchablesFromAssignables(List<AssignableElement<Type.Types>> assignables, JPanel panel, GroupAssignation.ElementType type) {
         assignables.forEach(a -> {
             Switchable switchable = new Switchable(a.getElementName(),
-                    assignableBelongsToGroup(a), // checked if it belongs to this group
-                    assignableIsEnabled(a)); // enabled if belongs to no group, or to this group
+                    assignableBelongsToGroup(a),
+                    assignableIsEnabled(a));
             setProcessSwitchableListener(switchable, a.getElementName(), type);
             panel.add(switchable);
         });
@@ -323,8 +312,8 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     }
 
     private void setProcessSwitchableListener(Switchable switchable, String name, GroupAssignation.ElementType processOrTitle) {
-        switchable.addFeedbackListener((processOrTitleId, feedback) -> {
-            if (!feedback) { // if the checkbox was unchecked with this event
+        switchable.addFeedbackListener((processOrTitleId, wasChecked) -> {
+            if (!wasChecked) {
                 popupMaker.show(this.getFrame(), () -> {
                     // positive
                     if (processOrTitle.equals(GroupAssignation.ElementType.PROCESS)) {
@@ -336,7 +325,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                     // negative
                     switchable.setSelected(true);
                 });
-            } else { // if the checkbox was cheked with this event
+            } else {
                 GroupAssignation ga = GroupAssignation.builder()
                         .elementId(name)
                         .groupId(group.getId())
@@ -348,9 +337,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     }
 
     @SuppressWarnings("unchecked")
-    private void setConditions() throws Exception {
-        // Setup the fields
-
+    private void setConditionFields() throws Exception {
         Object targetObject = this.getPanel().getProperty(GroupReviewEnum.TARGET_NAME_COMBO_BOX);
         if (targetObject == null || !(targetObject instanceof JComboBox)) {
             throw new Exception("wrong object type for Target Name Combo Box");
@@ -379,7 +366,6 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         if (conditionsListObject == null || !(conditionsListObject instanceof JPanel)) {
             throw new Exception("wrong object type for conditions list panel");
         }
-        conditionsListPanel = (JPanel) conditionsListObject;
 
         fillConditionFields();
     }
@@ -495,9 +481,9 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         }
         JCheckBox checkbox = (JCheckBox) opt.get();
         if (Group.GroupType.POSITIVE.equals(group.getType())) {
-            checkbox.setVisible(false); // hide for positive groups
+            checkbox.setVisible(false);
         } else {
-            checkbox.setVisible(true); // show for others (negative)
+            checkbox.setVisible(true);
             if (group.isPreventClose()) {
                 checkbox.setSelected(true);
             } else {
@@ -712,7 +698,6 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                     preventClose.setEnabled(true);
                 }, () -> {
                     // negative runnable
-                    // recover unchecked state
                     preventClose.setEnabled(true);
                     preventClose.setSelected(false);
                 });

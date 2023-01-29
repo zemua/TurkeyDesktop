@@ -6,8 +6,7 @@
 package devs.mrp.turkeydesktop.view.mainpanel;
 
 import devs.mrp.turkeydesktop.common.TimeConverter;
-import devs.mrp.turkeydesktop.database.config.FConfigElementService;
-import devs.mrp.turkeydesktop.database.config.IConfigElementService;
+import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
 import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
@@ -35,6 +34,7 @@ import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactory;
 import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesEnum;
 import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesPanelFactory;
 import java.awt.Image;
+import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 
 /**
  *
@@ -53,7 +53,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     PanelHandler<NotCloseablesEnum, Object, FeedbackerPanelWithFetcher<NotCloseablesEnum, Object>> notCloseableHandler;
     
     private TimeLogService timeLogService = TimeLogServiceFactory.getService();
-    private IConfigElementService configService = FConfigElementService.getService();
+    private ConfigElementService configService = ConfigElementFactory.getService();
     private ConditionChecker conditionChecker = ConditionCheckerFactory.getConditionChecker();
     private ResourceHandler<Image,ImagesEnum> imageHandler;
 

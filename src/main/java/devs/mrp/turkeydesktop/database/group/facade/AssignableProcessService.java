@@ -6,7 +6,7 @@
 package devs.mrp.turkeydesktop.database.group.facade;
 
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
-import devs.mrp.turkeydesktop.database.type.TypeServiceFactory;
+import devs.mrp.turkeydesktop.database.type.TypeFactory;
 import devs.mrp.turkeydesktop.database.type.Type;
 import java.util.Map;
 import devs.mrp.turkeydesktop.database.type.TypeService;
@@ -18,7 +18,7 @@ import io.reactivex.rxjava3.core.Observable;
  */
 public class AssignableProcessService extends AssignableAbstractService implements AssignableElementService<Type.Types> {
     
-    private final TypeService typeService = TypeServiceFactory.getService();
+    private final TypeService typeService = TypeFactory.getService();
     
     @Override
     public Observable<AssignableElement<Type.Types>> positiveElementsWithAssignation() {

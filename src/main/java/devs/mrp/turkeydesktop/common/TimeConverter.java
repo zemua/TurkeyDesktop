@@ -5,8 +5,7 @@
  */
 package devs.mrp.turkeydesktop.common;
 
-import devs.mrp.turkeydesktop.database.config.FConfigElementService;
-import devs.mrp.turkeydesktop.database.config.IConfigElementService;
+import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -18,6 +17,7 @@ import java.time.temporal.ChronoField;
 import java.util.Formatter;
 import java.util.concurrent.TimeUnit;
 import io.reactivex.rxjava3.core.Single;
+import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 
 /**
  *
@@ -25,7 +25,7 @@ import io.reactivex.rxjava3.core.Single;
  */
 public class TimeConverter {
     
-    private static IConfigElementService configService = FConfigElementService.getService();
+    private static ConfigElementService configService = ConfigElementFactory.getService();
 
     public static String millisToHMS(long millis) {
         return String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(millis),

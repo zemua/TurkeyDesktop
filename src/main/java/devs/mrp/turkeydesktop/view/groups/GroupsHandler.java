@@ -1,15 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.view.groups;
 
-import devs.mrp.turkeydesktop.database.group.GroupServiceFactory;
 import devs.mrp.turkeydesktop.database.group.Group;
+import devs.mrp.turkeydesktop.database.group.GroupFactory;
+import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.groups.review.GroupReviewPanelFactory;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.disposables.Disposable;
 import java.awt.AWTEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -17,18 +15,11 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import devs.mrp.turkeydesktop.database.group.GroupService;
-import io.reactivex.rxjava3.core.Observer;
-import io.reactivex.rxjava3.disposables.Disposable;
 
-/**
- *
- * @author miguel
- */
 public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>> {
 
     private Group.GroupType type;
-    private GroupService groupService = GroupServiceFactory.getService();
+    private GroupService groupService = GroupFactory.getService();
     
     public GroupsHandler(JFrame frame, PanelHandler<?, ?, ?> caller, Group.GroupType type) {
         super(frame, caller);
@@ -41,8 +32,8 @@ public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, Feedbacker
     }
 
     @Override
-    protected void initListeners(FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent> pan) {
-        pan.addFeedbackListener((tipo, feedback) -> {
+    protected void initListeners(FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent> panel) {
+        panel.addFeedbackListener((tipo, feedback) -> {
             switch (tipo) {
                 case BACK:
                     exit();
@@ -109,9 +100,12 @@ public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, Feedbacker
         Group group = new Group();
         group.setName(name);
         group.setType(this.type);
-        groupService.add(group).subscribe();
-        field.setText("");
-        refreshPanelList();
+        groupService.add(group)
+                .doOnSuccess(r -> {
+                    field.setText("");
+                    refreshPanelList();
+                })
+                .subscribe();
     }
     
     private void setClickListener(JLabel label, Group group){

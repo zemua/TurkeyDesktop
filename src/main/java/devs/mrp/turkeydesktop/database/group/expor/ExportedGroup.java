@@ -1,18 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.group.expor;
 
 import java.util.Objects;
 
-/**
- *
- * @author miguel
- */
 public class ExportedGroup {
     
+    public static final int MAX_PATH_SIZE = 500;
     public static final String GROUP = "GROUP_COLUMN";
     public static final String FILE = "FILE";
     public static final String DAYS = "FOR_DAYS";
