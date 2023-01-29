@@ -79,42 +79,54 @@ class FactoryInitializer {
         TitleFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(TitleRepository.getInstance(),
             Title::getSubStr,
             key -> TitleValidator.isValidKey(key),
-            TitleFactory::elementsFromResultEntry));
+            TitleFactory::elementsFromResultEntry,
+            (title, key) -> title));
     }
     
     private void initImportsDbCache() {
         ImportFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(ImportsRepository.getInstance(),
             s -> s,
             key -> ImportValidator.isValidKey(key),
-            ImportFactory::elementsFromSet));
+            ImportFactory::elementsFromSet,
+            (path,key) -> path));
     }
     
     private void initConfigDbCache() {
         ConfigElementFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(ConfigElementRepository.getInstance(),
             c -> c.getKey().toString(),
             key -> ConfigElementValidator.isValidKey(key),
-            ConfigElementFactory::elementsFromResultSet));
+            ConfigElementFactory::elementsFromResultSet,
+            (element,key) -> element));
     }
     
     private void initCloseableDbCache() {
         CloseableFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(CloseableRepository.getInstance(),
             Closeable::getProcess,
             key -> CloseableValidator.isValidKey(key),
-            CloseableFactory::listFromResultSet));
+            CloseableFactory::listFromResultSet,
+            (process,key) -> process));
     }
     
     private void initConditionDbCache() {
         ConditionFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(ConditionRepository.getInstance(),
             c -> c.getId(),
             key -> ConditionValidator.isValidKey(key),
-            ConditionFactory::elementsFromResultSet));
+            ConditionFactory::elementsFromResultSet,
+            (condition,id) -> {
+                condition.setId(id);
+                return condition;
+            }));
     }
     
     private void initGroupDbCache() {
         GroupFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(GroupRepository.getInstance(),
             Group::getId,
             key -> GroupValidator.isValidKey(key),
-            GroupFactory::elementsFromResultSet));
+            GroupFactory::elementsFromResultSet,
+            (group,id) -> {
+                group.setId(id);
+                return group;
+            }));
     }
 
     private void initGroupAssignationDbCache() {
@@ -122,21 +134,27 @@ class FactoryInitializer {
             GroupAssignationRepository.getInstance(),
             element -> new GroupAssignationDao.ElementId(element.getType(), element.getElementId()),
             GroupAssignationValidator::isValidKey,
-            GroupAssignationFactory::elementsFromResultSet));
+            GroupAssignationFactory::elementsFromResultSet,
+            (assignation,id) -> assignation));
     }
     
     private void initExportedGroupDbCache() {
         ExportedGroupFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(ExportedGroupRepository.getInstance(),
             exportedGroup -> new ExportedGroupId(exportedGroup.getGroup(), exportedGroup.getFile()),
             ExportedGroupValidator::isValidKey,
-            ExportedGroupFactory::elementsFromResultSet));
+            ExportedGroupFactory::elementsFromResultSet,
+            (exported,id) -> exported));
     }
     
     private void initExternalGroupDbCache() {
         ExternalGroupFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(ExternalGroupRepository.getInstance(),
             ExternalGroup::getId,
             ExternalGroupValidator::isValidKey,
-            ExternalGroupFactory::elementsFromResultSet));
+            ExternalGroupFactory::elementsFromResultSet,
+            (external,id) -> {
+                external.setId(id);
+                return external;
+            }));
     }
     
     private void initTypeDb() {
@@ -147,7 +165,8 @@ class FactoryInitializer {
         TypeFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(TypeRepository.getInstance(),
             type -> type.getProcess(),
             TypeValidator::isValidKey,
-            TypeFactory::listFromResultSet));
+            TypeFactory::listFromResultSet,
+            (type,key) -> type));
     }
     
     private void initTypeRepo() {
