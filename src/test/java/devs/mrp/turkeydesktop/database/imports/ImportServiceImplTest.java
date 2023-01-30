@@ -5,9 +5,12 @@ import devs.mrp.turkeydesktop.common.SaveAction;
 import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.database.DbFactory;
+import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Single;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
@@ -57,9 +60,23 @@ public class ImportServiceImplTest {
     }
     
     @Test
-    public void test_add_sets_object_id_in_cache() {
+    public void test_add_sets_object_id_in_cache() throws SQLException {
+        FactoryInitializer factoryInitializer = new FactoryInitializer();
+        factoryInitializer.setDbSupplier(() -> db);
+        factoryInitializer.initialize();
         
-        fail();
+        ImportService service = new ImportServiceImpl();
+        String toBeAdded = "this is my imported path";
+        
+        PreparedStatement statement = mock(PreparedStatement.class);
+        when(db.prepareStatementWithGeneratedKeys(ArgumentMatchers.any())).thenReturn(statement);
+        when(db.prepareStatement(ArgumentMatchers.any())).thenReturn(statement);
+        
+        service.add(toBeAdded).blockingGet();
+        
+        var retrieved = service.findAll().toList().blockingGet();
+        
+        assertTrue(retrieved.contains("this is my imported path"));
     }
     
 }

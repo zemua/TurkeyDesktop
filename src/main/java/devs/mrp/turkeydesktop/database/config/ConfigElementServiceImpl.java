@@ -8,11 +8,11 @@ import io.reactivex.rxjava3.core.Single;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ConfigElementServiceImplementation implements ConfigElementService {
+public class ConfigElementServiceImpl implements ConfigElementService {
     
     private static DbCache<String,ConfigElement> dbCache;
     
-    public ConfigElementServiceImplementation() {
+    public ConfigElementServiceImpl() {
         setCacheInstance();
     }
     

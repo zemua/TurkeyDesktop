@@ -25,7 +25,7 @@ public class ConfigElementFactory {
     }
     
     public static ConfigElementService getService() {
-        return new ConfigElementServiceImplementation();
+        return new ConfigElementServiceImpl();
     }
     
     public static void runConditionListWorker(Supplier<List<ConfigElement>> supplier, Consumer<List<ConfigElement>> consumer) {

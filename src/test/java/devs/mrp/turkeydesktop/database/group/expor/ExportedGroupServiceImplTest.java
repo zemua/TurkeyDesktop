@@ -5,11 +5,14 @@ import devs.mrp.turkeydesktop.common.SaveAction;
 import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.database.DbFactory;
+import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Single;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -99,9 +102,28 @@ public class ExportedGroupServiceImplTest {
     }
     
     @Test
-    public void test_add_sets_object_id_in_cache() {
+    public void test_add_sets_object_id_in_cache() throws SQLException {
+        FactoryInitializer factoryInitializer = new FactoryInitializer();
+        factoryInitializer.setDbSupplier(() -> db);
+        factoryInitializer.initialize();
         
-        fail();
+        ExportedGroupService service = new ExportedGroupServiceImpl();
+        ExportedGroup toBeSaved = new ExportedGroup();
+        toBeSaved.setDays(3);
+        toBeSaved.setFile("some file to export to");
+        toBeSaved.setGroup(4);
+        
+        PreparedStatement statement = mock(PreparedStatement.class);
+        when(db.prepareStatementWithGeneratedKeys(ArgumentMatchers.any())).thenReturn(statement);
+        when(db.prepareStatement(ArgumentMatchers.any())).thenReturn(statement);
+        
+        service.add(toBeSaved).blockingGet();
+        
+        var retrieved = service.findAll().toList().blockingGet();
+        
+        assertEquals(toBeSaved.getDays(), retrieved.get(0).getDays());
+        assertEquals(toBeSaved.getFile(), retrieved.get(0).getFile());
+        assertEquals(toBeSaved.getGroup(), retrieved.get(0).getGroup());
     }
     
 }

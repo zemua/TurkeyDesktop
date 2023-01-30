@@ -9,6 +9,8 @@ import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactor
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
 import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Single;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import static org.junit.Assert.assertEquals;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -93,18 +95,23 @@ public class TitleServiceImplTest {
     }
     
     @Test
-    public void test_add_sets_object_id_in_cache() {
+    public void test_add_sets_object_id_in_cache() throws SQLException {
         FactoryInitializer factoryInitializer = new FactoryInitializer();
+        factoryInitializer.setDbSupplier(() -> db);
         factoryInitializer.initialize();
         
         TitleService service = new TitleServiceImpl();
-        Title title = new Title();
-        title.setSubStr("My uPPeR CaSeD TiTle");
-        title.setType(Title.Type.POSITIVE);
+        Title toBeSaved = new Title();
+        toBeSaved.setSubStr("My uPPeR CaSeD TiTle");
+        toBeSaved.setType(Title.Type.POSITIVE);
         
-        service.save(title).blockingGet();
+        PreparedStatement statement = mock(PreparedStatement.class);
+        when(db.prepareStatementWithGeneratedKeys(ArgumentMatchers.any())).thenReturn(statement);
+        when(db.prepareStatement(ArgumentMatchers.any())).thenReturn(statement);
         
-        var retrieved = service.findBySubString(title.getSubStr()).blockingGet();
+        service.save(toBeSaved).blockingGet();
+        
+        var retrieved = service.findBySubString(toBeSaved.getSubStr()).blockingGet();
         
         assertEquals("my upper cased title", retrieved.getSubStr());
     }
