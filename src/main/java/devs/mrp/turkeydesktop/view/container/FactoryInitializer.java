@@ -11,6 +11,7 @@ import devs.mrp.turkeydesktop.database.conditions.ConditionFactory;
 import devs.mrp.turkeydesktop.database.conditions.ConditionRepository;
 import devs.mrp.turkeydesktop.database.conditions.ConditionValidator;
 import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
+import devs.mrp.turkeydesktop.database.config.ConfigElementFactoryImpl;
 import devs.mrp.turkeydesktop.database.config.ConfigElementRepository;
 import devs.mrp.turkeydesktop.database.config.ConfigElementValidator;
 import devs.mrp.turkeydesktop.database.group.Group;
@@ -42,16 +43,14 @@ import java.util.function.Supplier;
 public class FactoryInitializer {
     
     private Supplier<Db> dbSupplier = () -> Db.getInstance();
-
-    public void setDbSupplier(Supplier<Db> dbSupplier) {
-        this.dbSupplier = dbSupplier;
+    
+    private ConfigElementFactory configElementFactory;
+    
+    public FactoryInitializer() {
+        configElementFactory = new ConfigElementFactoryImpl();
     }
     
-    private Supplier<Db> dbSupplier() {
-        return dbSupplier;
-    }
-    
-    public void initialize() {
+    public FactoryInitializer initialize() {
         initGeneralDb();
         
         initTitleDbCache();
@@ -69,6 +68,24 @@ public class FactoryInitializer {
         initTypeRepo();
         
         initGroupAssignationService();
+        
+        return this;
+    }
+
+    public void setDbSupplier(Supplier<Db> dbSupplier) {
+        this.dbSupplier = dbSupplier;
+    }
+    
+    private Supplier<Db> dbSupplier() {
+        return dbSupplier;
+    }
+
+    public ConfigElementFactory getConfigElementFactory() {
+        return configElementFactory;
+    }
+
+    public void setConfigElementFactory(ConfigElementFactory configElementFactory) {
+        this.configElementFactory = configElementFactory;
     }
     
     private void initGeneralDb() {
@@ -92,10 +109,10 @@ public class FactoryInitializer {
     }
     
     private void initConfigDbCache() {
-        ConfigElementFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(ConfigElementRepository.getInstance(),
+        configElementFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(ConfigElementRepository.getInstance(configElementFactory),
             c -> c.getKey().toString(),
             key -> ConfigElementValidator.isValidKey(key),
-            ConfigElementFactory::elementsFromResultSet,
+            ConfigElementFactoryImpl::elementsFromResultSet,
             (element,key) -> element));
     }
     

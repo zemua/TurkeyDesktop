@@ -4,6 +4,7 @@ import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.database.DbFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
+import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,7 +31,8 @@ public class ConfigElementRepositoryTest {
     @BeforeClass
     public static void classSetup() {
         DbFactory.setDbSupplier(() -> db);
-        configRepository = ConfigElementRepository.getInstance();
+        FactoryInitializer factories = new FactoryInitializer();
+        configRepository = ConfigElementRepository.getInstance(factories.getConfigElementFactory());
     }
     
     @Before

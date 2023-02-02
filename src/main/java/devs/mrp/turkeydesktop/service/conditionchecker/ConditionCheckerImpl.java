@@ -11,7 +11,7 @@ import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.ConditionFactory;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
-import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
+import devs.mrp.turkeydesktop.database.config.ConfigElementFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupFactory;
@@ -52,7 +52,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
 
     private ConditionService conditionService = ConditionFactory.getService();
     private TimeLogService timeLogService = TimeLogServiceFactory.getService();
-    private ConfigElementService configService = ConfigElementFactory.getService();
+    private ConfigElementService configService = ConfigElementFactoryImpl.getService();
     private ImportService importService = ImportFactory.getService();
     private ChainHandler<LongWrapper> idleHandler = new IdleChainCommander().getHandlerChain();
     private ExternalGroupService externalGroupService = ExternalGroupFactory.getService();

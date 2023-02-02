@@ -1,12 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.common;
 
-import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
+import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
+import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Single;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -21,19 +17,16 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
-import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 
-/**
- *
- * @author miguel
- */
 public class FileHandler {
+    
+    // TODO make class non-static and inject factory instead
     
     private static final long millisBetweenOperations = 60*1000;
     private static long lastExport = 0;
-    private static ConfigElementService configService = ConfigElementFactory.getService();
     private static Map<String,CachedValue> readerCache = new HashMap<>();
     private static Map<String,Long> lastWrittings = new HashMap<>();
+    private static FactoryInitializer factoryInitializer = new FactoryInitializer().initialize();
     
     private static class CachedValue {
         String value;
@@ -85,6 +78,7 @@ public class FileHandler {
         if (lastExport + millisBetweenOperations > now) {
             return;
         }
+        ConfigElementService configService = factoryInitializer.getConfigElementFactory().getService();
         lastExport = now;
         Single.zip(configService.configElement(ConfigurationEnum.EXPORT_PATH),
                 configService.configElement(ConfigurationEnum.EXPORT_TOGGLE),

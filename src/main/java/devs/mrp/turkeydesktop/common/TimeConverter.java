@@ -1,12 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.common;
 
-import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
+import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
+import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
+import io.reactivex.rxjava3.core.Single;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,16 +13,12 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.Formatter;
 import java.util.concurrent.TimeUnit;
-import io.reactivex.rxjava3.core.Single;
-import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 
-/**
- *
- * @author miguel
- */
 public class TimeConverter {
     
-    private static ConfigElementService configService = ConfigElementFactory.getService();
+    // TODO make class non-static and inject factory instead
+    
+    private static FactoryInitializer factoryInitializer = new FactoryInitializer().initialize();
 
     public static String millisToHMS(long millis) {
         return String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(millis),
@@ -106,6 +99,7 @@ public class TimeConverter {
     }
     
     public static Single<Long> endOfTodayConsideringDayChange() {
+        ConfigElementService configService = factoryInitializer.getConfigElementFactory().getService();
         return configService.configElement(ConfigurationEnum.CHANGE_OF_DAY)
                 .map(changeOfDayResult -> {
                     Long changeOfDayMilis = hoursToMilis(Long.valueOf(changeOfDayResult.getValue()));
@@ -120,6 +114,7 @@ public class TimeConverter {
     }
     
     public static Single<Long> beginningOfOffsetDaysConsideringDayChange(long offsetDays) {
+        ConfigElementService configService = factoryInitializer.getConfigElementFactory().getService();
         return configService.configElement(ConfigurationEnum.CHANGE_OF_DAY)
                 .map(changeOfDayResult -> {
                     Long changeOfDay = Long.valueOf(changeOfDayResult.getValue());
@@ -136,6 +131,7 @@ public class TimeConverter {
     }
     
     public static Single<Long> endOfOffsetDaysConsideringDayChange(long offsetDays) {
+        ConfigElementService configService = factoryInitializer.getConfigElementFactory().getService();
         return configService.configElement(ConfigurationEnum.CHANGE_OF_DAY)
                 .map(changeOfDayResult -> {
                     Long changeOfDay = Long.valueOf(changeOfDayResult.getValue());

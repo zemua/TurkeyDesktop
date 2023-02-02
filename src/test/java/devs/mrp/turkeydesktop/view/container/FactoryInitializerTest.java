@@ -9,7 +9,6 @@ import devs.mrp.turkeydesktop.database.closeables.CloseableFactory;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.ConditionFactory;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
-import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationServiceImpl;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroup;
@@ -94,7 +93,7 @@ public class FactoryInitializerTest {
     @Test
     public void testConfigDbCache() throws SQLException {
         when(db.prepareStatementWithGeneratedKeys(ArgumentMatchers.any())).thenReturn(preparedStatement);
-        var cache = ConfigElementFactory.getDbCache();
+        var cache = factoryInitializer.getConfigElementFactory().getDbCache();
         ConfigElement expected = new ConfigElement();
         expected.setKey(ConfigurationEnum.IDLE);
         expected.setValue("some value");

@@ -1,27 +1,26 @@
 package devs.mrp.turkeydesktop.database.config;
 
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
+import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import io.reactivex.rxjava3.core.Single;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ConfigElementRepository implements ConfigElementDao {
     
-    private Db dbInstance = DbFactory.getDb();
+    private Db dbInstance;
     
     private static ConfigElementRepository instance;
     
-    private ConfigElementRepository() {
-        
+    private ConfigElementRepository(ConfigElementFactory configElementFactory) {
+        dbInstance = configElementFactory.getDb();
     }
     
-    public static ConfigElementRepository getInstance() {
+    public static ConfigElementRepository getInstance(ConfigElementFactory configElementFactory) {
         if (instance == null) {
-            instance = new ConfigElementRepository();
+            instance = new ConfigElementRepository(configElementFactory);
         }
         return instance;
     }
