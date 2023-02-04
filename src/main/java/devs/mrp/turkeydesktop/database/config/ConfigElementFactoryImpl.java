@@ -2,16 +2,19 @@ package devs.mrp.turkeydesktop.database.config;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.GenericWorker;
+import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Observable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -19,48 +22,29 @@ public class ConfigElementFactoryImpl implements ConfigElementFactory {
     
     private Supplier<DbCache<String, ConfigElement>> dbCacheSupplier;
     
-    private Supplier<Db> dbSupplier;
+    @Getter
+    private Db db;
     
-    private Supplier<ConfigElementDao> repoSupplier;
+    @Getter
+    private ConfigElementDao repo;
     
     public ConfigElementFactoryImpl(FactoryInitializer factory) {
-        
+        db = factory.getDb();
+        repo = ConfigElementRepository.getInstance(this);
+        initCache();
     }
-
-    public void setDbCacheSupplier(Supplier<DbCache<String, ConfigElement>> dbCacheSupplier) {
-        this.dbCacheSupplier = dbCacheSupplier;
+    
+    private void initCache() {
+        Function<ConfigElement,String> keyExtractor = c -> c.getKey().toString();
+        Function<String,Boolean> isNewKey = key -> ConfigElementValidator.isValidKey(key);
+        Function<ResultSet,Observable<ConfigElement>> listFromResultSet = this::elementsFromResultSet;
+        BiFunction<ConfigElement, String, ConfigElement> keySetter = (element,key) -> element;
+        var cache = DbCacheFactory.getDbCache(repo, keyExtractor, isNewKey, listFromResultSet, keySetter);
+        this.dbCacheSupplier = () -> cache;
     }
     
     public DbCache<String, ConfigElement> getDbCache() {
         return dbCacheSupplier.get();
-    }
-
-    public void setDbSupplier(Supplier<Db> dbSupplier) {
-        this.dbSupplier = dbSupplier;
-    }
-    
-    public Db getDb() {
-        Db result;
-        if (dbSupplier == null) {
-            result = DbFactory.getDb();
-        } else {
-            result = dbSupplier.get();
-        }
-        return result;
-    }
-
-    public void setRepoSupplier(Supplier<ConfigElementDao> repoSupplier) {
-        this.repoSupplier = repoSupplier;
-    }
-    
-    public ConfigElementDao getRepo() {
-        ConfigElementDao result;
-        if (repoSupplier == null) {
-            result = ConfigElementRepository.getInstance(this);
-        } else {
-            result = repoSupplier.get();
-        }
-        return result;
     }
     
     public ConfigElementService getService() {

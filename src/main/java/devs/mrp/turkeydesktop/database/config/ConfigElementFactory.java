@@ -10,15 +10,9 @@ import java.util.function.Supplier;
 
 public interface ConfigElementFactory {
     
-    public void setDbCacheSupplier(Supplier<DbCache<String, ConfigElement>> dbCacheSupplier);
-    
     public DbCache<String, ConfigElement> getDbCache();
-
-    public void setDbSupplier(Supplier<Db> dbSupplier);
     
     public Db getDb();
-
-    public void setRepoSupplier(Supplier<ConfigElementDao> repoSupplier);
     
     public ConfigElementDao getRepo();
     
