@@ -18,7 +18,7 @@ import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesEnum;
 import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesPanelFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelEnum;
 import devs.mrp.turkeydesktop.view.configuration.FConfigurationPanel;
-import devs.mrp.turkeydesktop.view.groups.FGroupsPanel;
+import devs.mrp.turkeydesktop.view.groups.GroupsPanelFactoryImpl;
 import devs.mrp.turkeydesktop.view.groups.GroupsEnum;
 import devs.mrp.turkeydesktop.view.times.FTimesPanel;
 import devs.mrp.turkeydesktop.view.times.TimesEnum;
@@ -135,14 +135,14 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     
     private void initPositiveGroupsHandler() {
         if (positiveGroupsHandler == null) {
-            positiveGroupsHandler = FGroupsPanel.getHandler(this.getFrame(), this, Group.GroupType.POSITIVE);
+            positiveGroupsHandler = GroupsPanelFactoryImpl.getHandler(this.getFrame(), this, Group.GroupType.POSITIVE);
         }
         positiveGroupsHandler.show();
     }
     
     private void initNegativeGroupsHandler() {
         if (negativeGroupsHandler == null) {
-            negativeGroupsHandler = FGroupsPanel.getHandler(this.getFrame(), this, Group.GroupType.NEGATIVE);
+            negativeGroupsHandler = GroupsPanelFactoryImpl.getHandler(this.getFrame(), this, Group.GroupType.NEGATIVE);
         }
         negativeGroupsHandler.show();
     }

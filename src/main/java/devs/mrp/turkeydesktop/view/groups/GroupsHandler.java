@@ -4,31 +4,32 @@ import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.group.GroupFactory;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
-import devs.mrp.turkeydesktop.view.groups.review.GroupReviewFactoryImpl;
+import devs.mrp.turkeydesktop.view.PanelHandlerData;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
 import java.awt.AWTEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>> {
 
+    private GroupsPanelFactory factory;
     private Group.GroupType type;
     private GroupService groupService = GroupFactory.getService();
     
-    public GroupsHandler(JFrame frame, PanelHandler<?, ?, ?> caller, Group.GroupType type) {
-        super(frame, caller);
-        this.type = type;
+    public GroupsHandler(PanelHandlerData<Group.GroupType> data, GroupsPanelFactory factory) {
+        super(data.getFrame(), data.getCaller());
+        this.type = data.getEntity();
+        this.factory = factory;
     }
     
     @Override
     protected FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent> initPanel() {
-        return FGroupsPanel.getPanel();
+        return factory.getPanel();
     }
 
     @Override
@@ -118,7 +119,8 @@ public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, Feedbacker
     }
     
     private void launchReviewGroupHandler(Group group){
-        GroupReviewFactoryImpl.getHandler(this.getFrame(), this, group).show();
+        PanelHandlerData<Group> data = new PanelHandlerData<>(this.getFrame(), this, group);
+        factory.getReviewGroupHandler(data).show();
     }
 
     @Override

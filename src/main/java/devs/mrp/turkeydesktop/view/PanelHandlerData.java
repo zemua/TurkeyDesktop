@@ -1,14 +1,13 @@
 package devs.mrp.turkeydesktop.view;
 
-import devs.mrp.turkeydesktop.database.group.Group;
 import javax.swing.JFrame;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@Builder
+@AllArgsConstructor
 @Getter
-public class PanelHandlerData {
+public class PanelHandlerData<T> {
     private JFrame frame;
     private PanelHandler<?, ?, ?> caller;
-    private Group group;
+    private T entity;
 }

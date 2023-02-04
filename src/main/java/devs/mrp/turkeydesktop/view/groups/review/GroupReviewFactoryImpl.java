@@ -24,7 +24,7 @@ public class GroupReviewFactoryImpl implements GroupReviewFactory {
     
     @Override
     public PanelHandler<GroupReviewEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent>> getHandler(JFrame frame, PanelHandler<?, ?, ?> caller, Group group) {
-        var data = PanelHandlerData.builder().frame(frame).caller(caller).group(group).build();
+        PanelHandlerData<Group> data = new PanelHandlerData<>(frame, caller, group);
         return new GroupReviewHandler(data, this);
     }
 

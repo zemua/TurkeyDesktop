@@ -79,9 +79,9 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private JSpinner minuteSpinner;
     private JSpinner daySpinner;
 
-    public GroupReviewHandler(PanelHandlerData data, GroupReviewFactory factory) {
+    public GroupReviewHandler(PanelHandlerData<Group> data, GroupReviewFactory factory) {
         super(data.getFrame(), data.getCaller());
-        this.group = data.getGroup();
+        this.group = data.getEntity();
         this.factory = factory;
         groupConditionFacadeService = factory.groupConditionFacadeService();
     }

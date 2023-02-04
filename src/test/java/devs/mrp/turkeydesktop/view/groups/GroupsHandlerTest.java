@@ -34,7 +34,7 @@ public class GroupsHandlerTest {
     
     @Before
     public void setup() {
-        FGroupsPanel.setPanelSupplier(() -> panel);
+        GroupsPanelFactoryImpl.setPanelSupplier(() -> panel);
         GroupFactory.setGroupServiceSupplier(() -> groupService);
         frame = mock(JFrame.class);
         caller = mock(PanelHandler.class);
