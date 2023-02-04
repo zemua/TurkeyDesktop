@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.service.conditionchecker;
 
 import devs.mrp.turkeydesktop.common.ChainHandler;
@@ -10,13 +5,15 @@ import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.ConditionFactory;
+import devs.mrp.turkeydesktop.database.conditions.ConditionService;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
-import devs.mrp.turkeydesktop.database.config.ConfigElementFactoryImpl;
+import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
-import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupFactory;
-import devs.mrp.turkeydesktop.database.imports.ImportService;
+import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
 import devs.mrp.turkeydesktop.database.imports.ImportFactory;
+import devs.mrp.turkeydesktop.database.imports.ImportService;
+import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.conditionchecker.idle.IdleChainCommander;
@@ -25,34 +22,27 @@ import devs.mrp.turkeydesktop.service.conditionchecker.imports.ImportReader;
 import devs.mrp.turkeydesktop.service.conditionchecker.imports.ImportReaderFactory;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
-import java.io.File;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Pattern;
-import devs.mrp.turkeydesktop.database.logs.TimeLogService;
-import java.time.LocalDateTime;
-import java.util.concurrent.atomic.AtomicLong;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.core.SingleSource;
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
-import devs.mrp.turkeydesktop.database.config.ConfigElementService;
-import devs.mrp.turkeydesktop.database.conditions.ConditionService;
 
-/**
- *
- * @author miguel
- */
 @Slf4j
 public class ConditionCheckerImpl implements ConditionChecker {
 
     private ConditionService conditionService = ConditionFactory.getService();
     private TimeLogService timeLogService = TimeLogServiceFactory.getService();
-    private ConfigElementService configService = ConfigElementFactoryImpl.getService();
+    private ConfigElementService configService;
     private ImportService importService = ImportFactory.getService();
     private ChainHandler<LongWrapper> idleHandler = new IdleChainCommander().getHandlerChain();
     private ExternalGroupService externalGroupService = ExternalGroupFactory.getService();
@@ -63,6 +53,10 @@ public class ConditionCheckerImpl implements ConditionChecker {
 
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
     private static final Pattern NUMBER_PATTERN = Pattern.compile("^-?\\d+$");
+    
+    public ConditionCheckerImpl(ConditionCheckerFactory factory) {
+        configService = factory.getConfigElementService();
+    }
 
     @Override
     public Single<Boolean> isConditionMet(Condition condition) {

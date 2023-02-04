@@ -5,7 +5,7 @@
  */
 package devs.mrp.turkeydesktop.service.watchdog.logger;
 
-import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeServiceFactory;
+import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeServiceFactoryImpl;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeService;
 import java.util.logging.Logger;
@@ -22,7 +22,7 @@ public class DbLoggerImpl implements DbLogger {
     LogAndTypeFacadeService logService;
     
     public DbLoggerImpl() {
-        logService = LogAndTypeServiceFactory.getService();
+        logService = LogAndTypeServiceFactoryImpl.getService();
     }
     
     @Override

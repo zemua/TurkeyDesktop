@@ -4,7 +4,7 @@ import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.group.GroupFactory;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
-import devs.mrp.turkeydesktop.view.groups.review.GroupReviewPanelFactory;
+import devs.mrp.turkeydesktop.view.groups.review.GroupReviewFactoryImpl;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -118,7 +118,7 @@ public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, Feedbacker
     }
     
     private void launchReviewGroupHandler(Group group){
-        GroupReviewPanelFactory.getHandler(this.getFrame(), this, group).show();
+        GroupReviewFactoryImpl.getHandler(this.getFrame(), this, group).show();
     }
 
     @Override

@@ -13,7 +13,7 @@ import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.database.group.GroupFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
-import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
+import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactoryImpl;
 import devs.mrp.turkeydesktop.service.processchecker.ProcessCheckerFactory;
 import devs.mrp.turkeydesktop.service.processkiller.KillerChainCommander;
 import devs.mrp.turkeydesktop.service.watchdog.logger.DbLogger;
@@ -81,7 +81,7 @@ public class WatchDogImpl implements WatchDog {
     
     private void initConditionChecker() {
         try {
-            conditionChecker = ConditionCheckerFactory.getConditionChecker();
+            conditionChecker = ConditionCheckerFactoryImpl.getConditionChecker();
         } catch (Exception e) {
             stop();
         }

@@ -22,13 +22,13 @@ import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElement;
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElementService;
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElementServiceFactory;
-import devs.mrp.turkeydesktop.database.groupcondition.FGroupConditionFacadeService;
 import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacade;
-import devs.mrp.turkeydesktop.database.groupcondition.IGroupConditionFacadeService;
+import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacadeService;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.database.type.Type.Types;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
+import devs.mrp.turkeydesktop.view.PanelHandlerData;
 import devs.mrp.turkeydesktop.view.groups.review.switchable.Switchable;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import io.reactivex.rxjava3.core.Observable;
@@ -46,7 +46,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -58,6 +57,8 @@ import org.apache.commons.lang3.StringUtils;
 @Slf4j
 public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent>> {
 
+    private GroupReviewFactory factory;
+    
     private ConfirmationWithDelay popupMaker = new ConfirmationWithDelayFactory();
     
     private static final Logger logger = Logger.getLogger(GroupReviewHandler.class.getName());
@@ -71,21 +72,23 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private final ConditionService conditionService = ConditionFactory.getService();
     private final ExternalGroupService externalGroupService = ExternalGroupFactory.getService();
     private final ExportedGroupService exportedGroupService = ExportedGroupFactory.getService();
-    private final IGroupConditionFacadeService groupConditionFacadeService = FGroupConditionFacadeService.getService();
+    private final GroupConditionFacadeService groupConditionFacadeService;
 
     private JComboBox<Group> targetComboBox;
     private JSpinner hourSpinner;
     private JSpinner minuteSpinner;
     private JSpinner daySpinner;
 
-    public GroupReviewHandler(JFrame frame, PanelHandler<?, ?, ?> caller, Group group) {
-        super(frame, caller);
-        this.group = group;
+    public GroupReviewHandler(PanelHandlerData data, GroupReviewFactory factory) {
+        super(data.getFrame(), data.getCaller());
+        this.group = data.getGroup();
+        this.factory = factory;
+        groupConditionFacadeService = factory.groupConditionFacadeService();
     }
 
     @Override
     protected FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent> initPanel() {
-        return GroupReviewPanelFactory.getPanel();
+        return factory.getPanel();
     }
 
     @Override

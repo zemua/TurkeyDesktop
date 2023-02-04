@@ -1,18 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.service.conditionchecker;
 
 import devs.mrp.turkeydesktop.database.conditions.Condition;
-import java.util.List;
 import io.reactivex.rxjava3.core.Single;
+import java.util.List;
 
-/**
- *
- * @author miguel
- */
 public interface ConditionChecker {
     
     public Single<Boolean> isConditionMet(Condition condition);

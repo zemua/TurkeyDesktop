@@ -31,6 +31,8 @@ import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupFactory;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupRepository;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupValidator;
+import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacadeFactory;
+import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacadeFactoryImpl;
 import devs.mrp.turkeydesktop.database.imports.ImportFactory;
 import devs.mrp.turkeydesktop.database.imports.ImportValidator;
 import devs.mrp.turkeydesktop.database.imports.ImportsRepository;
@@ -38,16 +40,32 @@ import devs.mrp.turkeydesktop.database.titles.*;
 import devs.mrp.turkeydesktop.database.type.TypeFactory;
 import devs.mrp.turkeydesktop.database.type.TypeRepository;
 import devs.mrp.turkeydesktop.database.type.TypeValidator;
-import java.util.function.Supplier;
+import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
+import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactoryImpl;
+import devs.mrp.turkeydesktop.view.groups.review.GroupReviewFactory;
+import devs.mrp.turkeydesktop.view.groups.review.GroupReviewFactoryImpl;
+import lombok.Getter;
 
+@Getter
 public class FactoryInitializer {
     
-    private Supplier<Db> dbSupplier = () -> Db.getInstance();
+    private Db db;
     
     private ConfigElementFactory configElementFactory;
+    private ConditionCheckerFactory conditionCheckerFactory;
+    private GroupConditionFacadeFactory groupConditionFacadeFactory;
+    private GroupReviewFactory groupReviewFactory;
     
     public FactoryInitializer() {
-        configElementFactory = new ConfigElementFactoryImpl();
+        this(Db.getInstance());
+    }
+    
+    public FactoryInitializer(Db db) {
+        this.db = db;
+        configElementFactory = new ConfigElementFactoryImpl(this);
+        conditionCheckerFactory = new ConditionCheckerFactoryImpl(this);
+        groupConditionFacadeFactory = new GroupConditionFacadeFactoryImpl(this);
+        groupReviewFactory = new GroupReviewFactoryImpl(this);
     }
     
     public FactoryInitializer initialize() {
@@ -71,25 +89,9 @@ public class FactoryInitializer {
         
         return this;
     }
-
-    public void setDbSupplier(Supplier<Db> dbSupplier) {
-        this.dbSupplier = dbSupplier;
-    }
-    
-    private Supplier<Db> dbSupplier() {
-        return dbSupplier;
-    }
-
-    public ConfigElementFactory getConfigElementFactory() {
-        return configElementFactory;
-    }
-
-    public void setConfigElementFactory(ConfigElementFactory configElementFactory) {
-        this.configElementFactory = configElementFactory;
-    }
     
     private void initGeneralDb() {
-        DbFactory.setDbSupplier(dbSupplier());
+        DbFactory.setDbSupplier(() -> db);
     }
     
     private void initTitleDbCache() {
@@ -109,11 +111,13 @@ public class FactoryInitializer {
     }
     
     private void initConfigDbCache() {
-        configElementFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(ConfigElementRepository.getInstance(configElementFactory),
-            c -> c.getKey().toString(),
-            key -> ConfigElementValidator.isValidKey(key),
-            ConfigElementFactoryImpl::elementsFromResultSet,
-            (element,key) -> element));
+        var cache = DbCacheFactory.getDbCache(
+                ConfigElementRepository.getInstance(configElementFactory),
+                c -> c.getKey().toString(),
+                key -> ConfigElementValidator.isValidKey(key),
+                ConfigElementFactoryImpl::elementsFromResultSet,
+                (element,key) -> element);
+        configElementFactory.setDbCacheSupplier(() -> cache);
     }
     
     private void initCloseableDbCache() {
@@ -175,7 +179,7 @@ public class FactoryInitializer {
     }
     
     private void initTypeDb() {
-        TypeFactory.setDbSupplier(dbSupplier);
+        TypeFactory.setDbSupplier(() -> db);
     }
     
     private void initTypeDbCache() {

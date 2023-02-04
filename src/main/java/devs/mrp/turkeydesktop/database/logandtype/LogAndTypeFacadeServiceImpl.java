@@ -19,9 +19,7 @@ import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.database.type.TypeFactory;
 import devs.mrp.turkeydesktop.database.type.TypeService;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
-import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.sql.SQLException;
@@ -29,18 +27,21 @@ import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 
 public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
-    
-    // TODO make class non-static and inject factory instead
 
     private final LogAndTypeFacadeDao repo = LogAndTypeFacadeRepository.getInstance();
     private final TimeLogService logService = TimeLogServiceFactory.getService();
     private final TypeService typeService = TypeFactory.getService();
-    private static FactoryInitializer factoryInitializer = new FactoryInitializer().initialize();
     private final TitleService titleService = TitleFactory.getService();
     private final GroupAssignationService groupAssignationService = GroupAssignationFactory.getService();
     private final CloseableService closeableService = CloseableFactory.getService();
 
-    private final ConditionChecker conditionChecker = ConditionCheckerFactory.getConditionChecker();
+    private final ConditionChecker conditionChecker;
+    private final ConfigElementService configService;
+    
+    public LogAndTypeFacadeServiceImpl(LogAndTypeFacadeFactory factory) {
+        this.conditionChecker = factory.conditionChecker();
+        this.configService = factory.configService();
+    }
 
     @Override
     public Observable<Tripla<String, Long, Type.Types>> getTypedLogGroupedByProcess(Date from, Date to) {
@@ -165,7 +166,6 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
         Single<Type> ty = typeService.findById(element.getProcessName()).defaultIfEmpty(Type.builder().process(StringUtils.EMPTY).type(Type.Types.UNDEFINED).build());
         Single<Boolean> lock = conditionChecker.isLockDownTime();
         Single<Boolean> idl = conditionChecker.isIdle();
-        ConfigElementService configService = factoryInitializer.getConfigElementFactory().getService();
         Single<ConfigElement> prop = configService.configElement(ConfigurationEnum.PROPORTION);
         return Single.zip(ty, lock, idl, prop, (myType, lockdown, idle, proportionResult) -> {
             return flatMapFrom(proportionResult, myType, element, lockdown, idle).blockingGet();

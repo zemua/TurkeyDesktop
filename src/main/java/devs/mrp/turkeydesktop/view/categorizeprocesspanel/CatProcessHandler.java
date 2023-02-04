@@ -9,7 +9,7 @@ import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
 import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.common.Tripla;
 import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
-import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeServiceFactory;
+import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeServiceFactoryImpl;
 import devs.mrp.turkeydesktop.database.type.TypeFactory;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.view.PanelHandler;
@@ -49,7 +49,7 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
     private FeedbackListener<Type.Types,String> mListener;
     private TypeService typeService;
     
-    LogAndTypeFacadeService typedService = LogAndTypeServiceFactory.getService();
+    LogAndTypeFacadeService typedService = LogAndTypeServiceFactoryImpl.getService();
     
     public CatProcessHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
         super(frame, caller);

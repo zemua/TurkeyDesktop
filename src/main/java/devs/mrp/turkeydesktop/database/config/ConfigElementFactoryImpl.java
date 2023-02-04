@@ -5,6 +5,7 @@ import devs.mrp.turkeydesktop.common.GenericWorker;
 import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.database.DbFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
+import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Observable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,6 +22,10 @@ public class ConfigElementFactoryImpl implements ConfigElementFactory {
     private Supplier<Db> dbSupplier;
     
     private Supplier<ConfigElementDao> repoSupplier;
+    
+    public ConfigElementFactoryImpl(FactoryInitializer factory) {
+        
+    }
 
     public void setDbCacheSupplier(Supplier<DbCache<String, ConfigElement>> dbCacheSupplier) {
         this.dbCacheSupplier = dbCacheSupplier;

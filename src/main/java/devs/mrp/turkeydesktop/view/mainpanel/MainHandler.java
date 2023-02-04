@@ -10,7 +10,7 @@ import devs.mrp.turkeydesktop.database.config.ConfigElementFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
-import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
+import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactoryImpl;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessEnum;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessPanelFactory;
@@ -54,7 +54,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     
     private TimeLogService timeLogService = TimeLogServiceFactory.getService();
     private ConfigElementService configService = ConfigElementFactoryImpl.getService();
-    private ConditionChecker conditionChecker = ConditionCheckerFactory.getConditionChecker();
+    private ConditionChecker conditionChecker = ConditionCheckerFactoryImpl.getConditionChecker();
     private ResourceHandler<Image,ImagesEnum> imageHandler;
 
     public MainHandler(JFrame frame, PanelHandler<?,?, ?> caller) {
