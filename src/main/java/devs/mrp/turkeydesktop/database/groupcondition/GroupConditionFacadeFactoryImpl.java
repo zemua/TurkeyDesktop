@@ -16,7 +16,7 @@ public class GroupConditionFacadeFactoryImpl implements GroupConditionFacadeFact
     
     @Override
     public GroupConditionFacadeService getService() {
-        return new GroupConditionFacadeServiceImpl();
+        return new GroupConditionFacadeServiceImpl(this);
     }
     
     @Override
@@ -32,6 +32,11 @@ public class GroupConditionFacadeFactoryImpl implements GroupConditionFacadeFact
     @Override
     public ConditionChecker conditionCheker() {
         return factory.getConditionCheckerFactory().getConditionChecker();
+    }
+
+    @Override
+    public GroupConditionFacade createFacade() {
+        return new GroupConditionFacade(this);
     }
     
 }

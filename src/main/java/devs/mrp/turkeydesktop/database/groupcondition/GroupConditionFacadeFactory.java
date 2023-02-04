@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public interface GroupConditionFacadeFactory {
+    GroupConditionFacade createFacade();
     ConditionChecker conditionCheker();
     GroupConditionFacadeService getService();
     Consumer<GroupConditionFacade> getConsumer(Consumer<GroupConditionFacade> consumer);

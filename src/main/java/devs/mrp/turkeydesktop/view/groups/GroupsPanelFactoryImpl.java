@@ -7,30 +7,19 @@ import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import devs.mrp.turkeydesktop.view.groups.review.GroupReviewEnum;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
-import java.util.function.Supplier;
 
 public class GroupsPanelFactoryImpl implements GroupsPanelFactory {
     
     private FactoryInitializer factory;
-    private Supplier<FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>> panelSupplier;
+    private FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent> panel;
     
     public GroupsPanelFactoryImpl(FactoryInitializer factoryInitializer) {
         this.factory = factoryInitializer;
     }
-
-    public void setPanelSupplier(Supplier<FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>> panelSupplier) {
-        this.panelSupplier = panelSupplier;
-    }
     
     @Override
     public FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent> getPanel() {
-        FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent> result;
-        if (panelSupplier == null) {
-            result = new GroupsPanel();
-        } else {
-            result = panelSupplier.get();
-        }
-        return result;
+        return panel;
     }
     
     @Override

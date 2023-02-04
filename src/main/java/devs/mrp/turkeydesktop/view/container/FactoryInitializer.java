@@ -1,8 +1,8 @@
 package devs.mrp.turkeydesktop.view.container;
 
+import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
 import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
 import devs.mrp.turkeydesktop.database.closeables.Closeable;
 import devs.mrp.turkeydesktop.database.closeables.CloseableFactory;
 import devs.mrp.turkeydesktop.database.closeables.CloseableRepository;
@@ -12,8 +12,6 @@ import devs.mrp.turkeydesktop.database.conditions.ConditionRepository;
 import devs.mrp.turkeydesktop.database.conditions.ConditionValidator;
 import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
 import devs.mrp.turkeydesktop.database.config.ConfigElementFactoryImpl;
-import devs.mrp.turkeydesktop.database.config.ConfigElementRepository;
-import devs.mrp.turkeydesktop.database.config.ConfigElementValidator;
 import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.group.GroupFactory;
 import devs.mrp.turkeydesktop.database.group.GroupRepository;
@@ -42,6 +40,8 @@ import devs.mrp.turkeydesktop.database.type.TypeRepository;
 import devs.mrp.turkeydesktop.database.type.TypeValidator;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactoryImpl;
+import devs.mrp.turkeydesktop.service.toaster.Toaster;
+import devs.mrp.turkeydesktop.service.toaster.voice.VoiceNotificator;
 import devs.mrp.turkeydesktop.view.groups.review.GroupReviewFactory;
 import devs.mrp.turkeydesktop.view.groups.review.GroupReviewFactoryImpl;
 import lombok.Getter;
@@ -56,6 +56,10 @@ public class FactoryInitializer {
     private GroupConditionFacadeFactory groupConditionFacadeFactory;
     private GroupReviewFactory groupReviewFactory;
     
+    private VoiceNotificator voiceNotificator;
+    private Toaster toaster;
+    private SingleConsumerFactory singleConsumerFactory;
+    
     public FactoryInitializer() {
         this(Db.getInstance());
     }
@@ -66,14 +70,15 @@ public class FactoryInitializer {
         conditionCheckerFactory = new ConditionCheckerFactoryImpl(this);
         groupConditionFacadeFactory = new GroupConditionFacadeFactoryImpl(this);
         groupReviewFactory = new GroupReviewFactoryImpl(this);
+        
+        voiceNotificator = VoiceNotificator.getInstance(configElementFactory.getService());
+        toaster = Toaster.getInstance(voiceNotificator);
+        singleConsumerFactory = new SingleConsumerFactory(this);
     }
     
     public FactoryInitializer initialize() {
-        initGeneralDb();
-        
         initTitleDbCache();
         initImportsDbCache();
-        initConfigDbCache();
         initCloseableDbCache();
         initConditionDbCache();
         initGroupDbCache();
@@ -90,10 +95,6 @@ public class FactoryInitializer {
         return this;
     }
     
-    private void initGeneralDb() {
-        DbFactory.setDbSupplier(() -> db);
-    }
-    
     private void initTitleDbCache() {
         TitleFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(TitleRepository.getInstance(),
             Title::getSubStr,
@@ -108,16 +109,6 @@ public class FactoryInitializer {
             key -> ImportValidator.isValidKey(key),
             ImportFactory::elementsFromSet,
             (path,key) -> path));
-    }
-    
-    private void initConfigDbCache() {
-        var cache = DbCacheFactory.getDbCache(
-                ConfigElementRepository.getInstance(configElementFactory),
-                c -> c.getKey().toString(),
-                key -> ConfigElementValidator.isValidKey(key),
-                ConfigElementFactoryImpl::elementsFromResultSet,
-                (element,key) -> element);
-        configElementFactory.setDbCacheSupplier(() -> cache);
     }
     
     private void initCloseableDbCache() {
