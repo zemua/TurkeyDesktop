@@ -51,6 +51,8 @@ import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactory;
 import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactoryImpl;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessPanelFactory;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessPanelFactoryImpl;
+import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelFactory;
+import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelFactoryImpl;
 import devs.mrp.turkeydesktop.view.groups.GroupsPanelFactory;
 import devs.mrp.turkeydesktop.view.groups.GroupsPanelFactoryImpl;
 import devs.mrp.turkeydesktop.view.groups.review.GroupReviewFactory;
@@ -74,6 +76,7 @@ public class FactoryInitializer {
     
     private MainPanelFactory mainPanelFactory;
     private GroupsPanelFactory groupsPanelFactory;
+    private ConfigurationPanelFactory configurationPanelFactory;
     
     private VoiceNotificator voiceNotificator;
     private Toaster toaster;
@@ -109,6 +112,7 @@ public class FactoryInitializer {
         
         mainPanelFactory = new MainPanelFactoryImpl(this);
         groupsPanelFactory = new GroupsPanelFactoryImpl(this);
+        configurationPanelFactory = new ConfigurationPanelFactoryImpl(this);
         
         voiceNotificator = VoiceNotificator.getInstance(configElementFactory.getService());
         toaster = Toaster.getInstance(voiceNotificator);

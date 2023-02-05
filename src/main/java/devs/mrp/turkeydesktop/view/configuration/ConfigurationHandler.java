@@ -6,12 +6,12 @@ import devs.mrp.turkeydesktop.common.RemovableLabel;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
-import devs.mrp.turkeydesktop.database.config.ConfigElementFactoryImpl;
 import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 import devs.mrp.turkeydesktop.database.imports.ImportFactory;
 import devs.mrp.turkeydesktop.database.imports.ImportService;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
+import devs.mrp.turkeydesktop.view.PanelHandlerData;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -31,13 +31,17 @@ import javax.swing.JToggleButton;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, AWTEvent, FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent>> {
+    
+    private ConfigurationPanelFactory factory;
 
-    private ConfigElementService configService = ConfigElementFactoryImpl.getService();
+    private ConfigElementService configService;
     private ImportService importService = ImportFactory.getService();
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
     private Logger logger = Logger.getLogger(ConfigurationHandler.class.getName());
     private JFrame frame;
     private ConfirmationWithDelay popupMaker = new ConfirmationWithDelayFactory();
+    private TimeConverter timeConverter;
+    private FileHandler fileHandler;
     public static final int SENSITIVE_WAITING_SECONDS = 30;
     
     // Flags to know when the UI has been loaded and we can start processing triggers
@@ -53,14 +57,18 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     private boolean changeOfDayNotificationStarted = false;
     private boolean changeOfDayNotificationMinutesStarted = false;
 
-    public ConfigurationHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
-        super(frame, caller);
-        this.frame = frame;
+    public ConfigurationHandler(PanelHandlerData<?> data, ConfigurationPanelFactory factory) {
+        super(data.getFrame(), data.getCaller());
+        this.frame = data.getFrame();
+        this.factory = factory;
+        this.configService = factory.getConfigElementService();
+        this.timeConverter = factory.getTimeConverter();
+        this.fileHandler = factory.getFileHandler();
     }
 
     @Override
     protected FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent> initPanel() {
-        this.setPanel(FConfigurationPanel.getPanel());
+        this.setPanel(factory.getPanel());
         return this.getPanel();
     }
 
@@ -239,15 +247,15 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                 long from = Long.valueOf(lockdownFromResult.getValue());
                 JSpinner fromHour = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_FROM_HOUR, JSpinner.class).get();
                 JSpinner fromMin = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_FROM_MIN, JSpinner.class).get();
-                fromHour.setValue(TimeConverter.getHours(from));
-                fromMin.setValue(TimeConverter.getMinutes(from));
+                fromHour.setValue(timeConverter.getHours(from));
+                fromMin.setValue(timeConverter.getMinutes(from));
                 
                 configService.configElement(ConfigurationEnum.LOCKDOWN_TO).subscribe(lockdownTo -> {
                     long to = Long.valueOf(lockdownTo.getValue());
                     JSpinner toHour = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_TO_HOUR, JSpinner.class).get();
                     JSpinner toMin = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_TO_MIN, JSpinner.class).get();
-                    toHour.setValue(TimeConverter.getHours(to));
-                    toMin.setValue(TimeConverter.getMinutes(to));
+                    toHour.setValue(timeConverter.getHours(to));
+                    toMin.setValue(timeConverter.getMinutes(to));
                     
                     lockDownStarted = true;
                 });
@@ -267,7 +275,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                     notifyMinutes = 10 * 60 * 1000;
                 }
                 JSpinner minSpin = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_NOTIFY_MIN, JSpinner.class).get();
-                minSpin.setValue(TimeConverter.getMinutes(notifyMinutes));
+                minSpin.setValue(timeConverter.getMinutes(notifyMinutes));
                 
                 lockDownNotificationStarted = true;
             });
@@ -286,7 +294,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                     notifyMinutes = 10 * 60 * 1000;
                 }
                 JSpinner minSpin = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_MIN_LEFT_QTY, JSpinner.class).get();
-                minSpin.setValue(TimeConverter.getMinutes(notifyMinutes));
+                minSpin.setValue(timeConverter.getMinutes(notifyMinutes));
                 
                 minLeftNotificationStarted = true;
             });
@@ -320,7 +328,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                 idleMinutes = 1*60*1000;
             }
             JSpinner spinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.IDLE_SPINNER, JSpinner.class).get();
-            spinner.setValue(TimeConverter.getMinutes(idleMinutes));
+            spinner.setValue(timeConverter.getMinutes(idleMinutes));
             
             idleStarted = true;
         });
@@ -448,20 +456,20 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         configService.configElement(ConfigurationEnum.LOCKDOWN_FROM).subscribe(lockdownFromResult -> {
             long savedTime = Long.valueOf(lockdownFromResult.getValue());
             try {
-                Long time = TimeConverter.minutesToMilis((Long) lockDownMinSpinner.getValue());
-                time += TimeConverter.hoursToMilis((Long) lockDownHourSpinner.getValue());
+                Long time = timeConverter.minutesToMilis((Long) lockDownMinSpinner.getValue());
+                time += timeConverter.hoursToMilis((Long) lockDownHourSpinner.getValue());
                 final long targetTimeForDb = time; // to use inside the lambda has to be final
-                Long toTime = TimeConverter.minutesToMilis((Long) toMinSpinner.getValue());
-                toTime += TimeConverter.hoursToMilis((Long) toHourSpinner.getValue());
+                Long toTime = timeConverter.minutesToMilis((Long) toMinSpinner.getValue());
+                toTime += timeConverter.hoursToMilis((Long) toHourSpinner.getValue());
 
                 long savedToTime = toTime;
                 if (toTime < time) {
                     // for example start time 23:00 and end time at 5:00 then make 5:00 -> 29:00
-                    toTime = toTime + TimeConverter.hoursToMilis(24);
+                    toTime = toTime + timeConverter.hoursToMilis(24);
                 }
                 if (savedToTime < savedTime) {
                     // for example start time 23:00 and end time at 5:00 then make 5:00 -> 29:00
-                    savedToTime = savedToTime + TimeConverter.hoursToMilis(24);
+                    savedToTime = savedToTime + timeConverter.hoursToMilis(24);
                 }
 
                 long diffNow = toTime - time;
@@ -483,8 +491,8 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                             lockDownMinSpinner.setEnabled(true);
                         }, () -> {
                             // negative runnable
-                            lockDownMinSpinner.setValue(TimeConverter.getMinutes(savedTime));
-                            lockDownHourSpinner.setValue(TimeConverter.getHours(savedTime));
+                            lockDownMinSpinner.setValue(timeConverter.getMinutes(savedTime));
+                            lockDownHourSpinner.setValue(timeConverter.getHours(savedTime));
                             lockDownHourSpinner.setEnabled(true);
                             lockDownMinSpinner.setEnabled(true);
                         }, SENSITIVE_WAITING_SECONDS);
@@ -511,20 +519,20 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         configService.configElement(ConfigurationEnum.LOCKDOWN_TO).subscribe(lockdownToResult -> {
             final long savedToTimeFinal = Long.valueOf(lockdownToResult.getValue());
             try {
-                Long fromTime = TimeConverter.minutesToMilis((Long) fromMinSpinner.getValue());
-                fromTime += TimeConverter.hoursToMilis((Long) fromHourSpinner.getValue());
-                Long toTime = TimeConverter.minutesToMilis((Long) toMinSpinner.getValue());
-                toTime += TimeConverter.hoursToMilis((Long) toHourSpinner.getValue());
+                Long fromTime = timeConverter.minutesToMilis((Long) fromMinSpinner.getValue());
+                fromTime += timeConverter.hoursToMilis((Long) fromHourSpinner.getValue());
+                Long toTime = timeConverter.minutesToMilis((Long) toMinSpinner.getValue());
+                toTime += timeConverter.hoursToMilis((Long) toHourSpinner.getValue());
                 final long targetTimeForDb = toTime; // to use inside the lambda has to be final
 
                 if (toTime < fromTime) {
                     // for example start time 23:00 and end time at 5:00 then make 5:00 -> 29:00
-                    toTime = toTime + TimeConverter.hoursToMilis(24);
+                    toTime = toTime + timeConverter.hoursToMilis(24);
                 }
                 long savedToTime = savedToTimeFinal;
                 if (savedToTime < fromTime) {
                     // for example start time 23:00 and end time at 5:00 then make 5:00 -> 29:00
-                    savedToTime = savedToTime + TimeConverter.hoursToMilis(24);
+                    savedToTime = savedToTime + timeConverter.hoursToMilis(24);
                 }
 
                 long diffNow = toTime - fromTime;
@@ -546,8 +554,8 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                             toMinSpinner.setEnabled(true);
                         }, () -> {
                             // negative runnable
-                            toMinSpinner.setValue(TimeConverter.getMinutes(savedToTimeFinal));
-                            toHourSpinner.setValue(TimeConverter.getHours(savedToTimeFinal));
+                            toMinSpinner.setValue(timeConverter.getMinutes(savedToTimeFinal));
+                            toHourSpinner.setValue(timeConverter.getHours(savedToTimeFinal));
                             toHourSpinner.setEnabled(true);
                             toMinSpinner.setEnabled(true);
                         }, SENSITIVE_WAITING_SECONDS);
@@ -581,7 +589,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         }
         JSpinner lockDownMinSpinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.LOCKDOWN_NOTIFY_MIN, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         try {
-            Long time = TimeConverter.minutesToMilis((Long) lockDownMinSpinner.getValue());
+            Long time = timeConverter.minutesToMilis((Long) lockDownMinSpinner.getValue());
             ConfigElement el = new ConfigElement();
             el.setKey(ConfigurationEnum.LOCK_NOTIFY_MINUTES);
             el.setValue(String.valueOf(time));
@@ -609,7 +617,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         }
         JSpinner minLeftQty = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.NOTIFY_MIN_LEFT_QTY, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         try {
-            Long time = TimeConverter.minutesToMilis((Long) minLeftQty.getValue());
+            Long time = timeConverter.minutesToMilis((Long) minLeftQty.getValue());
             ConfigElement el = new ConfigElement();
             el.setKey(ConfigurationEnum.MIN_LEFT_QTY);
             el.setValue(String.valueOf(time));
@@ -644,7 +652,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         if (returnVal != JFileChooser.APPROVE_OPTION) {
             return;
         }
-        File file = FileHandler.createFileIfNotExists(chooser.getSelectedFile(), ".txt");
+        File file = fileHandler.createFileIfNotExists(chooser.getSelectedFile(), ".txt");
         // save file path to db
         if (file.getPath().length() > 150) {
             exportButton.setText(localeMessages.getString("errorPath150"));
@@ -749,7 +757,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         }
         JSpinner spinner = (JSpinner) getObjectFromPanel(ConfigurationPanelEnum.IDLE_SPINNER, JSpinner.class).orElseThrow(() -> new Exception("wrong object"));
         try {
-            Long time = TimeConverter.minutesToMilis((Long) spinner.getValue());
+            Long time = timeConverter.minutesToMilis((Long) spinner.getValue());
             ConfigElement el = new ConfigElement();
             el.setKey(ConfigurationEnum.IDLE);
             el.setValue(String.valueOf(time));

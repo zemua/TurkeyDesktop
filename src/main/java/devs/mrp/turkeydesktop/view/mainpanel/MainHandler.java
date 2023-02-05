@@ -14,7 +14,7 @@ import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessEnum;
 import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesEnum;
 import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesPanelFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelEnum;
-import devs.mrp.turkeydesktop.view.configuration.FConfigurationPanel;
+import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelFactoryImpl;
 import devs.mrp.turkeydesktop.view.groups.GroupsEnum;
 import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesEnum;
 import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesPanelFactory;
@@ -142,7 +142,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     
     private void initConfigHandler() {
         if (configHandler == null) {
-            configHandler = FConfigurationPanel.getHandler(this.getFrame(), this);
+            configHandler = ConfigurationPanelFactoryImpl.getHandler(this.getFrame(), this);
         }
         configHandler.show();
     }
