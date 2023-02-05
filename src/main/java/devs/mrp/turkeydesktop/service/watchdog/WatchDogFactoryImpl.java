@@ -1,5 +1,6 @@
 package devs.mrp.turkeydesktop.service.watchdog;
 
+import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
@@ -25,6 +26,11 @@ public class WatchDogFactoryImpl implements WatchDogFactory {
     @Override
     public Toaster getToaster() {
         return factory.getToaster();
+    }
+
+    @Override
+    public FileHandler getFileHandler() {
+        return factory.getFileHandler();
     }
     
 }

@@ -1,24 +1,26 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.view.mainpanel;
 
+import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.database.config.ConfigElementService;
+import devs.mrp.turkeydesktop.database.group.Group;
+import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
+import devs.mrp.turkeydesktop.service.watchdog.WatchDog;
 import devs.mrp.turkeydesktop.view.PanelHandler;
+import devs.mrp.turkeydesktop.view.PanelHandlerData;
+import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessEnum;
+import devs.mrp.turkeydesktop.view.groups.GroupsEnum;
 import java.awt.AWTEvent;
 import javax.swing.JFrame;
 
-/**
- *
- * @author miguel
- */
-public class MainPanelFactory {
-    public static FeedbackerPanelWithFetcher<MainEnum, AWTEvent> getMainPanel() {
-        return new MainPanel();
-    }
+public interface MainPanelFactory {
     
-    public static PanelHandler<MainEnum, AWTEvent, FeedbackerPanelWithFetcher<MainEnum, AWTEvent>> getMainHandler(JFrame frame) {
-        return new MainHandler(frame, null);
-    }
+    FeedbackerPanelWithFetcher<MainEnum, AWTEvent> getMainPanel();
+    PanelHandler<MainEnum, AWTEvent, FeedbackerPanelWithFetcher<MainEnum, AWTEvent>> getMainHandler(JFrame frame);
+    ConfigElementService getConfigElementService();
+    ConditionChecker getConditionChecker();
+    WatchDog getWatchDog();
+    PanelHandler<GroupsEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>> getGroupsHandler(PanelHandlerData<Group.GroupType> data);
+    TimeConverter getTimeConverter();
+    PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>> getCategoryProcessHandler(PanelHandlerData<?> data);
+    
 }

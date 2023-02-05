@@ -1,5 +1,6 @@
 package devs.mrp.turkeydesktop.view.container;
 
+import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
@@ -36,6 +37,8 @@ import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacadeFactor
 import devs.mrp.turkeydesktop.database.imports.ImportFactory;
 import devs.mrp.turkeydesktop.database.imports.ImportValidator;
 import devs.mrp.turkeydesktop.database.imports.ImportsRepository;
+import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeFactory;
+import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeServiceFactoryImpl;
 import devs.mrp.turkeydesktop.database.titles.*;
 import devs.mrp.turkeydesktop.database.type.TypeFactory;
 import devs.mrp.turkeydesktop.database.type.TypeRepository;
@@ -46,8 +49,14 @@ import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.service.toaster.voice.VoiceNotificator;
 import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactory;
 import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactoryImpl;
+import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessPanelFactory;
+import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessPanelFactoryImpl;
+import devs.mrp.turkeydesktop.view.groups.GroupsPanelFactory;
+import devs.mrp.turkeydesktop.view.groups.GroupsPanelFactoryImpl;
 import devs.mrp.turkeydesktop.view.groups.review.GroupReviewFactory;
 import devs.mrp.turkeydesktop.view.groups.review.GroupReviewFactoryImpl;
+import devs.mrp.turkeydesktop.view.mainpanel.MainPanelFactory;
+import devs.mrp.turkeydesktop.view.mainpanel.MainPanelFactoryImpl;
 import lombok.Getter;
 
 @Getter
@@ -60,11 +69,17 @@ public class FactoryInitializer {
     private ConditionCheckerFactory conditionCheckerFactory;
     private GroupConditionFacadeFactory groupConditionFacadeFactory;
     private GroupReviewFactory groupReviewFactory;
+    private LogAndTypeFacadeFactory logAndTypeFacadeFactory;
+    private CatProcessPanelFactory catProcessPanelFactory;
+    
+    private MainPanelFactory mainPanelFactory;
+    private GroupsPanelFactory groupsPanelFactory;
     
     private VoiceNotificator voiceNotificator;
     private Toaster toaster;
     private SingleConsumerFactory singleConsumerFactory;
     private TimeConverter timeConverter;
+    private FileHandler fileHandler;
     
     private FactoryInitializer() {
     }
@@ -89,11 +104,17 @@ public class FactoryInitializer {
         conditionCheckerFactory = new ConditionCheckerFactoryImpl(this);
         groupConditionFacadeFactory = new GroupConditionFacadeFactoryImpl(this);
         groupReviewFactory = new GroupReviewFactoryImpl(this);
+        logAndTypeFacadeFactory = new LogAndTypeServiceFactoryImpl(this);
+        catProcessPanelFactory = new CatProcessPanelFactoryImpl(this);
+        
+        mainPanelFactory = new MainPanelFactoryImpl(this);
+        groupsPanelFactory = new GroupsPanelFactoryImpl(this);
         
         voiceNotificator = VoiceNotificator.getInstance(configElementFactory.getService());
         toaster = Toaster.getInstance(voiceNotificator);
         singleConsumerFactory = new SingleConsumerFactory(this);
         timeConverter = new TimeConverter(this);
+        fileHandler = new FileHandler(this);
         
         initTitleDbCache();
         initImportsDbCache();

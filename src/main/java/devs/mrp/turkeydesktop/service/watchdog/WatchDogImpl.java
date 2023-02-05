@@ -58,6 +58,7 @@ public class WatchDogImpl implements WatchDog {
     private ResourceHandler<Image,ImagesEnum> imageHandler = ResourceHandlerFactory.getImagesHandler();
     private GroupService groupService = GroupFactory.getService();
     private Toaster toaster;
+    private FileHandler fileHandler;
     
     private ExecutorService loopedExecutor = WorkerFactory.getSingleThreadExecutor();
     Future<?> loopFuture = null;
@@ -69,6 +70,7 @@ public class WatchDogImpl implements WatchDog {
         localeMessages = LocaleMessages.getInstance();
         dbLogger = DbLoggerFactory.getNew();
         toaster = factory.getToaster();
+        fileHandler = factory.getFileHandler();
     }
 
     public static WatchDog getInstance(WatchDogFactory factory) {
@@ -164,7 +166,7 @@ public class WatchDogImpl implements WatchDog {
                     }
                 });
                 try {
-                    FileHandler.exportAccumulated(entry.getAccumulated());
+                    fileHandler.exportAccumulated(entry.getAccumulated());
                 } catch (IOException e) {
                     log.error("Error exporting accumulated time to file", e);
                 }

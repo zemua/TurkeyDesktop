@@ -1,20 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.service.watchdog.logger;
 
+import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeService;
 import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeServiceFactoryImpl;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
-import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeService;
-import java.util.logging.Logger;
 import io.reactivex.rxjava3.core.Single;
+import java.util.logging.Logger;
 
-/**
- *
- * @author miguel
- */
 public class DbLoggerImpl implements DbLogger {
     
     private static final Logger LOGGER = Logger.getLogger(DbLoggerImpl.class.getName());

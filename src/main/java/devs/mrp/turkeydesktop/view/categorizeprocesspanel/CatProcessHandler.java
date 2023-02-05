@@ -5,11 +5,11 @@ import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.common.Tripla;
 import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeService;
-import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeServiceFactoryImpl;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.database.type.TypeFactory;
 import devs.mrp.turkeydesktop.database.type.TypeService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
+import devs.mrp.turkeydesktop.view.PanelHandlerData;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.list.CategorizerElement;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import io.reactivex.rxjava3.core.Observable;
@@ -19,13 +19,14 @@ import java.awt.AWTEvent;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import org.apache.commons.lang3.StringUtils;
 
 public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>> {
+    
+    private CatProcessPanelFactory factory;
 
     private ConfirmationWithDelay popupMaker = new ConfirmationWithDelayFactory();
     
@@ -40,16 +41,17 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
     private FeedbackListener<Type.Types,String> mListener;
     private TypeService typeService;
     
-    LogAndTypeFacadeService typedService = LogAndTypeServiceFactoryImpl.getService();
+    LogAndTypeFacadeService typedService;
     
-    public CatProcessHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
-        super(frame, caller);
+    public CatProcessHandler(PanelHandlerData<?> data, CatProcessPanelFactory factory) {
+        super(data.getFrame(), data.getCaller());
         typeService = TypeFactory.getService();
+        this.factory = factory;
     }
     
     @Override
     protected FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent> initPanel() {
-        return CatProcessPanelFactory.getPanel();
+        return factory.getPanel();
     }
 
     @Override
