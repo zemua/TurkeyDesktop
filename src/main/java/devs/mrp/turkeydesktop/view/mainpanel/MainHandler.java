@@ -1,16 +1,18 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.view.mainpanel;
 
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.config.ConfigElementFactoryImpl;
+import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 import devs.mrp.turkeydesktop.database.group.Group;
+import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
+import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactoryImpl;
+import devs.mrp.turkeydesktop.service.resourcehandler.ImagesEnum;
+import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandler;
+import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandlerFactory;
+import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactoryImpl;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessEnum;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessPanelFactory;
@@ -18,28 +20,17 @@ import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesEnum;
 import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesPanelFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelEnum;
 import devs.mrp.turkeydesktop.view.configuration.FConfigurationPanel;
-import devs.mrp.turkeydesktop.view.groups.GroupsPanelFactoryImpl;
 import devs.mrp.turkeydesktop.view.groups.GroupsEnum;
+import devs.mrp.turkeydesktop.view.groups.GroupsPanelFactoryImpl;
+import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesEnum;
+import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesPanelFactory;
 import devs.mrp.turkeydesktop.view.times.FTimesPanel;
 import devs.mrp.turkeydesktop.view.times.TimesEnum;
 import java.awt.AWTEvent;
+import java.awt.Image;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
-import devs.mrp.turkeydesktop.database.logs.TimeLogService;
-import devs.mrp.turkeydesktop.service.resourcehandler.ImagesEnum;
-import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandler;
-import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandlerFactory;
-import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactory;
-import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesEnum;
-import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesPanelFactory;
-import java.awt.Image;
-import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 
-/**
- *
- * @author miguel
- */
 public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPanelWithFetcher<MainEnum, AWTEvent>> {
     
     public static final String MAIN_TITLE = LocaleMessages.getInstance().getString("timeturkey");
@@ -109,7 +100,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
         this.getPanel().updateUI();
         // For an unknown reason there are some times when the watchdog is stopped during start.
         // This can re-start it when opening the main screen.
-        WatchDogFactory.getInstance().begin();
+        WatchDogFactoryImpl.getInstance().begin();
     }
     
     private void initTimesHandler() {
@@ -169,7 +160,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     }
     
     private void setupHeaderUpdater() {
-        WatchDogFactory.getInstance().addFeedbacker((msg,data) -> {
+        WatchDogFactoryImpl.getInstance().addFeedbacker((msg,data) -> {
             setTimeOnHeaderLabel();
         });
     }

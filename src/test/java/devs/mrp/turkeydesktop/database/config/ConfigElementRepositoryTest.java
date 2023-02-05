@@ -2,7 +2,7 @@ package devs.mrp.turkeydesktop.database.config;
 
 import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
+import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import java.sql.PreparedStatement;
@@ -30,7 +30,7 @@ public class ConfigElementRepositoryTest {
     
     @BeforeClass
     public static void classSetup() {
-        DbFactory.setDbSupplier(() -> db);
+        DbFactoryImpl.setDbSupplier(() -> db);
         FactoryInitializer factories = new FactoryInitializer();
         configRepository = ConfigElementRepository.getInstance(factories.getConfigElementFactory());
     }

@@ -2,7 +2,7 @@ package devs.mrp.turkeydesktop.database.imports;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
+import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import io.reactivex.rxjava3.core.Observable;
 import java.sql.ResultSet;
@@ -17,7 +17,7 @@ public class ImportFactory {
     private static Supplier<DbCache<String, String>> dbCacheSupplier;
     
     public static Db getDb() {
-        return DbFactory.getDb();
+        return DbFactoryImpl.getDb();
     }
     
     public static DbCache<String, String> getDbCache() {

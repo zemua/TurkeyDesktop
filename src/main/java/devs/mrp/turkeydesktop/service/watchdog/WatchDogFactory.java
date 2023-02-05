@@ -1,18 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.service.watchdog;
 
-/**
- *
- * @author miguel
- */
-public class WatchDogFactory {
+import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
+import devs.mrp.turkeydesktop.service.toaster.Toaster;
+
+public interface WatchDogFactory {
     
-    public static WatchDog getInstance() {
-        return WatchDogImpl.getInstance();
-    }
+    WatchDog getInstance();
+    ConditionChecker getConditionChecker();
+    Toaster getToaster();
     
 }

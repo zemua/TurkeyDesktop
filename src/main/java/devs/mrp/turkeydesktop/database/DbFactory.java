@@ -1,22 +1,12 @@
 package devs.mrp.turkeydesktop.database;
 
-import java.util.function.Supplier;
-import lombok.extern.slf4j.Slf4j;
+import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.service.watchdog.WatchDog;
 
-@Slf4j
-public class DbFactory {
+public interface DbFactory {
     
-    private static Supplier<Db> dbSupplier;
-    
-    public static void setDbSupplier(Supplier<Db> dbSupplier) {
-        log.debug("Setting db supplier to {}", dbSupplier);
-        DbFactory.dbSupplier = dbSupplier;
-    }
-    
-    public static Db getDb() {
-        Db db = dbSupplier.get();
-        log.debug("Getting db {}", db);
-        return db;
-    }
+    Db getDb();
+    WatchDog getWatchDog();
+    TimeConverter getTimeConverter();
     
 }

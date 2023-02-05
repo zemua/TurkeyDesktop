@@ -2,7 +2,7 @@ package devs.mrp.turkeydesktop.database.group;
 
 import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
+import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,7 +28,7 @@ public class GroupRepositoryTest {
     
     @BeforeClass
     public static void classSetup() {
-        DbFactory.setDbSupplier(() -> db);
+        DbFactoryImpl.setDbSupplier(() -> db);
         groupRepository = GroupRepository.getInstance();
     }
     

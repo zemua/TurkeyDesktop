@@ -53,9 +53,11 @@ public class ConditionCheckerImpl implements ConditionChecker {
 
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
     private static final Pattern NUMBER_PATTERN = Pattern.compile("^-?\\d+$");
+    private final Toaster toaster;
     
     public ConditionCheckerImpl(ConditionCheckerFactory factory) {
-        configService = factory.getConfigElementService();
+        this.configService = factory.getConfigElementService();
+        this.toaster = factory.getToaster();
     }
 
     @Override
@@ -131,11 +133,11 @@ public class ConditionCheckerImpl implements ConditionChecker {
                     boolean isLockDown = (from < to && (from <= hourNow && hourNow <= to))
                             || (from > to && (hourNow >= from || hourNow <= to));
                     if (isLockDown) {
-                        Toaster.sendToast(localeMessages.getString("isLockDown"));
+                        toaster.sendToast(localeMessages.getString("isLockDown"));
                     } else {
                         return closeToLock(hourNow, from).map(res -> {
                             if (res) {
-                                Toaster.sendToast(localeMessages.getString("closeToLock"));
+                                toaster.sendToast(localeMessages.getString("closeToLock"));
                             }
                             return false; // close but not yet
                         });
@@ -262,7 +264,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
         return isIdle().flatMap(idle -> {
             return isIdleFlood().map(flood -> {
                 if (idle && sendToast && !flood) {
-                    Toaster.sendToast(localeMessages.getString("idleMsg"));
+                    toaster.sendToast(localeMessages.getString("idleMsg"));
                 }
                 return idle;
             });
@@ -273,7 +275,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
     public Single<Boolean> notifyCloseToConditionsRefresh() {
         return closeToConditionsRefresh().map(result -> {
             if (result) {
-                Toaster.sendToast(localeMessages.getString("conditionsRefreshSoon"));
+                toaster.sendToast(localeMessages.getString("conditionsRefreshSoon"));
             }
             return result;
         });

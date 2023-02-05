@@ -4,7 +4,7 @@ import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
 import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
+import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
@@ -24,7 +24,7 @@ public class CloseableServiceImplTest {
     
     @BeforeClass
     public static void setupClass() {
-        DbFactory.setDbSupplier(() -> db);
+        DbFactoryImpl.setDbSupplier(() -> db);
         CloseableFactory.setDbCacheSupplier(() -> dbCache);
     }
 

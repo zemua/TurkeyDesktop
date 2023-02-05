@@ -2,7 +2,7 @@ package devs.mrp.turkeydesktop.database.titles;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
+import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import io.reactivex.rxjava3.core.Observable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,7 +15,7 @@ public class TitleFactory {
     private static Supplier<DbCache<String,Title>> dbCacheSupplier;
     
     public static Db getDb() {
-        return DbFactory.getDb();
+        return DbFactoryImpl.getDb();
     }
     
     public static void setDbCacheSupplier(Supplier<DbCache<String, Title>> dbCacheSupplier) {

@@ -16,42 +16,44 @@ import java.util.concurrent.TimeUnit;
 
 public class TimeConverter {
     
-    // TODO make class non-static and inject factory instead
+    private final FactoryInitializer factory;
     
-    private static FactoryInitializer factoryInitializer = new FactoryInitializer().initialize();
+    public TimeConverter(FactoryInitializer factoryInitializer) {
+        this.factory = factoryInitializer;
+    }
 
-    public static String millisToHMS(long millis) {
+    public String millisToHMS(long millis) {
         return String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(millis),
                 TimeUnit.MILLISECONDS.toMinutes(millis) % TimeUnit.HOURS.toMinutes(1),
                 TimeUnit.MILLISECONDS.toSeconds(millis) % TimeUnit.MINUTES.toSeconds(1));
     }
     
-    public static String millisToHM(long millis) {
+    public String millisToHM(long millis) {
         return String.format("%02d:%02d", TimeUnit.MILLISECONDS.toHours(millis),
                 TimeUnit.MILLISECONDS.toMinutes(millis) % TimeUnit.HOURS.toMinutes(1));
     }
 
-    public static long getHours(long millis) {
+    public long getHours(long millis) {
         return millis/(1000*60*60);
     }
     
-    public static long hoursToMilis(long hours) {
+    public long hoursToMilis(long hours) {
         return hours*60*60*1000;
     }
     
-    public static long minutesToMilis(long minutes) {
+    public long minutesToMilis(long minutes) {
         return minutes*60*1000;
     }
     
-    public static long getMinutes(long millis) {
+    public long getMinutes(long millis) {
         return (millis%(1000*60*60))/(1000*60);
     }
     
-    public static long getSeconds(long millis) {
+    public long getSeconds(long millis) {
         return (millis%(1000*60))/(1000);
     }
     
-    public static String getFormatedHMS(Long milis){
+    public String getFormatedHMS(Long milis){
         Formatter formatter = new Formatter();
         if (milis < 0){
             formatter.format("[ - %02d:%02d:%02d ]", getHours(-milis), getMinutes(-milis), getSeconds(-milis));
@@ -61,45 +63,45 @@ public class TimeConverter {
         return formatter.toString();
     }
     
-    public static long daysFromMillis(long milliseconds) {
+    public long daysFromMillis(long milliseconds) {
         return TimeUnit.MILLISECONDS.toDays(milliseconds);
     }
     
-    public static long millisFromDays(long days) {
+    public long millisFromDays(long days) {
         return TimeUnit.DAYS.toMillis(days);
     }
     
-    public static long currentDay() {
+    public long currentDay() {
         return LocalDate.now().toEpochDay();
     }
     
-    public static long offsetDay(long nDays) {
+    public long offsetDay(long nDays) {
         return LocalDate.now().minusDays(nDays).toEpochDay();
     }
     
-    public static long offsetDayInMillis(long nDays) {
+    public long offsetDayInMillis(long nDays) {
         //return millisFromDays(offsetDay(nDays));
         return beginningOfOffsetDays(nDays);
     }
     
-    public static long millisToBeginningOfDay(long milliseconds) {
+    public long millisToBeginningOfDay(long milliseconds) {
         LocalDateTime start = LocalDate.ofInstant(Instant.ofEpochMilli(milliseconds), ZoneId.systemDefault()).atStartOfDay();
         ZonedDateTime zdt = start.atZone(ZoneId.systemDefault());
         return zdt.toInstant().toEpochMilli();
     }
     
-    public static long millisToEndOfDay(long milliseconds) {
+    public long millisToEndOfDay(long milliseconds) {
         LocalDateTime start = LocalDate.ofInstant(Instant.ofEpochMilli(milliseconds), ZoneId.systemDefault()).atStartOfDay().plusDays(1);
         ZonedDateTime zdt = start.atZone(ZoneId.systemDefault());
         return zdt.toInstant().toEpochMilli();
     }
     
-    public static long endOfToday() {
+    public long endOfToday() {
         return millisToEndOfDay(System.currentTimeMillis());
     }
     
-    public static Single<Long> endOfTodayConsideringDayChange() {
-        ConfigElementService configService = factoryInitializer.getConfigElementFactory().getService();
+    public Single<Long> endOfTodayConsideringDayChange() {
+        ConfigElementService configService = factory.getConfigElementFactory().getService();
         return configService.configElement(ConfigurationEnum.CHANGE_OF_DAY)
                 .map(changeOfDayResult -> {
                     Long changeOfDayMilis = hoursToMilis(Long.valueOf(changeOfDayResult.getValue()));
@@ -107,14 +109,14 @@ public class TimeConverter {
                 });
     }
     
-    public static long beginningOfOffsetDays(long offsetDays) {
+    public long beginningOfOffsetDays(long offsetDays) {
         LocalDateTime start = LocalDate.now().atStartOfDay().minusDays(offsetDays);
         ZonedDateTime zdt = start.atZone(ZoneId.systemDefault());
         return zdt.toInstant().toEpochMilli();
     }
     
-    public static Single<Long> beginningOfOffsetDaysConsideringDayChange(long offsetDays) {
-        ConfigElementService configService = factoryInitializer.getConfigElementFactory().getService();
+    public Single<Long> beginningOfOffsetDaysConsideringDayChange(long offsetDays) {
+        ConfigElementService configService = factory.getConfigElementFactory().getService();
         return configService.configElement(ConfigurationEnum.CHANGE_OF_DAY)
                 .map(changeOfDayResult -> {
                     Long changeOfDay = Long.valueOf(changeOfDayResult.getValue());
@@ -124,14 +126,14 @@ public class TimeConverter {
                 });
     }
     
-    public static long endOfOffsetDays(long offsetDays) {
+    public long endOfOffsetDays(long offsetDays) {
         LocalDateTime start = LocalDate.now().atStartOfDay().plusHours(24).minusDays(offsetDays);
         ZonedDateTime zdt = start.atZone(ZoneId.systemDefault());
         return zdt.toInstant().toEpochMilli();
     }
     
-    public static Single<Long> endOfOffsetDaysConsideringDayChange(long offsetDays) {
-        ConfigElementService configService = factoryInitializer.getConfigElementFactory().getService();
+    public Single<Long> endOfOffsetDaysConsideringDayChange(long offsetDays) {
+        ConfigElementService configService = factory.getConfigElementFactory().getService();
         return configService.configElement(ConfigurationEnum.CHANGE_OF_DAY)
                 .map(changeOfDayResult -> {
                     Long changeOfDay = Long.valueOf(changeOfDayResult.getValue());
@@ -141,7 +143,7 @@ public class TimeConverter {
                 });
     }
     
-    public static long epochToMilisOnGivenDay(long epoch) {
+    public long epochToMilisOnGivenDay(long epoch) {
         LocalTime time = LocalDateTime.ofInstant(Instant.ofEpochMilli(epoch), ZoneId.systemDefault()).toLocalTime();
         return time.getLong(ChronoField.MILLI_OF_DAY);
     }

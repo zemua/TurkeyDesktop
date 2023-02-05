@@ -1,7 +1,7 @@
 package devs.mrp.turkeydesktop.database.imports;
 
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
+import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ImportsRepository implements ImportsDao {
     
-    private Db dbInstance = DbFactory.getDb();
+    private Db dbInstance = DbFactoryImpl.getDb();
     
     private static ImportsRepository instance;
     

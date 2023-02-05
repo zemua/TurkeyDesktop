@@ -9,7 +9,7 @@ package devs.mrp.turkeydesktop.controllers.main;
  *
  * @author miguel
  */
-public interface IStarter {
+public interface Starter {
     
     public void start();
     

@@ -1,6 +1,7 @@
 package devs.mrp.turkeydesktop.service.conditionchecker;
 
 import devs.mrp.turkeydesktop.database.config.ConfigElementService;
+import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 
 public class ConditionCheckerFactoryImpl implements ConditionCheckerFactory {
@@ -19,5 +20,10 @@ public class ConditionCheckerFactoryImpl implements ConditionCheckerFactory {
     @Override
     public ConditionChecker getConditionChecker() {
         return new ConditionCheckerImpl(this);
+    }
+
+    @Override
+    public Toaster getToaster() {
+        return factoryInitializer.getToaster();
     }
 }

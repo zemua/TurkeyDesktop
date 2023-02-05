@@ -4,7 +4,7 @@ import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
 import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
+import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
 import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
@@ -29,7 +29,7 @@ public class TitleServiceImplTest {
     
     @BeforeClass
     public static void setup() {
-        DbFactory.setDbSupplier(() -> db);
+        DbFactoryImpl.setDbSupplier(() -> db);
         TitleFactory.setDbCacheSupplier(() -> dbCache);
         GroupAssignationFactory.setGroupAssignationServiceSupplier(() -> groupAssignationService);
     }

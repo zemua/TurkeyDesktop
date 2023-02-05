@@ -3,7 +3,7 @@ package devs.mrp.turkeydesktop.view.container;
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
+import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import devs.mrp.turkeydesktop.database.closeables.Closeable;
 import devs.mrp.turkeydesktop.database.closeables.CloseableFactory;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
@@ -12,7 +12,7 @@ import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationServiceImpl;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroup;
-import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupFactory;
+import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupId;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupFactory;
@@ -57,7 +57,7 @@ public class FactoryInitializerTest {
     
     @Test
     public void testInitGeneralDb() {
-        var result = DbFactory.getDb();
+        var result = DbFactoryImpl.getDb();
         
         assertEquals(db, result);
     }
@@ -140,7 +140,7 @@ public class FactoryInitializerTest {
     @Test
     public void testExportedGroupDbCache() throws SQLException {
         when(db.prepareStatement(ArgumentMatchers.any())).thenReturn(preparedStatement);
-        var cache = ExportedGroupFactory.getDbCache();
+        var cache = ExportedGroupFactoryImpl.getDbCache();
         ExportedGroup expected = new ExportedGroup();
         expected.setDays(4);
         expected.setFile("some file path");

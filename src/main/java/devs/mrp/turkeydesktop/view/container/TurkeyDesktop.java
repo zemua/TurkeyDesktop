@@ -6,7 +6,7 @@
 package devs.mrp.turkeydesktop.view.container;
 
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactory;
+import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactoryImpl;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.container.traychain.TrayChainFactory;
 import devs.mrp.turkeydesktop.view.mainpanel.MainPanelFactory;
@@ -35,7 +35,7 @@ public class TurkeyDesktop extends javax.swing.JFrame {
     }
 
     private void initHandler() {
-        watchDog = WatchDogFactory.getInstance();
+        watchDog = WatchDogFactoryImpl.getInstance();
         watchDog.begin();
         handler = MainPanelFactory.getMainHandler(this);
         handler.show();

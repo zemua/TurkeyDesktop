@@ -2,7 +2,7 @@ package devs.mrp.turkeydesktop.database.group.assignations;
 
 import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
+import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationDao.ElementId;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,7 +29,7 @@ public class GroupAssignationRepositoryTest {
     
     @BeforeClass
     public static void classSetup() {
-        DbFactory.setDbSupplier(() -> db);
+        DbFactoryImpl.setDbSupplier(() -> db);
         groupAssignationRepository = GroupAssignationRepository.getInstance();
     }
     

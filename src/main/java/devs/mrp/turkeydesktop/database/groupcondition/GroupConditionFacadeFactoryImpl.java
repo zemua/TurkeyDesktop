@@ -21,12 +21,12 @@ public class GroupConditionFacadeFactoryImpl implements GroupConditionFacadeFact
     
     @Override
     public Consumer<GroupConditionFacade> getConsumer(Consumer<GroupConditionFacade> consumer) {
-        return new SingleConsumer<>(consumer);
+        return new SingleConsumer<>(consumer, factory.getToaster());
     }
     
     @Override
     public Consumer<List<GroupConditionFacade>> getListConsumer(Consumer<List<GroupConditionFacade>> consumer) {
-        return new SingleConsumer<>(consumer);
+        return new SingleConsumer<>(consumer, factory.getToaster());
     }
 
     @Override

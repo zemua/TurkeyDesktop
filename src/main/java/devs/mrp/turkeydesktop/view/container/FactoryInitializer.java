@@ -1,8 +1,10 @@
 package devs.mrp.turkeydesktop.view.container;
 
 import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
+import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
-import devs.mrp.turkeydesktop.database.Db;
+import devs.mrp.turkeydesktop.database.DbFactory;
+import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import devs.mrp.turkeydesktop.database.closeables.Closeable;
 import devs.mrp.turkeydesktop.database.closeables.CloseableFactory;
 import devs.mrp.turkeydesktop.database.closeables.CloseableRepository;
@@ -21,7 +23,7 @@ import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactor
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationRepository;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationServiceImpl;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationValidator;
-import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupFactory;
+import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupId;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupRepository;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupValidator;
@@ -42,6 +44,8 @@ import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactoryImpl;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.service.toaster.voice.VoiceNotificator;
+import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactory;
+import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactoryImpl;
 import devs.mrp.turkeydesktop.view.groups.review.GroupReviewFactory;
 import devs.mrp.turkeydesktop.view.groups.review.GroupReviewFactoryImpl;
 import lombok.Getter;
@@ -49,7 +53,8 @@ import lombok.Getter;
 @Getter
 public class FactoryInitializer {
     
-    private Db db;
+    private DbFactory dbFactory;
+    private WatchDogFactory watchDogFactory;
     
     private ConfigElementFactory configElementFactory;
     private ConditionCheckerFactory conditionCheckerFactory;
@@ -59,13 +64,27 @@ public class FactoryInitializer {
     private VoiceNotificator voiceNotificator;
     private Toaster toaster;
     private SingleConsumerFactory singleConsumerFactory;
+    private TimeConverter timeConverter;
     
-    public FactoryInitializer() {
-        this(Db.getInstance());
+    private FactoryInitializer() {
     }
     
-    public FactoryInitializer(Db db) {
-        this.db = db;
+    public static FactoryInitializer getNew() {
+        FactoryInitializer initializer = new FactoryInitializer();
+        initializer.dbFactory = DbFactoryImpl.getNewFactory(initializer);
+        initializer.initialize();
+        return initializer;
+    }
+    
+    public static FactoryInitializer getNew(DbFactory dbFactory) {
+        FactoryInitializer initializer = new FactoryInitializer();
+        initializer.dbFactory = dbFactory;
+        initializer.initialize();
+        return initializer;
+    }
+    
+    private FactoryInitializer initialize() {
+        watchDogFactory = new WatchDogFactoryImpl(this);
         configElementFactory = new ConfigElementFactoryImpl(this);
         conditionCheckerFactory = new ConditionCheckerFactoryImpl(this);
         groupConditionFacadeFactory = new GroupConditionFacadeFactoryImpl(this);
@@ -74,9 +93,8 @@ public class FactoryInitializer {
         voiceNotificator = VoiceNotificator.getInstance(configElementFactory.getService());
         toaster = Toaster.getInstance(voiceNotificator);
         singleConsumerFactory = new SingleConsumerFactory(this);
-    }
-    
-    public FactoryInitializer initialize() {
+        timeConverter = new TimeConverter(this);
+        
         initTitleDbCache();
         initImportsDbCache();
         initCloseableDbCache();
@@ -151,10 +169,10 @@ public class FactoryInitializer {
     }
     
     private void initExportedGroupDbCache() {
-        ExportedGroupFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(ExportedGroupRepository.getInstance(),
+        ExportedGroupFactoryImpl.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(ExportedGroupRepository.getInstance(),
             exportedGroup -> new ExportedGroupId(exportedGroup.getGroup(), exportedGroup.getFile()),
             ExportedGroupValidator::isValidKey,
-            ExportedGroupFactory::elementsFromResultSet,
+            ExportedGroupFactoryImpl::elementsFromResultSet,
             (exported,id) -> exported));
     }
     
@@ -170,7 +188,7 @@ public class FactoryInitializer {
     }
     
     private void initTypeDb() {
-        TypeFactory.setDbSupplier(() -> db);
+        TypeFactory.setDbSupplier(() -> dbFactory.getDb());
     }
     
     private void initTypeDbCache() {

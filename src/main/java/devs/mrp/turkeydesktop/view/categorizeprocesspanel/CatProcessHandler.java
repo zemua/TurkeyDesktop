@@ -1,39 +1,30 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.view.categorizeprocesspanel;
 
 import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
 import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.common.Tripla;
 import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
+import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeService;
 import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeServiceFactoryImpl;
-import devs.mrp.turkeydesktop.database.type.TypeFactory;
 import devs.mrp.turkeydesktop.database.type.Type;
+import devs.mrp.turkeydesktop.database.type.TypeFactory;
+import devs.mrp.turkeydesktop.database.type.TypeService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.list.CategorizerElement;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
-import java.awt.AWTEvent;
-import java.util.Date;
-import java.util.logging.Logger;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeService;
-import devs.mrp.turkeydesktop.database.type.TypeService;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
+import java.awt.AWTEvent;
+import java.util.Date;
 import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import org.apache.commons.lang3.StringUtils;
 
-/**
- *
- * @author miguel
- */
 public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>> {
 
     private ConfirmationWithDelay popupMaker = new ConfirmationWithDelayFactory();

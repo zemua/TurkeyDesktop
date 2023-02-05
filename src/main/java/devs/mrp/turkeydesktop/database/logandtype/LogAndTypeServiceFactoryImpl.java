@@ -25,12 +25,12 @@ public class LogAndTypeServiceFactoryImpl implements LogAndTypeFacadeFactory {
     
     @Override
     public Consumer<List<Tripla<String, Long, Type.Types>>> getTriplaConsumer(Consumer<List<Tripla<String, Long, Type.Types>>> consumer) {
-        return new SingleConsumer<>(consumer);
+        return new SingleConsumer<>(consumer, factory.getToaster());
     }
     
     @Override
     public Consumer<TimeLog> getConsumer(Consumer<TimeLog> consumer) {
-        return new SingleConsumer<>(consumer);
+        return new SingleConsumer<>(consumer, factory.getToaster());
     }
 
     @Override

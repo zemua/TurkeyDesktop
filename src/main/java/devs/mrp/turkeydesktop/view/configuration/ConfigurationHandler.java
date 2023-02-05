@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.view.configuration;
 
 import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
@@ -12,8 +7,9 @@ import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.ConfigElementFactoryImpl;
-import devs.mrp.turkeydesktop.database.imports.ImportService;
+import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 import devs.mrp.turkeydesktop.database.imports.ImportFactory;
+import devs.mrp.turkeydesktop.database.imports.ImportService;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
@@ -33,12 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 
-/**
- *
- * @author miguel
- */
 public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, AWTEvent, FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent>> {
 
     private ConfigElementService configService = ConfigElementFactoryImpl.getService();

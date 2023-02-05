@@ -14,7 +14,7 @@ import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroup;
-import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupFactory;
+import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupService;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupFactory;
@@ -71,7 +71,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private final AssignableElementService assignableTitlesService = AssignableElementServiceFactory.getTitlesService();
     private final ConditionService conditionService = ConditionFactory.getService();
     private final ExternalGroupService externalGroupService = ExternalGroupFactory.getService();
-    private final ExportedGroupService exportedGroupService = ExportedGroupFactory.getService();
+    private final ExportedGroupService exportedGroupService = ExportedGroupFactoryImpl.getService();
     private final GroupConditionFacadeService groupConditionFacadeService;
 
     private JComboBox<Group> targetComboBox;

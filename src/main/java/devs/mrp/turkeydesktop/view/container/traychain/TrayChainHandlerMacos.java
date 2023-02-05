@@ -10,7 +10,7 @@ import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.resourcehandler.ImagesEnum;
 import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandler;
 import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandlerFactory;
-import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactory;
+import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactoryImpl;
 import java.awt.AWTException;
 import java.awt.Image;
 import java.awt.MenuItem;
@@ -75,7 +75,7 @@ public class TrayChainHandlerMacos extends TrayChainBaseHandler {
                 // because frame.toFront() doesn't work
                 frame.setAlwaysOnTop(true);
                 frame.setAlwaysOnTop(false);
-                WatchDogFactory.getInstance().begin(); // way to start watchdog if it gets stuck
+                WatchDogFactoryImpl.getInstance().begin(); // way to start watchdog if it gets stuck
             }
         });
         popup.add(openItem);

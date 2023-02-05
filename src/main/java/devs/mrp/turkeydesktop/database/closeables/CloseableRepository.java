@@ -1,7 +1,7 @@
 package devs.mrp.turkeydesktop.database.closeables;
 
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
+import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,7 +13,7 @@ public class CloseableRepository implements CloseableDao {
     
     private static CloseableRepository instance;
     
-    private Db dbInstance = DbFactory.getDb();
+    private Db dbInstance = DbFactoryImpl.getDb();
     
     private CloseableRepository() {}
     
