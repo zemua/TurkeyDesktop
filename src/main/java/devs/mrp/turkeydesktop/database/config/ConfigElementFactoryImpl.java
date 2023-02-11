@@ -29,7 +29,7 @@ public class ConfigElementFactoryImpl implements ConfigElementFactory {
     private ConfigElementDao repo;
     
     public ConfigElementFactoryImpl(FactoryInitializer factory) {
-        db = factory.getDb();
+        db = factory.getDbFactory().getDb();
         repo = ConfigElementRepository.getInstance(this);
         initCache();
     }

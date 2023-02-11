@@ -12,10 +12,8 @@ import devs.mrp.turkeydesktop.database.conditions.ConditionFactory;
 import devs.mrp.turkeydesktop.database.conditions.ConditionFactoryImpl;
 import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
 import devs.mrp.turkeydesktop.database.config.ConfigElementFactoryImpl;
-import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.group.GroupFactory;
-import devs.mrp.turkeydesktop.database.group.GroupRepository;
-import devs.mrp.turkeydesktop.database.group.GroupValidator;
+import devs.mrp.turkeydesktop.database.group.GroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationDao;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationRepository;
@@ -71,6 +69,7 @@ public class FactoryInitializer {
     private LogAndTypeFacadeFactory logAndTypeFacadeFactory;
     private CloseableFactory closeableFactory;
     private ConditionFactory conditionFactory;
+    private GroupFactory groupFactory;
     
     private MainPanelFactory mainPanelFactory;
     private GroupsPanelFactory groupsPanelFactory;
@@ -109,6 +108,7 @@ public class FactoryInitializer {
         logAndTypeFacadeFactory = new LogAndTypeServiceFactoryImpl(this);
         closeableFactory = new CloseableFactoryImpl(this);
         conditionFactory = new ConditionFactoryImpl(this);
+        groupFactory = new GroupFactoryImpl(this);
         
         mainPanelFactory = new MainPanelFactoryImpl(this);
         groupsPanelFactory = new GroupsPanelFactoryImpl(this);
@@ -123,7 +123,6 @@ public class FactoryInitializer {
         
         initTitleDbCache();
         initImportsDbCache();
-        initGroupDbCache();
         initGroupAssignationDbCache();
         initExportedGroupDbCache();
         initExternalGroupDbCache();
@@ -151,17 +150,6 @@ public class FactoryInitializer {
             key -> ImportValidator.isValidKey(key),
             ImportFactory::elementsFromSet,
             (path,key) -> path));
-    }
-    
-    private void initGroupDbCache() {
-        GroupFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(GroupRepository.getInstance(),
-            Group::getId,
-            key -> GroupValidator.isValidKey(key),
-            GroupFactory::elementsFromResultSet,
-            (group,id) -> {
-                group.setId(id);
-                return group;
-            }));
     }
 
     private void initGroupAssignationDbCache() {

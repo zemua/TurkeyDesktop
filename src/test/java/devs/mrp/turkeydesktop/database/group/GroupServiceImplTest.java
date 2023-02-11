@@ -26,7 +26,7 @@ public class GroupServiceImplTest {
     @BeforeClass
     public static void setupClass() {
         DbFactoryImpl.setDbSupplier(() -> db);
-        GroupFactory.setDbCacheSupplier(() -> dbCache);
+        GroupFactoryImpl.setDbCacheSupplier(() -> dbCache);
     }
 
     @Test

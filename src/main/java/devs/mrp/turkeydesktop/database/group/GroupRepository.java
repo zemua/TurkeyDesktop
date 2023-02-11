@@ -1,7 +1,6 @@
 package devs.mrp.turkeydesktop.database.group;
 
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,23 +10,26 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GroupRepository implements GroupDao {
     
-    private Db dbInstance = DbFactoryImpl.getDb();
+    private GroupFactory factory;
+    private Db dbInstance;
     
     private static GroupRepository instance;
     
-    private GroupRepository() {
+    private GroupRepository(GroupFactory groupFactory) {
+        this.factory = groupFactory;
+        this.dbInstance = groupFactory.getDb();
     }
     
-    public static GroupRepository getInstance() {
+    public static GroupRepository getInstance(GroupFactory groupFactory) {
         if (instance == null) {
-            instance = new GroupRepository();
+            instance = new GroupRepository(groupFactory);
         }
         return instance;
     }
     
     @Override
     public Single<Long> add(Group group) {
-        return Db.singleLong(() -> retrieveAddGeneratedId(group));
+        return dbInstance.singleLong(() -> retrieveAddGeneratedId(group));
     }
     
     private long retrieveAddGeneratedId(Group group) {
@@ -66,7 +68,7 @@ public class GroupRepository implements GroupDao {
 
     @Override
     public Single<Long> update(Group element) {
-        return Db.singleLong(() -> {
+        return dbInstance.singleLong(() -> {
             long result = -1;
             PreparedStatement stm;
             try {
@@ -86,7 +88,7 @@ public class GroupRepository implements GroupDao {
 
     @Override
     public Single<ResultSet> findAll() {
-        return Db.singleResultSet(() -> {
+        return dbInstance.singleResultSet(() -> {
             ResultSet rs = null;
                 PreparedStatement stm;
                 try {
@@ -102,7 +104,7 @@ public class GroupRepository implements GroupDao {
 
     @Override
     public Single<ResultSet> findById(Long id) {
-        return Db.singleResultSet(() -> {
+        return dbInstance.singleResultSet(() -> {
             ResultSet resultSet = null;
             try {
                 resultSet = retrieveById(id);
@@ -127,7 +129,7 @@ public class GroupRepository implements GroupDao {
 
     @Override
     public Single<Long> deleteById(Long id) {
-        return Db.singleLong(() -> {
+        return dbInstance.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
@@ -144,7 +146,7 @@ public class GroupRepository implements GroupDao {
 
     @Override
     public Single<ResultSet> findAllOfType(Group.GroupType type) {
-        return Db.singleResultSet(() -> {
+        return dbInstance.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -161,7 +163,7 @@ public class GroupRepository implements GroupDao {
     
     @Override
     public Single<Integer> setPreventClose(long groupId, boolean preventClose) {
-        return Db.singleInt(() -> {
+        return dbInstance.singleInt(() -> {
             int affectedRows = 0;
             PreparedStatement stm;
             try {

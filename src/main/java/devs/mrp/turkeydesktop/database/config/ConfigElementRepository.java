@@ -27,7 +27,7 @@ public class ConfigElementRepository implements ConfigElementDao {
     
     @Override
     public Single<String> add(ConfigElement element) {
-        return Db.singleString(() -> retrieveAddResult(element));
+        return dbInstance.singleString(() -> retrieveAddResult(element));
     }
     
     private String retrieveAddResult(ConfigElement element) {
@@ -58,7 +58,7 @@ public class ConfigElementRepository implements ConfigElementDao {
 
     @Override
     public Single<Long> update(ConfigElement element) {
-        return Db.singleLong(() -> {
+        return dbInstance.singleLong(() -> {
             long result = -1;
             PreparedStatement stm;
             try {
@@ -77,7 +77,7 @@ public class ConfigElementRepository implements ConfigElementDao {
 
     @Override
     public Single<ResultSet> findAll() {
-        return Db.singleResultSet(() -> {
+        return dbInstance.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -93,7 +93,7 @@ public class ConfigElementRepository implements ConfigElementDao {
 
     @Override
     public Single<ResultSet> findById(String id) {
-        return Db.singleResultSet(() -> retrieveFindBiIdResult(id));
+        return dbInstance.singleResultSet(() -> retrieveFindBiIdResult(id));
     }
     
     private ResultSet retrieveFindBiIdResult(String id) {
@@ -120,7 +120,7 @@ public class ConfigElementRepository implements ConfigElementDao {
 
     @Override
     public Single<Long> deleteById(String id) {
-        return Db.singleLong(() -> {
+        return dbInstance.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {

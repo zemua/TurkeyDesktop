@@ -3,7 +3,7 @@ package devs.mrp.turkeydesktop.view.groups;
 import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.group.Group;
-import devs.mrp.turkeydesktop.database.group.GroupFactory;
+import devs.mrp.turkeydesktop.database.group.GroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import io.reactivex.rxjava3.core.Observable;
@@ -35,7 +35,7 @@ public class GroupsHandlerTest {
     @Before
     public void setup() {
         GroupsPanelFactoryImpl.setPanelSupplier(() -> panel);
-        GroupFactory.setGroupServiceSupplier(() -> groupService);
+        GroupFactoryImpl.setGroupServiceSupplier(() -> groupService);
         frame = mock(JFrame.class);
         caller = mock(PanelHandler.class);
         

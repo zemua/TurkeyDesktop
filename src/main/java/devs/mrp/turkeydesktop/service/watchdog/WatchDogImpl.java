@@ -4,7 +4,7 @@ import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.common.WorkerFactory;
-import devs.mrp.turkeydesktop.database.group.GroupFactory;
+import devs.mrp.turkeydesktop.database.group.GroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
@@ -56,7 +56,7 @@ public class WatchDogImpl implements WatchDog {
     private ExportWritter exportWritter = ExportWritterFactory.getWritter();
     private TrayChainBaseHandler trayHandler = TrayChainFactory.getChain();
     private ResourceHandler<Image,ImagesEnum> imageHandler = ResourceHandlerFactory.getImagesHandler();
-    private GroupService groupService = GroupFactory.getService();
+    private GroupService groupService = GroupFactoryImpl.getService();
     private Toaster toaster;
     private FileHandler fileHandler;
     

@@ -4,7 +4,7 @@ import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.ConditionFactoryImpl;
 import devs.mrp.turkeydesktop.database.conditions.ConditionService;
 import devs.mrp.turkeydesktop.database.group.Group;
-import devs.mrp.turkeydesktop.database.group.GroupFactory;
+import devs.mrp.turkeydesktop.database.group.GroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Observable;
@@ -14,7 +14,7 @@ public class GroupConditionFacadeServiceImpl implements GroupConditionFacadeServ
     private final GroupConditionFacadeFactory factory;
     
     private final ConditionService conditionService = ConditionFactoryImpl.getService();
-    private final GroupService groupService = GroupFactory.getService();
+    private final GroupService groupService = GroupFactoryImpl.getService();
     
     public GroupConditionFacadeServiceImpl(GroupConditionFacadeFactory factory) {
         this.factory = factory;

@@ -1,7 +1,7 @@
 package devs.mrp.turkeydesktop.view.groups;
 
 import devs.mrp.turkeydesktop.database.group.Group;
-import devs.mrp.turkeydesktop.database.group.GroupFactory;
+import devs.mrp.turkeydesktop.database.group.GroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.PanelHandlerData;
@@ -19,7 +19,7 @@ public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, Feedbacker
 
     private GroupsPanelFactory factory;
     private Group.GroupType type;
-    private GroupService groupService = GroupFactory.getService();
+    private GroupService groupService = GroupFactoryImpl.getService();
     
     public GroupsHandler(PanelHandlerData<Group.GroupType> data, GroupsPanelFactory factory) {
         super(data.getFrame(), data.getCaller());
