@@ -12,14 +12,8 @@ public class ConditionServiceImpl implements ConditionService {
     
     public static DbCache<Long,Condition> dbCache;
     
-    public ConditionServiceImpl() {
-        setCacheInstance();
-    }
-    
-    private void setCacheInstance() {
-        if (dbCache == null) {
-            dbCache = ConditionFactory.getDbCache();
-        }
+    public ConditionServiceImpl(ConditionFactory conditionFactory) {
+        dbCache = conditionFactory.getDbCache();
     }
     
     @Override

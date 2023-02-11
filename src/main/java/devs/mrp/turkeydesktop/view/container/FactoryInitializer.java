@@ -9,8 +9,7 @@ import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import devs.mrp.turkeydesktop.database.closeables.CloseableFactory;
 import devs.mrp.turkeydesktop.database.closeables.CloseableFactoryImpl;
 import devs.mrp.turkeydesktop.database.conditions.ConditionFactory;
-import devs.mrp.turkeydesktop.database.conditions.ConditionRepository;
-import devs.mrp.turkeydesktop.database.conditions.ConditionValidator;
+import devs.mrp.turkeydesktop.database.conditions.ConditionFactoryImpl;
 import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
 import devs.mrp.turkeydesktop.database.config.ConfigElementFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.Group;
@@ -71,6 +70,7 @@ public class FactoryInitializer {
     private GroupReviewFactory groupReviewFactory;
     private LogAndTypeFacadeFactory logAndTypeFacadeFactory;
     private CloseableFactory closeableFactory;
+    private ConditionFactory conditionFactory;
     
     private MainPanelFactory mainPanelFactory;
     private GroupsPanelFactory groupsPanelFactory;
@@ -108,6 +108,7 @@ public class FactoryInitializer {
         groupReviewFactory = new GroupReviewFactoryImpl(this);
         logAndTypeFacadeFactory = new LogAndTypeServiceFactoryImpl(this);
         closeableFactory = new CloseableFactoryImpl(this);
+        conditionFactory = new ConditionFactoryImpl(this);
         
         mainPanelFactory = new MainPanelFactoryImpl(this);
         groupsPanelFactory = new GroupsPanelFactoryImpl(this);
@@ -122,7 +123,6 @@ public class FactoryInitializer {
         
         initTitleDbCache();
         initImportsDbCache();
-        initConditionDbCache();
         initGroupDbCache();
         initGroupAssignationDbCache();
         initExportedGroupDbCache();
@@ -151,17 +151,6 @@ public class FactoryInitializer {
             key -> ImportValidator.isValidKey(key),
             ImportFactory::elementsFromSet,
             (path,key) -> path));
-    }
-    
-    private void initConditionDbCache() {
-        ConditionFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(ConditionRepository.getInstance(),
-            c -> c.getId(),
-            key -> ConditionValidator.isValidKey(key),
-            ConditionFactory::elementsFromResultSet,
-            (condition,id) -> {
-                condition.setId(id);
-                return condition;
-            }));
     }
     
     private void initGroupDbCache() {

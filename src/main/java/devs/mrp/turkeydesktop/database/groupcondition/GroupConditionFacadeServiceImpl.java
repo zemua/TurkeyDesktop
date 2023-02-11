@@ -1,7 +1,7 @@
 package devs.mrp.turkeydesktop.database.groupcondition;
 
 import devs.mrp.turkeydesktop.database.conditions.Condition;
-import devs.mrp.turkeydesktop.database.conditions.ConditionFactory;
+import devs.mrp.turkeydesktop.database.conditions.ConditionFactoryImpl;
 import devs.mrp.turkeydesktop.database.conditions.ConditionService;
 import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.group.GroupFactory;
@@ -13,7 +13,7 @@ public class GroupConditionFacadeServiceImpl implements GroupConditionFacadeServ
     
     private final GroupConditionFacadeFactory factory;
     
-    private final ConditionService conditionService = ConditionFactory.getService();
+    private final ConditionService conditionService = ConditionFactoryImpl.getService();
     private final GroupService groupService = GroupFactory.getService();
     
     public GroupConditionFacadeServiceImpl(GroupConditionFacadeFactory factory) {

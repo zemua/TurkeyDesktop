@@ -4,7 +4,7 @@ import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
-import devs.mrp.turkeydesktop.database.conditions.ConditionFactory;
+import devs.mrp.turkeydesktop.database.conditions.ConditionFactoryImpl;
 import devs.mrp.turkeydesktop.database.conditions.ConditionService;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.ConfigElementService;
@@ -40,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ConditionCheckerImpl implements ConditionChecker {
 
-    private ConditionService conditionService = ConditionFactory.getService();
+    private ConditionService conditionService = ConditionFactoryImpl.getService();
     private TimeLogService timeLogService = TimeLogServiceFactory.getService();
     private ConfigElementService configService;
     private ImportService importService = ImportFactory.getService();

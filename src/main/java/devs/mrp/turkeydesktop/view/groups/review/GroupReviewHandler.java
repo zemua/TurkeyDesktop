@@ -5,7 +5,7 @@ import devs.mrp.turkeydesktop.common.RemovableLabel;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
-import devs.mrp.turkeydesktop.database.conditions.ConditionFactory;
+import devs.mrp.turkeydesktop.database.conditions.ConditionFactoryImpl;
 import devs.mrp.turkeydesktop.database.conditions.ConditionService;
 import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.group.GroupFactory;
@@ -69,7 +69,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private final GroupAssignationService groupAssignationService = GroupAssignationFactory.getService();
     private final AssignableElementService assignableProcessService = AssignableElementServiceFactory.getProcessesService();
     private final AssignableElementService assignableTitlesService = AssignableElementServiceFactory.getTitlesService();
-    private final ConditionService conditionService = ConditionFactory.getService();
+    private final ConditionService conditionService = ConditionFactoryImpl.getService();
     private final ExternalGroupService externalGroupService = ExternalGroupFactory.getService();
     private final ExportedGroupService exportedGroupService = ExportedGroupFactoryImpl.getService();
     private final GroupConditionFacadeService groupConditionFacadeService;

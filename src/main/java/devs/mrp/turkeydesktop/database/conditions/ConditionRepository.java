@@ -1,34 +1,35 @@
 package devs.mrp.turkeydesktop.database.conditions;
 
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactoryImpl;
+import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import io.reactivex.rxjava3.core.Single;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ConditionRepository implements ConditionDao {
     
-    private Db dbInstance = DbFactoryImpl.getDb();
+    private ConditionFactory factory;
+    private Db dbInstance;
     
     private static ConditionRepository instance;
     
-    private ConditionRepository() {
-        
+    private ConditionRepository(ConditionFactory conditionFactory) {
+        this.factory = conditionFactory;
+        this.dbInstance = conditionFactory.getDb();
     }
     
-    public static ConditionRepository getInstance() {
+    public static ConditionRepository getInstance(ConditionFactory conditionFactory) {
         if (instance == null) {
-            instance = new ConditionRepository();
+            instance = new ConditionRepository(conditionFactory);
         }
         return instance;
     }
     
     @Override
     public Single<Long> add(Condition condition) {
-        return Db.singleLong(() -> retrieveAddResultingId(condition));
+        return dbInstance.singleLong(() -> retrieveAddResultingId(condition));
     }
     
     private long retrieveAddResultingId(Condition condition) {
@@ -70,7 +71,7 @@ public class ConditionRepository implements ConditionDao {
 
     @Override
     public Single<Long> update(Condition element) {
-        return Db.singleLong(() -> {
+        return dbInstance.singleLong(() -> {
             long result = -1;
             PreparedStatement stm;
             try {
@@ -90,7 +91,7 @@ public class ConditionRepository implements ConditionDao {
 
     @Override
     public Single<ResultSet> findAll() {
-        return Db.singleResultSet(() -> {
+        return dbInstance.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -106,7 +107,7 @@ public class ConditionRepository implements ConditionDao {
 
     @Override
     public Single<ResultSet> findById(Long id) {
-        return Db.singleResultSet(() -> retrieveFindByIdResultSet(id));
+        return dbInstance.singleResultSet(() -> retrieveFindByIdResultSet(id));
     }
     
     private ResultSet retrieveFindByIdResultSet(Long id) {
@@ -134,7 +135,7 @@ public class ConditionRepository implements ConditionDao {
     
     @Override
     public Single<ResultSet> findByGroupId(long groupId) {
-        return Db.singleResultSet(() -> {
+        return dbInstance.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -151,7 +152,7 @@ public class ConditionRepository implements ConditionDao {
 
     @Override
     public Single<Long> deleteById(Long id) {
-        return Db.singleLong(() -> {
+        return dbInstance.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
@@ -168,7 +169,7 @@ public class ConditionRepository implements ConditionDao {
     
     @Override
     public Single<Long> deleteByGroupId(long id) {
-        return Db.singleLong(() -> {
+        return dbInstance.singleLong(() -> {
             long delQty = -1;
                 PreparedStatement stm;
                 try {
@@ -185,7 +186,7 @@ public class ConditionRepository implements ConditionDao {
     
     @Override
     public Single<Long> deleteByTargetId(long id) {
-        return Db.singleLong(() -> {
+        return dbInstance.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
