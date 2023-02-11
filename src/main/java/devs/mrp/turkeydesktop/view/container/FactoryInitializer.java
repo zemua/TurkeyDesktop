@@ -6,10 +6,8 @@ import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
 import devs.mrp.turkeydesktop.database.DbFactory;
 import devs.mrp.turkeydesktop.database.DbFactoryImpl;
-import devs.mrp.turkeydesktop.database.closeables.Closeable;
 import devs.mrp.turkeydesktop.database.closeables.CloseableFactory;
-import devs.mrp.turkeydesktop.database.closeables.CloseableRepository;
-import devs.mrp.turkeydesktop.database.closeables.CloseableValidator;
+import devs.mrp.turkeydesktop.database.closeables.CloseableFactoryImpl;
 import devs.mrp.turkeydesktop.database.conditions.ConditionFactory;
 import devs.mrp.turkeydesktop.database.conditions.ConditionRepository;
 import devs.mrp.turkeydesktop.database.conditions.ConditionValidator;
@@ -72,11 +70,12 @@ public class FactoryInitializer {
     private GroupConditionFacadeFactory groupConditionFacadeFactory;
     private GroupReviewFactory groupReviewFactory;
     private LogAndTypeFacadeFactory logAndTypeFacadeFactory;
-    private CatProcessPanelFactory catProcessPanelFactory;
+    private CloseableFactory closeableFactory;
     
     private MainPanelFactory mainPanelFactory;
     private GroupsPanelFactory groupsPanelFactory;
     private ConfigurationPanelFactory configurationPanelFactory;
+    private CatProcessPanelFactory catProcessPanelFactory;
     
     private VoiceNotificator voiceNotificator;
     private Toaster toaster;
@@ -108,11 +107,12 @@ public class FactoryInitializer {
         groupConditionFacadeFactory = new GroupConditionFacadeFactoryImpl(this);
         groupReviewFactory = new GroupReviewFactoryImpl(this);
         logAndTypeFacadeFactory = new LogAndTypeServiceFactoryImpl(this);
-        catProcessPanelFactory = new CatProcessPanelFactoryImpl(this);
+        closeableFactory = new CloseableFactoryImpl(this);
         
         mainPanelFactory = new MainPanelFactoryImpl(this);
         groupsPanelFactory = new GroupsPanelFactoryImpl(this);
         configurationPanelFactory = new ConfigurationPanelFactoryImpl(this);
+        catProcessPanelFactory = new CatProcessPanelFactoryImpl(this);
         
         voiceNotificator = VoiceNotificator.getInstance(configElementFactory.getService());
         toaster = Toaster.getInstance(voiceNotificator);
@@ -122,7 +122,6 @@ public class FactoryInitializer {
         
         initTitleDbCache();
         initImportsDbCache();
-        initCloseableDbCache();
         initConditionDbCache();
         initGroupDbCache();
         initGroupAssignationDbCache();
@@ -152,14 +151,6 @@ public class FactoryInitializer {
             key -> ImportValidator.isValidKey(key),
             ImportFactory::elementsFromSet,
             (path,key) -> path));
-    }
-    
-    private void initCloseableDbCache() {
-        CloseableFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(CloseableRepository.getInstance(),
-            Closeable::getProcess,
-            key -> CloseableValidator.isValidKey(key),
-            CloseableFactory::listFromResultSet,
-            (process,key) -> process));
     }
     
     private void initConditionDbCache() {

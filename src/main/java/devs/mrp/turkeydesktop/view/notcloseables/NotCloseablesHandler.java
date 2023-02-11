@@ -8,7 +8,7 @@ package devs.mrp.turkeydesktop.view.notcloseables;
 import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
 import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.closeables.CloseableService;
-import devs.mrp.turkeydesktop.database.closeables.CloseableFactory;
+import devs.mrp.turkeydesktop.database.closeables.CloseableFactoryImpl;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.database.type.TypeService;
 import devs.mrp.turkeydesktop.database.type.TypeFactory;
@@ -37,7 +37,7 @@ public class NotCloseablesHandler extends PanelHandler<NotCloseablesEnum, Object
     private final LocaleMessages localeMessages = LocaleMessages.getInstance();
     
     private final TypeService typeService = TypeFactory.getService();
-    private final CloseableService closeableService = CloseableFactory.getService();
+    private final CloseableService closeableService = CloseableFactoryImpl.getService();
 
     public NotCloseablesHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
         super(frame, caller);

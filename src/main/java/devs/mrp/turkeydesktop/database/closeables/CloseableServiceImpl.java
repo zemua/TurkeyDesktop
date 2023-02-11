@@ -12,14 +12,8 @@ public class CloseableServiceImpl implements CloseableService {
 
     public static DbCache<String,Closeable> dbCache;
     
-    public CloseableServiceImpl() {
-        setCacheInstance();
-    }
-    
-    private void setCacheInstance() {
-        if (dbCache == null) {
-            dbCache = CloseableFactory.getDbCache();
-        }
+    public CloseableServiceImpl(CloseableFactory closeableFactory) {
+        dbCache = closeableFactory.getDbCache();
     }
 
     @Override

@@ -5,7 +5,7 @@ import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import devs.mrp.turkeydesktop.database.closeables.Closeable;
-import devs.mrp.turkeydesktop.database.closeables.CloseableFactory;
+import devs.mrp.turkeydesktop.database.closeables.CloseableFactoryImpl;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.ConditionFactory;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
@@ -108,7 +108,7 @@ public class FactoryInitializerTest {
     public void testCloseableDbCache() throws SQLException {
         when(db.prepareStatement(ArgumentMatchers.any())).thenReturn(preparedStatement);
         
-        var cache = CloseableFactory.getDbCache();
+        var cache = CloseableFactoryImpl.getDbCache();
         Closeable expected = new Closeable();
         expected.setProcess("some process");
         

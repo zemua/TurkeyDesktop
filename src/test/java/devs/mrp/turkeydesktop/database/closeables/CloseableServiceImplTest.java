@@ -25,7 +25,7 @@ public class CloseableServiceImplTest {
     @BeforeClass
     public static void setupClass() {
         DbFactoryImpl.setDbSupplier(() -> db);
-        CloseableFactory.setDbCacheSupplier(() -> dbCache);
+        CloseableFactoryImpl.setDbCacheSupplier(() -> dbCache);
     }
 
     @Test

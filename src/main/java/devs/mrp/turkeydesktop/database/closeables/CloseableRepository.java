@@ -1,32 +1,34 @@
 package devs.mrp.turkeydesktop.database.closeables;
 
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactoryImpl;
+import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import io.reactivex.rxjava3.core.Single;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class CloseableRepository implements CloseableDao {
     
+    private CloseableFactory factory;
     private static CloseableRepository instance;
+    private Db dbInstance;
     
-    private Db dbInstance = DbFactoryImpl.getDb();
+    private CloseableRepository(CloseableFactory factory) {
+        this.factory = factory;
+        dbInstance = factory.getDb();
+    }
     
-    private CloseableRepository() {}
-    
-    public static CloseableRepository getInstance() {
+    public static CloseableRepository getInstance(CloseableFactory closeableFactory) {
         if (instance == null) {
-            instance = new CloseableRepository();
+            instance = new CloseableRepository(closeableFactory);
         }
         return instance;
     }
     
     @Override
     public Single<String> add(Closeable element) {
-        return Db.singleString(()-> retrieveAddResult(element));
+        return dbInstance.singleString(()-> retrieveAddResult(element));
     }
     
     public String retrieveAddResult(Closeable element) {
@@ -61,7 +63,7 @@ public class CloseableRepository implements CloseableDao {
 
     @Override
     public Single<ResultSet> findAll() {
-        return Db.singleResultSet(() -> {
+        return dbInstance.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -77,7 +79,7 @@ public class CloseableRepository implements CloseableDao {
 
     @Override
     public Single<ResultSet> findById(String id) {
-        return Db.singleResultSet(() -> retrieveFindByIdResult(id));
+        return dbInstance.singleResultSet(() -> retrieveFindByIdResult(id));
     }
     
     private ResultSet retrieveFindByIdResult(String id) {
@@ -105,7 +107,7 @@ public class CloseableRepository implements CloseableDao {
 
     @Override
     public Single<Long> deleteById(String id) {
-        return Db.singleLong(() -> {
+        return dbInstance.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
