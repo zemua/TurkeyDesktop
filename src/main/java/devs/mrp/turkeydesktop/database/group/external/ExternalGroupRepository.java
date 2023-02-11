@@ -1,33 +1,33 @@
 package devs.mrp.turkeydesktop.database.group.external;
 
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactoryImpl;
+import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import io.reactivex.rxjava3.core.Single;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ExternalGroupRepository implements ExternalGroupDao {
     
-    private Db dbInstance = DbFactoryImpl.getDb();
+    private Db dbInstance;
     
     private static ExternalGroupRepository instance;
     
-    private ExternalGroupRepository() {
+    private ExternalGroupRepository(ExternalGroupFactory externalGroupFactory) {
+        this.dbInstance = externalGroupFactory.getDb();
     }
     
-    public static ExternalGroupRepository getInstance() {
+    public static ExternalGroupRepository getInstance(ExternalGroupFactory externalGroupFactory) {
         if (instance == null) {
-            instance = new ExternalGroupRepository();
+            instance = new ExternalGroupRepository(externalGroupFactory);
         }
         return instance;
     }
     
     @Override
     public Single<Long> add(ExternalGroup externalGroup) {
-        return Db.singleLong(() -> retrieveAddGeneratedId(externalGroup));
+        return dbInstance.singleLong(() -> retrieveAddGeneratedId(externalGroup));
     }
     
     private long retrieveAddGeneratedId(ExternalGroup externalGroup) {
@@ -66,7 +66,7 @@ public class ExternalGroupRepository implements ExternalGroupDao {
 
     @Override
     public Single<Long> update(ExternalGroup externalGroup) {
-        return Db.singleLong(() -> {
+        return dbInstance.singleLong(() -> {
             long result = -1;
             PreparedStatement stm;
             try {
@@ -85,7 +85,7 @@ public class ExternalGroupRepository implements ExternalGroupDao {
 
     @Override
     public Single<ResultSet> findAll() {
-        return Db.singleResultSet(() -> {
+        return dbInstance.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -101,7 +101,7 @@ public class ExternalGroupRepository implements ExternalGroupDao {
 
     @Override
     public Single<ResultSet> findById(Long id) {
-        return Db.singleResultSet(() -> retrieveById(id));
+        return dbInstance.singleResultSet(() -> retrieveById(id));
     }
     
     private ResultSet retrieveById(Long id) {
@@ -128,7 +128,7 @@ public class ExternalGroupRepository implements ExternalGroupDao {
 
     @Override
     public Single<Long> deleteById(Long id) {
-        return Db.singleLong(() -> {
+        return dbInstance.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
@@ -145,7 +145,7 @@ public class ExternalGroupRepository implements ExternalGroupDao {
 
     @Override
     public Single<ResultSet> findByGroup(Long groupId) {
-        return Db.singleResultSet(() -> {
+        return dbInstance.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -162,7 +162,7 @@ public class ExternalGroupRepository implements ExternalGroupDao {
 
     @Override
     public Single<ResultSet> findByFile(String file) {
-        return Db.singleResultSet(() -> {
+        return dbInstance.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -180,7 +180,7 @@ public class ExternalGroupRepository implements ExternalGroupDao {
 
     @Override
     public Single<Long> deleteByGroup(Long groupId) {
-        return Db.singleLong(() -> {
+        return dbInstance.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
@@ -198,7 +198,7 @@ public class ExternalGroupRepository implements ExternalGroupDao {
 
     @Override
     public Single<ResultSet> findByGroupAndFile(Long groupId, String file) {
-        return Db.singleResultSet(() -> {
+        return dbInstance.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {

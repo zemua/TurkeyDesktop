@@ -17,7 +17,7 @@ import devs.mrp.turkeydesktop.database.group.expor.ExportedGroup;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupService;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
-import devs.mrp.turkeydesktop.database.group.external.ExternalGroupFactory;
+import devs.mrp.turkeydesktop.database.group.external.ExternalGroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElement;
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElementService;
@@ -70,7 +70,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private final AssignableElementService assignableProcessService = AssignableElementServiceFactory.getProcessesService();
     private final AssignableElementService assignableTitlesService = AssignableElementServiceFactory.getTitlesService();
     private final ConditionService conditionService = ConditionFactoryImpl.getService();
-    private final ExternalGroupService externalGroupService = ExternalGroupFactory.getService();
+    private final ExternalGroupService externalGroupService = ExternalGroupFactoryImpl.getService();
     private final ExportedGroupService exportedGroupService = ExportedGroupFactoryImpl.getService();
     private final GroupConditionFacadeService groupConditionFacadeService;
 

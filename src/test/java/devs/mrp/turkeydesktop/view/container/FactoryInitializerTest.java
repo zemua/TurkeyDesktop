@@ -15,7 +15,7 @@ import devs.mrp.turkeydesktop.database.group.expor.ExportedGroup;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupId;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
-import devs.mrp.turkeydesktop.database.group.external.ExternalGroupFactory;
+import devs.mrp.turkeydesktop.database.group.external.ExternalGroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.imports.ImportFactory;
 import devs.mrp.turkeydesktop.database.titles.Title;
 import devs.mrp.turkeydesktop.database.titles.TitleFactory;
@@ -159,7 +159,7 @@ public class FactoryInitializerTest {
         when(preparedStatement.getGeneratedKeys()).thenReturn(generatedKeysResultSet);
         when(generatedKeysResultSet.next()).thenReturn(Boolean.TRUE);
         when(generatedKeysResultSet.getLong(ArgumentMatchers.anyInt())).thenReturn(14L);
-        var cache = ExternalGroupFactory.getDbCache();
+        var cache = ExternalGroupFactoryImpl.getDbCache();
         ExternalGroup expected = new ExternalGroup();
         expected.setFile("some file");
         expected.setGroup(6);

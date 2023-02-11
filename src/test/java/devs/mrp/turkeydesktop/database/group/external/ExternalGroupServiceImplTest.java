@@ -26,7 +26,7 @@ public class ExternalGroupServiceImplTest {
     @BeforeClass
     public static void setupClass() {
         DbFactoryImpl.setDbSupplier(() -> db);
-        ExternalGroupFactory.setDbCacheSupplier(() -> dbCache);
+        ExternalGroupFactoryImpl.setDbCacheSupplier(() -> dbCache);
     }
 
     @Test

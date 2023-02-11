@@ -9,7 +9,7 @@ import devs.mrp.turkeydesktop.database.conditions.ConditionService;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
-import devs.mrp.turkeydesktop.database.group.external.ExternalGroupFactory;
+import devs.mrp.turkeydesktop.database.group.external.ExternalGroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
 import devs.mrp.turkeydesktop.database.imports.ImportFactory;
 import devs.mrp.turkeydesktop.database.imports.ImportService;
@@ -45,7 +45,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
     private ConfigElementService configService;
     private ImportService importService = ImportFactory.getService();
     private ChainHandler<LongWrapper> idleHandler = new IdleChainCommander().getHandlerChain();
-    private ExternalGroupService externalGroupService = ExternalGroupFactory.getService();
+    private ExternalGroupService externalGroupService = ExternalGroupFactoryImpl.getService();
     private ImportReader importReader = ImportReaderFactory.getReader();
     private static long avoidMessageFlood = 1000*90; // if the idle time surpases 2+ minutes stop flooding notifications
     
