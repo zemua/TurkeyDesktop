@@ -1,34 +1,34 @@
 package devs.mrp.turkeydesktop.database.group.expor;
 
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactoryImpl;
+import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import io.reactivex.rxjava3.core.Single;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ExportedGroupRepository implements ExportedGroupDao {
     
-    private final Db dbInstance = DbFactoryImpl.getDb();
-    
+    private final ExportedGroupFactory factory;
+    private final Db dbInstance;
     private static ExportedGroupRepository instance;
     
-    private ExportedGroupRepository() {
-        
+    private ExportedGroupRepository(ExportedGroupFactory exportedGroupFactory) {
+        this.factory = exportedGroupFactory;
+        this.dbInstance = exportedGroupFactory.getDb();
     }
     
-    public static ExportedGroupRepository getInstance() {
+    public static ExportedGroupRepository getInstance(ExportedGroupFactory exportedGroupFactory) {
         if (instance == null) {
-            instance = new ExportedGroupRepository();
+            instance = new ExportedGroupRepository(exportedGroupFactory);
         }
         return instance;
     }
     
     @Override
     public Single<ResultSet> findByGroup(Long id) {
-        return Db.singleResultSet(() -> {
+        return dbInstance.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -46,7 +46,7 @@ public class ExportedGroupRepository implements ExportedGroupDao {
 
     @Override
     public Single<ResultSet> findByGroupAndFile(Long groupId, String file) {
-        return Db.singleResultSet(() -> {
+        return dbInstance.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -64,7 +64,7 @@ public class ExportedGroupRepository implements ExportedGroupDao {
 
     @Override
     public Single<Long> deleteByGroup(Long id) {
-        return Db.singleLong(() -> {
+        return dbInstance.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
@@ -81,7 +81,7 @@ public class ExportedGroupRepository implements ExportedGroupDao {
 
     @Override
     public Single<ExportedGroupId> add(ExportedGroup exportedGroup) {
-        return Db.<ExportedGroupId>singleGeneric(() -> retrieveIdFromAddedExport(exportedGroup));
+        return dbInstance.<ExportedGroupId>singleGeneric(() -> retrieveIdFromAddedExport(exportedGroup));
     }
     
     private ExportedGroupId retrieveIdFromAddedExport(ExportedGroup exportedGroup) {
@@ -112,7 +112,7 @@ public class ExportedGroupRepository implements ExportedGroupDao {
 
     @Override
     public Single<Long> update(ExportedGroup exportedGroup) {
-        return Db.singleLong(() -> {
+        return dbInstance.singleLong(() -> {
             long result = -1;
             PreparedStatement stm;
             try {
@@ -131,7 +131,7 @@ public class ExportedGroupRepository implements ExportedGroupDao {
 
     @Override
     public Single<ResultSet> findAll() {
-        return Db.singleResultSet(() -> {
+        return dbInstance.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -147,7 +147,7 @@ public class ExportedGroupRepository implements ExportedGroupDao {
 
     @Override
     public Single<ResultSet> findById(ExportedGroupId id) {
-        return Db.singleResultSet(() -> retrieveExportedGroupById(id));
+        return dbInstance.singleResultSet(() -> retrieveExportedGroupById(id));
     }
     
     private ResultSet retrieveExportedGroupById(ExportedGroupId id) {
@@ -175,7 +175,7 @@ public class ExportedGroupRepository implements ExportedGroupDao {
 
     @Override
     public Single<Long> deleteById(ExportedGroupId id) {
-        return Db.singleLong(() -> {
+        return dbInstance.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {

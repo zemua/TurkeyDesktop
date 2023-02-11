@@ -16,10 +16,8 @@ import devs.mrp.turkeydesktop.database.group.GroupFactory;
 import devs.mrp.turkeydesktop.database.group.GroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactoryImpl;
+import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupFactory;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupFactoryImpl;
-import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupId;
-import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupRepository;
-import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupValidator;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupFactory;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupRepository;
@@ -68,6 +66,7 @@ public class FactoryInitializer {
     private ConditionFactory conditionFactory;
     private GroupFactory groupFactory;
     private GroupAssignationFactory groupAssignationFactory;
+    private ExportedGroupFactory exportedGroupFactory;
     
     private MainPanelFactory mainPanelFactory;
     private GroupsPanelFactory groupsPanelFactory;
@@ -108,6 +107,7 @@ public class FactoryInitializer {
         conditionFactory = new ConditionFactoryImpl(this);
         groupFactory = new GroupFactoryImpl(this);
         groupAssignationFactory = new GroupAssignationFactoryImpl(this) {};
+        exportedGroupFactory = new ExportedGroupFactoryImpl(this);
         
         mainPanelFactory = new MainPanelFactoryImpl(this);
         groupsPanelFactory = new GroupsPanelFactoryImpl(this);
@@ -122,7 +122,6 @@ public class FactoryInitializer {
         
         initTitleDbCache();
         initImportsDbCache();
-        initExportedGroupDbCache();
         initExternalGroupDbCache();
         
         initTypeDb();
@@ -146,14 +145,6 @@ public class FactoryInitializer {
             key -> ImportValidator.isValidKey(key),
             ImportFactory::elementsFromSet,
             (path,key) -> path));
-    }
-    
-    private void initExportedGroupDbCache() {
-        ExportedGroupFactoryImpl.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(ExportedGroupRepository.getInstance(),
-            exportedGroup -> new ExportedGroupId(exportedGroup.getGroup(), exportedGroup.getFile()),
-            ExportedGroupValidator::isValidKey,
-            ExportedGroupFactoryImpl::elementsFromResultSet,
-            (exported,id) -> exported));
     }
     
     private void initExternalGroupDbCache() {

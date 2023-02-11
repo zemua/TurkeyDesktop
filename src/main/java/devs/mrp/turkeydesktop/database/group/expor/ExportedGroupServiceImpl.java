@@ -11,7 +11,11 @@ import org.apache.commons.lang3.StringUtils;
 @Slf4j
 public class ExportedGroupServiceImpl implements ExportedGroupService {
     
-    public static final DbCache<ExportedGroupId,ExportedGroup> dbCache = ExportedGroupFactoryImpl.getDbCache();
+    private final DbCache<ExportedGroupId,ExportedGroup> dbCache;
+    
+    public ExportedGroupServiceImpl(ExportedGroupFactory factory) {
+        this.dbCache = factory.getDbCache();
+    }
 
     @Override
     public Single<Long> add(ExportedGroup exportedGroup) {
