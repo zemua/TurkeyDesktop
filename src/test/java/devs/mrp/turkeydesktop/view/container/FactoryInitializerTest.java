@@ -9,7 +9,7 @@ import devs.mrp.turkeydesktop.database.closeables.CloseableFactoryImpl;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.database.conditions.ConditionFactoryImpl;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationServiceImpl;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroup;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupFactoryImpl;
@@ -196,7 +196,7 @@ public class FactoryInitializerTest {
     
     @Test
     public void testGroupAssignationService() {
-        var result = GroupAssignationFactory.getService();
+        var result = GroupAssignationFactoryImpl.getService();
         assertTrue(result instanceof GroupAssignationServiceImpl);
     }
     

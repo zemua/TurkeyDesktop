@@ -14,8 +14,6 @@ public interface ConfigElementFactory {
     
     public Db getDb();
     
-    public ConfigElementDao getRepo();
-    
     public ConfigElementService getService();
     
     public void runConditionListWorker(Supplier<List<ConfigElement>> supplier, Consumer<List<ConfigElement>> consumer);

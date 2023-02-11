@@ -7,7 +7,7 @@ import devs.mrp.turkeydesktop.database.closeables.CloseableService;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
@@ -32,7 +32,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
     private final TimeLogService logService = TimeLogServiceFactory.getService();
     private final TypeService typeService = TypeFactory.getService();
     private final TitleService titleService = TitleFactory.getService();
-    private final GroupAssignationService groupAssignationService = GroupAssignationFactory.getService();
+    private final GroupAssignationService groupAssignationService = GroupAssignationFactoryImpl.getService();
     private final CloseableService closeableService = CloseableFactoryImpl.getService();
 
     private final ConditionChecker conditionChecker;

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package devs.mrp.turkeydesktop.common.impl;
 
 import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
@@ -22,10 +18,6 @@ import javax.swing.Popup;
 import javax.swing.PopupFactory;
 import javax.swing.SwingWorker;
 
-/**
- *
- * @author zemua
- */
 public class ConfirmationWithDelayImpl extends JFrame implements ActionListener, ConfirmationWithDelay {
     
     private static final Logger LOGGER = Logger.getLogger(ConfirmationWithDelayImpl.class.getName());

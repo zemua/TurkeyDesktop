@@ -20,31 +20,20 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ConfigElementFactoryImpl implements ConfigElementFactory {
     
-    private Supplier<DbCache<String, ConfigElement>> dbCacheSupplier;
-    
     @Getter
     private Db db;
     
-    @Getter
-    private ConfigElementDao repo;
-    
     public ConfigElementFactoryImpl(FactoryInitializer factory) {
         db = factory.getDbFactory().getDb();
-        repo = ConfigElementRepository.getInstance(this);
-        initCache();
     }
     
-    private void initCache() {
+    public DbCache<String, ConfigElement> getDbCache() {
         Function<ConfigElement,String> keyExtractor = c -> c.getKey().toString();
         Function<String,Boolean> isNewKey = key -> ConfigElementValidator.isValidKey(key);
         Function<ResultSet,Observable<ConfigElement>> listFromResultSet = this::elementsFromResultSet;
         BiFunction<ConfigElement, String, ConfigElement> keySetter = (element,key) -> element;
-        var cache = DbCacheFactory.getDbCache(repo, keyExtractor, isNewKey, listFromResultSet, keySetter);
-        this.dbCacheSupplier = () -> cache;
-    }
-    
-    public DbCache<String, ConfigElement> getDbCache() {
-        return dbCacheSupplier.get();
+        ConfigElementDao repo = ConfigElementRepository.getInstance(this);
+        return DbCacheFactory.getDbCache(repo, keyExtractor, isNewKey, listFromResultSet, keySetter);
     }
     
     public ConfigElementService getService() {

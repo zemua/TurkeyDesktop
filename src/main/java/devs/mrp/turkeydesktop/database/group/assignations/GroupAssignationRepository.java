@@ -1,33 +1,33 @@
 package devs.mrp.turkeydesktop.database.group.assignations;
 
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactoryImpl;
+import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import io.reactivex.rxjava3.core.Single;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class GroupAssignationRepository implements GroupAssignationDao {
     
-    private Db dbInstance = DbFactoryImpl.getDb();
-    
+    private GroupAssignationFactory factory;
+    private Db dbInstance;
     private static GroupAssignationRepository instance;
     
-    private GroupAssignationRepository() {
+    private GroupAssignationRepository(GroupAssignationFactory groupAssignationFactory) {
+        this.factory = groupAssignationFactory;
     }
     
-    public static GroupAssignationRepository getInstance() {
+    public static GroupAssignationRepository getInstance(GroupAssignationFactory groupAssignationFactory) {
         if (instance == null) {
-            instance = new GroupAssignationRepository();
+            instance = new GroupAssignationRepository(groupAssignationFactory);
         }
         return instance;
     }
     
     @Override
     public Single<ResultSet> findByElementId(GroupAssignation.ElementType elementType, String elementId) {
-        return Db.singleResultSet(() -> retrieveFindResult(elementType, elementId));
+        return dbInstance.singleResultSet(() -> retrieveFindResult(elementType, elementId));
     }
     
     private ResultSet retrieveFindResult(GroupAssignation.ElementType elementType, String elementId) {
@@ -55,7 +55,7 @@ public class GroupAssignationRepository implements GroupAssignationDao {
 
     @Override
     public Single<ResultSet> findAllElementTypeOfGroup(GroupAssignation.ElementType elementType, Long groupId) {
-        return Db.singleResultSet(() -> {
+        return dbInstance.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -73,7 +73,7 @@ public class GroupAssignationRepository implements GroupAssignationDao {
 
     @Override
     public Single<ElementId> add(GroupAssignation groupAssignation) {
-        return Db.<ElementId>singleGeneric(() -> retrieveAddResult(groupAssignation));
+        return dbInstance.<ElementId>singleGeneric(() -> retrieveAddResult(groupAssignation));
     }
     
     private ElementId retrieveAddResult(GroupAssignation groupAssignation) {
@@ -104,7 +104,7 @@ public class GroupAssignationRepository implements GroupAssignationDao {
 
     @Override
     public Single<Long> update(GroupAssignation element) {
-        return Db.singleLong(() -> {
+        return dbInstance.singleLong(() -> {
             long result = -1;
             PreparedStatement stm;
             try {
@@ -124,7 +124,7 @@ public class GroupAssignationRepository implements GroupAssignationDao {
 
     @Override
     public Single<ResultSet> findAll() {
-        return Db.singleResultSet(() -> {
+        return dbInstance.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -152,7 +152,7 @@ public class GroupAssignationRepository implements GroupAssignationDao {
     
     @Override
     public Single<Long> deleteByElementId(GroupAssignation.ElementType elementType, String elementId) {
-        return Db.singleLong(() -> {
+        return dbInstance.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
@@ -171,7 +171,7 @@ public class GroupAssignationRepository implements GroupAssignationDao {
     
     @Override
     public Single<ResultSet> findAllOfType(GroupAssignation.ElementType elementType) {
-        return Db.singleResultSet(() -> {
+        return dbInstance.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -188,7 +188,7 @@ public class GroupAssignationRepository implements GroupAssignationDao {
 
     @Override
     public Single<Long> deleteByGroupId(long groupId) {
-        return Db.singleLong(() -> {
+        return dbInstance.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {

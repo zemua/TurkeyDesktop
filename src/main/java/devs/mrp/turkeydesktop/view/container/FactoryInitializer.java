@@ -14,11 +14,8 @@ import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
 import devs.mrp.turkeydesktop.database.config.ConfigElementFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.GroupFactory;
 import devs.mrp.turkeydesktop.database.group.GroupFactoryImpl;
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationDao;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationRepository;
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationServiceImpl;
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationValidator;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupId;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupRepository;
@@ -70,6 +67,7 @@ public class FactoryInitializer {
     private CloseableFactory closeableFactory;
     private ConditionFactory conditionFactory;
     private GroupFactory groupFactory;
+    private GroupAssignationFactory groupAssignationFactory;
     
     private MainPanelFactory mainPanelFactory;
     private GroupsPanelFactory groupsPanelFactory;
@@ -109,6 +107,7 @@ public class FactoryInitializer {
         closeableFactory = new CloseableFactoryImpl(this);
         conditionFactory = new ConditionFactoryImpl(this);
         groupFactory = new GroupFactoryImpl(this);
+        groupAssignationFactory = new GroupAssignationFactoryImpl(this) {};
         
         mainPanelFactory = new MainPanelFactoryImpl(this);
         groupsPanelFactory = new GroupsPanelFactoryImpl(this);
@@ -123,15 +122,12 @@ public class FactoryInitializer {
         
         initTitleDbCache();
         initImportsDbCache();
-        initGroupAssignationDbCache();
         initExportedGroupDbCache();
         initExternalGroupDbCache();
         
         initTypeDb();
         initTypeDbCache();
         initTypeRepo();
-        
-        initGroupAssignationService();
         
         return this;
     }
@@ -150,15 +146,6 @@ public class FactoryInitializer {
             key -> ImportValidator.isValidKey(key),
             ImportFactory::elementsFromSet,
             (path,key) -> path));
-    }
-
-    private void initGroupAssignationDbCache() {
-        GroupAssignationFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(
-            GroupAssignationRepository.getInstance(),
-            element -> new GroupAssignationDao.ElementId(element.getType(), element.getElementId()),
-            GroupAssignationValidator::isValidKey,
-            GroupAssignationFactory::elementsFromResultSet,
-            (assignation,id) -> assignation));
     }
     
     private void initExportedGroupDbCache() {
@@ -194,10 +181,6 @@ public class FactoryInitializer {
     
     private void initTypeRepo() {
         TypeFactory.setRepoSupplier(() -> TypeRepository.getInstance());
-    }
-
-    private void initGroupAssignationService() {
-        GroupAssignationFactory.setGroupAssignationServiceSupplier(() -> new GroupAssignationServiceImpl());
     }
     
 }

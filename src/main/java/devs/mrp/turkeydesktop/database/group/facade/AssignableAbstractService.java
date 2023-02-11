@@ -5,7 +5,7 @@
  */
 package devs.mrp.turkeydesktop.database.group.facade;
 
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import java.util.Map;
 import io.reactivex.rxjava3.core.Single;
@@ -17,7 +17,7 @@ import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationServic
  */
 public abstract class AssignableAbstractService {
     
-    private GroupAssignationService assignationService = GroupAssignationFactory.getService();
+    private GroupAssignationService assignationService = GroupAssignationFactoryImpl.getService();
     
     protected Single<Map<String, GroupAssignation>> getAssignationsMap(GroupAssignation.ElementType type) {
         return assignationService.findAll()

@@ -2,7 +2,7 @@ package devs.mrp.turkeydesktop.database.titles;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactoryImpl;
 import io.reactivex.rxjava3.core.Maybe;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -16,7 +16,7 @@ import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationServic
 public class TitleServiceImpl implements TitleService {
 
     private static DbCache<String,Title> dbCache;
-    private static final GroupAssignationService assignationService = GroupAssignationFactory.getService();
+    private static final GroupAssignationService assignationService = GroupAssignationFactoryImpl.getService();
     
     public TitleServiceImpl() {
         setCacheInstance();
