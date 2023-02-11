@@ -1,24 +1,19 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.group.facade;
 
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
-import devs.mrp.turkeydesktop.database.titles.TitleFactory;
 import devs.mrp.turkeydesktop.database.titles.Title;
-import java.util.Map;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
 import io.reactivex.rxjava3.core.Observable;
+import java.util.Map;
 
-/**
- *
- * @author miguel
- */
 public class AssignableTitleServiceImpl extends AssignableAbstractService implements AssignableElementService<Title.Type> {
     
-    private final TitleService titleService = TitleFactory.getService();
+    private final TitleService titleService;
+    
+    public AssignableTitleServiceImpl(AssignableElementFactory factory) {
+        super(factory);
+        this.titleService = factory.getTitleService();
+    }
     
     @Override
     public Observable<AssignableElement<Title.Type>> positiveElementsWithAssignation() {
@@ -37,10 +32,8 @@ public class AssignableTitleServiceImpl extends AssignableAbstractService implem
                     AssignableElement<Title.Type> element = new AssignableElement<>();
                     element.setElementName(t.getSubStr());
                     if (assignables.get(t.getSubStr()) != null) {
-                        //element.setGroupAssignationId(assignables.get(t.getSubStr()).getId());
                         element.setGroupId(assignables.get(t.getSubStr()).getGroupId());
                     } else {
-                        //element.setGroupAssignationId(null);
                         element.setGroupId(null);
                     }
                     element.setPositiveOrNegative(positiveOrNegative);

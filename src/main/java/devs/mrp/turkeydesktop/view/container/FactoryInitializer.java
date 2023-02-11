@@ -20,6 +20,8 @@ import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupFactory;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupFactory;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupFactoryImpl;
+import devs.mrp.turkeydesktop.database.group.facade.AssignableElementFactory;
+import devs.mrp.turkeydesktop.database.group.facade.AssignableElementFactoryImpl;
 import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacadeFactory;
 import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacadeFactoryImpl;
 import devs.mrp.turkeydesktop.database.imports.ImportFactory;
@@ -66,6 +68,7 @@ public class FactoryInitializer {
     private GroupAssignationFactory groupAssignationFactory;
     private ExportedGroupFactory exportedGroupFactory;
     private ExternalGroupFactory externalGroupFactory;
+    private AssignableElementFactory assignableElementFactory;
     
     private MainPanelFactory mainPanelFactory;
     private GroupsPanelFactory groupsPanelFactory;
@@ -108,6 +111,7 @@ public class FactoryInitializer {
         groupAssignationFactory = new GroupAssignationFactoryImpl(this) {};
         exportedGroupFactory = new ExportedGroupFactoryImpl(this);
         externalGroupFactory = new ExternalGroupFactoryImpl(this);
+        assignableElementFactory = new AssignableElementFactoryImpl(this);
         
         mainPanelFactory = new MainPanelFactoryImpl(this);
         groupsPanelFactory = new GroupsPanelFactoryImpl(this);

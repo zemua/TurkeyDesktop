@@ -1,24 +1,19 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.group.facade;
 
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
-import devs.mrp.turkeydesktop.database.type.TypeFactory;
 import devs.mrp.turkeydesktop.database.type.Type;
-import java.util.Map;
 import devs.mrp.turkeydesktop.database.type.TypeService;
 import io.reactivex.rxjava3.core.Observable;
+import java.util.Map;
 
-/**
- *
- * @author miguel
- */
 public class AssignableProcessService extends AssignableAbstractService implements AssignableElementService<Type.Types> {
     
-    private final TypeService typeService = TypeFactory.getService();
+    private final TypeService typeService;
+    
+    public AssignableProcessService(AssignableElementFactory factory) {
+        super(factory);
+        this.typeService = factory.getTypeService();
+    }
     
     @Override
     public Observable<AssignableElement<Type.Types>> positiveElementsWithAssignation() {
@@ -37,10 +32,8 @@ public class AssignableProcessService extends AssignableAbstractService implemen
                     AssignableElement<Type.Types> element = new AssignableElement<>();
                     element.setElementName(t.getProcess());
                     if (assignables.get(t.getProcess()) != null) {
-                        //element.setGroupAssignationId(assignables.get(t.getProcess()).getId());
                         element.setGroupId(assignables.get(t.getProcess()).getGroupId());
                     } else {
-                        //element.setGroupAssignationId(null);
                         element.setGroupId(null);
                     }
                     element.setPositiveOrNegative(positiveOrNegative);
