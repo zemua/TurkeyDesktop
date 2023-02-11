@@ -10,6 +10,7 @@ public class GroupConditionFacade {
     
     private LocaleMessages locale = LocaleMessages.getInstance();
     private ConditionChecker conditionChecker;
+    private TimeConverter timeConverter;
     
     private long conditionId;
     private long groupId;
@@ -21,6 +22,7 @@ public class GroupConditionFacade {
     
     public GroupConditionFacade(GroupConditionFacadeFactory factory) {
         conditionChecker = factory.conditionCheker();
+        timeConverter = factory.getTimeConverter();
     }
 
     public long getConditionId() {
@@ -92,7 +94,7 @@ public class GroupConditionFacade {
         builder.append(" ");
         builder.append(locale.getString("hasUsed"));
         builder.append(" ");
-        builder.append(TimeConverter.millisToHM(usageTimeCondition));
+        builder.append(timeConverter.millisToHM(usageTimeCondition));
         builder.append(" ");
         if (lastDaysCondition > 0) {
             builder.append(locale.getString("inTheLast"));

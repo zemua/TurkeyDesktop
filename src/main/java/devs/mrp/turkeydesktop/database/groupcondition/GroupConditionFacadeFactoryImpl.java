@@ -1,6 +1,9 @@
 package devs.mrp.turkeydesktop.database.groupcondition;
 
 import devs.mrp.turkeydesktop.common.SingleConsumer;
+import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.database.conditions.ConditionService;
+import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import java.util.List;
@@ -37,6 +40,21 @@ public class GroupConditionFacadeFactoryImpl implements GroupConditionFacadeFact
     @Override
     public GroupConditionFacade createFacade() {
         return new GroupConditionFacade(this);
+    }
+
+    @Override
+    public TimeConverter getTimeConverter() {
+        return factory.getTimeConverter();
+    }
+
+    @Override
+    public ConditionService getConditionService() {
+        return factory.getConditionFactory().getService();
+    }
+
+    @Override
+    public GroupService getGroupService() {
+        return factory.getGroupFactory().getService();
     }
     
 }
