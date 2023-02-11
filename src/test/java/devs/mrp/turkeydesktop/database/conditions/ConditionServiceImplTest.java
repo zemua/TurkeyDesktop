@@ -26,7 +26,7 @@ public class ConditionServiceImplTest {
     @BeforeClass
     public static void setupClass() {
         DbFactoryImpl.setDbSupplier(() -> db);
-        ConditionFactory.setDbCacheSupplier(() -> dbCache);
+        ConditionFactoryImpl.setDbCacheSupplier(() -> dbCache);
     }
     
     @Test

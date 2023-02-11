@@ -7,7 +7,7 @@ import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import devs.mrp.turkeydesktop.database.closeables.Closeable;
 import devs.mrp.turkeydesktop.database.closeables.CloseableFactoryImpl;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
-import devs.mrp.turkeydesktop.database.conditions.ConditionFactory;
+import devs.mrp.turkeydesktop.database.conditions.ConditionFactoryImpl;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationServiceImpl;
@@ -124,7 +124,7 @@ public class FactoryInitializerTest {
         when(preparedStatement.getGeneratedKeys()).thenReturn(generatedKeysResultSet);
         when(generatedKeysResultSet.next()).thenReturn(Boolean.TRUE);
         when(generatedKeysResultSet.getLong(ArgumentMatchers.anyInt())).thenReturn(9L);
-        var cache = ConditionFactory.getDbCache();
+        var cache = ConditionFactoryImpl.getDbCache();
         Condition expected = new Condition();
         expected.setGroupId(3);
         expected.setLastDaysCondition(0);
