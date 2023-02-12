@@ -29,7 +29,7 @@ public class ExportedGroupFactoryImpl implements ExportedGroupFactory {
     
     @Override
     public ExportedGroupService getService() {
-        return new ExportedGroupServiceImpl(this);
+        return ExportedGroupServiceImpl.getInstance(this);
     }
     
     @Override

@@ -10,10 +10,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ConditionServiceImpl implements ConditionService {
     
-    public static DbCache<Long,Condition> dbCache;
+    private static ConditionServiceImpl instance;
+    private final DbCache<Long,Condition> dbCache;
     
-    public ConditionServiceImpl(ConditionFactory conditionFactory) {
+    private ConditionServiceImpl(ConditionFactory conditionFactory) {
         dbCache = conditionFactory.getDbCache();
+    }
+    
+    public static ConditionServiceImpl getInstance(ConditionFactory conditionFactory) {
+        if (instance == null) {
+            instance = new ConditionServiceImpl(conditionFactory);
+        }
+        return instance;
     }
     
     @Override

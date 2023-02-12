@@ -32,7 +32,7 @@ public class ConditionFactoryImpl implements ConditionFactory {
     
     @Override
     public ConditionService getService() {
-        return new ConditionServiceImpl(this);
+        return ConditionServiceImpl.getInstance(this);
     }
     
     @Override

@@ -37,7 +37,7 @@ public class ConfigElementFactoryImpl implements ConfigElementFactory {
     }
     
     public ConfigElementService getService() {
-        return new ConfigElementServiceImpl(this);
+        return ConfigElementServiceImpl.getInstance(this);
     }
     
     public void runConditionListWorker(Supplier<List<ConfigElement>> supplier, Consumer<List<ConfigElement>> consumer) {

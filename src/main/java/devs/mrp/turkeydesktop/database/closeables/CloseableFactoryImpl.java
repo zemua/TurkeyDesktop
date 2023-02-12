@@ -27,7 +27,7 @@ public class CloseableFactoryImpl implements CloseableFactory {
     
     @Override
     public CloseableService getService() {
-        return new CloseableServiceImpl(this);
+        return CloseableServiceImpl.getInstance(this);
     }
     
     @Override

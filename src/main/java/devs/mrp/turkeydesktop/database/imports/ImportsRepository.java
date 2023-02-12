@@ -1,34 +1,34 @@
 package devs.mrp.turkeydesktop.database.imports;
 
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
+import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import io.reactivex.rxjava3.core.Single;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ImportsRepository implements ImportsDao {
     
-    private Db dbInstance = DbFactoryImpl.getDb();
+    private Db dbInstance;
     
     private static ImportsRepository instance;
     
-    private ImportsRepository() {
+    private ImportsRepository(ImportFactory importFactory) {
+        this.dbInstance = importFactory.getDb();
     }
     
-    public static ImportsRepository getInstance() {
+    public static ImportsRepository getInstance(ImportFactory importFactory) {
         if (instance == null) {
-            instance = new ImportsRepository();
+            instance = new ImportsRepository(importFactory);
         }
         return instance;
     }
     
     @Override
     public Single<String> add(String importPath) {
-        return Db.singleString(() -> retrieveAddResult(importPath));
+        return dbInstance.singleString(() -> retrieveAddResult(importPath));
     }
     
     private String retrieveAddResult(String importPath) {
@@ -64,7 +64,7 @@ public class ImportsRepository implements ImportsDao {
 
     @Override
     public Single<ResultSet> findAll() {
-        return Db.singleResultSet(() -> {
+        return dbInstance.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
@@ -80,7 +80,7 @@ public class ImportsRepository implements ImportsDao {
 
     @Override
     public Single<ResultSet> findById(String id) {
-        return Db.singleResultSet(() -> retrieveFindByIdResult(id));
+        return dbInstance.singleResultSet(() -> retrieveFindByIdResult(id));
     }
     
     private ResultSet retrieveFindByIdResult(String id) {
@@ -108,7 +108,7 @@ public class ImportsRepository implements ImportsDao {
 
     @Override
     public Single<Long> deleteById(String id) {
-        return Db.singleLong(() -> {
+        return dbInstance.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {

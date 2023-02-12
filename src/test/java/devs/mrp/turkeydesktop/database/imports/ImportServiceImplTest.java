@@ -26,7 +26,7 @@ public class ImportServiceImplTest {
     @BeforeClass
     public static void setupClass() {
         DbFactoryImpl.setDbSupplier(() -> db);
-        ImportFactory.setDbCacheSupplier(() -> dbCache);
+        ImportFactoryImpl.setDbCacheSupplier(() -> dbCache);
     }
     
     @Test

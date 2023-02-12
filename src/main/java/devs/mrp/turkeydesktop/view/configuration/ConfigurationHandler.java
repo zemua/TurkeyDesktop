@@ -7,7 +7,7 @@ import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.ConfigElementService;
-import devs.mrp.turkeydesktop.database.imports.ImportFactory;
+import devs.mrp.turkeydesktop.database.imports.ImportFactoryImpl;
 import devs.mrp.turkeydesktop.database.imports.ImportService;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
@@ -35,7 +35,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     private ConfigurationPanelFactory factory;
 
     private ConfigElementService configService;
-    private ImportService importService = ImportFactory.getService();
+    private ImportService importService = ImportFactoryImpl.getService();
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
     private Logger logger = Logger.getLogger(ConfigurationHandler.class.getName());
     private JFrame frame;

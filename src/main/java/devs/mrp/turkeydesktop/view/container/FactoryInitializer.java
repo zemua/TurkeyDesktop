@@ -25,8 +25,7 @@ import devs.mrp.turkeydesktop.database.group.facade.AssignableElementFactoryImpl
 import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacadeFactory;
 import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacadeFactoryImpl;
 import devs.mrp.turkeydesktop.database.imports.ImportFactory;
-import devs.mrp.turkeydesktop.database.imports.ImportValidator;
-import devs.mrp.turkeydesktop.database.imports.ImportsRepository;
+import devs.mrp.turkeydesktop.database.imports.ImportFactoryImpl;
 import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeFactory;
 import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeServiceFactoryImpl;
 import devs.mrp.turkeydesktop.database.titles.*;
@@ -69,6 +68,7 @@ public class FactoryInitializer {
     private ExportedGroupFactory exportedGroupFactory;
     private ExternalGroupFactory externalGroupFactory;
     private AssignableElementFactory assignableElementFactory;
+    private ImportFactory importFactory;
     
     private MainPanelFactory mainPanelFactory;
     private GroupsPanelFactory groupsPanelFactory;
@@ -112,6 +112,7 @@ public class FactoryInitializer {
         exportedGroupFactory = new ExportedGroupFactoryImpl(this);
         externalGroupFactory = new ExternalGroupFactoryImpl(this);
         assignableElementFactory = new AssignableElementFactoryImpl(this);
+        importFactory = new ImportFactoryImpl(this);
         
         mainPanelFactory = new MainPanelFactoryImpl(this);
         groupsPanelFactory = new GroupsPanelFactoryImpl(this);
@@ -125,7 +126,6 @@ public class FactoryInitializer {
         fileHandler = new FileHandler(this);
         
         initTitleDbCache();
-        initImportsDbCache();
         
         initTypeDb();
         initTypeDbCache();
@@ -140,14 +140,6 @@ public class FactoryInitializer {
             key -> TitleValidator.isValidKey(key),
             TitleFactory::elementsFromResultEntry,
             (title, key) -> title));
-    }
-    
-    private void initImportsDbCache() {
-        ImportFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(ImportsRepository.getInstance(),
-            s -> s,
-            key -> ImportValidator.isValidKey(key),
-            ImportFactory::elementsFromSet,
-            (path,key) -> path));
     }
     
     private void initTypeDb() {

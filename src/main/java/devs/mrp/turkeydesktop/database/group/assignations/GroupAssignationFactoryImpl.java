@@ -19,7 +19,7 @@ public class GroupAssignationFactoryImpl implements GroupAssignationFactory {
     
     @Override
     public GroupAssignationService getService() {
-        return new GroupAssignationServiceImpl(this);
+        return GroupAssignationServiceImpl.getInstance(this);
     }
     
     @Override

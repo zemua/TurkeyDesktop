@@ -32,7 +32,7 @@ public class ExternalGroupFactoryImpl implements ExternalGroupFactory {
     
     @Override
     public ExternalGroupService getService() {
-        return new ExternalGroupServiceImpl(this);
+        return ExternalGroupServiceImpl.getInstance(this);
     }
     
     @Override

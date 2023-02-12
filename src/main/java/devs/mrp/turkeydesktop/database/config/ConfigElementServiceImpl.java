@@ -10,18 +10,20 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ConfigElementServiceImpl implements ConfigElementService {
     
-    private DbCache<String,ConfigElement> dbCache;
-    private ConfigElementFactory configElementFactory;
+    private static ConfigElementServiceImpl instance;
+    private final DbCache<String,ConfigElement> dbCache;
+    private final ConfigElementFactory configElementFactory;
     
-    public ConfigElementServiceImpl(ConfigElementFactory configElementFactory) {
+    private ConfigElementServiceImpl(ConfigElementFactory configElementFactory) {
         this.configElementFactory = configElementFactory;
-        setCacheInstance();
+        dbCache = configElementFactory.getDbCache();
     }
     
-    private void setCacheInstance() {
-        if (dbCache == null) {
-            dbCache = configElementFactory.getDbCache();
+    public static ConfigElementServiceImpl getInstance(ConfigElementFactory configElementFactory) {
+        if (instance == null) {
+            instance = new ConfigElementServiceImpl(configElementFactory);
         }
+        return instance;
     }
 
     @Override

@@ -16,7 +16,7 @@ import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupId;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupFactoryImpl;
-import devs.mrp.turkeydesktop.database.imports.ImportFactory;
+import devs.mrp.turkeydesktop.database.imports.ImportFactoryImpl;
 import devs.mrp.turkeydesktop.database.titles.Title;
 import devs.mrp.turkeydesktop.database.titles.TitleFactory;
 import devs.mrp.turkeydesktop.database.type.Type;
@@ -81,7 +81,7 @@ public class FactoryInitializerTest {
     public void testImportsDbCache() throws SQLException {
         when(db.prepareStatement(ArgumentMatchers.any())).thenReturn(preparedStatement);
         
-        var cache = ImportFactory.getDbCache();
+        var cache = ImportFactoryImpl.getDbCache();
         String expected = "some import";
         
         cache.save(expected).blockingGet();

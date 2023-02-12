@@ -32,7 +32,7 @@ public class GroupFactoryImpl implements GroupFactory {
     
     @Override
     public GroupService getService() {
-        return new GroupServiceImpl(this);
+        return GroupServiceImpl.getInstance(this);
     }
     
     @Override
