@@ -2,12 +2,10 @@ package devs.mrp.turkeydesktop.database.logandtype;
 
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.Tripla;
-import devs.mrp.turkeydesktop.database.closeables.CloseableFactoryImpl;
 import devs.mrp.turkeydesktop.database.closeables.CloseableService;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
@@ -28,27 +26,32 @@ import org.apache.commons.lang3.StringUtils;
 
 public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
 
-    private final LogAndTypeFacadeDao repo = LogAndTypeFacadeRepository.getInstance();
+    private final LogAndTypeFacadeDao repo;
     private final TimeLogService logService = TimeLogServiceFactory.getService();
     private final TypeService typeService = TypeFactory.getService();
     private final TitleService titleService = TitleFactory.getService();
-    private final GroupAssignationService groupAssignationService = GroupAssignationFactoryImpl.getService();
-    private final CloseableService closeableService = CloseableFactoryImpl.getService();
+    private final GroupAssignationService groupAssignationService;
+    private final CloseableService closeableService;
 
     private final ConditionChecker conditionChecker;
     private final ConfigElementService configService;
+    private final TimeConverter timeConverter;
     
     public LogAndTypeFacadeServiceImpl(LogAndTypeFacadeFactory factory) {
         this.conditionChecker = factory.conditionChecker();
         this.configService = factory.configService();
+        this.repo = factory.getRepo();
+        this.groupAssignationService = factory.getGroupAssignationService();
+        this.closeableService = factory.getCloseableService();
+        this.timeConverter = factory.getTimeConverter();
     }
 
     @Override
     public Observable<Tripla<String, Long, Type.Types>> getTypedLogGroupedByProcess(Date from, Date to) {
         // Set from to hour 0 of the day
-        long fromMilis = TimeConverter.millisToBeginningOfDay(from.getTime());
+        long fromMilis = timeConverter.millisToBeginningOfDay(from.getTime());
         // Set "to" to the last second of the day
-        long toMilis = TimeConverter.millisToEndOfDay(to.getTime());
+        long toMilis = timeConverter.millisToEndOfDay(to.getTime());
         // use calendar objects to get milliseconds
         return repo.getTypedLogGroupedByProcess(fromMilis, toMilis).flatMapObservable(set -> {
             return Observable.create(emitter -> {

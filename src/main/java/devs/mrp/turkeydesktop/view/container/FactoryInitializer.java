@@ -26,8 +26,7 @@ import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacadeFactor
 import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacadeFactoryImpl;
 import devs.mrp.turkeydesktop.database.imports.ImportFactory;
 import devs.mrp.turkeydesktop.database.imports.ImportFactoryImpl;
-import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeFactory;
-import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeServiceFactoryImpl;
+import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeFactoryImpl;
 import devs.mrp.turkeydesktop.database.titles.*;
 import devs.mrp.turkeydesktop.database.type.TypeFactory;
 import devs.mrp.turkeydesktop.database.type.TypeRepository;
@@ -49,6 +48,7 @@ import devs.mrp.turkeydesktop.view.groups.review.GroupReviewFactoryImpl;
 import devs.mrp.turkeydesktop.view.mainpanel.MainPanelFactory;
 import devs.mrp.turkeydesktop.view.mainpanel.MainPanelFactoryImpl;
 import lombok.Getter;
+import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeFactory;
 
 @Getter
 public class FactoryInitializer {
@@ -104,7 +104,7 @@ public class FactoryInitializer {
         conditionCheckerFactory = new ConditionCheckerFactoryImpl(this);
         groupConditionFacadeFactory = new GroupConditionFacadeFactoryImpl(this);
         groupReviewFactory = new GroupReviewFactoryImpl(this);
-        logAndTypeFacadeFactory = new LogAndTypeServiceFactoryImpl(this);
+        logAndTypeFacadeFactory = new LogAndTypeFacadeFactoryImpl(this);
         closeableFactory = new CloseableFactoryImpl(this);
         conditionFactory = new ConditionFactoryImpl(this);
         groupFactory = new GroupFactoryImpl(this);
