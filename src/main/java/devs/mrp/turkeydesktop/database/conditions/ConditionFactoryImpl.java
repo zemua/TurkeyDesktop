@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 public class ConditionFactoryImpl implements ConditionFactory {
     
     private FactoryInitializer factory;
+    private static ConditionDao conditionRepository;
+    private static ConditionService conditionService;
 
     public ConditionFactoryImpl(FactoryInitializer factoryInitializer) {
         this.factory = factoryInitializer;
@@ -20,7 +22,10 @@ public class ConditionFactoryImpl implements ConditionFactory {
     
     @Override
     public DbCache<Long, Condition> getDbCache() {
-        return DbCacheFactory.getDbCache(ConditionRepository.getInstance(this),
+        if (conditionRepository == null) {
+            conditionRepository = new ConditionRepository(this);
+        }
+        return DbCacheFactory.getDbCache(conditionRepository,
             c -> c.getId(),
             key -> ConditionValidator.isValidKey(key),
             this::elementsFromResultSet,
@@ -32,7 +37,10 @@ public class ConditionFactoryImpl implements ConditionFactory {
     
     @Override
     public ConditionService getService() {
-        return ConditionServiceImpl.getInstance(this);
+        if (conditionService == null) {
+            conditionService = new ConditionServiceImpl(this);
+        }
+        return conditionService;
     }
     
     @Override

@@ -1,43 +1,44 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.logs;
 
 import devs.mrp.turkeydesktop.common.Dupla;
 import devs.mrp.turkeydesktop.common.GenericCache;
 import devs.mrp.turkeydesktop.common.TimeConverter;
-import devs.mrp.turkeydesktop.common.impl.GenericCacheImpl;
 import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.type.Type;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Date;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableOnSubscribe;
 import io.reactivex.rxjava3.core.Single;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- *
- * @author miguel
- */
 @Slf4j
 public class TimeLogServiceImpl implements TimeLogService {
 
-    private final TimeLogDao repo = TimeLogRepository.getInstance();
+    private final TimeLogDao repo;
     
-    private static volatile TimeLog lastTimeLog;
+    private volatile TimeLog lastTimeLog;
     
-    private static GenericCache<Long,Single<TimeLog>> byIdCache = new GenericCacheImpl<>();
-    private static GenericCache<Boolean,Observable<TimeLog>> last24cache = new GenericCacheImpl<>();
-    private static GenericCache<FromTo,Observable<Dupla<String,Long>>> processTimeCache = new GenericCacheImpl<>();
-    private static GenericCache<FromTo,Observable<Dupla<String,Long>>> processGroupedByTitle = new GenericCacheImpl<>();
-    private static GenericCache<GroupFromTo,Single<Long>> timeSpentForFrame = new GenericCacheImpl<>();
+    private final GenericCache<Long,Single<TimeLog>> byIdCache;
+    private final GenericCache<Boolean,Observable<TimeLog>> last24cache;
+    private final GenericCache<FromTo,Observable<Dupla<String,Long>>> processTimeCache;
+    private final GenericCache<FromTo,Observable<Dupla<String,Long>>> processGroupedByTitle;
+    private final GenericCache<GroupFromTo,Single<Long>> timeSpentForFrame;
+    private final TimeConverter timeConverter;
+    
+    public TimeLogServiceImpl(TimeLogFactory factory) {
+        this.byIdCache = factory.<Long,Single<TimeLog>>getGenericCache();
+        this.last24cache = factory.<Boolean,Observable<TimeLog>>getGenericCache();
+        this.processTimeCache = factory.<FromTo,Observable<Dupla<String,Long>>>getGenericCache();
+        this.processGroupedByTitle = factory.<FromTo,Observable<Dupla<String,Long>>>getGenericCache();
+        this.timeSpentForFrame = factory.<GroupFromTo,Single<Long>>getGenericCache();
+        this.timeConverter = factory.getTimeConverter();
+        this.repo = factory.getRepo();
+    }
 
     /**
      * @deprecated
@@ -89,9 +90,9 @@ public class TimeLogServiceImpl implements TimeLogService {
     @Override
     public Observable<Dupla<String,Long>> findProcessTimeFromTo(Date from, Date to) {
         // Set from to hour 0 of the day
-        long fromMilis = TimeConverter.millisToBeginningOfDay(from.getTime());
+        long fromMilis = timeConverter.millisToBeginningOfDay(from.getTime());
         // Set "to" to the last second of the day
-        long toMilis = TimeConverter.millisToEndOfDay(to.getTime());
+        long toMilis = timeConverter.millisToEndOfDay(to.getTime());
         // use calendar objects to get milliseconds
         return processTimeCache.get(new FromTo(fromMilis, toMilis), () -> {
             List<Dupla<String,Long>> list = repo.getTimeFrameGroupedByProcess(fromMilis, toMilis).flatMapObservable(set -> {
@@ -204,9 +205,9 @@ public class TimeLogServiceImpl implements TimeLogService {
     @Override
     public Observable<Dupla<String, Long>> logsGroupedByTitle(Date from, Date to) {
         // Set from to hour 0 of the day
-        long fromMilis = TimeConverter.millisToBeginningOfDay(from.getTime());
+        long fromMilis = timeConverter.millisToBeginningOfDay(from.getTime());
         // Set 'to' to the last second of the day
-        long toMilis = TimeConverter.millisToEndOfDay(to.getTime());
+        long toMilis = timeConverter.millisToEndOfDay(to.getTime());
         // use calendar objects to get milliseconds
         return processGroupedByTitle.get(new FromTo(fromMilis, toMilis), () -> {
             return repo.getGroupedByTitle(fromMilis, toMilis).flatMapObservable(set -> {

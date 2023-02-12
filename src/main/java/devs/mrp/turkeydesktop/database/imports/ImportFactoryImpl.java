@@ -15,6 +15,8 @@ import org.apache.commons.lang3.StringUtils;
 public class ImportFactoryImpl implements ImportFactory {
     
     private FactoryInitializer factory;
+    private static ImportsRepository importsRepository;
+    private static ImportService importService;
     
     public ImportFactoryImpl(FactoryInitializer factoryInitializer) {
         this.factory = factoryInitializer;
@@ -27,7 +29,10 @@ public class ImportFactoryImpl implements ImportFactory {
     
     @Override
     public DbCache<String, String> getDbCache() {
-        return DbCacheFactory.getDbCache(ImportsRepository.getInstance(this),
+        if (importsRepository == null) {
+            importsRepository = new ImportsRepository(this);
+        }
+        return DbCacheFactory.getDbCache(importsRepository,
             s -> s,
             key -> ImportValidator.isValidKey(key),
             this::elementsFromSet,
@@ -36,7 +41,10 @@ public class ImportFactoryImpl implements ImportFactory {
     
     @Override
     public ImportService getService() {
-        return ImportServiceImpl.getInstance(this);
+        if (importService == null) {
+            importService = new ImportServiceImpl(this);
+        }
+        return importService;
     }
     
     private Observable<String> elementsFromSet(ResultSet set) {

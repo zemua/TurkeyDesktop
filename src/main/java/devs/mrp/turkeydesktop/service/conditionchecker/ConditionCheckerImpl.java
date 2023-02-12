@@ -14,7 +14,7 @@ import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
 import devs.mrp.turkeydesktop.database.imports.ImportFactoryImpl;
 import devs.mrp.turkeydesktop.database.imports.ImportService;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
-import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
+import devs.mrp.turkeydesktop.database.logs.TimeLogFactoryImpl;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.conditionchecker.idle.IdleChainCommander;
 import devs.mrp.turkeydesktop.service.conditionchecker.idle.LongWrapper;
@@ -41,7 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ConditionCheckerImpl implements ConditionChecker {
 
     private ConditionService conditionService = ConditionFactoryImpl.getService();
-    private TimeLogService timeLogService = TimeLogServiceFactory.getService();
+    private TimeLogService timeLogService = TimeLogFactoryImpl.getService();
     private ConfigElementService configService;
     private ImportService importService = ImportFactoryImpl.getService();
     private ChainHandler<LongWrapper> idleHandler = new IdleChainCommander().getHandlerChain();

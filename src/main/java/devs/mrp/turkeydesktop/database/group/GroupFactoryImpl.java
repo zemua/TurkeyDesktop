@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 public class GroupFactoryImpl implements GroupFactory {
     
     private FactoryInitializer factory;
+    private static GroupDao groupRepository;
+    private static GroupService groupService;
     
     public GroupFactoryImpl(FactoryInitializer factoryInitializer) {
         this.factory = factoryInitializer;
@@ -20,7 +22,10 @@ public class GroupFactoryImpl implements GroupFactory {
     
     @Override
     public DbCache<Long, Group> getDbCache() {
-        return DbCacheFactory.getDbCache(GroupRepository.getInstance(this),
+        if (groupRepository == null) {
+            groupRepository = new GroupRepository(this);
+        }
+        return DbCacheFactory.getDbCache(groupRepository,
             Group::getId,
             key -> GroupValidator.isValidKey(key),
             this::elementsFromResultSet,
@@ -32,7 +37,10 @@ public class GroupFactoryImpl implements GroupFactory {
     
     @Override
     public GroupService getService() {
-        return GroupServiceImpl.getInstance(this);
+        if (groupService == null) {
+            groupService = new GroupServiceImpl(this);
+        }
+        return groupService;
     }
     
     @Override

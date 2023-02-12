@@ -6,7 +6,7 @@
 package devs.mrp.turkeydesktop.view.times;
 
 import devs.mrp.turkeydesktop.common.TimeConverter;
-import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
+import devs.mrp.turkeydesktop.database.logs.TimeLogFactoryImpl;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
@@ -22,7 +22,7 @@ import devs.mrp.turkeydesktop.database.logs.TimeLogService;
  */
 public class TimesHandler extends PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>> {
 
-    private TimeLogService logService = TimeLogServiceFactory.getService();
+    private TimeLogService logService = TimeLogFactoryImpl.getService();
     
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
     

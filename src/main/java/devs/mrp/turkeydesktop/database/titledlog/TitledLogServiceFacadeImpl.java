@@ -8,7 +8,7 @@ package devs.mrp.turkeydesktop.database.titledlog;
 import devs.mrp.turkeydesktop.common.GenericCache;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.impl.GenericCacheImpl;
-import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
+import devs.mrp.turkeydesktop.database.logs.TimeLogFactoryImpl;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.titles.TitleFactory;
 import java.sql.ResultSet;
@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
     
     private TitleService titleService = TitleFactory.getService();
-    private TimeLogService logService = TimeLogServiceFactory.getService();
+    private TimeLogService logService = TimeLogFactoryImpl.getService();
     private TitledLogDaoFacade titleFacadeRepo = TitledLogRepoFacade.getInstance();
     
     private static GenericCache<FromTo,Observable<TitledLog>> logsWithTitle = new GenericCacheImpl<>();

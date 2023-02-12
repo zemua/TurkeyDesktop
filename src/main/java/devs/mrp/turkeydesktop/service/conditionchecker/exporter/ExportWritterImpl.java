@@ -11,7 +11,7 @@ import devs.mrp.turkeydesktop.database.group.expor.ExportedGroup;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupService;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
-import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
+import devs.mrp.turkeydesktop.database.logs.TimeLogFactoryImpl;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -35,7 +35,7 @@ public class ExportWritterImpl implements ExportWritter {
     private Logger logger = Logger.getLogger(ExportWritterImpl.class.getName());
 
     private ExportedGroupService exportedGroupService = ExportedGroupFactoryImpl.getService();
-    private TimeLogService timeLogService = TimeLogServiceFactory.getService();
+    private TimeLogService timeLogService = TimeLogFactoryImpl.getService();
 
     @Override
     public void exportChanged() {

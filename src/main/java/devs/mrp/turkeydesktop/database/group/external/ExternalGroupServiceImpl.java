@@ -10,18 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ExternalGroupServiceImpl implements ExternalGroupService {
     
-    private static ExternalGroupService instance;
     private final DbCache<Long,ExternalGroup> dbCache;
     
-    private ExternalGroupServiceImpl(ExternalGroupFactory externalGroupFactory) {
+    public ExternalGroupServiceImpl(ExternalGroupFactory externalGroupFactory) {
         this.dbCache = externalGroupFactory.getDbCache();
-    }
-    
-    public static ExternalGroupService getInstance(ExternalGroupFactory externalGroupFactory) {
-        if (instance == null) {
-            instance = new ExternalGroupServiceImpl(externalGroupFactory);
-        }
-        return instance;
     }
 
     @Override

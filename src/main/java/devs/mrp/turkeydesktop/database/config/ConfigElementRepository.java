@@ -10,24 +10,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ConfigElementRepository implements ConfigElementDao {
     
-    private Db dbInstance;
+    private Db db;
     
-    private static ConfigElementRepository instance;
-    
-    private ConfigElementRepository(ConfigElementFactory configElementFactory) {
-        dbInstance = configElementFactory.getDb();
-    }
-    
-    public static ConfigElementRepository getInstance(ConfigElementFactory configElementFactory) {
-        if (instance == null) {
-            instance = new ConfigElementRepository(configElementFactory);
-        }
-        return instance;
+    public ConfigElementRepository(ConfigElementFactory configElementFactory) {
+        db = configElementFactory.getDb();
     }
     
     @Override
     public Single<String> add(ConfigElement element) {
-        return dbInstance.singleString(() -> retrieveAddResult(element));
+        return db.singleString(() -> retrieveAddResult(element));
     }
     
     private String retrieveAddResult(ConfigElement element) {
@@ -48,7 +39,7 @@ public class ConfigElementRepository implements ConfigElementDao {
     
     private PreparedStatement buildAddQuery(ConfigElement element) throws SQLException {
         PreparedStatement preparedStatement;
-        preparedStatement = dbInstance.prepareStatementWithGeneratedKeys(String.format("INSERT INTO %s (%s, %s) ",
+        preparedStatement = db.prepareStatementWithGeneratedKeys(String.format("INSERT INTO %s (%s, %s) ",
                 Db.CONFIG_TABLE, ConfigElement.KEY, ConfigElement.VALUE)
                 + "VALUES (?, ?)");
         preparedStatement.setString(1, element.getKey().toString());
@@ -58,11 +49,11 @@ public class ConfigElementRepository implements ConfigElementDao {
 
     @Override
     public Single<Long> update(ConfigElement element) {
-        return dbInstance.singleLong(() -> {
+        return db.singleLong(() -> {
             long result = -1;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=? WHERE %s=? ",
+                stm = db.getConnection().prepareStatement(String.format("UPDATE %s SET %s=? WHERE %s=? ",
                         Db.CONFIG_TABLE, ConfigElement.VALUE, ConfigElement.KEY));
                 stm.setString(1, element.getValue());
                 stm.setString(2, element.getKey().toString());
@@ -77,11 +68,11 @@ public class ConfigElementRepository implements ConfigElementDao {
 
     @Override
     public Single<ResultSet> findAll() {
-        return dbInstance.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s",
+                stm = db.getConnection().prepareStatement(String.format("SELECT * FROM %s",
                         Db.CONFIG_TABLE));
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
@@ -93,7 +84,7 @@ public class ConfigElementRepository implements ConfigElementDao {
 
     @Override
     public Single<ResultSet> findById(String id) {
-        return dbInstance.singleResultSet(() -> retrieveFindBiIdResult(id));
+        return db.singleResultSet(() -> retrieveFindBiIdResult(id));
     }
     
     private ResultSet retrieveFindBiIdResult(String id) {
@@ -112,7 +103,7 @@ public class ConfigElementRepository implements ConfigElementDao {
     }
     
     private PreparedStatement buildFindByIdQuery(String id) throws SQLException {
-        PreparedStatement statement = dbInstance.prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+        PreparedStatement statement = db.prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
                 Db.CONFIG_TABLE, ConfigElement.KEY));
         statement.setString(1, id);
         return statement;
@@ -120,11 +111,11 @@ public class ConfigElementRepository implements ConfigElementDao {
 
     @Override
     public Single<Long> deleteById(String id) {
-        return dbInstance.singleLong(() -> {
+        return db.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
+                stm = db.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
                         Db.CONFIG_TABLE, ConfigElement.KEY));
                 stm.setString(1, id);
                 delQty = stm.executeUpdate();

@@ -10,18 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CloseableServiceImpl implements CloseableService {
 
-    private static CloseableServiceImpl instance;
     private final DbCache<String,Closeable> dbCache;
     
-    private CloseableServiceImpl(CloseableFactory closeableFactory) {
+    public CloseableServiceImpl(CloseableFactory closeableFactory) {
         dbCache = closeableFactory.getDbCache();
-    }
-    
-    public static CloseableServiceImpl getInstance(CloseableFactory closeableFactory) {
-        if (instance == null) {
-            instance = new CloseableServiceImpl(closeableFactory);
-        }
-        return instance;
     }
 
     @Override

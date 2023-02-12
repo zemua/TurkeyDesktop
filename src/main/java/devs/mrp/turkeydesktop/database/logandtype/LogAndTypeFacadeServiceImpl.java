@@ -9,12 +9,9 @@ import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
-import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
 import devs.mrp.turkeydesktop.database.titles.Title;
-import devs.mrp.turkeydesktop.database.titles.TitleFactory;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
 import devs.mrp.turkeydesktop.database.type.Type;
-import devs.mrp.turkeydesktop.database.type.TypeFactory;
 import devs.mrp.turkeydesktop.database.type.TypeService;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
@@ -25,14 +22,14 @@ import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 
 public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
-
+    
+    private final LogAndTypeFacadeFactory factory;
     private final LogAndTypeFacadeDao repo;
-    private final TimeLogService logService = TimeLogServiceFactory.getService();
-    private final TypeService typeService = TypeFactory.getService();
-    private final TitleService titleService = TitleFactory.getService();
+    private final TimeLogService logService;
+    private final TypeService typeService;
+    private final TitleService titleService;
     private final GroupAssignationService groupAssignationService;
     private final CloseableService closeableService;
-
     private final ConditionChecker conditionChecker;
     private final ConfigElementService configService;
     private final TimeConverter timeConverter;
@@ -44,6 +41,10 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
         this.groupAssignationService = factory.getGroupAssignationService();
         this.closeableService = factory.getCloseableService();
         this.timeConverter = factory.getTimeConverter();
+        this.logService = factory.getTimeLogService();
+        this.typeService = factory.getTypeService();
+        this.titleService = factory.getTitleService();
+        this.factory = factory;
     }
 
     @Override
@@ -82,25 +83,25 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
         });
     }
 
-    private Single<TimeLog> flatMapFrom(ConfigElement proportionResult, Type myType, TimeLog element, Boolean lockdown, boolean idle) {
+    private Single<TimeLog> flatMapFrom(ConfigElement proportionResult, Type myType, TimeLog elementParam, Boolean lockdown, boolean idle) {
         int proportion = Integer.valueOf(proportionResult.getValue());
         Type type = myType;
         if (type == null || type.getType() == null) {
             type = new Type();
             type.setType(Type.Types.UNDEFINED);
         }
-        element.setBlockable(false);
+        TimeLog element = factory.asNotBlockable(elementParam).blockingGet();
         switch (type.getType()){ // TODO make chain of responsibility to handle each case in a more clean way
             case NEUTRAL:
                 element.setType(Type.Types.NEUTRAL);
                 element.setGroupId(-1);
                 element.setCounted(lockdown && !idle ? -1 * proportion * element.getElapsed() : 0);
-                return element.setBlockable(false);
+                return factory.asNotBlockable(element);
             case UNDEFINED:
                 element.setType(Type.Types.UNDEFINED);
                 element.setGroupId(-1);
                 element.setCounted(lockdown && !idle ? -1 * proportion * element.getElapsed() : 0);
-                return element.setBlockable(false);
+                return factory.asNotBlockable(element);
             case DEPENDS:
                 element.setType(Type.Types.DEPENDS);
                 return titleService.findLongestContainedBy(element.getWindowTitle().toLowerCase())
@@ -138,16 +139,16 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                             if (!lockdown) {
                                 return Single.zip(conditionChecker.areConditionsMet(element.getGroupId()), conditionChecker.isIdleWithToast(true), (areMet, isIdle) -> {
                                     element.setCounted(!isIdle && areMet ? Math.abs(element.getElapsed()) : 0);
-                                    return element.setBlockable(false).blockingGet();
+                                    return factory.asNotBlockable(element).blockingGet();
                                 });
                             } // when in lockdown, don't disccount points if idle
                             return conditionChecker.isIdle().flatMap(isIdle -> {
                                 if (!isIdle) {
                                     element.setCounted(-1 * proportion * element.getElapsed());
-                                    return element.setBlockable(false);
+                                    return factory.asNotBlockable(element);
                                 } else {
                                     element.setCounted(0);
-                                    return element.setBlockable(false);
+                                    return factory.asNotBlockable(element);
                                 }
                             });
                         });
@@ -158,10 +159,10 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                         .flatMap(result -> {
                             element.setGroupId(result.getGroupId());
                             element.setCounted(Math.abs(element.getElapsed()) * proportion * (-1));
-                            return element.setBlockable(true);
+                            return factory.asBlockable(element);
                         });
             default:
-                return element.setBlockable(false);
+                return factory.asNotBlockable(element);
         }
     }
 
@@ -179,7 +180,13 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
         if (title != null && title.getType().equals(Title.Type.NEGATIVE)) {
             return closeableService.canBeClosed(element.getProcessName()).flatMap(b -> {
                 element.setCounted(-1 * proportion * element.getElapsed());
-                return element.setBlockable(b);
+                Single<TimeLog> result;
+                if (b) {
+                    result = factory.asBlockable(element);
+                } else {
+                    result = factory.asNotBlockable(element);
+                }
+                return result;
             });
         } // when not negative, don't disccount points if idle
         return conditionChecker.isIdle().map(isIdle -> {
@@ -206,7 +213,15 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                     return Single.just(element);
                 }
                 element.setCounted(isPositive ? Math.abs(elapsed) : - Math.abs(elapsed) * proportion);
-                return closeableService.canBeClosed(element.getProcessName()).flatMap(b -> element.setBlockable(b));
+                return closeableService.canBeClosed(element.getProcessName()).flatMap(b -> {
+                            Single<TimeLog> result;
+                            if (b) {
+                                result = factory.asBlockable(element);
+                            } else {
+                                result = factory.asNotBlockable(element);
+                            }
+                            return result;
+                        });
             });
         });
     }

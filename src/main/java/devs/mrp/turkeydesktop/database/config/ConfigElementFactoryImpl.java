@@ -22,22 +22,29 @@ public class ConfigElementFactoryImpl implements ConfigElementFactory {
     
     @Getter
     private Db db;
+    private static ConfigElementDao configElementRepository;
+    private static ConfigElementService configElementService;
     
     public ConfigElementFactoryImpl(FactoryInitializer factory) {
         db = factory.getDbFactory().getDb();
     }
     
     public DbCache<String, ConfigElement> getDbCache() {
+        if (configElementRepository == null) {
+            configElementRepository = new ConfigElementRepository(this);
+        }
         Function<ConfigElement,String> keyExtractor = c -> c.getKey().toString();
         Function<String,Boolean> isNewKey = key -> ConfigElementValidator.isValidKey(key);
         Function<ResultSet,Observable<ConfigElement>> listFromResultSet = this::elementsFromResultSet;
         BiFunction<ConfigElement, String, ConfigElement> keySetter = (element,key) -> element;
-        ConfigElementDao repo = ConfigElementRepository.getInstance(this);
-        return DbCacheFactory.getDbCache(repo, keyExtractor, isNewKey, listFromResultSet, keySetter);
+        return DbCacheFactory.getDbCache(configElementRepository, keyExtractor, isNewKey, listFromResultSet, keySetter);
     }
     
     public ConfigElementService getService() {
-        return ConfigElementServiceImpl.getInstance(this);
+        if (configElementService == null) {
+            configElementService = new ConfigElementServiceImpl(this);
+        }
+        return configElementService;
     }
     
     public void runConditionListWorker(Supplier<List<ConfigElement>> supplier, Consumer<List<ConfigElement>> consumer) {

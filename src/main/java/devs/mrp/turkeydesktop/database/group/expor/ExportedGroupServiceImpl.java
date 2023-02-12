@@ -11,18 +11,10 @@ import org.apache.commons.lang3.StringUtils;
 @Slf4j
 public class ExportedGroupServiceImpl implements ExportedGroupService {
     
-    private static ExportedGroupServiceImpl instance;
     private final DbCache<ExportedGroupId,ExportedGroup> dbCache;
     
-    private ExportedGroupServiceImpl(ExportedGroupFactory factory) {
+    public ExportedGroupServiceImpl(ExportedGroupFactory factory) {
         this.dbCache = factory.getDbCache();
-    }
-    
-    public static ExportedGroupServiceImpl getInstance(ExportedGroupFactory exportedGroupFactory) {
-        if (instance == null) {
-            instance = new ExportedGroupServiceImpl(exportedGroupFactory);
-        }
-        return instance;
     }
 
     @Override

@@ -10,18 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GroupServiceImpl implements GroupService {
     
-    private static GroupServiceImpl instance;
     private final DbCache<Long,Group> dbCache;
     
-    private GroupServiceImpl(GroupFactory groupFactory) {
+    public GroupServiceImpl(GroupFactory groupFactory) {
         dbCache = groupFactory.getDbCache();
-    }
-    
-    public static GroupServiceImpl getInstance(GroupFactory groupFactory) {
-        if (instance == null) {
-            instance = new GroupServiceImpl(groupFactory);
-        }
-        return instance;
     }
     
     @Override

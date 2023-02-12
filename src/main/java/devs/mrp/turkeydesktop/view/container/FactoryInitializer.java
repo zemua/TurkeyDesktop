@@ -26,7 +26,9 @@ import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacadeFactor
 import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacadeFactoryImpl;
 import devs.mrp.turkeydesktop.database.imports.ImportFactory;
 import devs.mrp.turkeydesktop.database.imports.ImportFactoryImpl;
+import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeFactory;
 import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeFactoryImpl;
+import devs.mrp.turkeydesktop.database.logs.TimeLogFactoryImpl;
 import devs.mrp.turkeydesktop.database.titles.*;
 import devs.mrp.turkeydesktop.database.type.TypeFactory;
 import devs.mrp.turkeydesktop.database.type.TypeRepository;
@@ -48,7 +50,7 @@ import devs.mrp.turkeydesktop.view.groups.review.GroupReviewFactoryImpl;
 import devs.mrp.turkeydesktop.view.mainpanel.MainPanelFactory;
 import devs.mrp.turkeydesktop.view.mainpanel.MainPanelFactoryImpl;
 import lombok.Getter;
-import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeFactory;
+import devs.mrp.turkeydesktop.database.logs.TimeLogFactory;
 
 @Getter
 public class FactoryInitializer {
@@ -69,6 +71,7 @@ public class FactoryInitializer {
     private ExternalGroupFactory externalGroupFactory;
     private AssignableElementFactory assignableElementFactory;
     private ImportFactory importFactory;
+    private TimeLogFactory timeLogServiceFactory;
     
     private MainPanelFactory mainPanelFactory;
     private GroupsPanelFactory groupsPanelFactory;
@@ -113,6 +116,7 @@ public class FactoryInitializer {
         externalGroupFactory = new ExternalGroupFactoryImpl(this);
         assignableElementFactory = new AssignableElementFactoryImpl(this);
         importFactory = new ImportFactoryImpl(this);
+        timeLogServiceFactory = new TimeLogFactoryImpl(this);
         
         mainPanelFactory = new MainPanelFactoryImpl(this);
         groupsPanelFactory = new GroupsPanelFactoryImpl(this);

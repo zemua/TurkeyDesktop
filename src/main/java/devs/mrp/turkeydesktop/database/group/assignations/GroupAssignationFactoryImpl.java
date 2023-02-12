@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 public class GroupAssignationFactoryImpl implements GroupAssignationFactory {
     
     private FactoryInitializer factory;
+    private static GroupAssignationDao groupAssignationRepository;
+    private static GroupAssignationService groupAssignationService;
     
     public GroupAssignationFactoryImpl(FactoryInitializer factoryInitializer) {
         this.factory = factoryInitializer;
@@ -19,12 +21,18 @@ public class GroupAssignationFactoryImpl implements GroupAssignationFactory {
     
     @Override
     public GroupAssignationService getService() {
-        return GroupAssignationServiceImpl.getInstance(this);
+        if (groupAssignationService == null) {
+            groupAssignationService = new GroupAssignationServiceImpl(this);
+        }
+        return groupAssignationService;
     }
     
     @Override
     public DbCache<GroupAssignationDao.ElementId, GroupAssignation> getDbCache() {
-        return DbCacheFactory.getDbCache(GroupAssignationRepository.getInstance(this),
+        if (groupAssignationRepository == null) {
+            groupAssignationRepository = new GroupAssignationRepository(this);
+        }
+        return DbCacheFactory.getDbCache(groupAssignationRepository,
             element -> new GroupAssignationDao.ElementId(element.getType(), element.getElementId()),
             GroupAssignationValidator::isValidKey,
             this::elementsFromResultSet,

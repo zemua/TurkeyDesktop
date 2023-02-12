@@ -13,29 +13,20 @@ import java.util.logging.Logger;
 
 public class LogAndTypeFacadeRepository implements LogAndTypeFacadeDao {
     
-    private Db dbInstance;
+    private Db db;
     private Logger logger = Logger.getLogger(TimeLogRepository.class.getName());
     
-    private static LogAndTypeFacadeRepository instance;
-    
-    private LogAndTypeFacadeRepository(LogAndTypeFacadeFactory factory) {
-        this.dbInstance = factory.getDb();
-    }
-    
-    static LogAndTypeFacadeRepository getInstance(LogAndTypeFacadeFactory factory) {
-        if (instance == null) {
-            instance = new LogAndTypeFacadeRepository(factory);
-        }
-        return instance;
+    public LogAndTypeFacadeRepository(LogAndTypeFacadeFactory factory) {
+        this.db = factory.getDb();
     }
     
     @Override
     public Single<ResultSet> getTypedLogGroupedByProcess(long from, long to) {
-        return dbInstance.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT %s, %s, SUM(%s) FROM %s LEFT JOIN %s ON %s WHERE %s>=? AND %s<=? GROUP BY %s",
+                stm = db.getConnection().prepareStatement(String.format("SELECT %s, %s, SUM(%s) FROM %s LEFT JOIN %s ON %s WHERE %s>=? AND %s<=? GROUP BY %s",
                         Db.WATCHDOG_TABLE + "." + TimeLog.PROCESS_NAME,
                         Db.CATEGORIZED_TABLE + "." + Type.TYPE,
                         TimeLog.ELAPSED,

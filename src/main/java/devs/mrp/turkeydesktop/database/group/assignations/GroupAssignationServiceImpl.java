@@ -10,18 +10,10 @@ import org.apache.commons.lang3.StringUtils;
 
 public class GroupAssignationServiceImpl implements GroupAssignationService {
     
-    private static GroupAssignationServiceImpl instance;
     private final DbCache<GroupAssignationDao.ElementId,GroupAssignation> dbCache;
     
-    private GroupAssignationServiceImpl(GroupAssignationFactory factory) {
+    public GroupAssignationServiceImpl(GroupAssignationFactory factory) {
         this.dbCache = factory.getDbCache();
-    }
-    
-    public static GroupAssignationServiceImpl getInstance(GroupAssignationFactory factory) {
-        if (instance == null) {
-            instance = new GroupAssignationServiceImpl(factory);
-        }
-        return instance;
     }
     
     @Override

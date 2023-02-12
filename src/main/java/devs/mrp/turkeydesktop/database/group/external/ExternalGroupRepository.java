@@ -10,24 +10,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ExternalGroupRepository implements ExternalGroupDao {
     
-    private Db dbInstance;
+    private Db db;
     
-    private static ExternalGroupRepository instance;
-    
-    private ExternalGroupRepository(ExternalGroupFactory externalGroupFactory) {
-        this.dbInstance = externalGroupFactory.getDb();
-    }
-    
-    public static ExternalGroupRepository getInstance(ExternalGroupFactory externalGroupFactory) {
-        if (instance == null) {
-            instance = new ExternalGroupRepository(externalGroupFactory);
-        }
-        return instance;
+    public ExternalGroupRepository(ExternalGroupFactory externalGroupFactory) {
+        this.db = externalGroupFactory.getDb();
     }
     
     @Override
     public Single<Long> add(ExternalGroup externalGroup) {
-        return dbInstance.singleLong(() -> retrieveAddGeneratedId(externalGroup));
+        return db.singleLong(() -> retrieveAddGeneratedId(externalGroup));
     }
     
     private long retrieveAddGeneratedId(ExternalGroup externalGroup) {
@@ -47,7 +38,7 @@ public class ExternalGroupRepository implements ExternalGroupDao {
     }
     
     private PreparedStatement buildAddQuery(ExternalGroup externalGroup) throws SQLException {
-        PreparedStatement preparedStatement = dbInstance.prepareStatementWithGeneratedKeys(String.format("INSERT INTO %s (%s, %s) ",
+        PreparedStatement preparedStatement = db.prepareStatementWithGeneratedKeys(String.format("INSERT INTO %s (%s, %s) ",
                 Db.GROUPS_EXTERNAL_TABLE, ExternalGroup.GROUP, ExternalGroup.FILE)
                 + "VALUES (?, ?)");
         preparedStatement.setLong(1, externalGroup.getGroup());
@@ -66,11 +57,11 @@ public class ExternalGroupRepository implements ExternalGroupDao {
 
     @Override
     public Single<Long> update(ExternalGroup externalGroup) {
-        return dbInstance.singleLong(() -> {
+        return db.singleLong(() -> {
             long result = -1;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=? WHERE %s=? ",
+                stm = db.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=? WHERE %s=? ",
                         Db.GROUPS_EXTERNAL_TABLE, ExternalGroup.GROUP, ExternalGroup.FILE, ExternalGroup.ID));
                 stm.setLong(1, externalGroup.getGroup());
                 stm.setString(2, externalGroup.getFile());
@@ -85,11 +76,11 @@ public class ExternalGroupRepository implements ExternalGroupDao {
 
     @Override
     public Single<ResultSet> findAll() {
-        return dbInstance.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s",
+                stm = db.getConnection().prepareStatement(String.format("SELECT * FROM %s",
                         Db.GROUPS_EXTERNAL_TABLE));
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
@@ -101,7 +92,7 @@ public class ExternalGroupRepository implements ExternalGroupDao {
 
     @Override
     public Single<ResultSet> findById(Long id) {
-        return dbInstance.singleResultSet(() -> retrieveById(id));
+        return db.singleResultSet(() -> retrieveById(id));
     }
     
     private ResultSet retrieveById(Long id) {
@@ -120,7 +111,7 @@ public class ExternalGroupRepository implements ExternalGroupDao {
     }
     
     private PreparedStatement buildFindByIdQuery(Long id) throws SQLException {
-        PreparedStatement preparedStatement = dbInstance.prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+        PreparedStatement preparedStatement = db.prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
                 Db.GROUPS_EXTERNAL_TABLE, ExternalGroup.ID));
         preparedStatement.setLong(1, id);
         return preparedStatement;
@@ -128,11 +119,11 @@ public class ExternalGroupRepository implements ExternalGroupDao {
 
     @Override
     public Single<Long> deleteById(Long id) {
-        return dbInstance.singleLong(() -> {
+        return db.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
+                stm = db.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
                         Db.GROUPS_EXTERNAL_TABLE, ExternalGroup.ID));
                 stm.setLong(1, id);
                 delQty = stm.executeUpdate();
@@ -145,11 +136,11 @@ public class ExternalGroupRepository implements ExternalGroupDao {
 
     @Override
     public Single<ResultSet> findByGroup(Long groupId) {
-        return dbInstance.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+                stm = db.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
                         Db.GROUPS_EXTERNAL_TABLE, ExternalGroup.GROUP));
                 stm.setLong(1, groupId);
                 rs = stm.executeQuery();
@@ -162,11 +153,11 @@ public class ExternalGroupRepository implements ExternalGroupDao {
 
     @Override
     public Single<ResultSet> findByFile(String file) {
-        return dbInstance.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+                stm = db.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
                         Db.GROUPS_EXTERNAL_TABLE, ExternalGroup.FILE));
                 stm.setString(1, file);
                 rs = stm.executeQuery();
@@ -180,11 +171,11 @@ public class ExternalGroupRepository implements ExternalGroupDao {
 
     @Override
     public Single<Long> deleteByGroup(Long groupId) {
-        return dbInstance.singleLong(() -> {
+        return db.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
+                stm = db.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
                         Db.GROUPS_EXTERNAL_TABLE, ExternalGroup.GROUP));
                 stm.setLong(1, groupId);
                 delQty = stm.executeUpdate();
@@ -198,11 +189,11 @@ public class ExternalGroupRepository implements ExternalGroupDao {
 
     @Override
     public Single<ResultSet> findByGroupAndFile(Long groupId, String file) {
-        return dbInstance.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=? AND %s=?",
+                stm = db.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=? AND %s=?",
                         Db.GROUPS_EXTERNAL_TABLE, ExternalGroup.GROUP, ExternalGroup.FILE));
                 stm.setLong(1, groupId);
                 stm.setString(2, file);

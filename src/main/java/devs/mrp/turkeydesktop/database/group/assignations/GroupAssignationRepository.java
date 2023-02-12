@@ -11,23 +11,15 @@ import lombok.extern.slf4j.Slf4j;
 public class GroupAssignationRepository implements GroupAssignationDao {
     
     private GroupAssignationFactory factory;
-    private Db dbInstance;
-    private static GroupAssignationRepository instance;
+    private Db db;
     
-    private GroupAssignationRepository(GroupAssignationFactory groupAssignationFactory) {
+    public GroupAssignationRepository(GroupAssignationFactory groupAssignationFactory) {
         this.factory = groupAssignationFactory;
-    }
-    
-    public static GroupAssignationRepository getInstance(GroupAssignationFactory groupAssignationFactory) {
-        if (instance == null) {
-            instance = new GroupAssignationRepository(groupAssignationFactory);
-        }
-        return instance;
     }
     
     @Override
     public Single<ResultSet> findByElementId(GroupAssignation.ElementType elementType, String elementId) {
-        return dbInstance.singleResultSet(() -> retrieveFindResult(elementType, elementId));
+        return db.singleResultSet(() -> retrieveFindResult(elementType, elementId));
     }
     
     private ResultSet retrieveFindResult(GroupAssignation.ElementType elementType, String elementId) {
@@ -46,7 +38,7 @@ public class GroupAssignationRepository implements GroupAssignationDao {
     }
     
     private PreparedStatement buildFindQuery(GroupAssignation.ElementType elementType, String elementId) throws SQLException {
-        PreparedStatement preparedStatement = dbInstance.prepareStatement(String.format("SELECT * FROM %s WHERE %s=? AND %s=?",
+        PreparedStatement preparedStatement = db.prepareStatement(String.format("SELECT * FROM %s WHERE %s=? AND %s=?",
                 Db.GROUP_ASSIGNATION_TABLE, GroupAssignation.TYPE, GroupAssignation.ELEMENT_ID));
         preparedStatement.setString(1, elementType.toString());
         preparedStatement.setString(2, elementId);
@@ -55,11 +47,11 @@ public class GroupAssignationRepository implements GroupAssignationDao {
 
     @Override
     public Single<ResultSet> findAllElementTypeOfGroup(GroupAssignation.ElementType elementType, Long groupId) {
-        return dbInstance.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=? AND %s=?",
+                stm = db.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=? AND %s=?",
                         Db.GROUP_ASSIGNATION_TABLE, GroupAssignation.TYPE, GroupAssignation.GROUP_ID));
                 stm.setString(1, elementType.toString());
                 stm.setLong(2, groupId);
@@ -73,7 +65,7 @@ public class GroupAssignationRepository implements GroupAssignationDao {
 
     @Override
     public Single<ElementId> add(GroupAssignation groupAssignation) {
-        return dbInstance.<ElementId>singleGeneric(() -> retrieveAddResult(groupAssignation));
+        return db.<ElementId>singleGeneric(() -> retrieveAddResult(groupAssignation));
     }
     
     private ElementId retrieveAddResult(GroupAssignation groupAssignation) {
@@ -93,7 +85,7 @@ public class GroupAssignationRepository implements GroupAssignationDao {
     }
     
     private PreparedStatement buildAddQuery(GroupAssignation groupAssignation) throws SQLException {
-        PreparedStatement preparedStatement = dbInstance.prepareStatement(String.format("INSERT INTO %s (%s, %s, %s) ",
+        PreparedStatement preparedStatement = db.prepareStatement(String.format("INSERT INTO %s (%s, %s, %s) ",
                 Db.GROUP_ASSIGNATION_TABLE, GroupAssignation.TYPE, GroupAssignation.ELEMENT_ID, GroupAssignation.GROUP_ID)
                 + "VALUES (?, ?, ?)");
         preparedStatement.setString(1, groupAssignation.getType().toString());
@@ -104,11 +96,11 @@ public class GroupAssignationRepository implements GroupAssignationDao {
 
     @Override
     public Single<Long> update(GroupAssignation element) {
-        return dbInstance.singleLong(() -> {
+        return db.singleLong(() -> {
             long result = -1;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=?, %s=? WHERE %s=? ",
+                stm = db.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=?, %s=? WHERE %s=? ",
                         Db.GROUP_ASSIGNATION_TABLE, GroupAssignation.TYPE, GroupAssignation.ELEMENT_ID, GroupAssignation.GROUP_ID));
                 stm.setString(1, element.getType().toString());
                 stm.setString(2, element.getElementId());
@@ -124,11 +116,11 @@ public class GroupAssignationRepository implements GroupAssignationDao {
 
     @Override
     public Single<ResultSet> findAll() {
-        return dbInstance.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s",
+                stm = db.getConnection().prepareStatement(String.format("SELECT * FROM %s",
                         Db.GROUP_ASSIGNATION_TABLE));
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
@@ -152,11 +144,11 @@ public class GroupAssignationRepository implements GroupAssignationDao {
     
     @Override
     public Single<Long> deleteByElementId(GroupAssignation.ElementType elementType, String elementId) {
-        return dbInstance.singleLong(() -> {
+        return db.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=? AND %s=?",
+                stm = db.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=? AND %s=?",
                         Db.GROUP_ASSIGNATION_TABLE, GroupAssignation.TYPE, GroupAssignation.ELEMENT_ID));
                 stm.setString(1, elementType.toString());
                 stm.setString(2, elementId);
@@ -171,11 +163,11 @@ public class GroupAssignationRepository implements GroupAssignationDao {
     
     @Override
     public Single<ResultSet> findAllOfType(GroupAssignation.ElementType elementType) {
-        return dbInstance.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+                stm = db.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
                         Db.GROUP_ASSIGNATION_TABLE, GroupAssignation.TYPE));
                 stm.setString(1, elementType.toString());
                 rs = stm.executeQuery();
@@ -188,11 +180,11 @@ public class GroupAssignationRepository implements GroupAssignationDao {
 
     @Override
     public Single<Long> deleteByGroupId(long groupId) {
-        return dbInstance.singleLong(() -> {
+        return db.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
+                stm = db.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
                         Db.GROUP_ASSIGNATION_TABLE, GroupAssignation.GROUP_ID));
                 stm.setLong(1, groupId);
                 delQty = stm.executeUpdate();

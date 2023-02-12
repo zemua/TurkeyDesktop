@@ -11,28 +11,20 @@ import lombok.extern.slf4j.Slf4j;
 public class ExportedGroupRepository implements ExportedGroupDao {
     
     private final ExportedGroupFactory factory;
-    private final Db dbInstance;
-    private static ExportedGroupRepository instance;
+    private final Db db;
     
-    private ExportedGroupRepository(ExportedGroupFactory exportedGroupFactory) {
+    public ExportedGroupRepository(ExportedGroupFactory exportedGroupFactory) {
         this.factory = exportedGroupFactory;
-        this.dbInstance = exportedGroupFactory.getDb();
-    }
-    
-    public static ExportedGroupRepository getInstance(ExportedGroupFactory exportedGroupFactory) {
-        if (instance == null) {
-            instance = new ExportedGroupRepository(exportedGroupFactory);
-        }
-        return instance;
+        this.db = exportedGroupFactory.getDb();
     }
     
     @Override
     public Single<ResultSet> findByGroup(Long id) {
-        return dbInstance.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+                stm = db.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
                         Db.GROUPS_EXPORT_TABLE, ExportedGroup.GROUP));
                 stm.setLong(1, id);
                 rs = stm.executeQuery();
@@ -46,11 +38,11 @@ public class ExportedGroupRepository implements ExportedGroupDao {
 
     @Override
     public Single<ResultSet> findByGroupAndFile(Long groupId, String file) {
-        return dbInstance.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=? AND %s=?",
+                stm = db.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=? AND %s=?",
                         Db.GROUPS_EXPORT_TABLE, ExportedGroup.GROUP, ExportedGroup.FILE));
                 stm.setLong(1, groupId);
                 stm.setString(2, file);
@@ -64,11 +56,11 @@ public class ExportedGroupRepository implements ExportedGroupDao {
 
     @Override
     public Single<Long> deleteByGroup(Long id) {
-        return dbInstance.singleLong(() -> {
+        return db.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
+                stm = db.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
                         Db.GROUPS_EXPORT_TABLE, ExportedGroup.GROUP));
                 stm.setLong(1, id);
                 delQty = stm.executeUpdate();
@@ -81,7 +73,7 @@ public class ExportedGroupRepository implements ExportedGroupDao {
 
     @Override
     public Single<ExportedGroupId> add(ExportedGroup exportedGroup) {
-        return dbInstance.<ExportedGroupId>singleGeneric(() -> retrieveIdFromAddedExport(exportedGroup));
+        return db.<ExportedGroupId>singleGeneric(() -> retrieveIdFromAddedExport(exportedGroup));
     }
     
     private ExportedGroupId retrieveIdFromAddedExport(ExportedGroup exportedGroup) {
@@ -101,7 +93,7 @@ public class ExportedGroupRepository implements ExportedGroupDao {
     }
     
     private PreparedStatement buildAddQuery(ExportedGroup exportedGroup) throws SQLException {
-        PreparedStatement preparedStatement = dbInstance.prepareStatement(String.format("INSERT INTO %s (%s, %s, %s) ",
+        PreparedStatement preparedStatement = db.prepareStatement(String.format("INSERT INTO %s (%s, %s, %s) ",
                 Db.GROUPS_EXPORT_TABLE, ExportedGroup.GROUP, ExportedGroup.FILE, ExportedGroup.DAYS)
                 + "VALUES (?, ?, ?)");
         preparedStatement.setLong(1, exportedGroup.getGroup());
@@ -112,11 +104,11 @@ public class ExportedGroupRepository implements ExportedGroupDao {
 
     @Override
     public Single<Long> update(ExportedGroup exportedGroup) {
-        return dbInstance.singleLong(() -> {
+        return db.singleLong(() -> {
             long result = -1;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=? WHERE %s=? ",
+                stm = db.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=? WHERE %s=? ",
                         Db.GROUPS_EXPORT_TABLE, ExportedGroup.FILE, ExportedGroup.DAYS, ExportedGroup.GROUP));
                 stm.setString(1, exportedGroup.getFile());
                 stm.setLong(2, exportedGroup.getDays());
@@ -131,11 +123,11 @@ public class ExportedGroupRepository implements ExportedGroupDao {
 
     @Override
     public Single<ResultSet> findAll() {
-        return dbInstance.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s",
+                stm = db.getConnection().prepareStatement(String.format("SELECT * FROM %s",
                         Db.GROUPS_EXPORT_TABLE));
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
@@ -147,7 +139,7 @@ public class ExportedGroupRepository implements ExportedGroupDao {
 
     @Override
     public Single<ResultSet> findById(ExportedGroupId id) {
-        return dbInstance.singleResultSet(() -> retrieveExportedGroupById(id));
+        return db.singleResultSet(() -> retrieveExportedGroupById(id));
     }
     
     private ResultSet retrieveExportedGroupById(ExportedGroupId id) {
@@ -166,7 +158,7 @@ public class ExportedGroupRepository implements ExportedGroupDao {
     }
     
     private PreparedStatement buildFindQuery(ExportedGroupId id) throws SQLException {
-        PreparedStatement preparedStatement = dbInstance.prepareStatement(String.format("SELECT * FROM %s WHERE %s=? AND %s=?",
+        PreparedStatement preparedStatement = db.prepareStatement(String.format("SELECT * FROM %s WHERE %s=? AND %s=?",
                 Db.GROUPS_EXPORT_TABLE, ExportedGroup.GROUP, ExportedGroup.FILE));
         preparedStatement.setLong(1, id.getGroup());
         preparedStatement.setString(2, id.getFile());
@@ -175,11 +167,11 @@ public class ExportedGroupRepository implements ExportedGroupDao {
 
     @Override
     public Single<Long> deleteById(ExportedGroupId id) {
-        return dbInstance.singleLong(() -> {
+        return db.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=? AND %s=?",
+                stm = db.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=? AND %s=?",
                         Db.GROUPS_EXPORT_TABLE, ExportedGroup.GROUP, ExportedGroup.FILE));
                 stm.setLong(1, id.getGroup());
                 stm.setString(2, id.getFile());
