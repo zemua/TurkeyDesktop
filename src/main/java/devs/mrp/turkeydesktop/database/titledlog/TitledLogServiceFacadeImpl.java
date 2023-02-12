@@ -1,43 +1,40 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.titledlog;
 
 import devs.mrp.turkeydesktop.common.GenericCache;
 import devs.mrp.turkeydesktop.common.TimeConverter;
-import devs.mrp.turkeydesktop.common.impl.GenericCacheImpl;
-import devs.mrp.turkeydesktop.database.logs.TimeLogFactoryImpl;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
-import devs.mrp.turkeydesktop.database.titles.TitleFactory;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Date;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.database.titles.Title;
+import devs.mrp.turkeydesktop.database.titles.TitleFactory;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
-import java.util.ArrayList;
-import java.util.List;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- *
- * @author miguel
- */
 @Slf4j
 public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
     
     private TitleService titleService = TitleFactory.getService();
-    private TimeLogService logService = TimeLogFactoryImpl.getService();
-    private TitledLogDaoFacade titleFacadeRepo = TitledLogRepoFacade.getInstance();
+    private final TimeLogService logService;
+    private final TitledLogDaoFacade titleFacadeRepo;
+    private final TimeConverter timeConverter;
     
-    private static GenericCache<FromTo,Observable<TitledLog>> logsWithTitle = new GenericCacheImpl<>();
-    private static GenericCache<FromTo,Observable<TitledLog>> groupedByTitle = new GenericCacheImpl<>();
+    private final GenericCache<FromTo,Observable<TitledLog>> logsWithTitle;
+    private final GenericCache<FromTo,Observable<TitledLog>> groupedByTitle;
+    
+    public TitledLogServiceFacadeImpl(TitledLogFacadeFactory factory) {
+        this.logService = factory.getTimeLogService();
+        this.titleFacadeRepo = factory.getTitledLog();
+        this.logsWithTitle = factory.<FromTo,Observable<TitledLog>>getGenericCache();
+        this.groupedByTitle = factory.<FromTo,Observable<TitledLog>>getGenericCache();
+        this.timeConverter = factory.getTimeConverter();
+    }
     
     @EqualsAndHashCode
     @AllArgsConstructor
@@ -73,8 +70,8 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
 
     @Override
     public Observable<TitledLog> getLogsDependablesWithTitleConditions(Date from, Date to) {
-        long fromMillis = TimeConverter.millisToBeginningOfDay(from.getTime());
-        long toMillis = TimeConverter.millisToEndOfDay(to.getTime());
+        long fromMillis = timeConverter.millisToBeginningOfDay(from.getTime());
+        long toMillis = timeConverter.millisToEndOfDay(to.getTime());
         
         return groupedByTitle.get(new FromTo(from,to), () -> {
             return titleFacadeRepo.getTimeFrameOfDependablesGroupedByTitle(fromMillis, toMillis).flatMapObservable(set -> {
@@ -100,18 +97,6 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
                 return Observable.fromIterable(completedLogs);
             });
         });
-    }
-    
-    private Single<TitledLog> titledLogFromResultSetEntry(ResultSet entry) {
-        TitledLog titledLog = new TitledLog();
-        try {
-            titledLog.setTitle(entry.getString(TimeLog.WINDOW_TITLE));
-            titledLog.setElapsed(entry.getLong(2));
-            return completeTitledLog(titledLog);
-        } catch (SQLException ex) {
-            log.error("Error extracting TitledLog from Result Set", ex);
-        }
-        return Single.just(titledLog);
     }
     
     private Single<TitledLog> completeTitledLog(TitledLog titledLog) {
