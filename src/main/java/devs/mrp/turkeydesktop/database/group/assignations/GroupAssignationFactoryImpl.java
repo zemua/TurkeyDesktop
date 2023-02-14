@@ -11,32 +11,32 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GroupAssignationFactoryImpl implements GroupAssignationFactory {
     
-    private FactoryInitializer factory;
-    private static GroupAssignationDao groupAssignationRepository;
-    private static GroupAssignationService groupAssignationService;
+    private final FactoryInitializer factory;
+    private final DbCache<GroupAssignationDao.ElementId, GroupAssignation> dbCache;
+    private final GroupAssignationService groupAssignationService;
     
     public GroupAssignationFactoryImpl(FactoryInitializer factoryInitializer) {
         this.factory = factoryInitializer;
+        this.dbCache = buildCache();
+        this.groupAssignationService = new GroupAssignationServiceImpl(this);
+    }
+    
+    private DbCache<GroupAssignationDao.ElementId, GroupAssignation> buildCache() {
+        return DbCacheFactory.getDbCache(new GroupAssignationRepository(this),
+            element -> new GroupAssignationDao.ElementId(element.getType(), element.getElementId()),
+            GroupAssignationValidator::isValidKey,
+            this::elementsFromResultSet,
+            (assignation,id) -> assignation);
     }
     
     @Override
     public GroupAssignationService getService() {
-        if (groupAssignationService == null) {
-            groupAssignationService = new GroupAssignationServiceImpl(this);
-        }
         return groupAssignationService;
     }
     
     @Override
     public DbCache<GroupAssignationDao.ElementId, GroupAssignation> getDbCache() {
-        if (groupAssignationRepository == null) {
-            groupAssignationRepository = new GroupAssignationRepository(this);
-        }
-        return DbCacheFactory.getDbCache(groupAssignationRepository,
-            element -> new GroupAssignationDao.ElementId(element.getType(), element.getElementId()),
-            GroupAssignationValidator::isValidKey,
-            this::elementsFromResultSet,
-            (assignation,id) -> assignation);
+        return dbCache;
     }
     
     @Override

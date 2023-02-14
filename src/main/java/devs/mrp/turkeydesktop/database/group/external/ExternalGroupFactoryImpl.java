@@ -13,19 +13,17 @@ import lombok.extern.slf4j.Slf4j;
 public class ExternalGroupFactoryImpl implements ExternalGroupFactory {
     
     private final FactoryInitializer factory;
-    private static ExternalGroupRepository externalGroupRepository;
-    private static ExternalGroupService externalGroupService;
+    private final DbCache<Long,ExternalGroup> dbCache;
+    private final ExternalGroupService externalGroupService;
     
     public ExternalGroupFactoryImpl(FactoryInitializer factoryInitializer) {
         this.factory = factoryInitializer;
+        this.externalGroupService = new ExternalGroupServiceImpl(this);
+        this.dbCache = buildCache();
     }
     
-    @Override
-    public DbCache<Long,ExternalGroup> getDbCache() {
-        if (externalGroupRepository == null) {
-            externalGroupRepository = new ExternalGroupRepository(this);
-        }
-        return DbCacheFactory.getDbCache(externalGroupRepository,
+    private DbCache<Long,ExternalGroup> buildCache() {
+        return DbCacheFactory.getDbCache(new ExternalGroupRepository(this),
             ExternalGroup::getId,
             ExternalGroupValidator::isValidKey,
             this::elementsFromResultSet,
@@ -36,10 +34,12 @@ public class ExternalGroupFactoryImpl implements ExternalGroupFactory {
     }
     
     @Override
+    public DbCache<Long,ExternalGroup> getDbCache() {
+        return dbCache;
+    }
+    
+    @Override
     public ExternalGroupService getService() {
-        if (externalGroupService == null) {
-            externalGroupService = new ExternalGroupServiceImpl(this);
-        }
         return externalGroupService;
     }
     

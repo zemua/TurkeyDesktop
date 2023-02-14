@@ -10,20 +10,18 @@ import java.sql.SQLException;
 
 public class CloseableFactoryImpl implements CloseableFactory {
     
-    private FactoryInitializer factory;
-    private static CloseableDao closeableRepository;
-    private static CloseableService closeableService;
+    private final FactoryInitializer factory;
+    private final DbCache<String, Closeable> dbCache;
+    private final CloseableService closeableService;
     
     public CloseableFactoryImpl(FactoryInitializer factory) {
         this.factory = factory;
+        this.dbCache = buildCache();
+        this.closeableService = new CloseableServiceImpl(this);
     }
     
-    @Override
-    public DbCache<String, Closeable> getDbCache() {
-        if (closeableRepository == null) {
-            closeableRepository = new CloseableRepository(this);
-        }
-        return DbCacheFactory.getDbCache(closeableRepository,
+    private DbCache<String, Closeable> buildCache() {
+        return DbCacheFactory.getDbCache(new CloseableRepository(this),
             Closeable::getProcess,
             key -> CloseableValidator.isValidKey(key),
             this::listFromResultSet,
@@ -31,10 +29,12 @@ public class CloseableFactoryImpl implements CloseableFactory {
     }
     
     @Override
+    public DbCache<String, Closeable> getDbCache() {
+        return dbCache;
+    }
+    
+    @Override
     public CloseableService getService() {
-        if (closeableService == null) {
-            closeableService = new CloseableServiceImpl(this);
-        }
         return closeableService;
     }
     

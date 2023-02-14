@@ -30,7 +30,7 @@ public class TitleServiceImplTest {
     @BeforeClass
     public static void setup() {
         DbFactoryImpl.setDbSupplier(() -> db);
-        TitleFactory.setDbCacheSupplier(() -> dbCache);
+        TitleFactoryImpl.setDbCacheSupplier(() -> dbCache);
         GroupAssignationFactoryImpl.setGroupAssignationServiceSupplier(() -> groupAssignationService);
     }
     

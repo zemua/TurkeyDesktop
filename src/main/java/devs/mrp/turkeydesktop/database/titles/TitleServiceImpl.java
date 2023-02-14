@@ -2,30 +2,24 @@ package devs.mrp.turkeydesktop.database.titles;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactoryImpl;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
 import io.reactivex.rxjava3.core.Maybe;
-import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collections;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
+import org.apache.commons.lang3.StringUtils;
 
 @Slf4j
 public class TitleServiceImpl implements TitleService {
 
-    private static DbCache<String,Title> dbCache;
-    private static final GroupAssignationService assignationService = GroupAssignationFactoryImpl.getService();
+    private final DbCache<String,Title> dbCache;
+    private final GroupAssignationService assignationService;
     
-    public TitleServiceImpl() {
-        setCacheInstance();
-    }
-    
-    private void setCacheInstance() {
-        if (dbCache == null) {
-            dbCache = TitleFactory.getDbCache();
-        }
+    public TitleServiceImpl(TitleFactory titleFactory) {
+        dbCache = titleFactory.getDbCache();
+        assignationService = titleFactory.getGroupAssignationService();
     }
 
     @Override

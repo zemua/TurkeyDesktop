@@ -14,12 +14,22 @@ import org.apache.commons.lang3.StringUtils;
 @Slf4j
 public class ImportFactoryImpl implements ImportFactory {
     
-    private FactoryInitializer factory;
-    private static ImportsRepository importsRepository;
-    private static ImportService importService;
+    private final FactoryInitializer factory;
+    private final DbCache<String, String> dbCache;
+    private final ImportService importService;
     
     public ImportFactoryImpl(FactoryInitializer factoryInitializer) {
         this.factory = factoryInitializer;
+        this.importService = new ImportServiceImpl(this);
+        this.dbCache = buildCache();
+    }
+    
+    private DbCache<String, String> buildCache() {
+        return DbCacheFactory.getDbCache(new ImportsRepository(this),
+            s -> s,
+            key -> ImportValidator.isValidKey(key),
+            this::elementsFromSet,
+            (path,key) -> path);
     }
     
     @Override
@@ -29,21 +39,11 @@ public class ImportFactoryImpl implements ImportFactory {
     
     @Override
     public DbCache<String, String> getDbCache() {
-        if (importsRepository == null) {
-            importsRepository = new ImportsRepository(this);
-        }
-        return DbCacheFactory.getDbCache(importsRepository,
-            s -> s,
-            key -> ImportValidator.isValidKey(key),
-            this::elementsFromSet,
-            (path,key) -> path);
+        return dbCache;
     }
     
     @Override
     public ImportService getService() {
-        if (importService == null) {
-            importService = new ImportServiceImpl(this);
-        }
         return importService;
     }
     

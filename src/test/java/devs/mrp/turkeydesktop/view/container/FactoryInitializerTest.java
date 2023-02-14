@@ -18,7 +18,7 @@ import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.imports.ImportFactoryImpl;
 import devs.mrp.turkeydesktop.database.titles.Title;
-import devs.mrp.turkeydesktop.database.titles.TitleFactory;
+import devs.mrp.turkeydesktop.database.titles.TitleFactoryImpl;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.database.type.TypeFactory;
 import devs.mrp.turkeydesktop.database.type.TypeRepository;
@@ -66,7 +66,7 @@ public class FactoryInitializerTest {
     public void testTitleDbCache() throws SQLException {
         when(db.prepareStatementWithGeneratedKeys(ArgumentMatchers.any())).thenReturn(preparedStatement);
         
-        DbCache<String, Title> dbCache = TitleFactory.getDbCache();
+        DbCache<String, Title> dbCache = TitleFactoryImpl.getDbCache();
         Title title = new Title();
         title.setSubStr("my title");
         title.setType(Title.Type.POSITIVE);

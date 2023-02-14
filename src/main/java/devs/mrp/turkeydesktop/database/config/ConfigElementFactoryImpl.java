@@ -21,40 +21,45 @@ import lombok.extern.slf4j.Slf4j;
 public class ConfigElementFactoryImpl implements ConfigElementFactory {
     
     @Getter
-    private Db db;
-    private static ConfigElementDao configElementRepository;
-    private static ConfigElementService configElementService;
+    private final Db db;
+    private final DbCache<String, ConfigElement> dbCache;
+    private final ConfigElementService configElementService;
     
     public ConfigElementFactoryImpl(FactoryInitializer factory) {
         db = factory.getDbFactory().getDb();
+        this.dbCache = buildCache();
+        this.configElementService = new ConfigElementServiceImpl(this);
     }
     
-    public DbCache<String, ConfigElement> getDbCache() {
-        if (configElementRepository == null) {
-            configElementRepository = new ConfigElementRepository(this);
-        }
+    private DbCache<String, ConfigElement> buildCache() {
         Function<ConfigElement,String> keyExtractor = c -> c.getKey().toString();
         Function<String,Boolean> isNewKey = key -> ConfigElementValidator.isValidKey(key);
         Function<ResultSet,Observable<ConfigElement>> listFromResultSet = this::elementsFromResultSet;
         BiFunction<ConfigElement, String, ConfigElement> keySetter = (element,key) -> element;
-        return DbCacheFactory.getDbCache(configElementRepository, keyExtractor, isNewKey, listFromResultSet, keySetter);
+        return DbCacheFactory.getDbCache(new ConfigElementRepository(this), keyExtractor, isNewKey, listFromResultSet, keySetter);
     }
     
+    @Override
+    public DbCache<String, ConfigElement> getDbCache() {
+        return dbCache;
+    }
+    
+    @Override
     public ConfigElementService getService() {
-        if (configElementService == null) {
-            configElementService = new ConfigElementServiceImpl(this);
-        }
         return configElementService;
     }
     
+    @Override
     public void runConditionListWorker(Supplier<List<ConfigElement>> supplier, Consumer<List<ConfigElement>> consumer) {
         new GenericWorker<List<ConfigElement>>().runWorker(supplier, consumer);
     }
     
+    @Override
     public void runConditionWorker(Supplier<ConfigElement> supplier, Consumer<ConfigElement> consumer) {
         new GenericWorker<ConfigElement>().runWorker(supplier, consumer);
     }
     
+    @Override
     public Observable<ConfigElement> elementsFromResultSet(ResultSet set) {
         return Observable.create(subscriber -> {
             try {
@@ -68,6 +73,7 @@ public class ConfigElementFactoryImpl implements ConfigElementFactory {
         });
     }
 
+    @Override
     public ConfigElement elementFromResultSetEntry(ResultSet set) {
         ConfigElement el = new ConfigElement();
         try {

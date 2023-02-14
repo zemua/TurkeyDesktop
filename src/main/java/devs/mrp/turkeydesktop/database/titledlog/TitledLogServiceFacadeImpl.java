@@ -5,7 +5,6 @@ import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.database.titles.Title;
-import devs.mrp.turkeydesktop.database.titles.TitleFactory;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
@@ -20,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
     
-    private TitleService titleService = TitleFactory.getService();
+    private final TitleService titleService;
     private final TimeLogService logService;
     private final TitledLogDaoFacade titleFacadeRepo;
     private final TimeConverter timeConverter;
@@ -34,6 +33,7 @@ public class TitledLogServiceFacadeImpl implements TitledLogServiceFacade {
         this.logsWithTitle = factory.<FromTo,Observable<TitledLog>>getGenericCache();
         this.groupedByTitle = factory.<FromTo,Observable<TitledLog>>getGenericCache();
         this.timeConverter = factory.getTimeConverter();
+        this.titleService = factory.getTitleService();
     }
     
     @EqualsAndHashCode

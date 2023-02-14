@@ -9,7 +9,6 @@ import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
-import devs.mrp.turkeydesktop.database.titles.TitleFactory;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.database.type.TypeFactory;
@@ -98,7 +97,7 @@ public class LogAndTypeFacadeFactoryImpl implements LogAndTypeFacadeFactory {
 
     @Override
     public TitleService getTitleService() {
-        return TitleFactory.getService();
+        return factory.getTitleFactory().getService();
     }
 
     @Override

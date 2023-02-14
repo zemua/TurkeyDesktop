@@ -9,7 +9,7 @@ import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
 import devs.mrp.turkeydesktop.common.RemovableLabel;
 import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.titledlog.TitledLog;
-import devs.mrp.turkeydesktop.database.titles.TitleFactory;
+import devs.mrp.turkeydesktop.database.titles.TitleFactoryImpl;
 import devs.mrp.turkeydesktop.database.titles.Title;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
@@ -33,7 +33,7 @@ public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AW
     private ConfirmationWithDelay popupMaker = new ConfirmationWithDelayFactory();
     
     private TitledLog mTitledLog;
-    private TitleService titleService = TitleFactory.getService();
+    private TitleService titleService = TitleFactoryImpl.getService();
     private static final Logger logger = Logger.getLogger(TitleConditionsHandler.class.getName());
     private static final int shortWaitingSeconds = 15;
     

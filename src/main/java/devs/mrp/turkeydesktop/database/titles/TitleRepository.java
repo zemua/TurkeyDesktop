@@ -1,30 +1,22 @@
 package devs.mrp.turkeydesktop.database.titles;
 
 import devs.mrp.turkeydesktop.database.Db;
-import java.sql.*;
 import io.reactivex.rxjava3.core.Single;
+import java.sql.*;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class TitleRepository implements TitleDao {
     
-    private static TitleRepository instance;
+    private final Db db;
     
-    private final Db dbInstance = TitleFactory.getDb();
-    
-    private TitleRepository() {
-    }
-    
-    public static TitleRepository getInstance() {
-        if (instance == null) {
-            instance = new TitleRepository();
-        }
-        return instance;
+    public TitleRepository(TitleFactory titleFactory) {
+        this.db = titleFactory.getDb();
     }
     
     @Override
     public Single<String> add(Title element) {
-        return Db.singleString(() -> retrieveAddResult(element));
+        return db.singleString(() -> retrieveAddResult(element));
     }
     
     private String retrieveAddResult(Title element) {
@@ -44,7 +36,7 @@ public class TitleRepository implements TitleDao {
     }
     
     private PreparedStatement buildDbAddStatement(Title element) throws SQLException {
-        PreparedStatement statement = dbInstance.prepareStatementWithGeneratedKeys(String.format("INSERT INTO %s (%s, %s) ", 
+        PreparedStatement statement = db.prepareStatementWithGeneratedKeys(String.format("INSERT INTO %s (%s, %s) ", 
                 Db.TITLES_TABLE, Title.SUB_STR, Title.TYPE)
                 + "VALUES (?,?)");
         statement.setString(1, element.getSubStr());
@@ -54,11 +46,11 @@ public class TitleRepository implements TitleDao {
 
     @Override
     public Single<Long> update(Title element) {
-        return Db.singleLong(() -> {
+        return db.singleLong(() -> {
             long entriesUpdated = -1;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=? WHERE %s=?",
+                stm = db.getConnection().prepareStatement(String.format("UPDATE %s SET %s=? WHERE %s=?",
                         Db.TITLES_TABLE, Title.TYPE, Title.SUB_STR));
                 stm.setString(1, element.getType().toString());
                 stm.setString(2, element.getSubStr());
@@ -72,11 +64,11 @@ public class TitleRepository implements TitleDao {
 
     @Override
     public Single<ResultSet> findAll() {
-        return Db.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s",
+                stm = db.getConnection().prepareStatement(String.format("SELECT * FROM %s",
                         Db.TITLES_TABLE));
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
@@ -88,11 +80,11 @@ public class TitleRepository implements TitleDao {
 
     @Override
     public Single<ResultSet> findById(String id) {
-        return Db.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
-                stm = dbInstance.prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+                stm = db.prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
                         Db.TITLES_TABLE, Title.SUB_STR));
                 stm.setString(1, id);
                 rs = stm.executeQuery();
@@ -106,11 +98,11 @@ public class TitleRepository implements TitleDao {
 
     @Override
     public Single<Long> deleteById(String id) {
-        return Db.singleLong(() -> {
+        return db.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
+                stm = db.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
                         Db.TITLES_TABLE, Title.SUB_STR));
                 stm.setString(1, id);
                 delQty = stm.executeUpdate();

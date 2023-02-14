@@ -75,6 +75,7 @@ public class FactoryInitializer {
     private ImportFactory importFactory;
     private TimeLogFactory timeLogServiceFactory;
     private TitledLogFacadeFactory titledLogFacadeFactory;
+    private TitleFactory titleFactory;
     
     private MainPanelFactory mainPanelFactory;
     private GroupsPanelFactory groupsPanelFactory;
@@ -121,6 +122,7 @@ public class FactoryInitializer {
         importFactory = new ImportFactoryImpl(this);
         timeLogServiceFactory = new TimeLogFactoryImpl(this);
         titledLogFacadeFactory = new TitledLogFacadeFactoryImpl(this);
+        titleFactory = new TitleFactoryImpl(this);
         
         mainPanelFactory = new MainPanelFactoryImpl(this);
         groupsPanelFactory = new GroupsPanelFactoryImpl(this);
@@ -133,21 +135,11 @@ public class FactoryInitializer {
         timeConverter = new TimeConverter(this);
         fileHandler = new FileHandler(this);
         
-        initTitleDbCache();
-        
         initTypeDb();
         initTypeDbCache();
         initTypeRepo();
         
         return this;
-    }
-    
-    private void initTitleDbCache() {
-        TitleFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(TitleRepository.getInstance(),
-            Title::getSubStr,
-            key -> TitleValidator.isValidKey(key),
-            TitleFactory::elementsFromResultEntry,
-            (title, key) -> title));
     }
     
     private void initTypeDb() {

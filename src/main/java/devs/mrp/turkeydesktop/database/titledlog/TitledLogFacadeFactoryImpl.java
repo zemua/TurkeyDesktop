@@ -5,6 +5,7 @@ import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.impl.GenericCacheImpl;
 import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
+import devs.mrp.turkeydesktop.database.titles.TitleService;
 import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 
 public class TitledLogFacadeFactoryImpl implements TitledLogFacadeFactory {
@@ -51,6 +52,11 @@ public class TitledLogFacadeFactoryImpl implements TitledLogFacadeFactory {
     @Override
     public TimeConverter getTimeConverter() {
         return factory.getTimeConverter();
+    }
+
+    @Override
+    public TitleService getTitleService() {
+        return factory.getTitleFactory().getService();
     }
     
 }
