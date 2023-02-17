@@ -22,13 +22,11 @@ public class ConfigElementFactoryImpl implements ConfigElementFactory {
     
     @Getter
     private final Db db;
-    private final DbCache<String, ConfigElement> dbCache;
-    private final ConfigElementService configElementService;
+    private static DbCache<String, ConfigElement> dbCache;
+    private static ConfigElementService configElementService;
     
     public ConfigElementFactoryImpl(FactoryInitializer factory) {
         db = factory.getDbFactory().getDb();
-        this.dbCache = buildCache();
-        this.configElementService = new ConfigElementServiceImpl(this);
     }
     
     private DbCache<String, ConfigElement> buildCache() {
@@ -41,11 +39,17 @@ public class ConfigElementFactoryImpl implements ConfigElementFactory {
     
     @Override
     public DbCache<String, ConfigElement> getDbCache() {
+        if (dbCache == null) {
+            dbCache = buildCache();
+        }
         return dbCache;
     }
     
     @Override
     public ConfigElementService getService() {
+        if (configElementService == null) {
+            configElementService = new ConfigElementServiceImpl(this);
+        }
         return configElementService;
     }
     

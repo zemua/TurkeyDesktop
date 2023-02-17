@@ -13,13 +13,11 @@ import lombok.extern.slf4j.Slf4j;
 public class GroupFactoryImpl implements GroupFactory {
     
     private final FactoryInitializer factory;
-    private final DbCache<Long, Group> dbCache;
-    private final GroupService groupService;
+    private static DbCache<Long, Group> dbCache;
+    private static GroupService groupService;
     
     public GroupFactoryImpl(FactoryInitializer factoryInitializer) {
         this.factory = factoryInitializer;
-        this.dbCache = buildCache();
-        this.groupService = new GroupServiceImpl(this);
     }
     
     private DbCache<Long, Group> buildCache() {
@@ -35,11 +33,17 @@ public class GroupFactoryImpl implements GroupFactory {
     
     @Override
     public DbCache<Long, Group> getDbCache() {
+        if (dbCache == null) {
+            dbCache = buildCache();
+        }
         return dbCache;
     }
     
     @Override
     public GroupService getService() {
+        if (groupService == null) {
+            groupService = new GroupServiceImpl(this);
+        }
         return groupService;
     }
     

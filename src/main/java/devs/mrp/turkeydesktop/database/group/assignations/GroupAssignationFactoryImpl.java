@@ -12,13 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 public class GroupAssignationFactoryImpl implements GroupAssignationFactory {
     
     private final FactoryInitializer factory;
-    private final DbCache<GroupAssignationDao.ElementId, GroupAssignation> dbCache;
-    private final GroupAssignationService groupAssignationService;
+    private static DbCache<GroupAssignationDao.ElementId, GroupAssignation> dbCache;
+    private static GroupAssignationService groupAssignationService;
     
     public GroupAssignationFactoryImpl(FactoryInitializer factoryInitializer) {
         this.factory = factoryInitializer;
-        this.dbCache = buildCache();
-        this.groupAssignationService = new GroupAssignationServiceImpl(this);
     }
     
     private DbCache<GroupAssignationDao.ElementId, GroupAssignation> buildCache() {
@@ -31,11 +29,17 @@ public class GroupAssignationFactoryImpl implements GroupAssignationFactory {
     
     @Override
     public GroupAssignationService getService() {
+        if (groupAssignationService == null) {
+            groupAssignationService = new GroupAssignationServiceImpl(this);
+        }
         return groupAssignationService;
     }
     
     @Override
     public DbCache<GroupAssignationDao.ElementId, GroupAssignation> getDbCache() {
+        if (dbCache == null) {
+            dbCache = buildCache();
+        }
         return dbCache;
     }
     

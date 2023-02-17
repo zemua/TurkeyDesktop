@@ -15,13 +15,11 @@ import org.apache.commons.lang3.StringUtils;
 public class ImportFactoryImpl implements ImportFactory {
     
     private final FactoryInitializer factory;
-    private final DbCache<String, String> dbCache;
-    private final ImportService importService;
+    private static DbCache<String, String> dbCache;
+    private static ImportService importService;
     
     public ImportFactoryImpl(FactoryInitializer factoryInitializer) {
         this.factory = factoryInitializer;
-        this.importService = new ImportServiceImpl(this);
-        this.dbCache = buildCache();
     }
     
     private DbCache<String, String> buildCache() {
@@ -39,11 +37,17 @@ public class ImportFactoryImpl implements ImportFactory {
     
     @Override
     public DbCache<String, String> getDbCache() {
+        if (dbCache == null) {
+            dbCache = buildCache();
+        }
         return dbCache;
     }
     
     @Override
     public ImportService getService() {
+        if (importService == null) {
+            importService = new ImportServiceImpl(this);
+        }
         return importService;
     }
     

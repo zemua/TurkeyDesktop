@@ -11,13 +11,11 @@ import java.sql.SQLException;
 public class CloseableFactoryImpl implements CloseableFactory {
     
     private final FactoryInitializer factory;
-    private final DbCache<String, Closeable> dbCache;
-    private final CloseableService closeableService;
+    private static DbCache<String, Closeable> dbCache;
+    private static CloseableService closeableService;
     
     public CloseableFactoryImpl(FactoryInitializer factory) {
         this.factory = factory;
-        this.dbCache = buildCache();
-        this.closeableService = new CloseableServiceImpl(this);
     }
     
     private DbCache<String, Closeable> buildCache() {
@@ -30,11 +28,17 @@ public class CloseableFactoryImpl implements CloseableFactory {
     
     @Override
     public DbCache<String, Closeable> getDbCache() {
+        if (dbCache == null) {
+            dbCache = buildCache();
+        }
         return dbCache;
     }
     
     @Override
     public CloseableService getService() {
+        if (closeableService == null) {
+            closeableService = new CloseableServiceImpl(this);
+        }
         return closeableService;
     }
     

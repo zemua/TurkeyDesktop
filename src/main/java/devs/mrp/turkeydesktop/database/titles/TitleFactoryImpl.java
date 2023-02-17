@@ -14,11 +14,10 @@ import lombok.extern.slf4j.Slf4j;
 public class TitleFactoryImpl implements TitleFactory {
     
     private final FactoryInitializer factory;
-    private final DbCache<String, Title> dbCache;
+    private static DbCache<String, Title> dbCache;
     
     public TitleFactoryImpl(FactoryInitializer factoryInitializer) {
         this.factory = factoryInitializer;
-        this.dbCache = buildCache();
     }
     
     @Override
@@ -36,6 +35,9 @@ public class TitleFactoryImpl implements TitleFactory {
     
     @Override
     public DbCache<String, Title> getDbCache() {
+        if (dbCache == null) {
+            dbCache = buildCache();
+        }
         return dbCache;
     }
     

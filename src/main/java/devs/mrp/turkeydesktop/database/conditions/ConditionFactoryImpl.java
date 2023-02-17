@@ -13,13 +13,11 @@ import lombok.extern.slf4j.Slf4j;
 public class ConditionFactoryImpl implements ConditionFactory {
     
     private final FactoryInitializer factory;
-    private final DbCache<Long, Condition> dbCache;
-    private final ConditionService conditionService;
+    private static DbCache<Long, Condition> dbCache;
+    private static ConditionService conditionService;
 
     public ConditionFactoryImpl(FactoryInitializer factoryInitializer) {
         this.factory = factoryInitializer;
-        this.dbCache = buildCache();
-        this.conditionService = new ConditionServiceImpl(this);
     }
     
     private DbCache<Long, Condition> buildCache() {
@@ -35,11 +33,17 @@ public class ConditionFactoryImpl implements ConditionFactory {
     
     @Override
     public DbCache<Long, Condition> getDbCache() {
+        if (dbCache == null) {
+            dbCache = buildCache();
+        }
         return dbCache;
     }
     
     @Override
     public ConditionService getService() {
+        if (conditionService == null) {
+            conditionService = new ConditionServiceImpl(this);
+        }
         return conditionService;
     }
     
