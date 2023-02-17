@@ -1,17 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.service.conditionchecker.exporter;
 
 import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroup;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupService;
-import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
-import devs.mrp.turkeydesktop.database.logs.TimeLogFactoryImpl;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -23,10 +16,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author miguel
- */
 public class ExportWritterImpl implements ExportWritter {
 
     private static final long TIME_BETWEEN_EXPORTS = 1 * 60 * 1000; // one minute in millis
@@ -34,8 +23,17 @@ public class ExportWritterImpl implements ExportWritter {
 
     private Logger logger = Logger.getLogger(ExportWritterImpl.class.getName());
 
-    private ExportedGroupService exportedGroupService = ExportedGroupFactoryImpl.getService();
-    private TimeLogService timeLogService = TimeLogFactoryImpl.getService();
+    private final ExportedGroupService exportedGroupService;
+    private final TimeLogService timeLogService;
+    private final FileHandler fileHandler;
+    private final TimeConverter timeConverter;
+    
+    public ExportWritterImpl(ExportWritterFactory factory) {
+        this.exportedGroupService = factory.getExportedGroupService();
+        this.timeLogService = factory.getTimeLogService();
+        this.fileHandler = factory.getFileHandler();
+        this.timeConverter = factory.getTimeConverter();
+    }
 
     @Override
     public void exportChanged() {
@@ -60,7 +58,7 @@ public class ExportWritterImpl implements ExportWritter {
     private void processFile(ExportedGroup export) {
         File file = new File(export.getFile());
         try {
-            FileHandler.clearTxt(file);
+            fileHandler.clearTxt(file);
         } catch (IOException ex) {
             logger.log(Level.SEVERE, "error clearing file " + export.getFile(), ex);
         }
@@ -68,8 +66,8 @@ public class ExportWritterImpl implements ExportWritter {
         List<Map.Entry<LocalDate, String>> processed = Collections.synchronizedList(new ArrayList<>());
         for (int i = 0; i < export.getDays(); i++) {
             int j = i;
-            TimeConverter.endOfOffsetDaysConsideringDayChange(j).subscribe(to -> {
-                TimeConverter.beginningOfOffsetDaysConsideringDayChange(j).subscribe(from -> {
+            timeConverter.endOfOffsetDaysConsideringDayChange(j).subscribe(to -> {
+                timeConverter.beginningOfOffsetDaysConsideringDayChange(j).subscribe(from -> {
                     timeLogService.timeSpentOnGroupForFrame(export.getGroup(), from, to).subscribe(spent -> {
                         LocalDate date = LocalDate.now().minusDays(j);
                         String result = String.format("%d-%d-%d-%d", date.getYear(), date.getMonthValue() - 1, date.getDayOfMonth(), spent); // TODO LocalDate month starts in 1 but in Android app is set to start on 0
@@ -86,7 +84,7 @@ public class ExportWritterImpl implements ExportWritter {
                                 fileText.append(processed.get(k).getValue());
                             }
                             try {
-                                FileHandler.writeToTxt(file, fileText.toString());
+                                fileHandler.writeToTxt(file, fileText.toString());
                             } catch (IOException ex) {
                                 logger.log(Level.SEVERE, "error exporting group time to file", ex);
                             }

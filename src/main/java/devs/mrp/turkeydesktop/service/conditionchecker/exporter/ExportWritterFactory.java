@@ -1,18 +1,16 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.service.conditionchecker.exporter;
 
-/**
- *
- * @author miguel
- */
-public class ExportWritterFactory {
+import devs.mrp.turkeydesktop.common.FileHandler;
+import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupService;
+import devs.mrp.turkeydesktop.database.logs.TimeLogService;
+
+public interface ExportWritterFactory {
     
-    public static ExportWritter getWritter() {
-        return new ExportWritterImpl();
-    }
+    ExportedGroupService getExportedGroupService();
+    TimeLogService getTimeLogService();
+    FileHandler getFileHandler();
+    TimeConverter getTimeConverter();
+    ExportWritter getWritter();
     
 }

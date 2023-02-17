@@ -36,6 +36,8 @@ import devs.mrp.turkeydesktop.database.type.TypeFactory;
 import devs.mrp.turkeydesktop.database.type.TypeFactoryImpl;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactoryImpl;
+import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritterFactory;
+import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritterFactoryImpl;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.service.toaster.voice.VoiceNotificator;
 import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactory;
@@ -75,6 +77,8 @@ public class FactoryInitializer {
     private TitledLogFacadeFactory titledLogFacadeFactory;
     private TitleFactory titleFactory;
     private TypeFactory typeFactory;
+    
+    private ExportWritterFactory exportWritterFactory;
     
     private MainPanelFactory mainPanelFactory;
     private GroupsPanelFactory groupsPanelFactory;
@@ -123,6 +127,8 @@ public class FactoryInitializer {
         titledLogFacadeFactory = new TitledLogFacadeFactoryImpl(this);
         titleFactory = new TitleFactoryImpl(this);
         typeFactory = new TypeFactoryImpl(this);
+        
+        exportWritterFactory = new ExportWritterFactoryImpl(this);
         
         mainPanelFactory = new MainPanelFactoryImpl(this);
         groupsPanelFactory = new GroupsPanelFactoryImpl(this);

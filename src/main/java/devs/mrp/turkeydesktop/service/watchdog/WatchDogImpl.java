@@ -10,7 +10,7 @@ import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritter;
-import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritterFactory;
+import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritterFactoryImpl;
 import devs.mrp.turkeydesktop.service.processchecker.ProcessChecker;
 import devs.mrp.turkeydesktop.service.processchecker.ProcessCheckerFactory;
 import devs.mrp.turkeydesktop.service.processkiller.KillerChainCommander;
@@ -53,7 +53,7 @@ public class WatchDogImpl implements WatchDog {
     private LocaleMessages localeMessages;
     private ConditionChecker conditionChecker;
     private ChainHandler<String> killerHandler = new KillerChainCommander().getHandlerChain();
-    private ExportWritter exportWritter = ExportWritterFactory.getWritter();
+    private ExportWritter exportWritter = ExportWritterFactoryImpl.getWritter();
     private TrayChainBaseHandler trayHandler = TrayChainFactory.getChain();
     private ResourceHandler<Image,ImagesEnum> imageHandler = ResourceHandlerFactory.getImagesHandler();
     private GroupService groupService = GroupFactoryImpl.getService();
