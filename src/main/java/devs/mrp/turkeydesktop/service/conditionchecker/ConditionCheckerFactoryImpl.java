@@ -11,7 +11,6 @@ import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.service.conditionchecker.idle.IdleChainCommander;
 import devs.mrp.turkeydesktop.service.conditionchecker.idle.LongWrapper;
 import devs.mrp.turkeydesktop.service.conditionchecker.imports.ImportReader;
-import devs.mrp.turkeydesktop.service.conditionchecker.imports.ImportReaderFactory;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 
@@ -75,6 +74,6 @@ public class ConditionCheckerFactoryImpl implements ConditionCheckerFactory {
 
     @Override
     public ImportReader getImportReader() {
-        return ImportReaderFactory.getReader();
+        return factory.getImportReaderFactory().getReader();
     }
 }

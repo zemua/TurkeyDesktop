@@ -38,6 +38,8 @@ import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactoryImpl;
 import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritterFactory;
 import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritterFactoryImpl;
+import devs.mrp.turkeydesktop.service.conditionchecker.imports.ImportReaderFactory;
+import devs.mrp.turkeydesktop.service.conditionchecker.imports.ImportReaderFactoryImpl;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.service.toaster.voice.VoiceNotificator;
 import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactory;
@@ -79,6 +81,7 @@ public class FactoryInitializer {
     private TypeFactory typeFactory;
     
     private ExportWritterFactory exportWritterFactory;
+    private ImportReaderFactory importReaderFactory;
     
     private MainPanelFactory mainPanelFactory;
     private GroupsPanelFactory groupsPanelFactory;
@@ -97,15 +100,13 @@ public class FactoryInitializer {
     public static FactoryInitializer getNew() {
         FactoryInitializer initializer = new FactoryInitializer();
         initializer.dbFactory = DbFactoryImpl.getNewFactory(initializer);
-        initializer.initialize();
-        return initializer;
+        return initializer.initialize();
     }
     
     public static FactoryInitializer getNew(DbFactory dbFactory) {
         FactoryInitializer initializer = new FactoryInitializer();
         initializer.dbFactory = dbFactory;
-        initializer.initialize();
-        return initializer;
+        return initializer.initialize();
     }
     
     private FactoryInitializer initialize() {
@@ -129,6 +130,7 @@ public class FactoryInitializer {
         typeFactory = new TypeFactoryImpl(this);
         
         exportWritterFactory = new ExportWritterFactoryImpl(this);
+        importReaderFactory = new ImportReaderFactoryImpl(this);
         
         mainPanelFactory = new MainPanelFactoryImpl(this);
         groupsPanelFactory = new GroupsPanelFactoryImpl(this);
