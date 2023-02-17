@@ -4,24 +4,19 @@ import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.common.WorkerFactory;
-import devs.mrp.turkeydesktop.database.group.GroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritter;
-import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritterFactoryImpl;
 import devs.mrp.turkeydesktop.service.processchecker.ProcessChecker;
 import devs.mrp.turkeydesktop.service.processchecker.ProcessCheckerFactory;
-import devs.mrp.turkeydesktop.service.processkiller.KillerChainCommander;
 import devs.mrp.turkeydesktop.service.resourcehandler.ImagesEnum;
 import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandler;
-import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandlerFactory;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.service.watchdog.logger.DbLogger;
 import devs.mrp.turkeydesktop.service.watchdog.logger.DbLoggerFactory;
 import devs.mrp.turkeydesktop.view.container.traychain.TrayChainBaseHandler;
-import devs.mrp.turkeydesktop.view.container.traychain.TrayChainFactory;
 import io.reactivex.rxjava3.core.Single;
 import java.awt.Image;
 import java.io.IOException;
@@ -52,11 +47,11 @@ public class WatchDogImpl implements WatchDog {
     private ProcessChecker processChecker;
     private LocaleMessages localeMessages;
     private ConditionChecker conditionChecker;
-    private ChainHandler<String> killerHandler = new KillerChainCommander().getHandlerChain();
-    private ExportWritter exportWritter = ExportWritterFactoryImpl.getWritter();
-    private TrayChainBaseHandler trayHandler = TrayChainFactory.getChain();
-    private ResourceHandler<Image,ImagesEnum> imageHandler = ResourceHandlerFactory.getImagesHandler();
-    private GroupService groupService = GroupFactoryImpl.getService();
+    private final ChainHandler<String> killerHandler;
+    private final ExportWritter exportWritter;
+    private final TrayChainBaseHandler trayHandler;
+    private final ResourceHandler<Image,ImagesEnum> imageHandler;
+    private final GroupService groupService;
     private Toaster toaster;
     private FileHandler fileHandler;
     
@@ -64,13 +59,18 @@ public class WatchDogImpl implements WatchDog {
     Future<?> loopFuture = null;
 
     private WatchDogImpl(WatchDogFactory factory) {
-        conditionChecker = factory.getConditionChecker();
-        timestamp = new AtomicLong();
-        processChecker = ProcessCheckerFactory.getNew();
-        localeMessages = LocaleMessages.getInstance();
-        dbLogger = DbLoggerFactory.getNew();
-        toaster = factory.getToaster();
-        fileHandler = factory.getFileHandler();
+        this.conditionChecker = factory.getConditionChecker();
+        this.timestamp = new AtomicLong();
+        this.processChecker = ProcessCheckerFactory.getNew();
+        this.localeMessages = LocaleMessages.getInstance();
+        this.dbLogger = DbLoggerFactory.getNew();
+        this.toaster = factory.getToaster();
+        this.fileHandler = factory.getFileHandler();
+        this.exportWritter = factory.getExportWritter();
+        this.groupService = factory.getGroupService();
+        this.trayHandler = factory.getTrayChainBaseHandler();
+        this.killerHandler = factory.getKillerHandler();
+        this.imageHandler = factory.getImageHandler();
     }
 
     public static WatchDog getInstance(WatchDogFactory factory) {
