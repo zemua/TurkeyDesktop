@@ -15,7 +15,6 @@ import devs.mrp.turkeydesktop.service.resourcehandler.ImagesEnum;
 import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandler;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.service.watchdog.logger.DbLogger;
-import devs.mrp.turkeydesktop.service.watchdog.logger.DbLoggerFactory;
 import devs.mrp.turkeydesktop.view.container.traychain.TrayChainBaseHandler;
 import io.reactivex.rxjava3.core.Single;
 import java.awt.Image;
@@ -36,34 +35,31 @@ public class WatchDogImpl implements WatchDog {
 
     private static final long SLEEP_MILIS = 3000;
     private static final Semaphore semaphore = new Semaphore(1);
-
-    private static WatchDog instance;
     
-    private DbLogger dbLogger;
-
+    private final DbLogger dbLogger;
     private boolean on = true;
     private JTextArea mLogger;
-    private AtomicLong timestamp;
-    private ProcessChecker processChecker;
-    private LocaleMessages localeMessages;
-    private ConditionChecker conditionChecker;
+    private final AtomicLong timestamp;
+    private final ProcessChecker processChecker;
+    private final LocaleMessages localeMessages;
+    private final ConditionChecker conditionChecker;
     private final ChainHandler<String> killerHandler;
     private final ExportWritter exportWritter;
     private final TrayChainBaseHandler trayHandler;
     private final ResourceHandler<Image,ImagesEnum> imageHandler;
     private final GroupService groupService;
-    private Toaster toaster;
-    private FileHandler fileHandler;
+    private final Toaster toaster;
+    private final FileHandler fileHandler;
     
     private ExecutorService loopedExecutor = WorkerFactory.getSingleThreadExecutor();
     Future<?> loopFuture = null;
 
-    private WatchDogImpl(WatchDogFactory factory) {
+    public WatchDogImpl(WatchDogFactory factory) {
         this.conditionChecker = factory.getConditionChecker();
         this.timestamp = new AtomicLong();
         this.processChecker = ProcessCheckerFactory.getNew();
         this.localeMessages = LocaleMessages.getInstance();
-        this.dbLogger = DbLoggerFactory.getNew();
+        this.dbLogger = factory.getDbLogger();
         this.toaster = factory.getToaster();
         this.fileHandler = factory.getFileHandler();
         this.exportWritter = factory.getExportWritter();
@@ -71,13 +67,6 @@ public class WatchDogImpl implements WatchDog {
         this.trayHandler = factory.getTrayChainBaseHandler();
         this.killerHandler = factory.getKillerHandler();
         this.imageHandler = factory.getImageHandler();
-    }
-
-    public static WatchDog getInstance(WatchDogFactory factory) {
-        if (instance == null) {
-            instance = new WatchDogImpl(factory);
-        }
-        return instance;
     }
     
     @Override

@@ -8,6 +8,7 @@ import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritter;
 import devs.mrp.turkeydesktop.service.resourcehandler.ImagesEnum;
 import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandler;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
+import devs.mrp.turkeydesktop.service.watchdog.logger.DbLogger;
 import devs.mrp.turkeydesktop.view.container.traychain.TrayChainBaseHandler;
 import java.awt.Image;
 
@@ -22,5 +23,6 @@ public interface WatchDogFactory {
     TrayChainBaseHandler getTrayChainBaseHandler();
     ChainHandler<String> getKillerHandler();
     ResourceHandler<Image,ImagesEnum> getImageHandler();
+    DbLogger getDbLogger();
     
 }

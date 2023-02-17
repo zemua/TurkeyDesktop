@@ -44,6 +44,8 @@ import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.service.toaster.voice.VoiceNotificator;
 import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactory;
 import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactoryImpl;
+import devs.mrp.turkeydesktop.service.watchdog.logger.DbLoggerFactory;
+import devs.mrp.turkeydesktop.service.watchdog.logger.DbLoggerFactoryImpl;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessPanelFactory;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessPanelFactoryImpl;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelFactory;
@@ -82,6 +84,7 @@ public class FactoryInitializer {
     
     private ExportWritterFactory exportWritterFactory;
     private ImportReaderFactory importReaderFactory;
+    private DbLoggerFactory dbLoggerFactory;
     
     private MainPanelFactory mainPanelFactory;
     private GroupsPanelFactory groupsPanelFactory;
@@ -131,6 +134,7 @@ public class FactoryInitializer {
         
         exportWritterFactory = new ExportWritterFactoryImpl(this);
         importReaderFactory = new ImportReaderFactoryImpl(this);
+        dbLoggerFactory = new DbLoggerFactoryImpl(this);
         
         mainPanelFactory = new MainPanelFactoryImpl(this);
         groupsPanelFactory = new GroupsPanelFactoryImpl(this);
