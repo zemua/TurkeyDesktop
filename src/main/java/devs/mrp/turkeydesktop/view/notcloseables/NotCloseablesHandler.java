@@ -11,7 +11,7 @@ import devs.mrp.turkeydesktop.database.closeables.CloseableService;
 import devs.mrp.turkeydesktop.database.closeables.CloseableFactoryImpl;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.database.type.TypeService;
-import devs.mrp.turkeydesktop.database.type.TypeFactory;
+import devs.mrp.turkeydesktop.database.type.TypeFactoryImpl;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.groups.review.switchable.Switchable;
@@ -36,7 +36,7 @@ public class NotCloseablesHandler extends PanelHandler<NotCloseablesEnum, Object
     private static final Logger logger = Logger.getLogger(NotCloseablesHandler.class.getName());
     private final LocaleMessages localeMessages = LocaleMessages.getInstance();
     
-    private final TypeService typeService = TypeFactory.getService();
+    private final TypeService typeService = TypeFactoryImpl.getService();
     private final CloseableService closeableService = CloseableFactoryImpl.getService();
 
     public NotCloseablesHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {

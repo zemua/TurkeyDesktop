@@ -6,7 +6,7 @@ import devs.mrp.turkeydesktop.common.Tripla;
 import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeService;
 import devs.mrp.turkeydesktop.database.type.Type;
-import devs.mrp.turkeydesktop.database.type.TypeFactory;
+import devs.mrp.turkeydesktop.database.type.TypeFactoryImpl;
 import devs.mrp.turkeydesktop.database.type.TypeService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.PanelHandlerData;
@@ -45,7 +45,7 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
     
     public CatProcessHandler(PanelHandlerData<?> data, CatProcessPanelFactory factory) {
         super(data.getFrame(), data.getCaller());
-        typeService = TypeFactory.getService();
+        typeService = TypeFactoryImpl.getService();
         this.factory = factory;
     }
     

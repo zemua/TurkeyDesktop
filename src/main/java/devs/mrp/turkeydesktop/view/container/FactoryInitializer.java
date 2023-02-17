@@ -3,7 +3,6 @@ package devs.mrp.turkeydesktop.view.container;
 import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
 import devs.mrp.turkeydesktop.common.TimeConverter;
-import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
 import devs.mrp.turkeydesktop.database.DbFactory;
 import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import devs.mrp.turkeydesktop.database.closeables.CloseableFactory;
@@ -34,8 +33,7 @@ import devs.mrp.turkeydesktop.database.titledlog.TitledLogFacadeFactory;
 import devs.mrp.turkeydesktop.database.titledlog.TitledLogFacadeFactoryImpl;
 import devs.mrp.turkeydesktop.database.titles.*;
 import devs.mrp.turkeydesktop.database.type.TypeFactory;
-import devs.mrp.turkeydesktop.database.type.TypeRepository;
-import devs.mrp.turkeydesktop.database.type.TypeValidator;
+import devs.mrp.turkeydesktop.database.type.TypeFactoryImpl;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactoryImpl;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
@@ -76,6 +74,7 @@ public class FactoryInitializer {
     private TimeLogFactory timeLogServiceFactory;
     private TitledLogFacadeFactory titledLogFacadeFactory;
     private TitleFactory titleFactory;
+    private TypeFactory typeFactory;
     
     private MainPanelFactory mainPanelFactory;
     private GroupsPanelFactory groupsPanelFactory;
@@ -123,6 +122,7 @@ public class FactoryInitializer {
         timeLogServiceFactory = new TimeLogFactoryImpl(this);
         titledLogFacadeFactory = new TitledLogFacadeFactoryImpl(this);
         titleFactory = new TitleFactoryImpl(this);
+        typeFactory = new TypeFactoryImpl(this);
         
         mainPanelFactory = new MainPanelFactoryImpl(this);
         groupsPanelFactory = new GroupsPanelFactoryImpl(this);
@@ -135,27 +135,7 @@ public class FactoryInitializer {
         timeConverter = new TimeConverter(this);
         fileHandler = new FileHandler(this);
         
-        initTypeDb();
-        initTypeDbCache();
-        initTypeRepo();
-        
         return this;
-    }
-    
-    private void initTypeDb() {
-        TypeFactory.setDbSupplier(() -> dbFactory.getDb());
-    }
-    
-    private void initTypeDbCache() {
-        TypeFactory.setDbCacheSupplier(() -> DbCacheFactory.getDbCache(TypeRepository.getInstance(),
-            type -> type.getProcess(),
-            TypeValidator::isValidKey,
-            TypeFactory::listFromResultSet,
-            (type,key) -> type));
-    }
-    
-    private void initTypeRepo() {
-        TypeFactory.setRepoSupplier(() -> TypeRepository.getInstance());
     }
     
 }

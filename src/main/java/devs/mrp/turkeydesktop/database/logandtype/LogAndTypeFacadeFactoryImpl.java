@@ -11,7 +11,6 @@ import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
 import devs.mrp.turkeydesktop.database.type.Type;
-import devs.mrp.turkeydesktop.database.type.TypeFactory;
 import devs.mrp.turkeydesktop.database.type.TypeService;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
@@ -92,7 +91,7 @@ public class LogAndTypeFacadeFactoryImpl implements LogAndTypeFacadeFactory {
 
     @Override
     public TypeService getTypeService() {
-        return TypeFactory.getService();
+        return factory.getTypeFactory().getService();
     }
 
     @Override

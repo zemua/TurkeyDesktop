@@ -29,7 +29,7 @@ public class TypeRepositoryTest {
     
     @BeforeClass
     public static void classSetup() {
-        TypeFactory.setDbSupplier(() -> db);
+        TypeFactoryImpl.setDbSupplier(() -> db);
         typeRepository = TypeRepository.getInstance();
     }
     

@@ -20,7 +20,7 @@ import devs.mrp.turkeydesktop.database.imports.ImportFactoryImpl;
 import devs.mrp.turkeydesktop.database.titles.Title;
 import devs.mrp.turkeydesktop.database.titles.TitleFactoryImpl;
 import devs.mrp.turkeydesktop.database.type.Type;
-import devs.mrp.turkeydesktop.database.type.TypeFactory;
+import devs.mrp.turkeydesktop.database.type.TypeFactoryImpl;
 import devs.mrp.turkeydesktop.database.type.TypeRepository;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import java.sql.PreparedStatement;
@@ -172,13 +172,13 @@ public class FactoryInitializerTest {
     
     @Test
     public void testTypeFactoryDb() {
-        assertEquals(db, TypeFactory.getDb());
+        assertEquals(db, TypeFactoryImpl.getDb());
     }
     
     @Test
     public void testTypeDbCache() throws SQLException {
         when(db.prepareStatement(ArgumentMatchers.any())).thenReturn(preparedStatement);
-        var cache = TypeFactory.getDbCache();
+        var cache = TypeFactoryImpl.getDbCache();
         Type expected = new Type();
         expected.setProcess("some process");
         expected.setType(Type.Types.DEPENDS);
@@ -191,7 +191,7 @@ public class FactoryInitializerTest {
     
     @Test
     public void testTypeRepo() {
-        assertEquals(TypeRepository.getInstance(), TypeFactory.getTypeRepo());
+        assertEquals(TypeRepository.getInstance(), TypeFactoryImpl.getTypeRepo());
     }
     
     @Test

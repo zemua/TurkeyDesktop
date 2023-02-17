@@ -2,7 +2,6 @@ package devs.mrp.turkeydesktop.database.group.facade;
 
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
-import devs.mrp.turkeydesktop.database.type.TypeFactory;
 import devs.mrp.turkeydesktop.database.type.TypeService;
 import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 
@@ -31,7 +30,7 @@ public class AssignableElementFactoryImpl implements AssignableElementFactory {
 
     @Override
     public TypeService getTypeService() {
-        return TypeFactory.getService();
+        return factory.getTypeFactory().getService();
     }
 
     @Override

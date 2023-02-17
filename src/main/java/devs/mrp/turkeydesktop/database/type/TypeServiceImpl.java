@@ -10,9 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TypeServiceImpl implements TypeService {
     
-    TypeDao repo = TypeFactory.getTypeRepo();
+    private final DbCache<String,Type> dbCache;
     
-    private static final DbCache<String,Type> dbCache = TypeFactory.getDbCache();
+    public TypeServiceImpl(TypeFactory typeFactory) {
+        this.dbCache = typeFactory.getDbCache();
+    }
 
     @Override
     public Single<Long> add(Type type) {

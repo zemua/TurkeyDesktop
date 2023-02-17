@@ -23,8 +23,8 @@ public class TypeServiceImplTest {
     
     @BeforeClass
     public static void setupClass() {
-        TypeFactory.setRepoSupplier(() -> typeRepository);
-        TypeFactory.setDbCacheSupplier(() -> dbCache);
+        TypeFactoryImpl.setRepoSupplier(() -> typeRepository);
+        TypeFactoryImpl.setDbCacheSupplier(() -> dbCache);
     }
 
     @Test
