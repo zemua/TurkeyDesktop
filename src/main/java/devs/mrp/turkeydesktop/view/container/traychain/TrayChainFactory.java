@@ -1,20 +1,14 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package devs.mrp.turkeydesktop.view.container.traychain;
 
-import devs.mrp.turkeydesktop.common.ChainHandler;
-import javax.swing.JFrame;
+import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.service.watchdog.WatchDog;
 
-/**
- *
- * @author ncm55070
- */
-public class TrayChainFactory {
+public interface TrayChainFactory {
     
-    public static TrayChainBaseHandler getChain() {
-        return new TrayChainCommander().getHandlerChain();
-    }
+    TrayChainBaseHandler getChain();
+    WatchDog getWatchDog();
+    TimeConverter getTimeConverter();
+    TrayChainBaseHandler getLinuxHandler();
+    TrayChainBaseHandler getMacHandler();
     
 }

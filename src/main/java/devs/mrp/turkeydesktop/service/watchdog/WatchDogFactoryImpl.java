@@ -14,7 +14,6 @@ import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.service.watchdog.logger.DbLogger;
 import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import devs.mrp.turkeydesktop.view.container.traychain.TrayChainBaseHandler;
-import devs.mrp.turkeydesktop.view.container.traychain.TrayChainFactory;
 import java.awt.Image;
 
 public class WatchDogFactoryImpl implements WatchDogFactory {
@@ -61,7 +60,7 @@ public class WatchDogFactoryImpl implements WatchDogFactory {
 
     @Override
     public TrayChainBaseHandler getTrayChainBaseHandler() {
-        return TrayChainFactory.getChain();
+        return factory.getTrayChainFactory().getChain();
     }
 
     @Override

@@ -58,6 +58,8 @@ import devs.mrp.turkeydesktop.view.categorizetitles.element.conditions.TitleCond
 import devs.mrp.turkeydesktop.view.categorizetitles.element.conditions.TitleConditionsPanelFactoryImpl;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelFactoryImpl;
+import devs.mrp.turkeydesktop.view.container.traychain.TrayChainFactory;
+import devs.mrp.turkeydesktop.view.container.traychain.TrayChainFactoryImpl;
 import devs.mrp.turkeydesktop.view.groups.GroupsPanelFactory;
 import devs.mrp.turkeydesktop.view.groups.GroupsPanelFactoryImpl;
 import devs.mrp.turkeydesktop.view.groups.review.GroupReviewFactory;
@@ -103,6 +105,8 @@ public class FactoryInitializer {
     private CatProcessPanelFactory catProcessPanelFactory;
     private CategorizeTitlesPanelFactory categorizeTitlesPanelFactory;
     private TitleConditionsPanelFactory titleConditionsPanelFactory;
+    
+    private TrayChainFactory trayChainFactory;
     
     private VoiceNotificator voiceNotificator;
     private Toaster toaster;
@@ -159,6 +163,8 @@ public class FactoryInitializer {
         catProcessPanelFactory = new CatProcessPanelFactoryImpl(this);
         categorizeTitlesPanelFactory = new CategorizeTitlesPanelFactoryImpl(this);
         titleConditionsPanelFactory = new TitleConditionsPanelFactoryImpl(this);
+        
+        trayChainFactory = new TrayChainFactoryImpl(this);
         
         voiceNotificator = VoiceNotificator.getInstance(configElementFactory.getService());
         toaster = Toaster.getInstance(voiceNotificator);

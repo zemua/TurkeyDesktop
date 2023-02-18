@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package devs.mrp.turkeydesktop.view.container.traychain;
 
 import com.sun.jna.Platform;
@@ -10,7 +6,6 @@ import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.resourcehandler.ImagesEnum;
 import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandler;
 import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandlerFactory;
-import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactoryImpl;
 import java.awt.AWTException;
 import java.awt.Image;
 import java.awt.MenuItem;
@@ -25,27 +20,20 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * there is an error in mac if using dorkbox system tray
  * so we are making use of the java awt default implementation
- * @author ncm55070
  */
 @Slf4j
 public class TrayChainHandlerMacos extends TrayChainBaseHandler {
     
+    private final TrayChainFactory factory;
+    private final TimeConverter timeConverter;
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
     private ResourceHandler<Image,ImagesEnum> imageHandler = ResourceHandlerFactory.getImagesHandler();
     private TrayIcon trayIcon;
     private MenuItem timeItem;
     
-    private static TrayChainHandlerMacos instance;
-    
-    private TrayChainHandlerMacos() {
-        
-    }
-    
-    public static TrayChainHandlerMacos getInstance() {
-        if (instance == null) {
-            instance = new TrayChainHandlerMacos();
-        }
-        return instance;
+    TrayChainHandlerMacos(TrayChainFactory factory) {
+        this.factory = factory;
+        this.timeConverter = factory.getTimeConverter();
     }
 
     @Override
@@ -75,7 +63,7 @@ public class TrayChainHandlerMacos extends TrayChainBaseHandler {
                 // because frame.toFront() doesn't work
                 frame.setAlwaysOnTop(true);
                 frame.setAlwaysOnTop(false);
-                WatchDogFactoryImpl.getInstance().begin(); // way to start watchdog if it gets stuck
+                factory.getWatchDog().begin(); // way to start watchdog if it gets stuck
             }
         });
         popup.add(openItem);
@@ -114,7 +102,7 @@ public class TrayChainHandlerMacos extends TrayChainBaseHandler {
 
     @Override
     protected void setTimeLeft(long millis) {
-        timeItem.setLabel(TimeConverter.millisToHM(millis));
+        timeItem.setLabel(timeConverter.millisToHM(millis));
     }
 
 }
