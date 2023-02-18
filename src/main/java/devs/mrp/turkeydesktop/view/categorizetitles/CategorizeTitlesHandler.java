@@ -5,7 +5,6 @@ import devs.mrp.turkeydesktop.database.titledlog.TitledLog;
 import devs.mrp.turkeydesktop.database.titledlog.TitledLogServiceFacade;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.categorizetitles.element.CategorizeTitlesElement;
-import devs.mrp.turkeydesktop.view.categorizetitles.element.conditions.FTitleConditionsPanel;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Observer;
@@ -147,7 +146,7 @@ public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, 
 
     private void setTagClickListener(Feedbacker<JLabel, String> label, TitledLog titledLog) {
         label.addFeedbackListener((tipo, feedback) -> {
-            var handler = FTitleConditionsPanel.getHandler(getFrame(), CategorizeTitlesHandler.this, titledLog);
+            var handler = factory.getHandler(getFrame(), CategorizeTitlesHandler.this, titledLog);
             handler.show();
         });
     }

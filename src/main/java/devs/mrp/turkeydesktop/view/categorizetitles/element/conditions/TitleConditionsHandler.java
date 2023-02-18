@@ -1,50 +1,42 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.view.categorizetitles.element.conditions;
 
 import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
 import devs.mrp.turkeydesktop.common.RemovableLabel;
 import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.titledlog.TitledLog;
-import devs.mrp.turkeydesktop.database.titles.TitleFactoryImpl;
 import devs.mrp.turkeydesktop.database.titles.Title;
+import devs.mrp.turkeydesktop.database.titles.TitleService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.disposables.Disposable;
 import java.awt.AWTEvent;
-import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.text.JTextComponent;
-import devs.mrp.turkeydesktop.database.titles.TitleService;
-import io.reactivex.rxjava3.core.Observer;
-import io.reactivex.rxjava3.disposables.Disposable;
 import javax.swing.JTextArea;
+import javax.swing.text.JTextComponent;
 
-/**
- *
- * @author miguel
- */
 public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AWTEvent, FeedbackerPanelWithFetcher<TitleConditionsEnum, AWTEvent>> {
 
-    private ConfirmationWithDelay popupMaker = new ConfirmationWithDelayFactory();
-    
-    private TitledLog mTitledLog;
-    private TitleService titleService = TitleFactoryImpl.getService();
-    private static final Logger logger = Logger.getLogger(TitleConditionsHandler.class.getName());
     private static final int shortWaitingSeconds = 15;
     
-    public TitleConditionsHandler(JFrame frame, PanelHandler<?, ?, ?> caller, TitledLog titledLog) {
+    private ConfirmationWithDelay popupMaker = new ConfirmationWithDelayFactory();
+    
+    private final TitleConditionsPanelFactory factory;
+    private final TitledLog mTitledLog;
+    private final TitleService titleService;
+    
+    public TitleConditionsHandler(JFrame frame, PanelHandler<?, ?, ?> caller, TitledLog titledLog, TitleConditionsPanelFactory factory) {
         super(frame, caller);
         mTitledLog = titledLog;
+        titleService = factory.getTitleService();
+        this.factory = factory;
     }
     
     @Override
     protected FeedbackerPanelWithFetcher<TitleConditionsEnum, AWTEvent> initPanel() {
-        return FTitleConditionsPanel.getPanel();
+        return factory.getPanel();
     }
 
     @Override

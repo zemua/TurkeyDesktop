@@ -1,7 +1,9 @@
 package devs.mrp.turkeydesktop.view.categorizetitles;
 
+import devs.mrp.turkeydesktop.database.titledlog.TitledLog;
 import devs.mrp.turkeydesktop.database.titledlog.TitledLogServiceFacade;
 import devs.mrp.turkeydesktop.view.PanelHandler;
+import devs.mrp.turkeydesktop.view.categorizetitles.element.conditions.TitleConditionsEnum;
 import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
@@ -28,6 +30,11 @@ public class CategorizeTitlesPanelFactoryImpl implements CategorizeTitlesPanelFa
     @Override
     public TitledLogServiceFacade getTitledLogServiceFacade() {
         return factory.getTitledLogFacadeFactory().getService();
+    }
+
+    @Override
+    public PanelHandler<TitleConditionsEnum, AWTEvent, FeedbackerPanelWithFetcher<TitleConditionsEnum, AWTEvent>> getHandler(JFrame frame, PanelHandler<?, ?, ?> caller, TitledLog titledLog) {
+        return factory.getTitleConditionsPanelFactory().getHandler(frame, caller, titledLog);
     }
     
 }
