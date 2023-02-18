@@ -1,6 +1,7 @@
 package devs.mrp.turkeydesktop.view.categorizeprocesspanel;
 
 import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeService;
+import devs.mrp.turkeydesktop.database.type.TypeService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.PanelHandlerData;
 import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
@@ -28,5 +29,10 @@ public class CatProcessPanelFactoryImpl implements CatProcessPanelFactory {
     @Override
     public LogAndTypeFacadeService getLogAndTypeFacadeService() {
         return factory.getLogAndTypeFacadeFactory().getService();
+    }
+
+    @Override
+    public TypeService getTypeService() {
+        return factory.getTypeFactory().getService();
     }
 }
