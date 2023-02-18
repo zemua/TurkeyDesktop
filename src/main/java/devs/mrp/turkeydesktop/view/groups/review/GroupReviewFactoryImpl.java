@@ -1,6 +1,13 @@
 package devs.mrp.turkeydesktop.view.groups.review;
 
+import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.database.conditions.ConditionService;
 import devs.mrp.turkeydesktop.database.group.Group;
+import devs.mrp.turkeydesktop.database.group.GroupService;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
+import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupService;
+import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
+import devs.mrp.turkeydesktop.database.group.facade.AssignableElementService;
 import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacadeService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.PanelHandlerData;
@@ -31,6 +38,46 @@ public class GroupReviewFactoryImpl implements GroupReviewFactory {
     @Override
     public GroupConditionFacadeService groupConditionFacadeService() {
         return factory.getGroupConditionFacadeFactory().getService();
+    }
+
+    @Override
+    public GroupService getGroupService() {
+        return factory.getGroupFactory().getService();
+    }
+
+    @Override
+    public GroupAssignationService getGroupAssignationService() {
+        return factory.getGroupAssignationFactory().getService();
+    }
+
+    @Override
+    public AssignableElementService getAssignableProcessService() {
+        return factory.getAssignableElementFactory().getProcessesService();
+    }
+
+    @Override
+    public AssignableElementService getAssignableTitleService() {
+        return factory.getAssignableElementFactory().getTitlesService();
+    }
+
+    @Override
+    public ConditionService getConditionService() {
+        return factory.getConditionFactory().getService();
+    }
+
+    @Override
+    public ExternalGroupService getExternalGroupService() {
+        return factory.getExternalGroupFactory().getService();
+    }
+
+    @Override
+    public ExportedGroupService getExportedGroupService() {
+        return factory.getExportedGroupFactory().getService();
+    }
+
+    @Override
+    public TimeConverter getTimeConverter() {
+        return factory.getTimeConverter();
     }
     
 }

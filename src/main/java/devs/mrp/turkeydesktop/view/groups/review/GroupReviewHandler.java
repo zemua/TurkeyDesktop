@@ -5,23 +5,17 @@ import devs.mrp.turkeydesktop.common.RemovableLabel;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
-import devs.mrp.turkeydesktop.database.conditions.ConditionFactoryImpl;
 import devs.mrp.turkeydesktop.database.conditions.ConditionService;
 import devs.mrp.turkeydesktop.database.group.Group;
-import devs.mrp.turkeydesktop.database.group.GroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroup;
-import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupService;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
-import devs.mrp.turkeydesktop.database.group.external.ExternalGroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElement;
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElementService;
-import devs.mrp.turkeydesktop.database.group.facade.AssignableElementFactoryImpl;
 import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacade;
 import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacadeService;
 import devs.mrp.turkeydesktop.database.type.Type;
@@ -65,14 +59,15 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private final LocaleMessages localeMessages = LocaleMessages.getInstance();
 
     private Group group;
-    private final GroupService groupService = GroupFactoryImpl.getService();
-    private final GroupAssignationService groupAssignationService = GroupAssignationFactoryImpl.getService();
-    private final AssignableElementService assignableProcessService = AssignableElementFactoryImpl.getProcessesService();
-    private final AssignableElementService assignableTitlesService = AssignableElementFactoryImpl.getTitlesService();
-    private final ConditionService conditionService = ConditionFactoryImpl.getService();
-    private final ExternalGroupService externalGroupService = ExternalGroupFactoryImpl.getService();
-    private final ExportedGroupService exportedGroupService = ExportedGroupFactoryImpl.getService();
+    private final GroupService groupService;
+    private final GroupAssignationService groupAssignationService;
+    private final AssignableElementService assignableProcessService;
+    private final AssignableElementService assignableTitlesService;
+    private final ConditionService conditionService;
+    private final ExternalGroupService externalGroupService;
+    private final ExportedGroupService exportedGroupService;
     private final GroupConditionFacadeService groupConditionFacadeService;
+    private final TimeConverter timeConverter;
 
     private JComboBox<Group> targetComboBox;
     private JSpinner hourSpinner;
@@ -83,7 +78,15 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         super(data.getFrame(), data.getCaller());
         this.group = data.getEntity();
         this.factory = factory;
-        groupConditionFacadeService = factory.groupConditionFacadeService();
+        this.groupConditionFacadeService = factory.groupConditionFacadeService();
+        this.groupService = factory.getGroupService();
+        this.groupAssignationService = factory.getGroupAssignationService();
+        this.assignableProcessService = factory.getAssignableProcessService();
+        this.assignableTitlesService = factory.getAssignableTitleService();
+        this.conditionService = factory.getConditionService();
+        this.externalGroupService = factory.getExternalGroupService();
+        this.exportedGroupService = factory.getExportedGroupService();
+        this.timeConverter = factory.getTimeConverter();
     }
 
     @Override
@@ -451,7 +454,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         Condition condition = new Condition();
         condition.setGroupId(this.group.getId());
         condition.setTargetId(targetComboBox.getItemAt(targetComboBox.getSelectedIndex()).getId());
-        condition.setUsageTimeCondition(TimeConverter.hoursToMilis((Long) hourSpinner.getValue()) + TimeConverter.minutesToMilis((Long) minuteSpinner.getValue()));
+        condition.setUsageTimeCondition(timeConverter.hoursToMilis((Long) hourSpinner.getValue()) + timeConverter.minutesToMilis((Long) minuteSpinner.getValue()));
         condition.setLastDaysCondition((long) daySpinner.getValue());
 
         conditionService.add(condition).subscribe(r -> {
