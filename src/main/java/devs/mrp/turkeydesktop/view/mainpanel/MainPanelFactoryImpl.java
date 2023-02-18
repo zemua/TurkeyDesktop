@@ -8,6 +8,8 @@ import devs.mrp.turkeydesktop.service.watchdog.WatchDog;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.PanelHandlerData;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessEnum;
+import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesEnum;
+import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelEnum;
 import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import devs.mrp.turkeydesktop.view.groups.GroupsEnum;
 import java.awt.AWTEvent;
@@ -60,5 +62,15 @@ public class MainPanelFactoryImpl implements MainPanelFactory {
     @Override
     public PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>> getCategoryProcessHandler(PanelHandlerData<?> data) {
         return factory.getCatProcessPanelFactory().getHandler(data);
+    }
+
+    @Override
+    public PanelHandler<CategorizeTitlesEnum, AWTEvent, FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent>> getCategorizedTitlesHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
+        return factory.getCategorizeTitlesPanelFactory().getHandler(frame, caller);
+    }
+
+    @Override
+    public PanelHandler<ConfigurationPanelEnum, AWTEvent, FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent>> getConfigurationPanelHandler(PanelHandlerData<?> data) {
+        return factory.getConfigurationPanelFactory().getHandler(data);
     }
 }

@@ -12,9 +12,7 @@ import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.PanelHandlerData;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessEnum;
 import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesEnum;
-import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesPanelFactoryImpl;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelEnum;
-import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelFactoryImpl;
 import devs.mrp.turkeydesktop.view.groups.GroupsEnum;
 import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesEnum;
 import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesPanelFactory;
@@ -119,7 +117,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     
     private void initCategorizeTitlesHandler() {
         if (categoryTitlesHandler == null) {
-            categoryTitlesHandler = CategorizeTitlesPanelFactoryImpl.getHandler(this.getFrame(), this);
+            categoryTitlesHandler = factory.getCategorizedTitlesHandler(this.getFrame(), this);
         }
         categoryTitlesHandler.show();
     }
@@ -142,7 +140,8 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     
     private void initConfigHandler() {
         if (configHandler == null) {
-            configHandler = ConfigurationPanelFactoryImpl.getHandler(this.getFrame(), this);
+            var data = new PanelHandlerData(this.getFrame(), this, null);
+            configHandler = factory.getConfigurationPanelHandler(data);
         }
         configHandler.show();
     }
