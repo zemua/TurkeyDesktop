@@ -1,12 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.view.times;
 
 import devs.mrp.turkeydesktop.common.TimeConverter;
-import devs.mrp.turkeydesktop.database.logs.TimeLogFactoryImpl;
+import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
@@ -14,25 +9,24 @@ import java.awt.AWTEvent;
 import java.util.Date;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
-import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 
-/**
- *
- * @author miguel
- */
 public class TimesHandler extends PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>> {
-
-    private TimeLogService logService = TimeLogFactoryImpl.getService();
     
-    private LocaleMessages localeMessages = LocaleMessages.getInstance();
+    private final TimesPanelFactory factory;
+    private final TimeLogService logService;
+    private final LocaleMessages localeMessages = LocaleMessages.getInstance();
+    private final TimeConverter timeConverter;
     
-    public TimesHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
+    public TimesHandler(JFrame frame, PanelHandler<?, ?, ?> caller, TimesPanelFactory factory) {
         super(frame, caller);
+        this.logService = factory.getTimeLogService();
+        this.factory = factory;
+        this.timeConverter = factory.getTimeConverter();
     }
     
     @Override
     protected FeedbackerPanelWithFetcher<TimesEnum, AWTEvent> initPanel() {
-        this.setPanel(FTimesPanel.getPanel());
+        this.setPanel(factory.getPanel());
         return this.getPanel();
     }
 
@@ -68,7 +62,7 @@ public class TimesHandler extends PanelHandler<TimesEnum, AWTEvent, FeedbackerPa
         JTextArea log = (JTextArea)this.getPanel().getProperty(TimesEnum.LOGGER);
         log.setText("");
         logService.findProcessTimeFromTo(from, to).subscribe(t -> {
-            log.append(String.format(localeMessages.getString("processTimeLog"), t.getValue1(), TimeConverter.millisToHMS(t.getValue2())));
+            log.append(String.format(localeMessages.getString("processTimeLog"), t.getValue1(), timeConverter.millisToHMS(t.getValue2())));
         });
     }
     

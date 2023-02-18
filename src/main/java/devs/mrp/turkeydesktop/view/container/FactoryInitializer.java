@@ -68,6 +68,8 @@ import devs.mrp.turkeydesktop.view.mainpanel.MainPanelFactory;
 import devs.mrp.turkeydesktop.view.mainpanel.MainPanelFactoryImpl;
 import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesPanelFactory;
 import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesPanelFactoryImpl;
+import devs.mrp.turkeydesktop.view.times.TimesPanelFactory;
+import devs.mrp.turkeydesktop.view.times.TimesPanelFactoryImpl;
 import lombok.Getter;
 
 @Getter
@@ -108,6 +110,7 @@ public class FactoryInitializer {
     private CategorizeTitlesPanelFactory categorizeTitlesPanelFactory;
     private TitleConditionsPanelFactory titleConditionsPanelFactory;
     private NotCloseablesPanelFactory notCloseablesPanelFactory;
+    private TimesPanelFactory timesPanelFactory;
     
     private TrayChainFactory trayChainFactory;
     
@@ -167,6 +170,7 @@ public class FactoryInitializer {
         categorizeTitlesPanelFactory = new CategorizeTitlesPanelFactoryImpl(this);
         titleConditionsPanelFactory = new TitleConditionsPanelFactoryImpl(this);
         notCloseablesPanelFactory = new NotCloseablesPanelFactoryImpl(this);
+        timesPanelFactory = new TimesPanelFactoryImpl(this);
         
         trayChainFactory = new TrayChainFactoryImpl(this);
         

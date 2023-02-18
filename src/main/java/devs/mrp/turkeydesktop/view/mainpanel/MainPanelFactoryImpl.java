@@ -13,6 +13,7 @@ import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelEnum;
 import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import devs.mrp.turkeydesktop.view.groups.GroupsEnum;
 import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesEnum;
+import devs.mrp.turkeydesktop.view.times.TimesEnum;
 import java.awt.AWTEvent;
 import javax.swing.JFrame;
 
@@ -78,5 +79,10 @@ public class MainPanelFactoryImpl implements MainPanelFactory {
     @Override
     public PanelHandler<NotCloseablesEnum, Object, FeedbackerPanelWithFetcher<NotCloseablesEnum, Object>> getNotCloseablesHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
         return factory.getNotCloseablesPanelFactory().getHandler(frame, caller);
+    }
+
+    @Override
+    public PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>> getTimesHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
+        return factory.getTimesPanelFactory().getHandler(frame, caller);
     }
 }

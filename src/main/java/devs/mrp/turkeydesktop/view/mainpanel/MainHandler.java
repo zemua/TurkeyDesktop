@@ -15,7 +15,6 @@ import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesEnum;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelEnum;
 import devs.mrp.turkeydesktop.view.groups.GroupsEnum;
 import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesEnum;
-import devs.mrp.turkeydesktop.view.times.FTimesPanel;
 import devs.mrp.turkeydesktop.view.times.TimesEnum;
 import java.awt.AWTEvent;
 import java.awt.Image;
@@ -101,7 +100,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     
     private void initTimesHandler() {
         if (timesHandler == null) {
-            timesHandler = FTimesPanel.getHandler(this.getFrame(), this);
+            timesHandler = factory.getTimesHandler(this.getFrame(), this);
         }
         timesHandler.show();
     }
