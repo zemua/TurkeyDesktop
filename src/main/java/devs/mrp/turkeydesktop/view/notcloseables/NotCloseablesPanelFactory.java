@@ -1,26 +1,18 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.view.notcloseables;
 
+import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
+import devs.mrp.turkeydesktop.database.closeables.CloseableService;
+import devs.mrp.turkeydesktop.database.type.TypeService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import javax.swing.JFrame;
 
-/**
- *
- * @author miguel
- */
-public class NotCloseablesPanelFactory {
+public interface NotCloseablesPanelFactory {
     
-    public static FeedbackerPanelWithFetcher<NotCloseablesEnum,Object> getPanel() {
-        return new NotCloseablesPanel();
-    }
-    
-    public static PanelHandler<NotCloseablesEnum,Object,FeedbackerPanelWithFetcher<NotCloseablesEnum,Object>> getHandler(JFrame frame, PanelHandler<?,?,?> caller) {
-        return new NotCloseablesHandler(frame, caller);
-    }
+    FeedbackerPanelWithFetcher<NotCloseablesEnum,Object> getPanel();
+    PanelHandler<NotCloseablesEnum,Object,FeedbackerPanelWithFetcher<NotCloseablesEnum,Object>> getHandler(JFrame frame, PanelHandler<?,?,?> caller);
+    TypeService getTypeService();
+    CloseableService getCloseableService();
+    ConfirmationWithDelay getPopupMaker();
     
 }

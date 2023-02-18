@@ -11,6 +11,7 @@ import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessEnum;
 import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesEnum;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelEnum;
 import devs.mrp.turkeydesktop.view.groups.GroupsEnum;
+import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesEnum;
 import java.awt.AWTEvent;
 import javax.swing.JFrame;
 
@@ -26,5 +27,6 @@ public interface MainPanelFactory {
     PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>> getCategoryProcessHandler(PanelHandlerData<?> data);
     PanelHandler<CategorizeTitlesEnum, AWTEvent, FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent>> getCategorizedTitlesHandler(JFrame frame, PanelHandler<?, ?, ?> caller);
     PanelHandler<ConfigurationPanelEnum, AWTEvent, FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent>> getConfigurationPanelHandler(PanelHandlerData<?> data);
+    PanelHandler<NotCloseablesEnum,Object,FeedbackerPanelWithFetcher<NotCloseablesEnum,Object>> getNotCloseablesHandler(JFrame frame, PanelHandler<?,?,?> caller);
     
 }

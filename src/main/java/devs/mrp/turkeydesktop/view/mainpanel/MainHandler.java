@@ -15,7 +15,6 @@ import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesEnum;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelEnum;
 import devs.mrp.turkeydesktop.view.groups.GroupsEnum;
 import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesEnum;
-import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesPanelFactory;
 import devs.mrp.turkeydesktop.view.times.FTimesPanel;
 import devs.mrp.turkeydesktop.view.times.TimesEnum;
 import java.awt.AWTEvent;
@@ -148,7 +147,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     
     private void initNotCloseablesHandler() {
         if (notCloseableHandler == null) {
-            notCloseableHandler = NotCloseablesPanelFactory.getHandler(this.getFrame(), this);
+            notCloseableHandler = factory.getNotCloseablesHandler(this.getFrame(), this);
         }
         notCloseableHandler.show();
     }

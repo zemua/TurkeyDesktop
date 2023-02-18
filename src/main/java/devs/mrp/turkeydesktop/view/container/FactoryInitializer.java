@@ -66,6 +66,8 @@ import devs.mrp.turkeydesktop.view.groups.review.GroupReviewFactory;
 import devs.mrp.turkeydesktop.view.groups.review.GroupReviewFactoryImpl;
 import devs.mrp.turkeydesktop.view.mainpanel.MainPanelFactory;
 import devs.mrp.turkeydesktop.view.mainpanel.MainPanelFactoryImpl;
+import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesPanelFactory;
+import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesPanelFactoryImpl;
 import lombok.Getter;
 
 @Getter
@@ -105,6 +107,7 @@ public class FactoryInitializer {
     private CatProcessPanelFactory catProcessPanelFactory;
     private CategorizeTitlesPanelFactory categorizeTitlesPanelFactory;
     private TitleConditionsPanelFactory titleConditionsPanelFactory;
+    private NotCloseablesPanelFactory notCloseablesPanelFactory;
     
     private TrayChainFactory trayChainFactory;
     
@@ -163,6 +166,7 @@ public class FactoryInitializer {
         catProcessPanelFactory = new CatProcessPanelFactoryImpl(this);
         categorizeTitlesPanelFactory = new CategorizeTitlesPanelFactoryImpl(this);
         titleConditionsPanelFactory = new TitleConditionsPanelFactoryImpl(this);
+        notCloseablesPanelFactory = new NotCloseablesPanelFactoryImpl(this);
         
         trayChainFactory = new TrayChainFactoryImpl(this);
         
