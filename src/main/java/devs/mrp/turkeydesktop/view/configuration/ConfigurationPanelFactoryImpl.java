@@ -3,6 +3,7 @@ package devs.mrp.turkeydesktop.view.configuration;
 import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.config.ConfigElementService;
+import devs.mrp.turkeydesktop.database.imports.ImportService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.PanelHandlerData;
 import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
@@ -40,6 +41,11 @@ public class ConfigurationPanelFactoryImpl implements ConfigurationPanelFactory 
     @Override
     public FileHandler getFileHandler() {
         return factory.getFileHandler();
+    }
+
+    @Override
+    public ImportService getImportService() {
+        return factory.getImportFactory().getService();
     }
     
 }
