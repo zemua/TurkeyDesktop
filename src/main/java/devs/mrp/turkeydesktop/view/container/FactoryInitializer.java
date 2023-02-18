@@ -40,6 +40,10 @@ import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritterFac
 import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritterFactoryImpl;
 import devs.mrp.turkeydesktop.service.conditionchecker.imports.ImportReaderFactory;
 import devs.mrp.turkeydesktop.service.conditionchecker.imports.ImportReaderFactoryImpl;
+import devs.mrp.turkeydesktop.service.processchecker.ProcessCheckerFactory;
+import devs.mrp.turkeydesktop.service.processchecker.ProcessCheckerFactoryImpl;
+import devs.mrp.turkeydesktop.service.processchecker.ProcessInfoFactory;
+import devs.mrp.turkeydesktop.service.processchecker.ProcessInfoFactoryImpl;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.service.toaster.voice.VoiceNotificator;
 import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactory;
@@ -85,6 +89,8 @@ public class FactoryInitializer {
     private ExportWritterFactory exportWritterFactory;
     private ImportReaderFactory importReaderFactory;
     private DbLoggerFactory dbLoggerFactory;
+    private ProcessCheckerFactory processCheckerFactory;
+    private ProcessInfoFactory processInfoFactory;
     
     private MainPanelFactory mainPanelFactory;
     private GroupsPanelFactory groupsPanelFactory;
@@ -135,6 +141,8 @@ public class FactoryInitializer {
         exportWritterFactory = new ExportWritterFactoryImpl(this);
         importReaderFactory = new ImportReaderFactoryImpl(this);
         dbLoggerFactory = new DbLoggerFactoryImpl(this);
+        processCheckerFactory = new ProcessCheckerFactoryImpl(this);
+        processInfoFactory = new ProcessInfoFactoryImpl(this);
         
         mainPanelFactory = new MainPanelFactoryImpl(this);
         groupsPanelFactory = new GroupsPanelFactoryImpl(this);

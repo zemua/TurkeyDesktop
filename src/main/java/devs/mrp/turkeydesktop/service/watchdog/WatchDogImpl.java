@@ -10,7 +10,6 @@ import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritter;
 import devs.mrp.turkeydesktop.service.processchecker.ProcessChecker;
-import devs.mrp.turkeydesktop.service.processchecker.ProcessCheckerFactory;
 import devs.mrp.turkeydesktop.service.resourcehandler.ImagesEnum;
 import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandler;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
@@ -57,7 +56,7 @@ public class WatchDogImpl implements WatchDog {
     public WatchDogImpl(WatchDogFactory factory) {
         this.conditionChecker = factory.getConditionChecker();
         this.timestamp = new AtomicLong();
-        this.processChecker = ProcessCheckerFactory.getNew();
+        this.processChecker = factory.getProcessChecker();
         this.localeMessages = LocaleMessages.getInstance();
         this.dbLogger = factory.getDbLogger();
         this.toaster = factory.getToaster();

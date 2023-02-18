@@ -5,6 +5,7 @@ import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritter;
+import devs.mrp.turkeydesktop.service.processchecker.ProcessChecker;
 import devs.mrp.turkeydesktop.service.processkiller.KillerChainCommander;
 import devs.mrp.turkeydesktop.service.resourcehandler.ImagesEnum;
 import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandler;
@@ -76,6 +77,11 @@ public class WatchDogFactoryImpl implements WatchDogFactory {
     @Override
     public DbLogger getDbLogger() {
         return factory.getDbLoggerFactory().getNew();
+    }
+
+    @Override
+    public ProcessChecker getProcessChecker() {
+        return factory.getProcessCheckerFactory().getNew();
     }
     
 }

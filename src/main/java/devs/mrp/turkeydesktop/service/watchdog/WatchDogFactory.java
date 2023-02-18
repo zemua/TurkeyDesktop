@@ -5,6 +5,7 @@ import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritter;
+import devs.mrp.turkeydesktop.service.processchecker.ProcessChecker;
 import devs.mrp.turkeydesktop.service.resourcehandler.ImagesEnum;
 import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandler;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
@@ -24,5 +25,6 @@ public interface WatchDogFactory {
     ChainHandler<String> getKillerHandler();
     ResourceHandler<Image,ImagesEnum> getImageHandler();
     DbLogger getDbLogger();
+    ProcessChecker getProcessChecker();
     
 }
