@@ -1,50 +1,43 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.view.categorizetitles;
 
 import devs.mrp.turkeydesktop.common.Feedbacker;
-import devs.mrp.turkeydesktop.database.titledlog.TitledLogFacadeFactoryImpl;
 import devs.mrp.turkeydesktop.database.titledlog.TitledLog;
+import devs.mrp.turkeydesktop.database.titledlog.TitledLogServiceFacade;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.categorizetitles.element.CategorizeTitlesElement;
 import devs.mrp.turkeydesktop.view.categorizetitles.element.conditions.FTitleConditionsPanel;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
-import java.awt.AWTEvent;
-import java.util.Date;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import devs.mrp.turkeydesktop.database.titledlog.TitledLogServiceFacade;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
+import java.awt.AWTEvent;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-/**
- *
- * @author miguel
- */
 @Slf4j
 public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, AWTEvent, FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent>> {
 
-    TitledLogServiceFacade facadeService = TitledLogFacadeFactoryImpl.getService();
+    private final TitledLogServiceFacade facadeService;
+    private final CategorizeTitlesPanelFactory factory;
     Logger logger = Logger.getLogger(CategorizeTitlesHandler.class.getName());
 
-    public CategorizeTitlesHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
+    public CategorizeTitlesHandler(JFrame frame, PanelHandler<?, ?, ?> caller, CategorizeTitlesPanelFactory factory) {
         super(frame, caller);
+        this.factory = factory;
+        this.facadeService = factory.getTitledLogServiceFacade();
     }
 
     @Override
     protected FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent> initPanel() {
-        return CategorizeTitlesPanelFactory.getPanel();
+        return factory.getPanel();
     }
 
     @Override

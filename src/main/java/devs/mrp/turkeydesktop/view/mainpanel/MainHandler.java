@@ -12,7 +12,7 @@ import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.PanelHandlerData;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessEnum;
 import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesEnum;
-import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesPanelFactory;
+import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesPanelFactoryImpl;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelEnum;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelFactoryImpl;
 import devs.mrp.turkeydesktop.view.groups.GroupsEnum;
@@ -119,7 +119,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     
     private void initCategorizeTitlesHandler() {
         if (categoryTitlesHandler == null) {
-            categoryTitlesHandler = CategorizeTitlesPanelFactory.getHandler(this.getFrame(), this);
+            categoryTitlesHandler = CategorizeTitlesPanelFactoryImpl.getHandler(this.getFrame(), this);
         }
         categoryTitlesHandler.show();
     }
