@@ -1,7 +1,6 @@
 package devs.mrp.turkeydesktop.view.groups;
 
 import devs.mrp.turkeydesktop.database.group.Group;
-import devs.mrp.turkeydesktop.database.group.GroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.PanelHandlerData;
@@ -17,14 +16,15 @@ import javax.swing.JTextField;
 
 public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>> {
 
-    private GroupsPanelFactory factory;
-    private Group.GroupType type;
-    private GroupService groupService = GroupFactoryImpl.getService();
+    private final GroupsPanelFactory factory;
+    private final Group.GroupType type;
+    private final GroupService groupService;
     
     public GroupsHandler(PanelHandlerData<Group.GroupType> data, GroupsPanelFactory factory) {
         super(data.getFrame(), data.getCaller());
         this.type = data.getEntity();
         this.factory = factory;
+        this.groupService = factory.getGroupSerice();
     }
     
     @Override
