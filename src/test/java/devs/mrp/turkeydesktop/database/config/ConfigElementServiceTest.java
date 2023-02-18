@@ -1,15 +1,12 @@
 package devs.mrp.turkeydesktop.database.config;
 
 import devs.mrp.turkeydesktop.common.SaveAction;
-import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import static org.junit.Assert.assertEquals;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import static org.mockito.Mockito.mock;
@@ -17,26 +14,18 @@ import static org.mockito.Mockito.when;
 
 public class ConfigElementServiceTest {
     
-    static final Db db = CommonMocks.getMock(Db.class);
-    static final ConfigElementDao repo = mock(ConfigElementDao.class);
-    static final ConfigElementRepository configRepository = mock(ConfigElementRepository.class);
-    private static ConfigElementFactory configElementFactory = new ConfigElementFactoryImpl();
+    Db db = mock(Db.class);
+    ConfigElementDao repo = mock(ConfigElementDao.class);
+    ConfigElementFactory factory = mock(ConfigElementFactory.class);
     
-    @BeforeClass
-    public static void setupClass() {
-        DbFactoryImpl.setDbSupplier(() -> db);
-        
-        configElementFactory.setRepoSupplier(() -> repo);
-        
-        FactoryInitializer factoryInitializer = new FactoryInitializer();
-        factoryInitializer.setConfigElementFactory(configElementFactory);
-        factoryInitializer.setDbSupplier(() -> db);
-        factoryInitializer.initialize();
+    @Before
+    public void setupClass() {
+        when(factory.getDb()).thenReturn(db);
     }
 
     @Test
     public void testAddInvalidNull() {
-        ConfigElementServiceImpl service = new ConfigElementServiceImpl(configElementFactory);
+        ConfigElementServiceImpl service = new ConfigElementServiceImpl(factory);
         ConfigElement element = null;
         
         Long result = service.add(element).blockingGet();
@@ -45,7 +34,7 @@ public class ConfigElementServiceTest {
     
     @Test
     public void testAddNullKey() {
-        ConfigElementServiceImpl service = new ConfigElementServiceImpl(configElementFactory);
+        ConfigElementServiceImpl service = new ConfigElementServiceImpl(factory);
         ConfigElement element = new ConfigElement(null, "some value");
         
         Long result = service.add(element).blockingGet();
@@ -54,7 +43,7 @@ public class ConfigElementServiceTest {
     
     @Test
     public void testAddNullValue() {
-        ConfigElementServiceImpl service = new ConfigElementServiceImpl(configElementFactory);
+        ConfigElementServiceImpl service = new ConfigElementServiceImpl(factory);
         ConfigElement element = new ConfigElement(ConfigurationEnum.IDLE, null);
         
         Long result = service.add(element).blockingGet();
@@ -63,7 +52,7 @@ public class ConfigElementServiceTest {
     
     @Test
     public void testAddInvalidTooLongValue() {
-        ConfigElementServiceImpl service = new ConfigElementServiceImpl(configElementFactory);
+        ConfigElementServiceImpl service = new ConfigElementServiceImpl(factory);
         ConfigElement element = new ConfigElement(ConfigurationEnum.IDLE ,"12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
         
         Long result = service.add(element).blockingGet();
@@ -72,7 +61,7 @@ public class ConfigElementServiceTest {
     
     @Test
     public void testAddSuccess() throws SQLException {
-        ConfigElementServiceImpl service = new ConfigElementServiceImpl(configElementFactory);
+        ConfigElementServiceImpl service = new ConfigElementServiceImpl(factory);
         ConfigElement element = new ConfigElement(ConfigurationEnum.IDLE, "some short string");
         
         PreparedStatement statement = mock(PreparedStatement.class);
@@ -84,11 +73,7 @@ public class ConfigElementServiceTest {
     
     @Test
     public void test_add_sets_object_id_in_cache() throws SQLException {
-        FactoryInitializer factoryInitializer = new FactoryInitializer();
-        factoryInitializer.setDbSupplier(() -> db);
-        factoryInitializer.initialize();
-        
-        ConfigElementService service = new ConfigElementServiceImpl(configElementFactory);
+        ConfigElementService service = new ConfigElementServiceImpl(factory);
         ConfigElement toBeSaved = new ConfigElement();
         toBeSaved.setKey(ConfigurationEnum.EXPORT_PATH);
         toBeSaved.setValue("some config value");

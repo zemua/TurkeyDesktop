@@ -1,14 +1,11 @@
 package devs.mrp.turkeydesktop.database.conditions;
 
-import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import static org.mockito.Mockito.mock;
@@ -18,18 +15,18 @@ import static org.mockito.Mockito.when;
 
 public class ConditionRepositoryTest {
     
-    static Db db = CommonMocks.getMock(Db.class);
+    Db db = mock(Db.class);
     PreparedStatement allPreparedStatement = mock(PreparedStatement.class);
     ResultSet allResultSet = mock(ResultSet.class);
+    ConditionFactory factory = mock(ConditionFactory.class);
     
-    static ConditionRepository conditionRepository;
-    
+    ConditionRepository conditionRepository;
     Condition condition;
     
-    @BeforeClass
-    public static void classSetup() {
-        DbFactoryImpl.setDbSupplier(() -> db);
-        conditionRepository = ConditionRepository.getInstance();
+    @Before
+    public void classSetup() {
+        when(factory.getDb()).thenReturn(db);
+        conditionRepository = new ConditionRepository(factory);
     }
     
     @Before

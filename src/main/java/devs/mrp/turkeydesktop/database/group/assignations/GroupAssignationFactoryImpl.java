@@ -2,6 +2,7 @@ package devs.mrp.turkeydesktop.database.group.assignations;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
+import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Observable;
 import java.sql.ResultSet;
@@ -67,6 +68,11 @@ public class GroupAssignationFactoryImpl implements GroupAssignationFactory {
             log.error("Error extracting group assignation from result set", ex);
         }
         return el.build();
+    }
+
+    @Override
+    public Db getDb() {
+        return factory.getDbFactory().getDb();
     }
     
 }

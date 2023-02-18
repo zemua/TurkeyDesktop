@@ -2,16 +2,13 @@ package devs.mrp.turkeydesktop.database.group.external;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
-import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactoryImpl;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import static org.junit.Assert.assertEquals;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import static org.mockito.Mockito.mock;
@@ -19,19 +16,20 @@ import static org.mockito.Mockito.when;
 
 public class ExternalGroupServiceImplTest {
     
-    static final Db db = CommonMocks.getMock(Db.class);
-    static final DbCache<Long,ExternalGroup> dbCache = mock(DbCache.class);
-    static final ExternalGroupRepository externalGroupRepository = mock(ExternalGroupRepository.class);
+    Db db = mock(Db.class);
+    DbCache<Long,ExternalGroup> dbCache = mock(DbCache.class);
+    ExternalGroupRepository externalGroupRepository = mock(ExternalGroupRepository.class);
+    ExternalGroupFactory factory = mock(ExternalGroupFactory.class);
     
-    @BeforeClass
-    public static void setupClass() {
-        DbFactoryImpl.setDbSupplier(() -> db);
-        ExternalGroupFactoryImpl.setDbCacheSupplier(() -> dbCache);
+    @Before
+    public void setupClass() {
+        when(factory.getDb()).thenReturn(db);
+        when(factory.getDbCache()).thenReturn(dbCache);
     }
 
     @Test
     public void testAddNull() {
-        ExternalGroupService service = new ExternalGroupServiceImpl();
+        ExternalGroupService service = new ExternalGroupServiceImpl(factory);
         ExternalGroup externalGroup = null;
         
         long idResult = service.add(externalGroup).blockingGet();
@@ -40,7 +38,7 @@ public class ExternalGroupServiceImplTest {
     
     @Test
     public void testAddInvalidGroup() {
-        ExternalGroupService service = new ExternalGroupServiceImpl();
+        ExternalGroupService service = new ExternalGroupServiceImpl(factory);
         ExternalGroup externalGroup = new ExternalGroup();
         externalGroup.setFile("some/path");
         externalGroup.setGroup(0);
@@ -51,7 +49,7 @@ public class ExternalGroupServiceImplTest {
     
     @Test
     public void testAddNullFile() {
-        ExternalGroupService service = new ExternalGroupServiceImpl();
+        ExternalGroupService service = new ExternalGroupServiceImpl(factory);
         ExternalGroup externalGroup = new ExternalGroup();
         externalGroup.setFile(null);
         externalGroup.setGroup(4);
@@ -62,7 +60,7 @@ public class ExternalGroupServiceImplTest {
     
     @Test
     public void testAddEmptyFile() {
-        ExternalGroupService service = new ExternalGroupServiceImpl();
+        ExternalGroupService service = new ExternalGroupServiceImpl(factory);
         ExternalGroup externalGroup = new ExternalGroup();
         externalGroup.setFile("");
         externalGroup.setGroup(4);
@@ -73,7 +71,7 @@ public class ExternalGroupServiceImplTest {
     
     @Test
     public void testAddTooLongFile() {
-        ExternalGroupService service = new ExternalGroupServiceImpl();
+        ExternalGroupService service = new ExternalGroupServiceImpl(factory);
         ExternalGroup externalGroup = new ExternalGroup();
         String longString = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
         externalGroup.setFile(longString + longString + longString + longString + longString + longString);
@@ -85,7 +83,7 @@ public class ExternalGroupServiceImplTest {
     
     @Test
     public void testAddSuccess() {
-        ExternalGroupService service = new ExternalGroupServiceImpl();
+        ExternalGroupService service = new ExternalGroupServiceImpl(factory);
         ExternalGroup externalGroup = new ExternalGroup();
         externalGroup.setFile("some/path");
         externalGroup.setGroup(4);
@@ -98,11 +96,7 @@ public class ExternalGroupServiceImplTest {
     
     @Test
     public void test_add_sets_object_id_in_cache() throws SQLException {
-        FactoryInitializer factoryInitializer = new FactoryInitializer();
-        factoryInitializer.setDbSupplier(() -> db);
-        factoryInitializer.initialize();
-        
-        ExternalGroupService service = new ExternalGroupServiceImpl();
+        ExternalGroupService service = new ExternalGroupServiceImpl(factory);
         ExternalGroup toBeSaved = new ExternalGroup();
         toBeSaved.setId(0);
         toBeSaved.setFile("some file to export");

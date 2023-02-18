@@ -1,11 +1,10 @@
 package devs.mrp.turkeydesktop.view.groups;
 
 import devs.mrp.turkeydesktop.common.FeedbackListener;
-import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.group.Group;
-import devs.mrp.turkeydesktop.database.group.GroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
+import devs.mrp.turkeydesktop.view.PanelHandlerData;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.observers.TestObserver;
@@ -26,20 +25,22 @@ import static org.mockito.Mockito.when;
 public class GroupsHandlerTest {
     
     private JFrame frame;
-    PanelHandler<?,?,?> caller;
-    private GroupsPanel panel = CommonMocks.getMock(GroupsPanel.class);
-    private GroupService groupService = CommonMocks.getMock(GroupService.class);
+    private PanelHandler<?,?,?> caller;
+    private GroupsPanel panel = mock(GroupsPanel.class);
+    private GroupService groupService = mock(GroupService.class);
     
+    private GroupsPanelFactory factory = mock(GroupsPanelFactory.class);
     private GroupsHandler groupsHandler;
     
     @Before
     public void setup() {
-        GroupsPanelFactoryImpl.setPanelSupplier(() -> panel);
-        GroupFactoryImpl.setGroupServiceSupplier(() -> groupService);
+        when(factory.getPanel()).thenReturn(panel);
+        when(factory.getGroupSerice()).thenReturn(groupService);
+
         frame = mock(JFrame.class);
         caller = mock(PanelHandler.class);
-        
-        groupsHandler = new GroupsHandler(frame, caller, Group.GroupType.POSITIVE);
+        PanelHandlerData data = new PanelHandlerData(frame, caller, Group.GroupType.POSITIVE);
+        groupsHandler = new GroupsHandler(data, factory);
     }
 
     @Test

@@ -10,11 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GroupAssignationRepository implements GroupAssignationDao {
     
-    private GroupAssignationFactory factory;
-    private Db db;
+    private final GroupAssignationFactory factory;
+    private final Db db;
     
     public GroupAssignationRepository(GroupAssignationFactory groupAssignationFactory) {
         this.factory = groupAssignationFactory;
+        this.db = factory.getDb();
     }
     
     @Override

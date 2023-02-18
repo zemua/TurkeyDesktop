@@ -1,15 +1,12 @@
 package devs.mrp.turkeydesktop.database.group.assignations;
 
-import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationDao.ElementId;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import static org.mockito.Mockito.mock;
@@ -19,18 +16,18 @@ import static org.mockito.Mockito.when;
 
 public class GroupAssignationRepositoryTest {
     
-    static Db db = CommonMocks.getMock(Db.class);
+    Db db = mock(Db.class);
     PreparedStatement allPreparedStatement = mock(PreparedStatement.class);
     ResultSet allResultSet = mock(ResultSet.class);
-    
-    static GroupAssignationRepository groupAssignationRepository;
+    GroupAssignationRepository groupAssignationRepository;
+    GroupAssignationFactory factory = mock(GroupAssignationFactory.class);
     
     GroupAssignation groupAssignation;
     
-    @BeforeClass
-    public static void classSetup() {
-        DbFactoryImpl.setDbSupplier(() -> db);
-        groupAssignationRepository = GroupAssignationRepository.getInstance();
+    @Before
+    public void classSetup() {
+        when(factory.getDb()).thenReturn(db);
+        groupAssignationRepository = new GroupAssignationRepository(factory);
     }
     
     @Before

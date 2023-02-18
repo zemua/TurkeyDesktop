@@ -2,17 +2,13 @@ package devs.mrp.turkeydesktop.database.titles;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
-import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactoryImpl;
-import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import static org.junit.Assert.assertEquals;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
@@ -23,20 +19,21 @@ import static org.mockito.Mockito.when;
 
 public class TitleServiceImplTest {
     
-    static final Db db = CommonMocks.getMock(Db.class);
-    static final DbCache<String,Title> dbCache = mock(DbCache.class);
-    static final GroupAssignationService groupAssignationService = mock(GroupAssignationService.class);
+    Db db = mock(Db.class);
+    DbCache<String,Title> dbCache = mock(DbCache.class);
+    GroupAssignationService groupAssignationService = mock(GroupAssignationService.class);
+    TitleFactory factory = mock(TitleFactory.class);
     
-    @BeforeClass
-    public static void setup() {
-        DbFactoryImpl.setDbSupplier(() -> db);
-        TitleFactoryImpl.setDbCacheSupplier(() -> dbCache);
-        GroupAssignationFactoryImpl.setGroupAssignationServiceSupplier(() -> groupAssignationService);
+    @Before
+    public void setup() {
+        when(factory.getDb()).thenReturn(db);
+        when(factory.getDbCache()).thenReturn(dbCache);
+        when(factory.getGroupAssignationService()).thenReturn(groupAssignationService);
     }
     
     @Test
     public void testSaveNullTitle() {
-        TitleService service = new TitleServiceImpl();
+        TitleService service = new TitleServiceImpl(factory);
         Title title = null;
         
         Long result = service.save(title).blockingGet();
@@ -45,7 +42,7 @@ public class TitleServiceImplTest {
     
     @Test
     public void testSaveNullSubstring() {
-        TitleService service = new TitleServiceImpl();
+        TitleService service = new TitleServiceImpl(factory);
         Title title = new Title();
         title.setSubStr(null);
         title.setType(Title.Type.POSITIVE);
@@ -56,7 +53,7 @@ public class TitleServiceImplTest {
     
     @Test
     public void testSaveNullType() {
-        TitleService service = new TitleServiceImpl();
+        TitleService service = new TitleServiceImpl(factory);
         Title title = new Title();
         title.setSubStr("my title");
         title.setType(null);
@@ -67,7 +64,7 @@ public class TitleServiceImplTest {
     
     @Test
     public void testSaveSuccess() {
-        TitleService service = new TitleServiceImpl();
+        TitleService service = new TitleServiceImpl(factory);
         Title title = new Title();
         title.setSubStr("my title");
         title.setType(Title.Type.POSITIVE);
@@ -80,7 +77,7 @@ public class TitleServiceImplTest {
     
     @Test
     public void testStringIsLowerCased() {
-        TitleService service = new TitleServiceImpl();
+        TitleService service = new TitleServiceImpl(factory);
         Title title = new Title();
         title.setSubStr("My uPPeR CaSeD TiTle");
         title.setType(Title.Type.POSITIVE);
@@ -96,11 +93,7 @@ public class TitleServiceImplTest {
     
     @Test
     public void test_add_sets_object_id_in_cache() throws SQLException {
-        FactoryInitializer factoryInitializer = new FactoryInitializer();
-        factoryInitializer.setDbSupplier(() -> db);
-        factoryInitializer.initialize();
-        
-        TitleService service = new TitleServiceImpl();
+        TitleService service = new TitleServiceImpl(factory);
         Title toBeSaved = new Title();
         toBeSaved.setSubStr("My uPPeR CaSeD TiTle");
         toBeSaved.setType(Title.Type.POSITIVE);

@@ -1,14 +1,11 @@
 package devs.mrp.turkeydesktop.database.group;
 
-import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import static org.mockito.Mockito.mock;
@@ -18,18 +15,19 @@ import static org.mockito.Mockito.when;
 
 public class GroupRepositoryTest {
     
-    static Db db = CommonMocks.getMock(Db.class);
+    Db db = mock(Db.class);
     PreparedStatement allPreparedStatement = mock(PreparedStatement.class);
     ResultSet allResultSet = mock(ResultSet.class);
+    GroupFactory factory = mock(GroupFactory.class);
     
-    static GroupRepository groupRepository;
+    GroupRepository groupRepository;
     
     Group group;
     
-    @BeforeClass
-    public static void classSetup() {
-        DbFactoryImpl.setDbSupplier(() -> db);
-        groupRepository = GroupRepository.getInstance();
+    @Before
+    public void classSetup() {
+        when(factory.getDb()).thenReturn(db);
+        groupRepository = new GroupRepository(factory);
     }
     
     @Before

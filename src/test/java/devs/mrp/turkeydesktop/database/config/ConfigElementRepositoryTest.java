@@ -1,16 +1,12 @@
 package devs.mrp.turkeydesktop.database.config;
 
-import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import static org.mockito.Mockito.mock;
@@ -20,19 +16,19 @@ import static org.mockito.Mockito.when;
 
 public class ConfigElementRepositoryTest {
     
-    static Db db = CommonMocks.getMock(Db.class);
+    Db db = mock(Db.class);
     PreparedStatement allPreparedStatement = mock(PreparedStatement.class);
     ResultSet allResultSet = mock(ResultSet.class);
+    ConfigElementFactory factory = mock(ConfigElementFactory.class);
     
-    static ConfigElementRepository configRepository;
+    ConfigElementRepository configRepository;
     
     ConfigElement configElement;
     
-    @BeforeClass
-    public static void classSetup() {
-        DbFactoryImpl.setDbSupplier(() -> db);
-        FactoryInitializer factories = new FactoryInitializer();
-        configRepository = ConfigElementRepository.getInstance(factories.getConfigElementFactory());
+    @Before
+    public void classSetup() {
+        when(factory.getDb()).thenReturn(db);
+        configRepository = new ConfigElementRepository(factory);
     }
     
     @Before

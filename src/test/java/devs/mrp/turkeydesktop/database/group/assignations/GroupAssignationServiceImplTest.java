@@ -2,15 +2,12 @@ package devs.mrp.turkeydesktop.database.group.assignations;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
-import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactoryImpl;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import static org.junit.Assert.assertEquals;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import static org.mockito.Mockito.mock;
@@ -18,19 +15,21 @@ import static org.mockito.Mockito.when;
 
 public class GroupAssignationServiceImplTest {
     
-    static final Db db = CommonMocks.getMock(Db.class);
-    static final DbCache<GroupAssignationDao.ElementId, GroupAssignation> dbCache = mock(DbCache.class);
-    static final GroupAssignationRepository groupAssignationRepository = mock(GroupAssignationRepository.class);
+    Db db = mock(Db.class);
+    DbCache<GroupAssignationDao.ElementId, GroupAssignation> dbCache = mock(DbCache.class);
+    GroupAssignationRepository groupAssignationRepository = mock(GroupAssignationRepository.class);
     
-    @BeforeClass
-    public static void setupClass() {
-        DbFactoryImpl.setDbSupplier(() -> db);
-        GroupAssignationFactoryImpl.setDbCacheSupplier(() -> dbCache);
+    GroupAssignationFactory factory = mock(GroupAssignationFactory.class);
+    
+    @Before
+    public void setupClass() {
+        when(factory.getDb()).thenReturn(db);
+        when(factory.getDbCache()).thenReturn(dbCache);
     }
 
     @Test
     public void testAddNullAssignation() {
-        GroupAssignationService service = new GroupAssignationServiceImpl();
+        GroupAssignationService service = new GroupAssignationServiceImpl(factory);
         GroupAssignation assignation = null;
         
         Long addResult = service.add(assignation).blockingGet();
@@ -39,7 +38,7 @@ public class GroupAssignationServiceImplTest {
     
     @Test
     public void testAddWithNullType() {
-        GroupAssignationService service = new GroupAssignationServiceImpl();
+        GroupAssignationService service = new GroupAssignationServiceImpl(factory);
         GroupAssignation assignation = new GroupAssignation();
         assignation.setElementId("some title");
         assignation.setGroupId(3);
@@ -51,7 +50,7 @@ public class GroupAssignationServiceImplTest {
     
     @Test
     public void testAddWithInvalidElementName() {
-        GroupAssignationService service = new GroupAssignationServiceImpl();
+        GroupAssignationService service = new GroupAssignationServiceImpl(factory);
         GroupAssignation assignation = new GroupAssignation();
         assignation.setElementId("");
         assignation.setGroupId(3);
@@ -63,7 +62,7 @@ public class GroupAssignationServiceImplTest {
     
     @Test
     public void testAddWithInvalidGroupId() {
-        GroupAssignationService service = new GroupAssignationServiceImpl();
+        GroupAssignationService service = new GroupAssignationServiceImpl(factory);
         GroupAssignation assignation = new GroupAssignation();
         assignation.setElementId("some title");
         assignation.setGroupId(0);
@@ -75,7 +74,7 @@ public class GroupAssignationServiceImplTest {
     
     @Test
     public void testAddSuccess() {
-        GroupAssignationService service = new GroupAssignationServiceImpl();
+        GroupAssignationService service = new GroupAssignationServiceImpl(factory);
         GroupAssignation assignation = new GroupAssignation();
         assignation.setElementId("some title");
         assignation.setGroupId(3);
@@ -89,11 +88,7 @@ public class GroupAssignationServiceImplTest {
     
     @Test
     public void test_add_sets_object_id_in_cache() throws SQLException {
-        FactoryInitializer factoryInitializer = new FactoryInitializer();
-        factoryInitializer.setDbSupplier(() -> db);
-        factoryInitializer.initialize();
-        
-        GroupAssignationService service = new GroupAssignationServiceImpl();
+        GroupAssignationService service = new GroupAssignationServiceImpl(factory);
         GroupAssignation toBeSaved = new GroupAssignation();
         toBeSaved.setElementId("process or title");
         toBeSaved.setGroupId(4);
