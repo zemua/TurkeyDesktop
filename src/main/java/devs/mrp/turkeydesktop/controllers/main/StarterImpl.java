@@ -2,7 +2,6 @@ package devs.mrp.turkeydesktop.controllers.main;
 
 import devs.mrp.turkeydesktop.service.watchdog.WatchDog;
 import devs.mrp.turkeydesktop.view.PanelHandler;
-import devs.mrp.turkeydesktop.view.container.MainContainerFactory;
 import javax.swing.JFrame;
 
 public class StarterImpl implements Starter {
@@ -24,7 +23,7 @@ public class StarterImpl implements Starter {
     }
     
     private void initMainFrame() {
-        mainFrame = MainContainerFactory.getContainer();
+        mainFrame = factory.getMainContainer();
         handler = factory.getMainHandler(mainFrame);
         handler.show();
     }

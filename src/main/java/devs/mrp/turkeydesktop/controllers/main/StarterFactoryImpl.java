@@ -30,4 +30,9 @@ public class StarterFactoryImpl implements StarterFactory {
     public PanelHandler<MainEnum, AWTEvent, FeedbackerPanelWithFetcher<MainEnum, AWTEvent>> getMainHandler(JFrame frame) {
         return factory.getMainPanelFactory().getMainHandler(frame);
     }
+
+    @Override
+    public JFrame getMainContainer() {
+        return factory.getMainContainerFactory().getContainer();
+    }
 }

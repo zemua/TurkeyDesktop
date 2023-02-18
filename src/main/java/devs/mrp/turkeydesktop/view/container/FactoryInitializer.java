@@ -71,6 +71,7 @@ public class FactoryInitializer {
     
     private DbFactory dbFactory;
     private WatchDogFactory watchDogFactory;
+    private MainContainerFactory mainContainerFactory;
     
     private ConfigElementFactory configElementFactory;
     private ConditionCheckerFactory conditionCheckerFactory;
@@ -126,6 +127,8 @@ public class FactoryInitializer {
     
     private FactoryInitializer initialize() {
         watchDogFactory = new WatchDogFactoryImpl(this);
+        mainContainerFactory = new MainContainerFactoryImpl(this);
+        
         configElementFactory = new ConfigElementFactoryImpl(this);
         conditionCheckerFactory = new ConditionCheckerFactoryImpl(this);
         groupConditionFacadeFactory = new GroupConditionFacadeFactoryImpl(this);

@@ -12,5 +12,6 @@ public interface StarterFactory {
     Starter getStarterController();
     WatchDog getWatchDog();
     PanelHandler<MainEnum, AWTEvent, FeedbackerPanelWithFetcher<MainEnum, AWTEvent>> getMainHandler(JFrame frame);
+    JFrame getMainContainer();
     
 }
