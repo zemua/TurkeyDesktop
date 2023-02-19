@@ -19,7 +19,7 @@ public class TrayChainFactoryImpl implements TrayChainFactory {
 
     @Override
     public WatchDog getWatchDog() {
-        return factory.getWatchDogFactory().getInstance();
+        return factory.getWatchDogFactory().getWatchDog();
     }
 
     @Override

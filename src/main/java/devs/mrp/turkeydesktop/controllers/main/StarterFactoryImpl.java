@@ -24,7 +24,7 @@ public class StarterFactoryImpl implements StarterFactory {
 
     @Override
     public WatchDog getWatchDog() {
-        return factory.getWatchDogFactory().getInstance();
+        return factory.getWatchDogFactory().getWatchDog();
     }
 
     @Override

@@ -2,7 +2,6 @@ package devs.mrp.turkeydesktop.common;
 
 import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Single;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -16,10 +15,10 @@ import java.util.concurrent.TimeUnit;
 
 public class TimeConverter {
     
-    private final FactoryInitializer factory;
+    private final ConfigElementService configService;
     
-    public TimeConverter(FactoryInitializer factoryInitializer) {
-        this.factory = factoryInitializer;
+    public TimeConverter(ConfigElementService configService) {
+        this.configService = configService;
     }
 
     public String millisToHMS(long millis) {
@@ -101,7 +100,6 @@ public class TimeConverter {
     }
     
     public Single<Long> endOfTodayConsideringDayChange() {
-        ConfigElementService configService = factory.getConfigElementFactory().getService();
         return configService.configElement(ConfigurationEnum.CHANGE_OF_DAY)
                 .map(changeOfDayResult -> {
                     Long changeOfDayMilis = hoursToMilis(Long.valueOf(changeOfDayResult.getValue()));
@@ -116,7 +114,6 @@ public class TimeConverter {
     }
     
     public Single<Long> beginningOfOffsetDaysConsideringDayChange(long offsetDays) {
-        ConfigElementService configService = factory.getConfigElementFactory().getService();
         return configService.configElement(ConfigurationEnum.CHANGE_OF_DAY)
                 .map(changeOfDayResult -> {
                     Long changeOfDay = Long.valueOf(changeOfDayResult.getValue());
@@ -133,7 +130,6 @@ public class TimeConverter {
     }
     
     public Single<Long> endOfOffsetDaysConsideringDayChange(long offsetDays) {
-        ConfigElementService configService = factory.getConfigElementFactory().getService();
         return configService.configElement(ConfigurationEnum.CHANGE_OF_DAY)
                 .map(changeOfDayResult -> {
                     Long changeOfDay = Long.valueOf(changeOfDayResult.getValue());

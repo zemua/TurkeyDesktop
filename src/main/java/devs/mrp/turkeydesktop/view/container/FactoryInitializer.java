@@ -4,7 +4,6 @@ import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.common.SingleConsumerFactory;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.DbFactory;
-import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import devs.mrp.turkeydesktop.database.closeables.CloseableFactory;
 import devs.mrp.turkeydesktop.database.closeables.CloseableFactoryImpl;
 import devs.mrp.turkeydesktop.database.conditions.ConditionFactory;
@@ -30,46 +29,29 @@ import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeFactoryImpl;
 import devs.mrp.turkeydesktop.database.logs.TimeLogFactory;
 import devs.mrp.turkeydesktop.database.logs.TimeLogFactoryImpl;
 import devs.mrp.turkeydesktop.database.titledlog.TitledLogFacadeFactory;
-import devs.mrp.turkeydesktop.database.titledlog.TitledLogFacadeFactoryImpl;
 import devs.mrp.turkeydesktop.database.titles.*;
 import devs.mrp.turkeydesktop.database.type.TypeFactory;
-import devs.mrp.turkeydesktop.database.type.TypeFactoryImpl;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactoryImpl;
 import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritterFactory;
-import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritterFactoryImpl;
 import devs.mrp.turkeydesktop.service.conditionchecker.imports.ImportReaderFactory;
-import devs.mrp.turkeydesktop.service.conditionchecker.imports.ImportReaderFactoryImpl;
 import devs.mrp.turkeydesktop.service.processchecker.ProcessCheckerFactory;
-import devs.mrp.turkeydesktop.service.processchecker.ProcessCheckerFactoryImpl;
 import devs.mrp.turkeydesktop.service.processchecker.ProcessInfoFactory;
-import devs.mrp.turkeydesktop.service.processchecker.ProcessInfoFactoryImpl;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.service.toaster.voice.VoiceNotificator;
 import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactory;
-import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactoryImpl;
 import devs.mrp.turkeydesktop.service.watchdog.logger.DbLoggerFactory;
-import devs.mrp.turkeydesktop.service.watchdog.logger.DbLoggerFactoryImpl;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessPanelFactory;
-import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessPanelFactoryImpl;
 import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesPanelFactory;
-import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesPanelFactoryImpl;
 import devs.mrp.turkeydesktop.view.categorizetitles.element.conditions.TitleConditionsPanelFactory;
-import devs.mrp.turkeydesktop.view.categorizetitles.element.conditions.TitleConditionsPanelFactoryImpl;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelFactory;
-import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelFactoryImpl;
 import devs.mrp.turkeydesktop.view.container.traychain.TrayChainFactory;
-import devs.mrp.turkeydesktop.view.container.traychain.TrayChainFactoryImpl;
 import devs.mrp.turkeydesktop.view.groups.GroupsPanelFactory;
-import devs.mrp.turkeydesktop.view.groups.GroupsPanelFactoryImpl;
 import devs.mrp.turkeydesktop.view.groups.review.GroupReviewFactory;
 import devs.mrp.turkeydesktop.view.groups.review.GroupReviewFactoryImpl;
 import devs.mrp.turkeydesktop.view.mainpanel.MainPanelFactory;
-import devs.mrp.turkeydesktop.view.mainpanel.MainPanelFactoryImpl;
 import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesPanelFactory;
-import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesPanelFactoryImpl;
 import devs.mrp.turkeydesktop.view.times.TimesPanelFactory;
-import devs.mrp.turkeydesktop.view.times.TimesPanelFactoryImpl;
 import lombok.Getter;
 
 @Getter
@@ -125,22 +107,26 @@ public class FactoryInitializer {
     
     public static FactoryInitializer getNew() {
         FactoryInitializer initializer = new FactoryInitializer();
-        initializer.dbFactory = DbFactoryImpl.getNewFactory(initializer);
+        initializer.initDbRequirements();
         return initializer.initialize();
     }
     
     public static FactoryInitializer getNew(DbFactory dbFactory) {
         FactoryInitializer initializer = new FactoryInitializer();
+        initializer.initDbRequirements();
         initializer.dbFactory = dbFactory;
         return initializer.initialize();
     }
     
-    private FactoryInitializer initialize() {
-        watchDogFactory = new WatchDogFactoryImpl(this);
-        mainContainerFactory = new MainContainerFactoryImpl(this);
-        
-        configElementFactory = new ConfigElementFactoryImpl(this);
+    private void initDbRequirements() {
+        timeConverter = new TimeConverter(this);
         conditionCheckerFactory = new ConditionCheckerFactoryImpl(this);
+    }
+    
+    private FactoryInitializer initialize() {
+        configElementFactory = new ConfigElementFactoryImpl(this);
+        fileHandler = new FileHandler(this);
+        mainContainerFactory = new MainContainerFactoryImpl(this);
         groupConditionFacadeFactory = new GroupConditionFacadeFactoryImpl(this);
         groupReviewFactory = new GroupReviewFactoryImpl(this);
         logAndTypeFacadeFactory = new LogAndTypeFacadeFactoryImpl(this);
@@ -156,13 +142,11 @@ public class FactoryInitializer {
         titledLogFacadeFactory = new TitledLogFacadeFactoryImpl(this);
         titleFactory = new TitleFactoryImpl(this);
         typeFactory = new TypeFactoryImpl(this);
-        
         exportWritterFactory = new ExportWritterFactoryImpl(this);
         importReaderFactory = new ImportReaderFactoryImpl(this);
         dbLoggerFactory = new DbLoggerFactoryImpl(this);
         processCheckerFactory = new ProcessCheckerFactoryImpl(this);
         processInfoFactory = new ProcessInfoFactoryImpl(this);
-        
         mainPanelFactory = new MainPanelFactoryImpl(this);
         groupsPanelFactory = new GroupsPanelFactoryImpl(this);
         configurationPanelFactory = new ConfigurationPanelFactoryImpl(this);
@@ -171,14 +155,10 @@ public class FactoryInitializer {
         titleConditionsPanelFactory = new TitleConditionsPanelFactoryImpl(this);
         notCloseablesPanelFactory = new NotCloseablesPanelFactoryImpl(this);
         timesPanelFactory = new TimesPanelFactoryImpl(this);
-        
         trayChainFactory = new TrayChainFactoryImpl(this);
-        
         voiceNotificator = VoiceNotificator.getInstance(configElementFactory.getService());
         toaster = Toaster.getInstance(voiceNotificator);
         singleConsumerFactory = new SingleConsumerFactory(this);
-        timeConverter = new TimeConverter(this);
-        fileHandler = new FileHandler(this);
         
         return this;
     }

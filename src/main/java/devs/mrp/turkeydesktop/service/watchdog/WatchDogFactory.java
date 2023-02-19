@@ -15,7 +15,7 @@ import java.awt.Image;
 
 public interface WatchDogFactory {
     
-    WatchDog getInstance();
+    WatchDog getWatchDog();
     ConditionChecker getConditionChecker();
     Toaster getToaster();
     FileHandler getFileHandler();

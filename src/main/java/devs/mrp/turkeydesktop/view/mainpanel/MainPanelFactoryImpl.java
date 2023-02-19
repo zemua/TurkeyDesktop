@@ -13,7 +13,6 @@ import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesEnum;
 import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesPanelFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelEnum;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelFactory;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import devs.mrp.turkeydesktop.view.groups.GroupsEnum;
 import devs.mrp.turkeydesktop.view.groups.GroupsPanelFactory;
 import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesEnum;
@@ -25,10 +24,16 @@ import javax.swing.JFrame;
 
 public class MainPanelFactoryImpl implements MainPanelFactory {
     
-    private FactoryInitializer factory;
+    private static MainPanelFactoryImpl instance;
     
-    public MainPanelFactoryImpl(FactoryInitializer factory) {
-        this.factory = factory;
+    private MainPanelFactoryImpl() {
+    }
+    
+    public static MainPanelFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new MainPanelFactoryImpl();
+        }
+        return instance;
     }
     
     @Override
@@ -54,7 +59,7 @@ public class MainPanelFactoryImpl implements MainPanelFactory {
 
     @Override
     public WatchDog getWatchDog() {
-        return factory.getWatchDogFactory().getInstance();
+        return factory.getWatchDogFactory().getWatchDog();
     }
 
     @Override

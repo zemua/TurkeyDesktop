@@ -23,7 +23,7 @@ public class TimeLogFactoryImpl implements TimeLogFactory {
     @Override
     public TimeLogService getService() {
         if (timeLogService == null) {
-            timeLogService = factory.getTimeLogServiceFactory().getService();
+            timeLogService = new TimeLogServiceImpl(this);
         }
         return timeLogService;
     }

@@ -12,21 +12,26 @@ import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandler;
 import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandlerFactory;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.service.watchdog.logger.DbLogger;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import devs.mrp.turkeydesktop.view.container.traychain.TrayChainBaseHandler;
 import java.awt.Image;
 
 public class WatchDogFactoryImpl implements WatchDogFactory {
     
-    private FactoryInitializer factory;
-    private static WatchDog watchDog;
+    private WatchDog watchDog;
+    private static WatchDogFactoryImpl instance;
     
-    public WatchDogFactoryImpl(FactoryInitializer initializer) {
-        this.factory = initializer;
+    private WatchDogFactoryImpl() {
+    }
+    
+    public static WatchDogFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new WatchDogFactoryImpl();
+        }
+        return instance;
     }
     
     @Override
-    public WatchDog getInstance() {
+    public WatchDog getWatchDog() {
         if (watchDog == null) {
             watchDog = new WatchDogImpl(this);
         }
@@ -35,7 +40,7 @@ public class WatchDogFactoryImpl implements WatchDogFactory {
 
     @Override
     public ConditionChecker getConditionChecker() {
-        return factory.getConditionCheckerFactory().getConditionChecker();
+        return ConditionCheckerFactoryImpl().getInstance().getConditionChecker();
     }
 
     @Override

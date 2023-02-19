@@ -14,19 +14,18 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ConfigElementFactoryImpl implements ConfigElementFactory {
     
-    @Getter
-    private final Db db;
+    private FactoryInitializer factory;
+    private static Db db;
     private static DbCache<String, ConfigElement> dbCache;
     private static ConfigElementService configElementService;
     
     public ConfigElementFactoryImpl(FactoryInitializer factory) {
-        db = factory.getDbFactory().getDb();
+        this.factory = factory;
     }
     
     protected DbCache<String, ConfigElement> buildCache(ConfigElementDao repo) {
@@ -35,6 +34,14 @@ public class ConfigElementFactoryImpl implements ConfigElementFactory {
         Function<ResultSet,Observable<ConfigElement>> listFromResultSet = this::elementsFromResultSet;
         BiFunction<ConfigElement, String, ConfigElement> keySetter = (element,key) -> element;
         return DbCacheFactory.getDbCache(repo, keyExtractor, isNewKey, listFromResultSet, keySetter);
+    }
+    
+    @Override
+    public Db getDb() {
+        if (db == null) {
+            db = factory.getDbFactory().getDb();
+        }
+        return db;
     }
     
     @Override

@@ -1,7 +1,9 @@
 package devs.mrp.turkeydesktop.view.container;
 
 import devs.mrp.turkeydesktop.service.watchdog.WatchDog;
+import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactoryImpl;
 import devs.mrp.turkeydesktop.view.PanelHandler;
+import devs.mrp.turkeydesktop.view.mainpanel.MainPanelFactoryImpl;
 import javax.swing.JFrame;
 import lombok.extern.slf4j.Slf4j;
 
@@ -10,7 +12,6 @@ public class TurkeyDesktop extends javax.swing.JFrame {
 
     private static WatchDog watchDog;
     private static PanelHandler handler;
-    private static FactoryInitializer factory;
 
     /**
      * Creates new form MainContainer
@@ -91,7 +92,6 @@ public class TurkeyDesktop extends javax.swing.JFrame {
     }
     
     private static void initializeTurkey() {
-        factory = FactoryInitializer.getNew();
         JFrame td = initializeFrame();
         td.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
     }
@@ -105,9 +105,9 @@ public class TurkeyDesktop extends javax.swing.JFrame {
     }
     
     private void initHandler() {
-        watchDog = factory.getWatchDogFactory().getInstance();
+        watchDog = WatchDogFactoryImpl.getInstance().getWatchDog();
         watchDog.begin();
-        handler = factory.getMainPanelFactory().getMainHandler(this);
+        handler = MainPanelFactoryImpl.getInstance().getMainHandler(this);
         handler.show();
     }
 
