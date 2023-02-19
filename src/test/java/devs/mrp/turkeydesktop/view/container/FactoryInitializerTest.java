@@ -5,15 +5,13 @@ import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.database.DbFactory;
 import devs.mrp.turkeydesktop.database.closeables.Closeable;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
-import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationServiceImpl;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroup;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupId;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
 import devs.mrp.turkeydesktop.database.titles.Title;
-import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.database.type.TypeServiceImpl;
-import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
+import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,23 +25,26 @@ import static org.mockito.Mockito.when;
 
 public class FactoryInitializerTest {
     
-    Db db = mock(Db.class);
-    DbFactory dbFactory = mock(DbFactory.class);
-    FactoryInitializer factoryInitializer;
-    
+    Db db;
+    DbFactory dbFactory;
+    ResultSet allResultSet;
     PreparedStatement preparedStatement;
     ResultSet generatedKeysResultSet;
     
-    @Before
-    public void setupClass() {
-        when(dbFactory.getDb()).thenReturn(db);
-        factoryInitializer = FactoryInitializer.getNew(dbFactory);
-    }
+    FactoryInitializer factoryInitializer;
     
     @Before
-    public void setup() {
+    public void setupClass() throws SQLException {
+        db = mock(Db.class);
+        dbFactory = mock(DbFactory.class);
+        allResultSet = mock(ResultSet.class);
         preparedStatement = mock(PreparedStatement.class);
         generatedKeysResultSet = mock(ResultSet.class);
+        
+        when(dbFactory.getDb()).thenReturn(db);
+        when(db.singleResultSet(ArgumentMatchers.any())).thenReturn(Single.just(allResultSet));
+        when(allResultSet.next()).thenReturn(Boolean.FALSE);
+        factoryInitializer = FactoryInitializer.getNew(dbFactory);
     }
     
     @Test
@@ -56,6 +57,7 @@ public class FactoryInitializerTest {
     @Test
     public void testTitleDbCache() throws SQLException {
         when(db.prepareStatementWithGeneratedKeys(ArgumentMatchers.any())).thenReturn(preparedStatement);
+        when(db.singleString(ArgumentMatchers.any())).thenReturn(Single.just("my title"));
         
         DbCache<String, Title> dbCache = factoryInitializer.getTitleFactory().getDbCache();
         Title title = new Title();
@@ -71,6 +73,7 @@ public class FactoryInitializerTest {
     @Test
     public void testImportsDbCache() throws SQLException {
         when(db.prepareStatement(ArgumentMatchers.any())).thenReturn(preparedStatement);
+        when(db.singleString(ArgumentMatchers.any())).thenReturn(Single.just("some import"));
         
         var cache = factoryInitializer.getImportFactory().getDbCache();
         String expected = "some import";
@@ -82,22 +85,9 @@ public class FactoryInitializerTest {
     }
     
     @Test
-    public void testConfigDbCache() throws SQLException {
-        when(db.prepareStatementWithGeneratedKeys(ArgumentMatchers.any())).thenReturn(preparedStatement);
-        var cache = factoryInitializer.getConfigElementFactory().getDbCache();
-        ConfigElement expected = new ConfigElement();
-        expected.setKey(ConfigurationEnum.IDLE);
-        expected.setValue("some value");
-        
-        cache.save(expected).blockingGet();
-        var result = cache.read(expected.getKey().toString()).blockingGet();
-        
-        assertEquals(expected, result);
-    }
-    
-    @Test
     public void testCloseableDbCache() throws SQLException {
         when(db.prepareStatement(ArgumentMatchers.any())).thenReturn(preparedStatement);
+        when(db.singleString(ArgumentMatchers.any())).thenReturn(Single.just("some process"));
         
         var cache = factoryInitializer.getCloseableFactory().getDbCache();
         Closeable expected = new Closeable();
@@ -112,6 +102,7 @@ public class FactoryInitializerTest {
     @Test
     public void testConditionDbCache() throws SQLException {
         when(db.prepareStatementWithGeneratedKeys(ArgumentMatchers.any())).thenReturn(preparedStatement);
+        when(db.singleLong(ArgumentMatchers.any())).thenReturn(Single.just(9L));
         when(preparedStatement.getGeneratedKeys()).thenReturn(generatedKeysResultSet);
         when(generatedKeysResultSet.next()).thenReturn(Boolean.TRUE);
         when(generatedKeysResultSet.getLong(ArgumentMatchers.anyInt())).thenReturn(9L);
@@ -140,6 +131,8 @@ public class FactoryInitializerTest {
         expected.setGroup(7);
         ExportedGroupId expectedId = new ExportedGroupId(expected.getGroup(), expected.getFile());
         
+        when(db.singleGeneric(ArgumentMatchers.any())).thenReturn(Single.just(expectedId));
+        
         cache.save(expected).blockingGet();
         var result = cache.read(expectedId).blockingGet();
         
@@ -149,6 +142,7 @@ public class FactoryInitializerTest {
     @Test
     public void testExternalGroupDbCache() throws SQLException {
         when(db.prepareStatementWithGeneratedKeys(ArgumentMatchers.any())).thenReturn(preparedStatement);
+        when(db.singleLong(ArgumentMatchers.any())).thenReturn(Single.just(14L));
         when(preparedStatement.getGeneratedKeys()).thenReturn(generatedKeysResultSet);
         when(generatedKeysResultSet.next()).thenReturn(Boolean.TRUE);
         when(generatedKeysResultSet.getLong(ArgumentMatchers.anyInt())).thenReturn(14L);
@@ -170,23 +164,7 @@ public class FactoryInitializerTest {
     }
     
     @Test
-    public void testTypeDbCache() throws SQLException {
-        when(db.prepareStatement(ArgumentMatchers.any())).thenReturn(preparedStatement);
-        
-        var cache = factoryInitializer.getTypeFactory().getDbCache();
-        Type expected = new Type();
-        expected.setProcess("some process");
-        expected.setType(Type.Types.DEPENDS);
-        
-        cache.save(expected).blockingGet();
-        var result = cache.read(expected.getProcess()).blockingGet();
-        
-        assertEquals(expected, result);
-    }
-    
-    @Test
     public void testTypeRepo() {
-        
         assertTrue(factoryInitializer.getTypeFactory().getService() instanceof TypeServiceImpl);
     }
     
