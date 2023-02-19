@@ -2,20 +2,27 @@ package devs.mrp.turkeydesktop.view.configuration;
 
 import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.common.factory.CommonBeans;
+import devs.mrp.turkeydesktop.database.config.ConfigElementFactoryImpl;
 import devs.mrp.turkeydesktop.database.config.ConfigElementService;
+import devs.mrp.turkeydesktop.database.imports.ImportFactoryImpl;
 import devs.mrp.turkeydesktop.database.imports.ImportService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.PanelHandlerData;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 
 public class ConfigurationPanelFactoryImpl implements ConfigurationPanelFactory {
     
-    private FactoryInitializer factory;
+    private static ConfigurationPanelFactoryImpl instance;
     
-    public ConfigurationPanelFactoryImpl(FactoryInitializer factory) {
-        this.factory = factory;
+    private ConfigurationPanelFactoryImpl() {}
+    
+    public static ConfigurationPanelFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new ConfigurationPanelFactoryImpl();
+        }
+        return instance;
     }
     
     @Override
@@ -30,22 +37,22 @@ public class ConfigurationPanelFactoryImpl implements ConfigurationPanelFactory 
 
     @Override
     public ConfigElementService getConfigElementService() {
-        return factory.getConfigElementFactory().getService();
+        return ConfigElementFactoryImpl.getInstance().getService();
     }
 
     @Override
     public TimeConverter getTimeConverter() {
-        return factory.getTimeConverter();
+        return CommonBeans.getTimeConverter();
     }
 
     @Override
     public FileHandler getFileHandler() {
-        return factory.getFileHandler();
+        return CommonBeans.getFileHandler();
     }
 
     @Override
     public ImportService getImportService() {
-        return factory.getImportFactory().getService();
+        return ImportFactoryImpl.getInstance().getService();
     }
     
 }

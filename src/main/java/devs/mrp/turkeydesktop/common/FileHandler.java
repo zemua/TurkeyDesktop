@@ -2,7 +2,6 @@ package devs.mrp.turkeydesktop.common;
 
 import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Single;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -24,10 +23,10 @@ public class FileHandler {
     private long lastExport = 0;
     private Map<String,CachedValue> readerCache = new HashMap<>();
     private Map<String,Long> lastWrittings = new HashMap<>();
-    private final FactoryInitializer factory;
+    private final ConfigElementService configService;
     
-    public FileHandler(FactoryInitializer factoryInitializer) {
-        this.factory = factoryInitializer;
+    public FileHandler(ConfigElementService configService) {
+        this.configService = configService;
     }
     
     private class CachedValue {
@@ -80,7 +79,6 @@ public class FileHandler {
         if (lastExport + millisBetweenOperations > now) {
             return;
         }
-        ConfigElementService configService = factory.getConfigElementFactory().getService();
         lastExport = now;
         Single.zip(configService.configElement(ConfigurationEnum.EXPORT_PATH),
                 configService.configElement(ConfigurationEnum.EXPORT_TOGGLE),

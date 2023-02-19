@@ -4,20 +4,26 @@ import devs.mrp.turkeydesktop.common.GenericCache;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.impl.GenericCacheImpl;
 import devs.mrp.turkeydesktop.database.Db;
+import devs.mrp.turkeydesktop.database.DbFactoryImpl;
+import devs.mrp.turkeydesktop.database.config.ConfigElementFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.GroupService;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Single;
 
 public class TimeLogFactoryImpl implements TimeLogFactory {
     
-    private FactoryInitializer factory;
+    private static TimeLogFactoryImpl instance;
     private static TimeLogService timeLogService;
     private static TimeLogDao repo;
     private GroupService groupService;
+    private TimeConverter timeConverter;
     
-    public TimeLogFactoryImpl(FactoryInitializer factory) {
-        this.factory = factory;
-        this.groupService = factory.getGroupFactory().getService();
+    private TimeLogFactoryImpl() {}
+    
+    public static TimeLogFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new TimeLogFactoryImpl();
+        }
+        return instance;
     }
     
     @Override
@@ -35,12 +41,15 @@ public class TimeLogFactoryImpl implements TimeLogFactory {
 
     @Override
     public TimeConverter getTimeConverter() {
-        return factory.getTimeConverter();
+        if (timeConverter == null) {
+            timeConverter = new TimeConverter(ConfigElementFactoryImpl.getInstance().getService());
+        }
+        return timeConverter;
     }
 
     @Override
     public Db getDb() {
-        return factory.getDbFactory().getDb();
+        return DbFactoryImpl.getInstance().getDb();
     }
 
     @Override

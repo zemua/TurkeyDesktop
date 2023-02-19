@@ -47,23 +47,14 @@ public class Db {
     public static final String IMPORTS_TABLE = "IMPORTS_TABLE";
 
     private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
-    private static Db instance = null;
     private Connection con = null;
     
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
     
     private DbFactory factory;
     
-    private Db(DbFactory factory) {
+    Db(DbFactory factory) {
         this.factory = factory;
-    }
-
-    public static Db getInstance(DbFactory factory) {
-        if (instance == null) {
-            instance = new Db(factory);
-            instance.inicializar();
-        }
-        return instance;
     }
     
     public Single<String> singleString(Callable<String> callable) {
@@ -137,7 +128,7 @@ public class Db {
         return Objects.isNull(con);
     }
 
-    private void inicializar() {
+    void inicializar() {
         setConnection();
 
         execute(String.format("CREATE TABLE IF NOT EXISTS %s("

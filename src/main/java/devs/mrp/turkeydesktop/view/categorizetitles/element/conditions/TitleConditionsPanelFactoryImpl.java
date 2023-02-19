@@ -1,19 +1,24 @@
 package devs.mrp.turkeydesktop.view.categorizetitles.element.conditions;
 
 import devs.mrp.turkeydesktop.database.titledlog.TitledLog;
+import devs.mrp.turkeydesktop.database.titles.TitleFactoryImpl;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import javax.swing.JFrame;
 
 public class TitleConditionsPanelFactoryImpl implements TitleConditionsPanelFactory {
     
-    private final FactoryInitializer factory;
+    private static TitleConditionsPanelFactoryImpl instance;
     
-    public TitleConditionsPanelFactoryImpl(FactoryInitializer initializer) {
-        this.factory = initializer;
+    private TitleConditionsPanelFactoryImpl() {}
+    
+    public static TitleConditionsPanelFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new TitleConditionsPanelFactoryImpl();
+        }
+        return instance;
     }
     
     @Override
@@ -28,7 +33,7 @@ public class TitleConditionsPanelFactoryImpl implements TitleConditionsPanelFact
 
     @Override
     public TitleService getTitleService() {
-        return factory.getTitleFactory().getService();
+        return TitleFactoryImpl.getInstance().getService();
     }
     
 }

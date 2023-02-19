@@ -3,29 +3,42 @@ package devs.mrp.turkeydesktop.database.logandtype;
 import devs.mrp.turkeydesktop.common.SingleConsumer;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.Tripla;
+import devs.mrp.turkeydesktop.common.factory.CommonBeans;
 import devs.mrp.turkeydesktop.database.Db;
+import devs.mrp.turkeydesktop.database.DbFactoryImpl;
+import devs.mrp.turkeydesktop.database.closeables.CloseableFactoryImpl;
 import devs.mrp.turkeydesktop.database.closeables.CloseableService;
+import devs.mrp.turkeydesktop.database.config.ConfigElementFactoryImpl;
 import devs.mrp.turkeydesktop.database.config.ConfigElementService;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
+import devs.mrp.turkeydesktop.database.logs.TimeLogFactoryImpl;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
+import devs.mrp.turkeydesktop.database.titles.TitleFactoryImpl;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
 import devs.mrp.turkeydesktop.database.type.Type;
+import devs.mrp.turkeydesktop.database.type.TypeFactoryImpl;
 import devs.mrp.turkeydesktop.database.type.TypeService;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
+import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactoryImpl;
 import io.reactivex.rxjava3.core.Single;
 import java.util.List;
 import java.util.function.Consumer;
 
 public class LogAndTypeFacadeFactoryImpl implements LogAndTypeFacadeFactory {
     
-    private FactoryInitializer factory;
+    private static LogAndTypeFacadeFactoryImpl instance;
     private static LogAndTypeFacadeService logAndTypeFacadeService;
     private static LogAndTypeFacadeRepository logAndTypeFacadeRepository;
     
-    public LogAndTypeFacadeFactoryImpl(FactoryInitializer factoryInitializer) {
-        this.factory = factoryInitializer;
+    private LogAndTypeFacadeFactoryImpl() {}
+    
+    public static LogAndTypeFacadeFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new LogAndTypeFacadeFactoryImpl();
+        }
+        return instance;
     }
     
     @Override
@@ -38,27 +51,27 @@ public class LogAndTypeFacadeFactoryImpl implements LogAndTypeFacadeFactory {
     
     @Override
     public Consumer<List<Tripla<String, Long, Type.Types>>> getTriplaConsumer(Consumer<List<Tripla<String, Long, Type.Types>>> consumer) {
-        return new SingleConsumer<>(consumer, factory.getToaster());
+        return new SingleConsumer<>(consumer, CommonBeans.getToaster());
     }
     
     @Override
     public Consumer<TimeLog> getConsumer(Consumer<TimeLog> consumer) {
-        return new SingleConsumer<>(consumer, factory.getToaster());
+        return new SingleConsumer<>(consumer, CommonBeans.getToaster());
     }
 
     @Override
     public ConditionChecker conditionChecker() {
-        return factory.getConditionCheckerFactory().getConditionChecker();
+        return ConditionCheckerFactoryImpl.getInstance().getConditionChecker();
     }
 
     @Override
     public ConfigElementService configService() {
-        return factory.getConfigElementFactory().getService();
+        return ConfigElementFactoryImpl.getInstance().getService();
     }
 
     @Override
     public Db getDb() {
-        return factory.getDbFactory().getDb();
+        return DbFactoryImpl.getInstance().getDb();
     }
 
     @Override
@@ -71,42 +84,42 @@ public class LogAndTypeFacadeFactoryImpl implements LogAndTypeFacadeFactory {
 
     @Override
     public GroupAssignationService getGroupAssignationService() {
-        return factory.getGroupAssignationFactory().getService();
+        return GroupAssignationFactoryImpl.getInstance().getService();
     }
 
     @Override
     public CloseableService getCloseableService() {
-        return factory.getCloseableFactory().getService();
+        return CloseableFactoryImpl.getInstance().getService();
     }
 
     @Override
     public TimeConverter getTimeConverter() {
-        return factory.getTimeConverter();
+        return CommonBeans.getTimeConverter();
     }
 
     @Override
     public TimeLogService getTimeLogService() {
-        return factory.getTimeLogServiceFactory().getService();
+        return TimeLogFactoryImpl.getInstance().getService();
     }
 
     @Override
     public TypeService getTypeService() {
-        return factory.getTypeFactory().getService();
+        return TypeFactoryImpl.getInstance().getService();
     }
 
     @Override
     public TitleService getTitleService() {
-        return factory.getTitleFactory().getService();
+        return TitleFactoryImpl.getInstance().getService();
     }
 
     @Override
     public Single<TimeLog> asBlockable(TimeLog timeLog) {
-        return factory.getTimeLogServiceFactory().asBlockable(timeLog);
+        return TimeLogFactoryImpl.getInstance().asBlockable(timeLog);
     }
 
     @Override
     public Single<TimeLog> asNotBlockable(TimeLog timeLog) {
-        return factory.getTimeLogServiceFactory().asNotBlockable(timeLog);
+        return TimeLogFactoryImpl.getInstance().asNotBlockable(timeLog);
     }
     
 }

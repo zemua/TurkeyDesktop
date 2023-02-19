@@ -3,8 +3,9 @@ package devs.mrp.turkeydesktop.database.titles;
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
 import devs.mrp.turkeydesktop.database.Db;
+import devs.mrp.turkeydesktop.database.DbFactoryImpl;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Observable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,16 +14,21 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TitleFactoryImpl implements TitleFactory {
     
-    private final FactoryInitializer factory;
+    private static TitleFactoryImpl instance;
     private static DbCache<String, Title> dbCache;
     
-    public TitleFactoryImpl(FactoryInitializer factoryInitializer) {
-        this.factory = factoryInitializer;
+    private TitleFactoryImpl() {}
+    
+    public static TitleFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new TitleFactoryImpl();
+        }
+        return instance;
     }
     
     @Override
     public Db getDb() {
-        return factory.getDbFactory().getDb();
+        return DbFactoryImpl.getInstance().getDb();
     }
     
     protected DbCache<String, Title> buildCache(TitleDao repo) {
@@ -72,7 +78,7 @@ public class TitleFactoryImpl implements TitleFactory {
 
     @Override
     public GroupAssignationService getGroupAssignationService() {
-        return factory.getGroupAssignationFactory().getService();
+        return GroupAssignationFactoryImpl.getInstance().getService();
     }
     
 }

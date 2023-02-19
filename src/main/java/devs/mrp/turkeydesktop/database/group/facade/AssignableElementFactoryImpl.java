@@ -1,16 +1,23 @@
 package devs.mrp.turkeydesktop.database.group.facade;
 
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
+import devs.mrp.turkeydesktop.database.titles.TitleFactoryImpl;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
+import devs.mrp.turkeydesktop.database.type.TypeFactoryImpl;
 import devs.mrp.turkeydesktop.database.type.TypeService;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 
 public class AssignableElementFactoryImpl implements AssignableElementFactory {
     
-    private FactoryInitializer factory;
+    private static AssignableElementFactoryImpl instance;
     
-    public AssignableElementFactoryImpl(FactoryInitializer factoryInitializer) {
-        this.factory = factoryInitializer;
+    private AssignableElementFactoryImpl(){}
+    
+    public static AssignableElementFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new AssignableElementFactoryImpl();
+        }
+        return instance;
     }
     
     @Override
@@ -25,17 +32,17 @@ public class AssignableElementFactoryImpl implements AssignableElementFactory {
 
     @Override
     public GroupAssignationService getAssignationService() {
-        return factory.getGroupAssignationFactory().getService();
+        return GroupAssignationFactoryImpl.getInstance().getService();
     }
 
     @Override
     public TypeService getTypeService() {
-        return factory.getTypeFactory().getService();
+        return TypeFactoryImpl.getInstance().getService();
     }
 
     @Override
     public TitleService getTitleService() {
-        return factory.getTitleFactory().getService();
+        return TitleFactoryImpl.getInstance().getService();
     }
     
 }

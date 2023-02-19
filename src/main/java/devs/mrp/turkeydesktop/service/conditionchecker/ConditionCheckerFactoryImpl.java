@@ -3,28 +3,39 @@ package devs.mrp.turkeydesktop.service.conditionchecker;
 import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.common.factory.CommonBeans;
+import devs.mrp.turkeydesktop.database.conditions.ConditionFactoryImpl;
 import devs.mrp.turkeydesktop.database.conditions.ConditionService;
+import devs.mrp.turkeydesktop.database.config.ConfigElementFactoryImpl;
 import devs.mrp.turkeydesktop.database.config.ConfigElementService;
+import devs.mrp.turkeydesktop.database.group.external.ExternalGroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
+import devs.mrp.turkeydesktop.database.imports.ImportFactoryImpl;
 import devs.mrp.turkeydesktop.database.imports.ImportService;
+import devs.mrp.turkeydesktop.database.logs.TimeLogFactoryImpl;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.service.conditionchecker.idle.IdleChainCommander;
 import devs.mrp.turkeydesktop.service.conditionchecker.idle.LongWrapper;
 import devs.mrp.turkeydesktop.service.conditionchecker.imports.ImportReader;
+import devs.mrp.turkeydesktop.service.conditionchecker.imports.ImportReaderFactoryImpl;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 
 public class ConditionCheckerFactoryImpl implements ConditionCheckerFactory {
     
-    private FactoryInitializer factory;
+    private static ConditionCheckerFactoryImpl instance;
     
-    public ConditionCheckerFactoryImpl(FactoryInitializer factories) {
-        this.factory = factories;
+    private ConditionCheckerFactoryImpl(){}
+    
+    public static ConditionCheckerFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new ConditionCheckerFactoryImpl();
+        }
+        return instance;
     }
     
     @Override
     public ConfigElementService getConfigElementService() {
-        return factory.getConfigElementFactory().getService();
+        return ConfigElementFactoryImpl.getInstance().getService();
     }
     
     @Override
@@ -34,32 +45,32 @@ public class ConditionCheckerFactoryImpl implements ConditionCheckerFactory {
 
     @Override
     public Toaster getToaster() {
-        return factory.getToaster();
+        return CommonBeans.getToaster();
     }
 
     @Override
     public TimeConverter getTimeConverter() {
-        return factory.getTimeConverter();
+        return CommonBeans.getTimeConverter();
     }
 
     @Override
     public FileHandler fileHandler() {
-        return factory.getFileHandler();
+        return CommonBeans.getFileHandler();
     }
 
     @Override
     public ConditionService getConditionService() {
-        return factory.getConditionFactory().getService();
+        return ConditionFactoryImpl.getInstance().getService();
     }
 
     @Override
     public TimeLogService getTimeLogService() {
-        return factory.getTimeLogServiceFactory().getService();
+        return TimeLogFactoryImpl.getInstance().getService();
     }
 
     @Override
     public ImportService getImportService() {
-        return factory.getImportFactory().getService();
+        return ImportFactoryImpl.getInstance().getService();
     }
 
     @Override
@@ -69,11 +80,11 @@ public class ConditionCheckerFactoryImpl implements ConditionCheckerFactory {
 
     @Override
     public ExternalGroupService getExternalGroupService() {
-        return factory.getExternalGroupFactory().getService();
+        return ExternalGroupFactoryImpl.getInstance().getService();
     }
 
     @Override
     public ImportReader getImportReader() {
-        return factory.getImportReaderFactory().getReader();
+        return ImportReaderFactoryImpl.getInstance().getReader();
     }
 }

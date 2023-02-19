@@ -1,21 +1,27 @@
 package devs.mrp.turkeydesktop.view.categorizetitles;
 
 import devs.mrp.turkeydesktop.database.titledlog.TitledLog;
+import devs.mrp.turkeydesktop.database.titledlog.TitledLogFacadeFactoryImpl;
 import devs.mrp.turkeydesktop.database.titledlog.TitledLogServiceFacade;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.categorizetitles.element.conditions.TitleConditionsEnum;
 import devs.mrp.turkeydesktop.view.categorizetitles.element.conditions.TitleConditionsPanelFactory;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
+import devs.mrp.turkeydesktop.view.categorizetitles.element.conditions.TitleConditionsPanelFactoryImpl;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import javax.swing.JFrame;
 
 public class CategorizeTitlesPanelFactoryImpl implements CategorizeTitlesPanelFactory {
     
-    private FactoryInitializer factory;
+    private static CategorizeTitlesPanelFactoryImpl instance;
     
-    public CategorizeTitlesPanelFactoryImpl(FactoryInitializer initializer) {
-        this.factory = initializer;
+    private CategorizeTitlesPanelFactoryImpl() {}
+    
+    public static CategorizeTitlesPanelFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new CategorizeTitlesPanelFactoryImpl();
+        }
+        return instance;
     }
     
     @Override
@@ -30,12 +36,12 @@ public class CategorizeTitlesPanelFactoryImpl implements CategorizeTitlesPanelFa
 
     @Override
     public TitledLogServiceFacade getTitledLogServiceFacade() {
-        return factory.getTitledLogFacadeFactory().getService();
+        return TitledLogFacadeFactoryImpl.getInstance().getService();
     }
 
     @Override
     public PanelHandler<TitleConditionsEnum, AWTEvent, FeedbackerPanelWithFetcher<TitleConditionsEnum, AWTEvent>, TitleConditionsPanelFactory> getHandler(JFrame frame, PanelHandler<?, ?, ?, ?> caller, TitledLog titledLog) {
-        return factory.getTitleConditionsPanelFactory().getHandler(frame, caller, titledLog);
+        return TitleConditionsPanelFactoryImpl.getInstance().getHandler(frame, caller, titledLog);
     }
     
 }

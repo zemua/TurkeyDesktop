@@ -2,19 +2,27 @@ package devs.mrp.turkeydesktop.database.groupcondition;
 
 import devs.mrp.turkeydesktop.common.SingleConsumer;
 import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.common.factory.CommonBeans;
+import devs.mrp.turkeydesktop.database.conditions.ConditionFactoryImpl;
 import devs.mrp.turkeydesktop.database.conditions.ConditionService;
+import devs.mrp.turkeydesktop.database.group.GroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
+import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactoryImpl;
 import java.util.List;
 import java.util.function.Consumer;
 
 public class GroupConditionFacadeFactoryImpl implements GroupConditionFacadeFactory {
     
-    private FactoryInitializer factory;
+    private static GroupConditionFacadeFactoryImpl instance;
     
-    public GroupConditionFacadeFactoryImpl(FactoryInitializer factory) {
-        this.factory = factory;
+    private GroupConditionFacadeFactoryImpl() {}
+    
+    public static GroupConditionFacadeFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new GroupConditionFacadeFactoryImpl();
+        }
+        return instance;
     }
     
     @Override
@@ -24,17 +32,17 @@ public class GroupConditionFacadeFactoryImpl implements GroupConditionFacadeFact
     
     @Override
     public Consumer<GroupConditionFacade> getConsumer(Consumer<GroupConditionFacade> consumer) {
-        return new SingleConsumer<>(consumer, factory.getToaster());
+        return new SingleConsumer<>(consumer, CommonBeans.getToaster());
     }
     
     @Override
     public Consumer<List<GroupConditionFacade>> getListConsumer(Consumer<List<GroupConditionFacade>> consumer) {
-        return new SingleConsumer<>(consumer, factory.getToaster());
+        return new SingleConsumer<>(consumer, CommonBeans.getToaster());
     }
 
     @Override
     public ConditionChecker conditionCheker() {
-        return factory.getConditionCheckerFactory().getConditionChecker();
+        return ConditionCheckerFactoryImpl.getInstance().getConditionChecker();
     }
 
     @Override
@@ -44,17 +52,17 @@ public class GroupConditionFacadeFactoryImpl implements GroupConditionFacadeFact
 
     @Override
     public TimeConverter getTimeConverter() {
-        return factory.getTimeConverter();
+        return CommonBeans.getTimeConverter();
     }
 
     @Override
     public ConditionService getConditionService() {
-        return factory.getConditionFactory().getService();
+        return ConditionFactoryImpl.getInstance().getService();
     }
 
     @Override
     public GroupService getGroupService() {
-        return factory.getGroupFactory().getService();
+        return GroupFactoryImpl.getInstance().getService();
     }
     
 }

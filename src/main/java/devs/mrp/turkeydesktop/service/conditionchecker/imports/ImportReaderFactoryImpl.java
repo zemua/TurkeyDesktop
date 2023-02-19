@@ -1,15 +1,20 @@
 package devs.mrp.turkeydesktop.service.conditionchecker.imports;
 
 import devs.mrp.turkeydesktop.common.FileHandler;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
+import devs.mrp.turkeydesktop.common.factory.CommonBeans;
 
 public class ImportReaderFactoryImpl implements ImportReaderFactory {
     
-    private final FactoryInitializer factory;
+    private static ImportReaderFactoryImpl instance;
     private static ImportReader importReader;
     
-    public ImportReaderFactoryImpl(FactoryInitializer factoryInitializer) {
-        this.factory = factoryInitializer;
+    private ImportReaderFactoryImpl() {}
+    
+    public static ImportReaderFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new ImportReaderFactoryImpl();
+        }
+        return instance;
     }
     
     @Override
@@ -22,6 +27,6 @@ public class ImportReaderFactoryImpl implements ImportReaderFactory {
 
     @Override
     public FileHandler getFileHandler() {
-        return factory.getFileHandler();
+        return CommonBeans.getFileHandler();
     }
 }

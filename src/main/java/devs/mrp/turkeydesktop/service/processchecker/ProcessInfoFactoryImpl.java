@@ -1,13 +1,16 @@
 package devs.mrp.turkeydesktop.service.processchecker;
 
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
-
 public class ProcessInfoFactoryImpl implements ProcessInfoFactory {
     
-    private FactoryInitializer factory;
+    private static ProcessInfoFactoryImpl instance;
     
-    public ProcessInfoFactoryImpl(FactoryInitializer initializer) {
-        this.factory = initializer;
+    private ProcessInfoFactoryImpl() {}
+    
+    public static ProcessInfoFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new ProcessInfoFactoryImpl();
+        }
+        return instance;
     }
     
     @Override

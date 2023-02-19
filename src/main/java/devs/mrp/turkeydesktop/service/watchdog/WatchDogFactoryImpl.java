@@ -2,17 +2,24 @@ package devs.mrp.turkeydesktop.service.watchdog;
 
 import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.common.FileHandler;
+import devs.mrp.turkeydesktop.common.factory.CommonBeans;
+import devs.mrp.turkeydesktop.database.group.GroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
+import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactoryImpl;
 import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritter;
+import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritterFactoryImpl;
 import devs.mrp.turkeydesktop.service.processchecker.ProcessChecker;
+import devs.mrp.turkeydesktop.service.processchecker.ProcessCheckerFactoryImpl;
 import devs.mrp.turkeydesktop.service.processkiller.KillerChainCommander;
 import devs.mrp.turkeydesktop.service.resourcehandler.ImagesEnum;
 import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandler;
 import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandlerFactory;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.service.watchdog.logger.DbLogger;
+import devs.mrp.turkeydesktop.service.watchdog.logger.DbLoggerFactoryImpl;
 import devs.mrp.turkeydesktop.view.container.traychain.TrayChainBaseHandler;
+import devs.mrp.turkeydesktop.view.container.traychain.TrayChainFactoryImpl;
 import java.awt.Image;
 
 public class WatchDogFactoryImpl implements WatchDogFactory {
@@ -40,32 +47,32 @@ public class WatchDogFactoryImpl implements WatchDogFactory {
 
     @Override
     public ConditionChecker getConditionChecker() {
-        return ConditionCheckerFactoryImpl().getInstance().getConditionChecker();
+        return ConditionCheckerFactoryImpl.getInstance().getConditionChecker();
     }
 
     @Override
     public Toaster getToaster() {
-        return factory.getToaster();
+        return CommonBeans.getToaster();
     }
 
     @Override
     public FileHandler getFileHandler() {
-        return factory.getFileHandler();
+        return CommonBeans.getFileHandler();
     }
 
     @Override
     public ExportWritter getExportWritter() {
-        return factory.getExportWritterFactory().getWritter();
+        return ExportWritterFactoryImpl.getInstance().getWritter();
     }
 
     @Override
     public GroupService getGroupService() {
-        return factory.getGroupFactory().getService();
+        return GroupFactoryImpl.getInstance().getService();
     }
 
     @Override
     public TrayChainBaseHandler getTrayChainBaseHandler() {
-        return factory.getTrayChainFactory().getChain();
+        return TrayChainFactoryImpl.getInstance().getChain();
     }
 
     @Override
@@ -80,12 +87,12 @@ public class WatchDogFactoryImpl implements WatchDogFactory {
 
     @Override
     public DbLogger getDbLogger() {
-        return factory.getDbLoggerFactory().getNew();
+        return DbLoggerFactoryImpl.getInstance().getNew();
     }
 
     @Override
     public ProcessChecker getProcessChecker() {
-        return factory.getProcessCheckerFactory().getNew();
+        return ProcessCheckerFactoryImpl.getInstance().getNew();
     }
     
 }

@@ -3,7 +3,7 @@ package devs.mrp.turkeydesktop.database.group;
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
+import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import io.reactivex.rxjava3.core.Observable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,12 +12,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GroupFactoryImpl implements GroupFactory {
     
-    private final FactoryInitializer factory;
+    private static GroupFactoryImpl instance;
     private static DbCache<Long, Group> dbCache;
     private static GroupService groupService;
     
-    public GroupFactoryImpl(FactoryInitializer factoryInitializer) {
-        this.factory = factoryInitializer;
+    private GroupFactoryImpl() {}
+    
+    public static GroupFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new GroupFactoryImpl();
+        }
+        return instance;
     }
     
     protected DbCache<Long, Group> buildCache(GroupDao repo) {
@@ -76,7 +81,7 @@ public class GroupFactoryImpl implements GroupFactory {
 
     @Override
     public Db getDb() {
-        return factory.getDbFactory().getDb();
+        return DbFactoryImpl.getInstance().getDb();
     }
     
 }

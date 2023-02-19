@@ -1,19 +1,25 @@
 package devs.mrp.turkeydesktop.view.categorizeprocesspanel;
 
+import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeFactoryImpl;
 import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeService;
+import devs.mrp.turkeydesktop.database.type.TypeFactoryImpl;
 import devs.mrp.turkeydesktop.database.type.TypeService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.PanelHandlerData;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 
 public class CatProcessPanelFactoryImpl implements CatProcessPanelFactory {
     
-    private FactoryInitializer factory;
+    private static CatProcessPanelFactoryImpl instance;
     
-    public CatProcessPanelFactoryImpl(FactoryInitializer factory) {
-        this.factory = factory;
+    private CatProcessPanelFactoryImpl() {}
+    
+    public static CatProcessPanelFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new CatProcessPanelFactoryImpl();
+        }
+        return instance;
     }
     
     @Override
@@ -28,11 +34,11 @@ public class CatProcessPanelFactoryImpl implements CatProcessPanelFactory {
 
     @Override
     public LogAndTypeFacadeService getLogAndTypeFacadeService() {
-        return factory.getLogAndTypeFacadeFactory().getService();
+        return LogAndTypeFacadeFactoryImpl.getInstance().getService();
     }
 
     @Override
     public TypeService getTypeService() {
-        return factory.getTypeFactory().getService();
+        return TypeFactoryImpl.getInstance().getService();
     }
 }

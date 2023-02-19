@@ -4,18 +4,27 @@ import devs.mrp.turkeydesktop.common.GenericCache;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.common.impl.GenericCacheImpl;
 import devs.mrp.turkeydesktop.database.Db;
+import devs.mrp.turkeydesktop.database.DbFactoryImpl;
+import devs.mrp.turkeydesktop.database.config.ConfigElementFactoryImpl;
+import devs.mrp.turkeydesktop.database.logs.TimeLogFactoryImpl;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
+import devs.mrp.turkeydesktop.database.titles.TitleFactoryImpl;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 
 public class TitledLogFacadeFactoryImpl implements TitledLogFacadeFactory {
     
-    private FactoryInitializer factory;
+    private static TitledLogFacadeFactoryImpl instance;
     private static TitledLogServiceFacade titledLogServiceFacade;
     private static TitledLogDaoFacade titledLogRepoFacade;
+    private TimeConverter timeConverter;
     
-    public TitledLogFacadeFactoryImpl(FactoryInitializer factory) {
-        this.factory = factory;
+    private TitledLogFacadeFactoryImpl() {}
+    
+    public static TitledLogFacadeFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new TitledLogFacadeFactoryImpl();
+        }
+        return instance;
     }
     
     @Override
@@ -28,12 +37,12 @@ public class TitledLogFacadeFactoryImpl implements TitledLogFacadeFactory {
 
     @Override
     public Db getDb() {
-        return factory.getDbFactory().getDb();
+        return DbFactoryImpl.getInstance().getDb();
     }
 
     @Override
     public TimeLogService getTimeLogService() {
-        return factory.getTimeLogServiceFactory().getService();
+        return TimeLogFactoryImpl.getInstance().getService();
     }
 
     @Override
@@ -51,12 +60,15 @@ public class TitledLogFacadeFactoryImpl implements TitledLogFacadeFactory {
 
     @Override
     public TimeConverter getTimeConverter() {
-        return factory.getTimeConverter();
+        if (timeConverter == null) {
+            timeConverter = new TimeConverter(ConfigElementFactoryImpl.getInstance().getService());
+        }
+        return timeConverter;
     }
 
     @Override
     public TitleService getTitleService() {
-        return factory.getTitleFactory().getService();
+        return TitleFactoryImpl.getInstance().getService();
     }
     
 }

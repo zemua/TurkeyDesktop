@@ -3,7 +3,7 @@ package devs.mrp.turkeydesktop.database.type;
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
+import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import io.reactivex.rxjava3.core.Observable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,14 +12,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TypeFactoryImpl implements TypeFactory {
     
-    private final FactoryInitializer factory;
+    private static TypeFactoryImpl instance;
     private static DbCache<String,Type> dbCache;
-    private final Db db;
     private static TypeService typeService;
     
-    public TypeFactoryImpl(FactoryInitializer factoryInitializer) {
-        this.factory = factoryInitializer;
-        this.db = factoryInitializer.getDbFactory().getDb();
+    private TypeFactoryImpl() {}
+    
+    public static TypeFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new TypeFactoryImpl();
+        }
+        return instance;
     }
     
     @Override
@@ -32,7 +35,7 @@ public class TypeFactoryImpl implements TypeFactory {
     
     @Override
     public Db getDb() {
-        return db;
+        return DbFactoryImpl.getInstance().getDb();
     }
     
     @Override

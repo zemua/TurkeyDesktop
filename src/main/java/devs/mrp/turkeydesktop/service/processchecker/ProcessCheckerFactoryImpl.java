@@ -1,13 +1,16 @@
 package devs.mrp.turkeydesktop.service.processchecker;
 
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
-
 public class ProcessCheckerFactoryImpl implements ProcessCheckerFactory {
     
-    private FactoryInitializer factory;
+    private static ProcessCheckerFactoryImpl instance;
     
-    public ProcessCheckerFactoryImpl(FactoryInitializer initializer) {
-        this.factory = initializer;
+    private ProcessCheckerFactoryImpl() {}
+    
+    public static ProcessCheckerFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new ProcessCheckerFactoryImpl();
+        }
+        return instance;
     }
     
     @Override
@@ -17,7 +20,7 @@ public class ProcessCheckerFactoryImpl implements ProcessCheckerFactory {
 
     @Override
     public ProcessInfo getNewProcessInfo() {
-        return factory.getProcessInfoFactory().getNew();
+        return ProcessInfoFactoryImpl.getInstance().getNew();
     }
     
 }

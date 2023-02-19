@@ -4,8 +4,8 @@ import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.GenericWorker;
 import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
 import devs.mrp.turkeydesktop.database.Db;
+import devs.mrp.turkeydesktop.database.DbFactoryImpl;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Observable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,13 +19,19 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ConfigElementFactoryImpl implements ConfigElementFactory {
     
-    private FactoryInitializer factory;
+    private static ConfigElementFactoryImpl instance;
     private static Db db;
     private static DbCache<String, ConfigElement> dbCache;
     private static ConfigElementService configElementService;
     
-    public ConfigElementFactoryImpl(FactoryInitializer factory) {
-        this.factory = factory;
+    private ConfigElementFactoryImpl() {
+    }
+    
+    public static ConfigElementFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new ConfigElementFactoryImpl();
+        }
+        return instance;
     }
     
     protected DbCache<String, ConfigElement> buildCache(ConfigElementDao repo) {
@@ -39,7 +45,7 @@ public class ConfigElementFactoryImpl implements ConfigElementFactory {
     @Override
     public Db getDb() {
         if (db == null) {
-            db = factory.getDbFactory().getDb();
+            db = DbFactoryImpl.getInstance().getDb();
         }
         return db;
     }

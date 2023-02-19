@@ -1,14 +1,19 @@
 package devs.mrp.turkeydesktop.service.watchdog.logger;
 
+import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeFactoryImpl;
 import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeService;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 
 public class DbLoggerFactoryImpl implements DbLoggerFactory {
     
-    private FactoryInitializer factory;
+    private static DbLoggerFactoryImpl instance;
     
-    public DbLoggerFactoryImpl(FactoryInitializer factoryInitializer) {
-        this.factory = factoryInitializer;
+    private DbLoggerFactoryImpl() {}
+    
+    public static DbLoggerFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new DbLoggerFactoryImpl();
+        }
+        return instance;
     }
     
     @Override
@@ -18,7 +23,7 @@ public class DbLoggerFactoryImpl implements DbLoggerFactory {
 
     @Override
     public LogAndTypeFacadeService getLogAndTypeFacadeService() {
-        return factory.getLogAndTypeFacadeFactory().getService();
+        return LogAndTypeFacadeFactoryImpl.getInstance().getService();
     }
     
 }

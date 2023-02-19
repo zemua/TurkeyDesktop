@@ -1,27 +1,39 @@
 package devs.mrp.turkeydesktop.view.groups.review;
 
 import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.common.factory.CommonBeans;
+import devs.mrp.turkeydesktop.database.conditions.ConditionFactoryImpl;
 import devs.mrp.turkeydesktop.database.conditions.ConditionService;
 import devs.mrp.turkeydesktop.database.group.Group;
+import devs.mrp.turkeydesktop.database.group.GroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.GroupService;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
+import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupService;
+import devs.mrp.turkeydesktop.database.group.external.ExternalGroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
+import devs.mrp.turkeydesktop.database.group.facade.AssignableElementFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElementService;
+import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacadeFactoryImpl;
 import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacadeService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.PanelHandlerData;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import javax.swing.JFrame;
 
 public class GroupReviewFactoryImpl implements GroupReviewFactory {
     
-    private FactoryInitializer factory;
+    private static GroupReviewFactoryImpl instance;
     
-    public GroupReviewFactoryImpl(FactoryInitializer factory) {
-        this.factory = factory;
+    private GroupReviewFactoryImpl() {}
+    
+    public static GroupReviewFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new GroupReviewFactoryImpl();
+        }
+        return instance;
     }
     
     @Override
@@ -37,47 +49,47 @@ public class GroupReviewFactoryImpl implements GroupReviewFactory {
 
     @Override
     public GroupConditionFacadeService groupConditionFacadeService() {
-        return factory.getGroupConditionFacadeFactory().getService();
+        return GroupConditionFacadeFactoryImpl.getInstance().getService();
     }
 
     @Override
     public GroupService getGroupService() {
-        return factory.getGroupFactory().getService();
+        return GroupFactoryImpl.getInstance().getService();
     }
 
     @Override
     public GroupAssignationService getGroupAssignationService() {
-        return factory.getGroupAssignationFactory().getService();
+        return GroupAssignationFactoryImpl.getInstance().getService();
     }
 
     @Override
     public AssignableElementService getAssignableProcessService() {
-        return factory.getAssignableElementFactory().getProcessesService();
+        return AssignableElementFactoryImpl.getInstance().getProcessesService();
     }
 
     @Override
     public AssignableElementService getAssignableTitleService() {
-        return factory.getAssignableElementFactory().getTitlesService();
+        return AssignableElementFactoryImpl.getInstance().getTitlesService();
     }
 
     @Override
     public ConditionService getConditionService() {
-        return factory.getConditionFactory().getService();
+        return ConditionFactoryImpl.getInstance().getService();
     }
 
     @Override
     public ExternalGroupService getExternalGroupService() {
-        return factory.getExternalGroupFactory().getService();
+        return ExternalGroupFactoryImpl.getInstance().getService();
     }
 
     @Override
     public ExportedGroupService getExportedGroupService() {
-        return factory.getExportedGroupFactory().getService();
+        return ExportedGroupFactoryImpl.getInstance().getService();
     }
 
     @Override
     public TimeConverter getTimeConverter() {
-        return factory.getTimeConverter();
+        return CommonBeans.getTimeConverter();
     }
     
 }

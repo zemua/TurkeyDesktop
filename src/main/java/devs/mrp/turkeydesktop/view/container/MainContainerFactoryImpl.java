@@ -4,10 +4,15 @@ import javax.swing.JFrame;
 
 public class MainContainerFactoryImpl implements MainContainerFactory {
     
-    private final FactoryInitializer factory;
+    private static MainContainerFactoryImpl instance;
     
-    public MainContainerFactoryImpl(FactoryInitializer initializer) {
-        this.factory = initializer;
+    private MainContainerFactoryImpl() {}
+    
+    public static MainContainerFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new MainContainerFactoryImpl();
+        }
+        return instance;
     }
     
     @Override

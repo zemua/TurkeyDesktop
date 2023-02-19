@@ -1,15 +1,21 @@
 package devs.mrp.turkeydesktop.view.container.traychain;
 
 import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.common.factory.CommonBeans;
 import devs.mrp.turkeydesktop.service.watchdog.WatchDog;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
+import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactoryImpl;
 
 public class TrayChainFactoryImpl implements TrayChainFactory {
     
-    private FactoryInitializer factory;
+    private static TrayChainFactoryImpl instance;
     
-    public TrayChainFactoryImpl(FactoryInitializer initializer) {
-        this.factory = initializer;
+    private TrayChainFactoryImpl() {}
+    
+    public static TrayChainFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new TrayChainFactoryImpl();
+        }
+        return instance;
     }
     
     @Override
@@ -19,12 +25,12 @@ public class TrayChainFactoryImpl implements TrayChainFactory {
 
     @Override
     public WatchDog getWatchDog() {
-        return factory.getWatchDogFactory().getWatchDog();
+        return WatchDogFactoryImpl.getInstance().getWatchDog();
     }
 
     @Override
     public TimeConverter getTimeConverter() {
-        return factory.getTimeConverter();
+        return CommonBeans.getTimeConverter();
     }
 
     @Override

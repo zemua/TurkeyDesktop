@@ -1,19 +1,25 @@
 package devs.mrp.turkeydesktop.view.times;
 
 import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.common.factory.CommonBeans;
+import devs.mrp.turkeydesktop.database.logs.TimeLogFactoryImpl;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 import javax.swing.JFrame;
 
 public class TimesPanelFactoryImpl implements TimesPanelFactory {
     
-    private final FactoryInitializer factory;
+    private static TimesPanelFactoryImpl instance;
     
-    public TimesPanelFactoryImpl(FactoryInitializer initializer) {
-        this.factory = initializer;
+    private TimesPanelFactoryImpl() {}
+    
+    public static TimesPanelFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new TimesPanelFactoryImpl();
+        }
+        return instance;
     }
     
     @Override
@@ -28,12 +34,12 @@ public class TimesPanelFactoryImpl implements TimesPanelFactory {
 
     @Override
     public TimeLogService getTimeLogService() {
-        return factory.getTimeLogServiceFactory().getService();
+        return TimeLogFactoryImpl.getInstance().getService();
     }
 
     @Override
     public TimeConverter getTimeConverter() {
-        return factory.getTimeConverter();
+        return CommonBeans.getTimeConverter();
     }
     
 }

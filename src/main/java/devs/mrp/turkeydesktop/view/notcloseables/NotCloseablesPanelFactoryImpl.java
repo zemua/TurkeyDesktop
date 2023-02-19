@@ -2,19 +2,25 @@ package devs.mrp.turkeydesktop.view.notcloseables;
 
 import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
 import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
+import devs.mrp.turkeydesktop.database.closeables.CloseableFactoryImpl;
 import devs.mrp.turkeydesktop.database.closeables.CloseableService;
+import devs.mrp.turkeydesktop.database.type.TypeFactoryImpl;
 import devs.mrp.turkeydesktop.database.type.TypeService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import javax.swing.JFrame;
 
 public class NotCloseablesPanelFactoryImpl implements NotCloseablesPanelFactory {
     
-    private FactoryInitializer factory;
+    private static NotCloseablesPanelFactoryImpl instance;
     
-    public NotCloseablesPanelFactoryImpl(FactoryInitializer initializer) {
-        this.factory = initializer;
+    private NotCloseablesPanelFactoryImpl() {}
+    
+    public static NotCloseablesPanelFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new NotCloseablesPanelFactoryImpl();
+        }
+        return instance;
     }
     
     @Override
@@ -29,12 +35,12 @@ public class NotCloseablesPanelFactoryImpl implements NotCloseablesPanelFactory 
 
     @Override
     public TypeService getTypeService() {
-        return factory.getTypeFactory().getService();
+        return TypeFactoryImpl.getInstance().getService();
     }
 
     @Override
     public CloseableService getCloseableService() {
-        return factory.getCloseableFactory().getService();
+        return CloseableFactoryImpl.getInstance().getService();
     }
 
     @Override

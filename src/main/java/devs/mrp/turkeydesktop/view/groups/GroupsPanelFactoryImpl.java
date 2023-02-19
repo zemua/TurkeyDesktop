@@ -1,22 +1,28 @@
 package devs.mrp.turkeydesktop.view.groups;
 
 import devs.mrp.turkeydesktop.database.group.Group;
+import devs.mrp.turkeydesktop.database.group.GroupFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.PanelHandlerData;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import devs.mrp.turkeydesktop.view.groups.review.GroupReviewEnum;
 import devs.mrp.turkeydesktop.view.groups.review.GroupReviewFactory;
+import devs.mrp.turkeydesktop.view.groups.review.GroupReviewFactoryImpl;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 
 public class GroupsPanelFactoryImpl implements GroupsPanelFactory {
     
-    private FactoryInitializer factory;
+    private static GroupsPanelFactoryImpl instance;
     private FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent> panel;
     
-    public GroupsPanelFactoryImpl(FactoryInitializer factoryInitializer) {
-        this.factory = factoryInitializer;
+    private GroupsPanelFactoryImpl() {}
+    
+    public static GroupsPanelFactoryImpl getInstance() {
+        if (instance == null) {
+            instance = new GroupsPanelFactoryImpl();
+        }
+        return instance;
     }
     
     @Override
@@ -31,12 +37,12 @@ public class GroupsPanelFactoryImpl implements GroupsPanelFactory {
 
     @Override
     public PanelHandler<GroupReviewEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent>, GroupReviewFactory> getReviewGroupHandler(PanelHandlerData<Group> data) {
-        return factory.getGroupReviewFactory().getHandler(data.getFrame(), data.getCaller(), data.getEntity());
+        return GroupReviewFactoryImpl.getInstance().getHandler(data.getFrame(), data.getCaller(), data.getEntity());
     }
 
     @Override
     public GroupService getGroupSerice() {
-        return factory.getGroupFactory().getService();
+        return GroupFactoryImpl.getInstance().getService();
     }
     
 }
