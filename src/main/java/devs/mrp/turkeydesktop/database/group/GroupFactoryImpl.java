@@ -20,8 +20,8 @@ public class GroupFactoryImpl implements GroupFactory {
         this.factory = factoryInitializer;
     }
     
-    private DbCache<Long, Group> buildCache() {
-        return DbCacheFactory.getDbCache(new GroupRepository(this),
+    protected DbCache<Long, Group> buildCache(GroupDao repo) {
+        return DbCacheFactory.getDbCache(repo,
             Group::getId,
             key -> GroupValidator.isValidKey(key),
             this::elementsFromResultSet,
@@ -34,7 +34,7 @@ public class GroupFactoryImpl implements GroupFactory {
     @Override
     public DbCache<Long, Group> getDbCache() {
         if (dbCache == null) {
-            dbCache = buildCache();
+            dbCache = buildCache(new GroupRepository(this));
         }
         return dbCache;
     }

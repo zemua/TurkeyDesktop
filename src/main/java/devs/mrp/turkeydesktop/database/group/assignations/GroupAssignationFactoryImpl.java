@@ -20,8 +20,8 @@ public class GroupAssignationFactoryImpl implements GroupAssignationFactory {
         this.factory = factoryInitializer;
     }
     
-    private DbCache<GroupAssignationDao.ElementId, GroupAssignation> buildCache() {
-        return DbCacheFactory.getDbCache(new GroupAssignationRepository(this),
+    protected DbCache<GroupAssignationDao.ElementId, GroupAssignation> buildCache(GroupAssignationDao repo) {
+        return DbCacheFactory.getDbCache(repo,
             element -> new GroupAssignationDao.ElementId(element.getType(), element.getElementId()),
             GroupAssignationValidator::isValidKey,
             this::elementsFromResultSet,
@@ -39,7 +39,7 @@ public class GroupAssignationFactoryImpl implements GroupAssignationFactory {
     @Override
     public DbCache<GroupAssignationDao.ElementId, GroupAssignation> getDbCache() {
         if (dbCache == null) {
-            dbCache = buildCache();
+            dbCache = buildCache(new GroupAssignationRepository(this));
         }
         return dbCache;
     }

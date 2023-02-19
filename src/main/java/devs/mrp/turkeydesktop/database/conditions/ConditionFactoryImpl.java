@@ -20,8 +20,8 @@ public class ConditionFactoryImpl implements ConditionFactory {
         this.factory = factoryInitializer;
     }
     
-    private DbCache<Long, Condition> buildCache() {
-        return DbCacheFactory.getDbCache(new ConditionRepository(this),
+    protected DbCache<Long, Condition> buildCache(ConditionDao repo) {
+        return DbCacheFactory.getDbCache(repo,
             c -> c.getId(),
             key -> ConditionValidator.isValidKey(key),
             this::elementsFromResultSet,
@@ -34,7 +34,7 @@ public class ConditionFactoryImpl implements ConditionFactory {
     @Override
     public DbCache<Long, Condition> getDbCache() {
         if (dbCache == null) {
-            dbCache = buildCache();
+            dbCache = buildCache(new ConditionRepository(this));
         }
         return dbCache;
     }

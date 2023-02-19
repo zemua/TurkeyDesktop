@@ -3,9 +3,12 @@ package devs.mrp.turkeydesktop.database.titles;
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
 import devs.mrp.turkeydesktop.database.Db;
+import devs.mrp.turkeydesktop.database.DbFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
+import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
@@ -22,6 +25,7 @@ public class TitleServiceImplTest {
     Db db = mock(Db.class);
     DbCache<String,Title> dbCache = mock(DbCache.class);
     GroupAssignationService groupAssignationService = mock(GroupAssignationService.class);
+    TitleDao repo = mock(TitleDao.class);
     TitleFactory factory = mock(TitleFactory.class);
     
     @Before
@@ -93,20 +97,48 @@ public class TitleServiceImplTest {
     
     @Test
     public void test_add_sets_object_id_in_cache() throws SQLException {
-        TitleService service = new TitleServiceImpl(factory);
         Title toBeSaved = new Title();
         toBeSaved.setSubStr("My uPPeR CaSeD TiTle");
         toBeSaved.setType(Title.Type.POSITIVE);
+        
+        Title lowerCased = new Title();
+        lowerCased.setSubStr(toBeSaved.getSubStr().toLowerCase());
+        lowerCased.setType(Title.Type.POSITIVE);
         
         PreparedStatement statement = mock(PreparedStatement.class);
         when(db.prepareStatementWithGeneratedKeys(ArgumentMatchers.any())).thenReturn(statement);
         when(db.prepareStatement(ArgumentMatchers.any())).thenReturn(statement);
         
+        FactoryInitializer initializer = mock(FactoryInitializer.class);
+        DbFactory dbfactory = mock(DbFactory.class);
+        when(initializer.getDbFactory()).thenReturn(dbfactory);
+        when(dbfactory.getDb()).thenReturn(db);
+        ResultSet findAllResultSet = mock(ResultSet.class);
+        when(repo.findAll()).thenReturn(Single.just(findAllResultSet));
+        when(findAllResultSet.next()).thenReturn(false);
+        when(repo.add(ArgumentMatchers.refEq(lowerCased))).thenReturn(Single.just(lowerCased.getSubStr()));
+        
+        DbCache<String, Title> cache = new CacheFactoryTest(initializer, repo).getDbCache();
+        when(factory.getDbCache()).thenReturn(cache);
+        
+        TitleService service = new TitleServiceImpl(factory);
         service.save(toBeSaved).blockingGet();
         
         var retrieved = service.findBySubString(toBeSaved.getSubStr()).blockingGet();
         
         assertEquals("my upper cased title", retrieved.getSubStr());
+    }
+    
+    private class CacheFactoryTest extends TitleFactoryImpl {
+        TitleDao repo;
+        CacheFactoryTest(FactoryInitializer factory, TitleDao repo) {
+            super(factory);
+            this.repo = repo;
+        }
+        @Override
+        public DbCache<String, Title> getDbCache() {
+            return buildCache(repo);
+        }
     }
     
 }

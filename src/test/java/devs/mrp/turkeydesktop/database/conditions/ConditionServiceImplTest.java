@@ -3,6 +3,8 @@ package devs.mrp.turkeydesktop.database.conditions;
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
 import devs.mrp.turkeydesktop.database.Db;
+import devs.mrp.turkeydesktop.database.DbFactory;
+import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,7 +20,7 @@ public class ConditionServiceImplTest {
     
     Db db = mock(Db.class);
     DbCache<Long, Condition> dbCache = mock(DbCache.class);
-    ConditionRepository conditionRepository = mock(ConditionRepository.class);
+    ConditionRepository repo = mock(ConditionRepository.class);
     
     ConditionFactory factory = mock(ConditionFactory.class);
 
@@ -80,7 +82,6 @@ public class ConditionServiceImplTest {
     
     @Test
     public void test_add_sets_object_id_in_cache() throws SQLException {
-        ConditionService service = new ConditionServiceImpl(factory);
         Condition toBeSaved = new Condition();
         toBeSaved.setId(0);
         toBeSaved.setGroupId(4);
@@ -96,11 +97,36 @@ public class ConditionServiceImplTest {
         when(generatedId.next()).thenReturn(Boolean.TRUE);
         when(generatedId.getLong(Condition.ID_POSITION)).thenReturn(879L);
         
+        FactoryInitializer initializer = mock(FactoryInitializer.class);
+        DbFactory dbfactory = mock(DbFactory.class);
+        when(initializer.getDbFactory()).thenReturn(dbfactory);
+        when(dbfactory.getDb()).thenReturn(db);
+        ResultSet findAllResultSet = mock(ResultSet.class);
+        when(repo.findAll()).thenReturn(Single.just(findAllResultSet));
+        when(findAllResultSet.next()).thenReturn(false);
+        when(repo.add(toBeSaved)).thenReturn(Single.just(879L));
+        
+        DbCache<Long, Condition> cache = new CacheFactoryTest(initializer, repo).getDbCache();
+        when(factory.getDbCache()).thenReturn(cache);
+        
+        ConditionService service = new ConditionServiceImpl(factory);
         service.add(toBeSaved).blockingGet();
         
         var retrieved = service.findAll().toList().blockingGet();
         
         assertEquals(879, retrieved.get(0).getId());
+    }
+    
+    private class CacheFactoryTest extends ConditionFactoryImpl {
+        ConditionDao repo;
+        CacheFactoryTest(FactoryInitializer factory, ConditionDao repo) {
+            super(factory);
+            this.repo = repo;
+        }
+        @Override
+        public DbCache<Long, Condition> getDbCache() {
+            return buildCache(repo);
+        }
     }
     
 }

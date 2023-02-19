@@ -25,8 +25,8 @@ public class TitleFactoryImpl implements TitleFactory {
         return factory.getDbFactory().getDb();
     }
     
-    private DbCache<String, Title> buildCache() {
-        return DbCacheFactory.getDbCache(new TitleRepository(this),
+    protected DbCache<String, Title> buildCache(TitleDao repo) {
+        return DbCacheFactory.getDbCache(repo,
             Title::getSubStr,
             key -> TitleValidator.isValidKey(key),
             this::elementsFromResultEntry,
@@ -36,7 +36,7 @@ public class TitleFactoryImpl implements TitleFactory {
     @Override
     public DbCache<String, Title> getDbCache() {
         if (dbCache == null) {
-            dbCache = buildCache();
+            dbCache = buildCache(new TitleRepository(this));
         }
         return dbCache;
     }

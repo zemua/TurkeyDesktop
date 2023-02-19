@@ -18,8 +18,8 @@ public class CloseableFactoryImpl implements CloseableFactory {
         this.factory = factory;
     }
     
-    private DbCache<String, Closeable> buildCache() {
-        return DbCacheFactory.getDbCache(new CloseableRepository(this),
+    protected DbCache<String, Closeable> buildCache(CloseableDao repo) {
+        return DbCacheFactory.getDbCache(repo,
             Closeable::getProcess,
             key -> CloseableValidator.isValidKey(key),
             this::listFromResultSet,
@@ -29,7 +29,7 @@ public class CloseableFactoryImpl implements CloseableFactory {
     @Override
     public DbCache<String, Closeable> getDbCache() {
         if (dbCache == null) {
-            dbCache = buildCache();
+            dbCache = buildCache(new CloseableRepository(this));
         }
         return dbCache;
     }

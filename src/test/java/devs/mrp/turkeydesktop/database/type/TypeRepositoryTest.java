@@ -4,10 +4,12 @@ import devs.mrp.turkeydesktop.database.Db;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.Callable;
 import lombok.extern.slf4j.Slf4j;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -43,7 +45,7 @@ public class TypeRepositoryTest {
     }
 
     @Test
-    public void testFindByIdReturnsResultSet() throws SQLException {
+    public void testFindByIdReturnsResultSet() throws SQLException, Exception {
         PreparedStatement preparedStatement = mock(PreparedStatement.class);
         ResultSet expectedResult = mock(ResultSet.class);
         
@@ -51,13 +53,17 @@ public class TypeRepositoryTest {
                 .thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(expectedResult);
         
-        ResultSet result = typeRepository.findById(type.getProcess()).blockingGet();
+        typeRepository.findById(type.getProcess());
+        ArgumentCaptor<Callable<ResultSet>> captor = ArgumentCaptor.forClass(Callable.class);
+        verify(db).singleResultSet(captor.capture());
+        ResultSet result = captor.getValue().call();
+        
         assertEquals(expectedResult, result);
         verify(preparedStatement, times(1)).setString(1, type.getProcess());
     }
     
     @Test
-    public void testAddSuccess() throws SQLException {
+    public void testAddSuccess() throws SQLException, Exception {
         PreparedStatement preparedStatement = mock(PreparedStatement.class);
         String expectedResult = type.getProcess();
         
@@ -65,14 +71,18 @@ public class TypeRepositoryTest {
                 .thenReturn(preparedStatement);
         when(db.prepareStatement(ArgumentMatchers.any())).thenReturn(preparedStatement);
         
-        String idResult = typeRepository.add(type).blockingGet();
+        typeRepository.add(type);
+        ArgumentCaptor<Callable<String>> captor = ArgumentCaptor.forClass(Callable.class);
+        verify(db).singleString(captor.capture());
+        String idResult = captor.getValue().call();
+        
         assertEquals(expectedResult, idResult);
         verify(preparedStatement, times(1)).setString(1, type.getProcess());
         verify(preparedStatement, times(1)).setString(2, type.getType().toString());
     }
     
     @Test
-    public void testAddException() throws SQLException {
+    public void testAddException() throws SQLException, Exception {
         PreparedStatement preparedStatement = mock(PreparedStatement.class);
         String expectedResult = "";
         
@@ -80,7 +90,11 @@ public class TypeRepositoryTest {
                 .thenReturn(preparedStatement);
         when(preparedStatement.executeUpdate()).thenThrow(new SQLException());
         
-        String idResult = typeRepository.add(type).blockingGet();
+        typeRepository.add(type);
+        ArgumentCaptor<Callable<String>> captor = ArgumentCaptor.forClass(Callable.class);
+        verify(db).singleString(captor.capture());
+        String idResult = captor.getValue().call();
+        
         assertEquals(expectedResult, idResult);
         verify(preparedStatement, times(1)).setString(1, type.getProcess());
         verify(preparedStatement, times(1)).setString(2, type.getType().toString());

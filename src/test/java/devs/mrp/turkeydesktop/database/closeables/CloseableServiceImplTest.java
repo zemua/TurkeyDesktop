@@ -3,8 +3,11 @@ package devs.mrp.turkeydesktop.database.closeables;
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
 import devs.mrp.turkeydesktop.database.Db;
+import devs.mrp.turkeydesktop.database.DbFactory;
+import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
@@ -17,7 +20,7 @@ public class CloseableServiceImplTest {
     
     Db db = mock(Db.class);
     DbCache<String, Closeable> dbCache = mock(DbCache.class);
-    CloseableRepository closeableRepository = mock(CloseableRepository.class);
+    CloseableRepository repo = mock(CloseableRepository.class);
     
     CloseableFactory factory = mock(CloseableFactory.class);
     
@@ -62,7 +65,6 @@ public class CloseableServiceImplTest {
     
     @Test
     public void test_add_sets_object_id_in_cache() throws SQLException {
-        CloseableService service = new CloseableServiceImpl(factory);
         Closeable toBeSaved = new Closeable();
         toBeSaved.setProcess("process closeable name");
         
@@ -70,11 +72,36 @@ public class CloseableServiceImplTest {
         when(db.prepareStatementWithGeneratedKeys(ArgumentMatchers.any())).thenReturn(statement);
         when(db.prepareStatement(ArgumentMatchers.any())).thenReturn(statement);
         
+        FactoryInitializer initializer = mock(FactoryInitializer.class);
+        DbFactory dbfactory = mock(DbFactory.class);
+        when(initializer.getDbFactory()).thenReturn(dbfactory);
+        when(dbfactory.getDb()).thenReturn(db);
+        ResultSet findAllResultSet = mock(ResultSet.class);
+        when(repo.findAll()).thenReturn(Single.just(findAllResultSet));
+        when(findAllResultSet.next()).thenReturn(false);
+        when(repo.add(toBeSaved)).thenReturn(Single.just(toBeSaved.getProcess()));
+        
+        DbCache<String, Closeable> cache = new CacheFactoryTest(initializer, repo).getDbCache();
+        when(factory.getDbCache()).thenReturn(cache);
+        
+        CloseableService service = new CloseableServiceImpl(factory);
         service.add(toBeSaved.getProcess()).blockingGet();
         
         var retrieved = service.findAll().toList().blockingGet();
         
         assertEquals(toBeSaved.getProcess(), retrieved.get(0).getProcess());
+    }
+    
+    private class CacheFactoryTest extends CloseableFactoryImpl {
+        CloseableDao repo;
+        CacheFactoryTest(FactoryInitializer factory, CloseableDao repo) {
+            super(factory);
+            this.repo = repo;
+        }
+        @Override
+        public DbCache<String, Closeable> getDbCache() {
+            return buildCache(repo);
+        }
     }
     
 }

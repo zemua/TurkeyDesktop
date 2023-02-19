@@ -22,8 +22,8 @@ public class ImportFactoryImpl implements ImportFactory {
         this.factory = factoryInitializer;
     }
     
-    private DbCache<String, String> buildCache() {
-        return DbCacheFactory.getDbCache(new ImportsRepository(this),
+    protected DbCache<String, String> buildCache(ImportsDao repo) {
+        return DbCacheFactory.getDbCache(repo,
             s -> s,
             key -> ImportValidator.isValidKey(key),
             this::elementsFromSet,
@@ -38,7 +38,7 @@ public class ImportFactoryImpl implements ImportFactory {
     @Override
     public DbCache<String, String> getDbCache() {
         if (dbCache == null) {
-            dbCache = buildCache();
+            dbCache = buildCache(new ImportsRepository(this));
         }
         return dbCache;
     }

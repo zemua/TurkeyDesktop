@@ -25,7 +25,7 @@ public class TypeFactoryImpl implements TypeFactory {
     @Override
     public DbCache<String,Type> getDbCache() {
         if (dbCache == null) {
-            dbCache = buildCache();
+            dbCache = buildCache(new TypeRepository(this));
         }
         return dbCache;
     }
@@ -43,8 +43,8 @@ public class TypeFactoryImpl implements TypeFactory {
         return typeService;
     }
     
-    private DbCache<String,Type> buildCache() {
-        return DbCacheFactory.getDbCache(new TypeRepository(this),
+    protected DbCache<String,Type> buildCache(TypeDao repo) {
+        return DbCacheFactory.getDbCache(repo,
             type -> type.getProcess(),
             TypeValidator::isValidKey,
             this::listFromResultSet,

@@ -4,9 +4,11 @@ import devs.mrp.turkeydesktop.database.Db;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.Callable;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -42,7 +44,7 @@ public class GroupRepositoryTest {
     }
 
     @Test
-    public void testFindByIdReturnsResultSet() throws SQLException {
+    public void testFindByIdReturnsResultSet() throws SQLException, Exception {
         PreparedStatement preparedStatement = mock(PreparedStatement.class);
         ResultSet  groupResult = mock(ResultSet.class);
         group.setId(3);
@@ -51,13 +53,17 @@ public class GroupRepositoryTest {
                 .thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(groupResult);
         
-        ResultSet result = groupRepository.findById(group.getId()).blockingGet();
+        groupRepository.findById(group.getId());
+        ArgumentCaptor<Callable<ResultSet>> captor = ArgumentCaptor.forClass(Callable.class);
+        verify(db).singleResultSet(captor.capture());
+        ResultSet result = captor.getValue().call();
+        
         assertEquals(groupResult, result);
         verify(preparedStatement, times(1)).setLong(1, group.getId());
     }
     
     @Test
-    public void testAddSuccess() throws SQLException {
+    public void testAddSuccess() throws SQLException, Exception {
         PreparedStatement preparedStatement = mock(PreparedStatement.class);
         ResultSet generatedId = mock(ResultSet.class);
         
@@ -67,14 +73,18 @@ public class GroupRepositoryTest {
         when(generatedId.next()).thenReturn(Boolean.TRUE);
         when(generatedId.getLong(Group.ID_COLUMN)).thenReturn(7L);
         
-        long longResult = groupRepository.add(group).blockingGet();
+        groupRepository.add(group);
+        ArgumentCaptor<Callable<Long>> captor = ArgumentCaptor.forClass(Callable.class);
+        verify(db).singleLong(captor.capture());
+        long longResult = captor.getValue().call();
+        
         assertEquals(7L, longResult);
         verify(preparedStatement, times(1)).setString(1, group.getName());
         verify(preparedStatement, times(1)).setString(2, group.getType().toString());
     }
     
     @Test
-    public void testAddException() throws SQLException {
+    public void testAddException() throws SQLException, Exception {
         PreparedStatement preparedStatement = mock(PreparedStatement.class);
         ResultSet generatedId = mock(ResultSet.class);
         
@@ -85,7 +95,11 @@ public class GroupRepositoryTest {
         when(generatedId.getLong(Group.ID_COLUMN)).thenReturn(7L);
         when(preparedStatement.executeUpdate()).thenThrow(new SQLException());
         
-        long longResult = groupRepository.add(group).blockingGet();
+        groupRepository.add(group);
+        ArgumentCaptor<Callable<Long>> captor = ArgumentCaptor.forClass(Callable.class);
+        verify(db).singleLong(captor.capture());
+        long longResult = captor.getValue().call();
+        
         assertEquals(-1L, longResult);
         verify(preparedStatement, times(1)).setString(1, group.getName());
         verify(preparedStatement, times(1)).setString(2, group.getType().toString());

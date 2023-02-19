@@ -3,8 +3,11 @@ package devs.mrp.turkeydesktop.database.group.expor;
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
 import devs.mrp.turkeydesktop.database.Db;
+import devs.mrp.turkeydesktop.database.DbFactory;
+import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
@@ -17,7 +20,7 @@ public class ExportedGroupServiceImplTest {
     
     Db db = mock(Db.class);
     DbCache<ExportedGroupId,ExportedGroup> dbCache = mock(DbCache.class);
-    ExportedGroupRepository exportedGroupRepository = mock(ExportedGroupRepository.class);
+    ExportedGroupRepository repo = mock(ExportedGroupRepository.class);
     
     ExportedGroupFactory factory = mock(ExportedGroupFactory.class);
     
@@ -102,16 +105,29 @@ public class ExportedGroupServiceImplTest {
     
     @Test
     public void test_add_sets_object_id_in_cache() throws SQLException {
-        ExportedGroupService service = new ExportedGroupServiceImpl(factory);
         ExportedGroup toBeSaved = new ExportedGroup();
         toBeSaved.setDays(3);
         toBeSaved.setFile("some file to export to");
         toBeSaved.setGroup(4);
+        var id = new ExportedGroupId(toBeSaved.getGroup(), toBeSaved.getFile());
         
         PreparedStatement statement = mock(PreparedStatement.class);
         when(db.prepareStatementWithGeneratedKeys(ArgumentMatchers.any())).thenReturn(statement);
         when(db.prepareStatement(ArgumentMatchers.any())).thenReturn(statement);
         
+        FactoryInitializer initializer = mock(FactoryInitializer.class);
+        DbFactory dbfactory = mock(DbFactory.class);
+        when(initializer.getDbFactory()).thenReturn(dbfactory);
+        when(dbfactory.getDb()).thenReturn(db);
+        ResultSet findAllResultSet = mock(ResultSet.class);
+        when(repo.findAll()).thenReturn(Single.just(findAllResultSet));
+        when(findAllResultSet.next()).thenReturn(Boolean.FALSE);
+        when(repo.add(toBeSaved)).thenReturn(Single.just(id));
+        
+        DbCache<ExportedGroupId,ExportedGroup> cache = new CacheFactoryTest(initializer, repo).getDbCache();
+        when(factory.getDbCache()).thenReturn(cache);
+        
+        ExportedGroupService service = new ExportedGroupServiceImpl(factory);
         service.add(toBeSaved).blockingGet();
         
         var retrieved = service.findAll().toList().blockingGet();
@@ -119,6 +135,18 @@ public class ExportedGroupServiceImplTest {
         assertEquals(toBeSaved.getDays(), retrieved.get(0).getDays());
         assertEquals(toBeSaved.getFile(), retrieved.get(0).getFile());
         assertEquals(toBeSaved.getGroup(), retrieved.get(0).getGroup());
+    }
+    
+    private class CacheFactoryTest extends ExportedGroupFactoryImpl {
+        ExportedGroupDao repo;
+        CacheFactoryTest(FactoryInitializer factory, ExportedGroupDao repo) {
+            super(factory);
+            this.repo = repo;
+        }
+        @Override
+        public DbCache<ExportedGroupId,ExportedGroup> getDbCache() {
+            return buildCache(repo);
+        }
     }
     
 }

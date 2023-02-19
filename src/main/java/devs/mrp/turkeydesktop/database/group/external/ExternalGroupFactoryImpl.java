@@ -20,8 +20,8 @@ public class ExternalGroupFactoryImpl implements ExternalGroupFactory {
         this.factory = factoryInitializer;
     }
     
-    private DbCache<Long,ExternalGroup> buildCache() {
-        return DbCacheFactory.getDbCache(new ExternalGroupRepository(this),
+    protected DbCache<Long,ExternalGroup> buildCache(ExternalGroupDao repo) {
+        return DbCacheFactory.getDbCache(repo,
             ExternalGroup::getId,
             ExternalGroupValidator::isValidKey,
             this::elementsFromResultSet,
@@ -34,7 +34,7 @@ public class ExternalGroupFactoryImpl implements ExternalGroupFactory {
     @Override
     public DbCache<Long,ExternalGroup> getDbCache() {
         if (dbCache == null) {
-            dbCache = buildCache();
+            dbCache = buildCache(new ExternalGroupRepository(this));
         }
         return dbCache;
     }

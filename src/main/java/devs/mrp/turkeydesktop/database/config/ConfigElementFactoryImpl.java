@@ -29,18 +29,18 @@ public class ConfigElementFactoryImpl implements ConfigElementFactory {
         db = factory.getDbFactory().getDb();
     }
     
-    private DbCache<String, ConfigElement> buildCache() {
+    protected DbCache<String, ConfigElement> buildCache(ConfigElementDao repo) {
         Function<ConfigElement,String> keyExtractor = c -> c.getKey().toString();
         Function<String,Boolean> isNewKey = key -> ConfigElementValidator.isValidKey(key);
         Function<ResultSet,Observable<ConfigElement>> listFromResultSet = this::elementsFromResultSet;
         BiFunction<ConfigElement, String, ConfigElement> keySetter = (element,key) -> element;
-        return DbCacheFactory.getDbCache(new ConfigElementRepository(this), keyExtractor, isNewKey, listFromResultSet, keySetter);
+        return DbCacheFactory.getDbCache(repo, keyExtractor, isNewKey, listFromResultSet, keySetter);
     }
     
     @Override
     public DbCache<String, ConfigElement> getDbCache() {
         if (dbCache == null) {
-            dbCache = buildCache();
+            dbCache = buildCache(new ConfigElementRepository(this));
         }
         return dbCache;
     }

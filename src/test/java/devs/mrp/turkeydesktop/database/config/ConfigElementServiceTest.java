@@ -1,9 +1,14 @@
 package devs.mrp.turkeydesktop.database.config;
 
+import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
 import devs.mrp.turkeydesktop.database.Db;
+import devs.mrp.turkeydesktop.database.DbFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
+import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
+import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
@@ -15,12 +20,14 @@ import static org.mockito.Mockito.when;
 public class ConfigElementServiceTest {
     
     Db db = mock(Db.class);
+    DbCache<String,ConfigElement> dbCache = mock(DbCache.class);
     ConfigElementDao repo = mock(ConfigElementDao.class);
     ConfigElementFactory factory = mock(ConfigElementFactory.class);
     
     @Before
     public void setupClass() {
         when(factory.getDb()).thenReturn(db);
+        when(factory.getDbCache()).thenReturn(dbCache);
     }
 
     @Test
@@ -66,6 +73,7 @@ public class ConfigElementServiceTest {
         
         PreparedStatement statement = mock(PreparedStatement.class);
         when(db.prepareStatementWithGeneratedKeys(ArgumentMatchers.any())).thenReturn(statement);
+        when(dbCache.save(element)).thenReturn(Single.just(SaveAction.SAVED));
         
         Long result = service.add(element).blockingGet();
         assertEquals(SaveAction.SAVED.get().longValue(), result.longValue());
@@ -73,7 +81,6 @@ public class ConfigElementServiceTest {
     
     @Test
     public void test_add_sets_object_id_in_cache() throws SQLException {
-        ConfigElementService service = new ConfigElementServiceImpl(factory);
         ConfigElement toBeSaved = new ConfigElement();
         toBeSaved.setKey(ConfigurationEnum.EXPORT_PATH);
         toBeSaved.setValue("some config value");
@@ -82,11 +89,36 @@ public class ConfigElementServiceTest {
         when(db.prepareStatementWithGeneratedKeys(ArgumentMatchers.any())).thenReturn(statement);
         when(db.prepareStatement(ArgumentMatchers.any())).thenReturn(statement);
         
+        FactoryInitializer initializer = mock(FactoryInitializer.class);
+        DbFactory dbfactory = mock(DbFactory.class);
+        when(initializer.getDbFactory()).thenReturn(dbfactory);
+        when(dbfactory.getDb()).thenReturn(db);
+        ResultSet findAllResultSet = mock(ResultSet.class);
+        when(repo.findAll()).thenReturn(Single.just(findAllResultSet));
+        when(findAllResultSet.next()).thenReturn(false);
+        when(repo.add(toBeSaved)).thenReturn(Single.just(toBeSaved.getKey().toString()));
+        
+        DbCache<String, ConfigElement> cache = new CacheFactoryTest(initializer, repo).getDbCache();
+        when(factory.getDbCache()).thenReturn(cache);
+        
+        ConfigElementService service = new ConfigElementServiceImpl(factory);
         service.add(toBeSaved).blockingGet();
         
         var retrieved = service.allConfigElements().toList().blockingGet();
         
         assertEquals(ConfigurationEnum.EXPORT_PATH, retrieved.get(0).getKey());
+    }
+    
+    private class CacheFactoryTest extends ConfigElementFactoryImpl {
+        ConfigElementDao repo;
+        CacheFactoryTest(FactoryInitializer factory, ConfigElementDao repo) {
+            super(factory);
+            this.repo = repo;
+        }
+        @Override
+        public DbCache<String, ConfigElement> getDbCache() {
+            return buildCache(repo);
+        }
     }
 
 }

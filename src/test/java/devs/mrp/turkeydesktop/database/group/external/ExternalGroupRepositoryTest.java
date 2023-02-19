@@ -4,9 +4,11 @@ import devs.mrp.turkeydesktop.database.Db;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.Callable;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -40,7 +42,7 @@ public class ExternalGroupRepositoryTest {
     }
 
     @Test
-    public void testFindByIdReturnsResultSet() throws SQLException {
+    public void testFindByIdReturnsResultSet() throws SQLException, Exception {
         PreparedStatement preparedStatement = mock(PreparedStatement.class);
         ResultSet expectedResult = mock(ResultSet.class);
         externalGroup.setId(4);
@@ -49,13 +51,17 @@ public class ExternalGroupRepositoryTest {
                 .thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(expectedResult);
         
-        ResultSet result = externalGroupRepository.findById(externalGroup.getId()).blockingGet();
+        externalGroupRepository.findById(externalGroup.getId());
+        ArgumentCaptor<Callable<ResultSet>> captor = ArgumentCaptor.forClass(Callable.class);
+        verify(db).singleResultSet(captor.capture());
+        ResultSet result = captor.getValue().call();
+        
         assertEquals(expectedResult, result);
         verify(preparedStatement, times(1)).setLong(1, externalGroup.getId());
     }
     
     @Test
-    public void testAddSuccess() throws SQLException {
+    public void testAddSuccess() throws SQLException, Exception {
         PreparedStatement preparedStatement = mock(PreparedStatement.class);
         ResultSet generatedId = mock(ResultSet.class);
         long expectedIdResult = 8L;
@@ -66,21 +72,29 @@ public class ExternalGroupRepositoryTest {
         when(generatedId.next()).thenReturn(Boolean.TRUE);
         when(generatedId.getLong(ExternalGroup.ID_COLUMN)).thenReturn(expectedIdResult);
         
-        long idResult = externalGroupRepository.add(externalGroup).blockingGet();
+        externalGroupRepository.add(externalGroup);
+        ArgumentCaptor<Callable<Long>> captor = ArgumentCaptor.forClass(Callable.class);
+        verify(db).singleLong(captor.capture());
+        long idResult = captor.getValue().call();
+        
         assertEquals(expectedIdResult, idResult);
         verify(preparedStatement, times(1)).setLong(1, externalGroup.getGroup());
         verify(preparedStatement, times(1)).setString(2, externalGroup.getFile());
     }
     
     @Test
-    public void testAddException() throws SQLException {
+    public void testAddException() throws SQLException, Exception {
         PreparedStatement preparedStatement = mock(PreparedStatement.class);
         
         when(db.prepareStatementWithGeneratedKeys(ArgumentMatchers.contains("INSERT INTO GROUPS_EXTERNAL_TABLE (GROUP_COLUMN, FILE) VALUES (?, ?)")))
                 .thenReturn(preparedStatement);
         when(preparedStatement.executeUpdate()).thenThrow(new SQLException());
         
-        long idResult = externalGroupRepository.add(externalGroup).blockingGet();
+        externalGroupRepository.add(externalGroup);
+        ArgumentCaptor<Callable<Long>> captor = ArgumentCaptor.forClass(Callable.class);
+        verify(db).singleLong(captor.capture());
+        long idResult = captor.getValue().call();
+        
         assertEquals(-1L, idResult);
         verify(preparedStatement, times(1)).setLong(1, externalGroup.getGroup());
         verify(preparedStatement, times(1)).setString(2, externalGroup.getFile());

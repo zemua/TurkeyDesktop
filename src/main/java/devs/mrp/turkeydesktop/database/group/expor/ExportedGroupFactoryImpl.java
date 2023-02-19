@@ -20,8 +20,8 @@ public class ExportedGroupFactoryImpl implements ExportedGroupFactory {
         this.factory = factoryInitializer;
     }
     
-    private DbCache<ExportedGroupId,ExportedGroup> buildCache() {
-        return DbCacheFactory.getDbCache(new ExportedGroupRepository(this),
+    protected DbCache<ExportedGroupId,ExportedGroup> buildCache(ExportedGroupDao repo) {
+        return DbCacheFactory.getDbCache(repo,
             exportedGroup -> new ExportedGroupId(exportedGroup.getGroup(), exportedGroup.getFile()),
             ExportedGroupValidator::isValidKey,
             this::elementsFromResultSet,
@@ -31,7 +31,7 @@ public class ExportedGroupFactoryImpl implements ExportedGroupFactory {
     @Override
     public DbCache<ExportedGroupId,ExportedGroup> getDbCache() {
         if (dbCache == null) {
-            dbCache = buildCache();
+            dbCache = buildCache(new ExportedGroupRepository(this));
         }
         return dbCache;
     }
