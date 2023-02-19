@@ -29,7 +29,7 @@ public class CommonBeans {
     
     public static Toaster getToaster() {
         if (toaster == null) {
-            toaster = Toaster.getInstance(voiceNotificator);
+            toaster = Toaster.getInstance(getVoiceNotificator());
         }
         return toaster;
     }

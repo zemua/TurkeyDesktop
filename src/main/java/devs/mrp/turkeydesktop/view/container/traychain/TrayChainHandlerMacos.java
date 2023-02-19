@@ -102,7 +102,9 @@ public class TrayChainHandlerMacos extends TrayChainBaseHandler {
 
     @Override
     protected void setTimeLeft(long millis) {
-        timeItem.setLabel(timeConverter.millisToHM(millis));
+        if (timeItem != null) {
+            timeItem.setLabel(timeConverter.millisToHM(millis));
+        }
     }
 
 }

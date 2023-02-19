@@ -59,7 +59,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
         imageHandler = ResourceHandlerFactory.getImagesHandler();
         this.getFrame().setIconImage(imageHandler.getResource(ImagesEnum.TURKEY));
         this.setPanel(factory.getMainPanel());
-        setupHeaderUpdater();
+        setupHeaderUpdater(factory);
         return this.getPanel();
     }
 
@@ -164,7 +164,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
         });
     }
     
-    private void setupHeaderUpdater() {
+    private void setupHeaderUpdater(MainPanelFactory factory) {
         factory.getWatchDog().addFeedbacker((msg,data) -> {
             setTimeOnHeaderLabel();
         });
