@@ -22,20 +22,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 @Slf4j
-public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, AWTEvent, FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent>> {
+public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, AWTEvent, FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent>, CategorizeTitlesPanelFactory> {
 
     private final TitledLogServiceFacade facadeService;
     private final CategorizeTitlesPanelFactory factory;
     Logger logger = Logger.getLogger(CategorizeTitlesHandler.class.getName());
 
-    public CategorizeTitlesHandler(JFrame frame, PanelHandler<?, ?, ?> caller, CategorizeTitlesPanelFactory factory) {
-        super(frame, caller);
+    public CategorizeTitlesHandler(JFrame frame, PanelHandler<?, ?, ?, ?> caller, CategorizeTitlesPanelFactory factory) {
+        super(frame, caller, factory);
         this.factory = factory;
         this.facadeService = factory.getTitledLogServiceFacade();
     }
 
     @Override
-    protected FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent> initPanel() {
+    protected FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent> initPanel(CategorizeTitlesPanelFactory factory) {
         return factory.getPanel();
     }
 

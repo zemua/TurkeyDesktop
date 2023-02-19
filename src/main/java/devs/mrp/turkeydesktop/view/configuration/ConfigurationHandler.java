@@ -29,7 +29,7 @@ import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, AWTEvent, FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent>> {
+public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, AWTEvent, FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent>, ConfigurationPanelFactory> {
     
     private ConfigurationPanelFactory factory;
 
@@ -57,7 +57,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     private boolean changeOfDayNotificationMinutesStarted = false;
 
     public ConfigurationHandler(PanelHandlerData<?> data, ConfigurationPanelFactory factory) {
-        super(data.getFrame(), data.getCaller());
+        super(data.getFrame(), data.getCaller(), factory);
         this.frame = data.getFrame();
         this.factory = factory;
         this.configService = factory.getConfigElementService();
@@ -67,7 +67,7 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
     }
 
     @Override
-    protected FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent> initPanel() {
+    protected FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent> initPanel(ConfigurationPanelFactory factory) {
         this.setPanel(factory.getPanel());
         return this.getPanel();
     }

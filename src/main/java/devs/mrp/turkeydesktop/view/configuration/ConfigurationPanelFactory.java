@@ -12,7 +12,7 @@ import java.awt.AWTEvent;
 public interface ConfigurationPanelFactory {
     
     FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent> getPanel();
-    PanelHandler<ConfigurationPanelEnum, AWTEvent, FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent>> getHandler(PanelHandlerData<?> data);
+    PanelHandler<ConfigurationPanelEnum, AWTEvent, FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent>, ConfigurationPanelFactory> getHandler(PanelHandlerData<?> data);
     ConfigElementService getConfigElementService();
     TimeConverter getTimeConverter();
     FileHandler getFileHandler();

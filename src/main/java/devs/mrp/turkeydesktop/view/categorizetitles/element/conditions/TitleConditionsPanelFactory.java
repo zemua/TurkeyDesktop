@@ -10,7 +10,7 @@ import javax.swing.JFrame;
 public interface TitleConditionsPanelFactory {
     
     FeedbackerPanelWithFetcher<TitleConditionsEnum, AWTEvent> getPanel();
-    PanelHandler<TitleConditionsEnum, AWTEvent, FeedbackerPanelWithFetcher<TitleConditionsEnum, AWTEvent>> getHandler(JFrame frame, PanelHandler<?, ?, ?> caller, TitledLog titledLog);
+    PanelHandler<TitleConditionsEnum, AWTEvent, FeedbackerPanelWithFetcher<TitleConditionsEnum, AWTEvent>, TitleConditionsPanelFactory> getHandler(JFrame frame, PanelHandler<?, ?, ?, ?> caller, TitledLog titledLog);
     TitleService getTitleService();
     
 }

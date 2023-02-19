@@ -23,7 +23,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import org.apache.commons.lang3.StringUtils;
 
-public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>> {
+public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>, CatProcessPanelFactory> {
     
     private CatProcessPanelFactory factory;
 
@@ -43,13 +43,13 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
     LogAndTypeFacadeService typedService;
     
     public CatProcessHandler(PanelHandlerData<?> data, CatProcessPanelFactory factory) {
-        super(data.getFrame(), data.getCaller());
+        super(data.getFrame(), data.getCaller(), factory);
         typeService = factory.getTypeService();
         this.factory = factory;
     }
     
     @Override
-    protected FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent> initPanel() {
+    protected FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent> initPanel(CatProcessPanelFactory factory) {
         return factory.getPanel();
     }
 

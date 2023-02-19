@@ -6,6 +6,7 @@ import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.PanelHandlerData;
 import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import devs.mrp.turkeydesktop.view.groups.review.GroupReviewEnum;
+import devs.mrp.turkeydesktop.view.groups.review.GroupReviewFactory;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
 
@@ -24,12 +25,12 @@ public class GroupsPanelFactoryImpl implements GroupsPanelFactory {
     }
     
     @Override
-    public PanelHandler<GroupsEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>> getHandler(PanelHandlerData<Group.GroupType> data) {
+    public PanelHandler<GroupsEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>, GroupsPanelFactory> getHandler(PanelHandlerData<Group.GroupType> data) {
         return new GroupsHandler(data, this);
     }
 
     @Override
-    public PanelHandler<GroupReviewEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent>> getReviewGroupHandler(PanelHandlerData<Group> data) {
+    public PanelHandler<GroupReviewEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent>, GroupReviewFactory> getReviewGroupHandler(PanelHandlerData<Group> data) {
         return factory.getGroupReviewFactory().getHandler(data.getFrame(), data.getCaller(), data.getEntity());
     }
 

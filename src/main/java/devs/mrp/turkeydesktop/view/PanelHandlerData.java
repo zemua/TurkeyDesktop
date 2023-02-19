@@ -8,6 +8,6 @@ import lombok.Getter;
 @Getter
 public class PanelHandlerData<T> {
     private JFrame frame;
-    private PanelHandler<?, ?, ?> caller;
+    private PanelHandler<?, ?, ?, ?> caller;
     private T entity;
 }

@@ -17,7 +17,7 @@ import javax.swing.JFrame;
 public interface GroupReviewFactory {
     
     GroupConditionFacadeService groupConditionFacadeService();
-    PanelHandler<GroupReviewEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent>> getHandler(JFrame frame, PanelHandler<?, ?, ?> caller, Group group);
+    PanelHandler<GroupReviewEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent>, GroupReviewFactory> getHandler(JFrame frame, PanelHandler<?, ?, ?, ?> caller, Group group);
     FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent> getPanel();
     GroupService getGroupService();
     GroupAssignationService getGroupAssignationService();

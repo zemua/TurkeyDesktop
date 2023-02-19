@@ -25,10 +25,9 @@ import static org.mockito.Mockito.when;
 public class GroupsHandlerTest {
     
     private JFrame frame;
-    private PanelHandler<?,?,?> caller;
+    private PanelHandler<?,?,?,?> caller;
     private GroupsPanel panel = mock(GroupsPanel.class);
     private GroupService groupService = mock(GroupService.class);
-    
     private GroupsPanelFactory factory = mock(GroupsPanelFactory.class);
     private GroupsHandler groupsHandler;
     

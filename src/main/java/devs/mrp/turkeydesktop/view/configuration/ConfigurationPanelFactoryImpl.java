@@ -24,7 +24,7 @@ public class ConfigurationPanelFactoryImpl implements ConfigurationPanelFactory 
     }
     
     @Override
-    public PanelHandler<ConfigurationPanelEnum, AWTEvent, FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent>> getHandler(PanelHandlerData<?> data) {
+    public PanelHandler<ConfigurationPanelEnum, AWTEvent, FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent>, ConfigurationPanelFactory> getHandler(PanelHandlerData<?> data) {
         return new ConfigurationHandler(data, this);
     }
 

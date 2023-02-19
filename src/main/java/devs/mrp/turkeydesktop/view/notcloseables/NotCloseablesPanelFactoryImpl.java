@@ -23,7 +23,7 @@ public class NotCloseablesPanelFactoryImpl implements NotCloseablesPanelFactory 
     }
     
     @Override
-    public PanelHandler<NotCloseablesEnum,Object,FeedbackerPanelWithFetcher<NotCloseablesEnum,Object>> getHandler(JFrame frame, PanelHandler<?,?,?> caller) {
+    public PanelHandler<NotCloseablesEnum,Object,FeedbackerPanelWithFetcher<NotCloseablesEnum,Object>, NotCloseablesPanelFactory> getHandler(JFrame frame, PanelHandler<?,?,?,?> caller) {
         return new NotCloseablesHandler(frame, caller, this);
     }
 

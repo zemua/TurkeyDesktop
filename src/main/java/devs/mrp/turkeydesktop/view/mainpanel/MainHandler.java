@@ -11,28 +11,34 @@ import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandlerFactory;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.PanelHandlerData;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessEnum;
+import devs.mrp.turkeydesktop.view.categorizeprocesspanel.CatProcessPanelFactory;
 import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesEnum;
+import devs.mrp.turkeydesktop.view.categorizetitles.CategorizeTitlesPanelFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelEnum;
+import devs.mrp.turkeydesktop.view.configuration.ConfigurationPanelFactory;
 import devs.mrp.turkeydesktop.view.groups.GroupsEnum;
+import devs.mrp.turkeydesktop.view.groups.GroupsPanelFactory;
 import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesEnum;
+import devs.mrp.turkeydesktop.view.notcloseables.NotCloseablesPanelFactory;
 import devs.mrp.turkeydesktop.view.times.TimesEnum;
+import devs.mrp.turkeydesktop.view.times.TimesPanelFactory;
 import java.awt.AWTEvent;
 import java.awt.Image;
 import javax.swing.JLabel;
 
-public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPanelWithFetcher<MainEnum, AWTEvent>> {
+public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPanelWithFetcher<MainEnum, AWTEvent>, MainPanelFactory> {
     
     public static final String MAIN_TITLE = LocaleMessages.getInstance().getString("timeturkey");
     
     private MainPanelFactory factory;
     
-    PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>> timesHandler;
-    PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>> categoryProcessHandler;
-    PanelHandler<CategorizeTitlesEnum, AWTEvent, FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent>> categoryTitlesHandler;
-    PanelHandler<GroupsEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>> positiveGroupsHandler;
-    PanelHandler<GroupsEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>> negativeGroupsHandler;
-    PanelHandler<ConfigurationPanelEnum, AWTEvent, FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent>> configHandler;
-    PanelHandler<NotCloseablesEnum, Object, FeedbackerPanelWithFetcher<NotCloseablesEnum, Object>> notCloseableHandler;
+    PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>, TimesPanelFactory> timesHandler;
+    PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>, CatProcessPanelFactory> categoryProcessHandler;
+    PanelHandler<CategorizeTitlesEnum, AWTEvent, FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent>, CategorizeTitlesPanelFactory> categoryTitlesHandler;
+    PanelHandler<GroupsEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>, GroupsPanelFactory> positiveGroupsHandler;
+    PanelHandler<GroupsEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>, GroupsPanelFactory> negativeGroupsHandler;
+    PanelHandler<ConfigurationPanelEnum, AWTEvent, FeedbackerPanelWithFetcher<ConfigurationPanelEnum, AWTEvent>, ConfigurationPanelFactory> configHandler;
+    PanelHandler<NotCloseablesEnum, Object, FeedbackerPanelWithFetcher<NotCloseablesEnum, Object>, NotCloseablesPanelFactory> notCloseableHandler;
     
     private ConfigElementService configService;
     private ConditionChecker conditionChecker;
@@ -40,7 +46,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     private TimeConverter timeConverter;
 
     public MainHandler(PanelHandlerData data, MainPanelFactory factory) {
-        super(data.getFrame(), data.getCaller());
+        super(data.getFrame(), data.getCaller(), factory);
         this.factory = factory;
         this.configService = factory.getConfigElementService();
         this.conditionChecker = factory.getConditionChecker();
@@ -48,7 +54,7 @@ public class MainHandler extends PanelHandler<MainEnum, AWTEvent, FeedbackerPane
     }
     
     @Override
-    protected FeedbackerPanelWithFetcher<MainEnum, AWTEvent> initPanel() {
+    protected FeedbackerPanelWithFetcher<MainEnum, AWTEvent> initPanel(MainPanelFactory factory) {
         this.getFrame().setTitle(MAIN_TITLE);
         imageHandler = ResourceHandlerFactory.getImagesHandler();
         this.getFrame().setIconImage(imageHandler.getResource(ImagesEnum.TURKEY));

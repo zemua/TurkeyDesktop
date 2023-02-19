@@ -10,7 +10,7 @@ import javax.swing.JFrame;
 public interface TimesPanelFactory {
     
     FeedbackerPanelWithFetcher<TimesEnum, AWTEvent> getPanel();
-    PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>> getHandler(JFrame frame, PanelHandler<?, ?, ?> caller);
+    PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>, TimesPanelFactory> getHandler(JFrame frame, PanelHandler<?, ?, ?, ?> caller);
     TimeLogService getTimeLogService();
     TimeConverter getTimeConverter();
     

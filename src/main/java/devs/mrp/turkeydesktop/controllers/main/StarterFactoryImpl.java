@@ -5,6 +5,7 @@ import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import devs.mrp.turkeydesktop.view.mainpanel.MainEnum;
+import devs.mrp.turkeydesktop.view.mainpanel.MainPanelFactory;
 import java.awt.AWTEvent;
 import javax.swing.JFrame;
 
@@ -27,7 +28,7 @@ public class StarterFactoryImpl implements StarterFactory {
     }
 
     @Override
-    public PanelHandler<MainEnum, AWTEvent, FeedbackerPanelWithFetcher<MainEnum, AWTEvent>> getMainHandler(JFrame frame) {
+    public PanelHandler<MainEnum, AWTEvent, FeedbackerPanelWithFetcher<MainEnum, AWTEvent>, MainPanelFactory> getMainHandler(JFrame frame) {
         return factory.getMainPanelFactory().getMainHandler(frame);
     }
 

@@ -10,22 +10,22 @@ import java.util.Date;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
 
-public class TimesHandler extends PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>> {
+public class TimesHandler extends PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>, TimesPanelFactory> {
     
     private final TimesPanelFactory factory;
     private final TimeLogService logService;
     private final LocaleMessages localeMessages = LocaleMessages.getInstance();
     private final TimeConverter timeConverter;
     
-    public TimesHandler(JFrame frame, PanelHandler<?, ?, ?> caller, TimesPanelFactory factory) {
-        super(frame, caller);
+    public TimesHandler(JFrame frame, PanelHandler<?, ?, ?, ?> caller, TimesPanelFactory factory) {
+        super(frame, caller, factory);
         this.logService = factory.getTimeLogService();
         this.factory = factory;
         this.timeConverter = factory.getTimeConverter();
     }
     
     @Override
-    protected FeedbackerPanelWithFetcher<TimesEnum, AWTEvent> initPanel() {
+    protected FeedbackerPanelWithFetcher<TimesEnum, AWTEvent> initPanel(TimesPanelFactory factory) {
         this.setPanel(factory.getPanel());
         return this.getPanel();
     }

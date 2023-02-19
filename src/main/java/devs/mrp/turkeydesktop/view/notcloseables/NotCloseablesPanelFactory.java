@@ -10,7 +10,7 @@ import javax.swing.JFrame;
 public interface NotCloseablesPanelFactory {
     
     FeedbackerPanelWithFetcher<NotCloseablesEnum,Object> getPanel();
-    PanelHandler<NotCloseablesEnum,Object,FeedbackerPanelWithFetcher<NotCloseablesEnum,Object>> getHandler(JFrame frame, PanelHandler<?,?,?> caller);
+    PanelHandler<NotCloseablesEnum,Object,FeedbackerPanelWithFetcher<NotCloseablesEnum,Object>, NotCloseablesPanelFactory> getHandler(JFrame frame, PanelHandler<?,?,?,?> caller);
     TypeService getTypeService();
     CloseableService getCloseableService();
     ConfirmationWithDelay getPopupMaker();

@@ -22,7 +22,7 @@ public class CatProcessPanelFactoryImpl implements CatProcessPanelFactory {
     }
 
     @Override
-    public PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>> getHandler(PanelHandlerData<?> data) {
+    public PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>, CatProcessPanelFactory> getHandler(PanelHandlerData<?> data) {
         return new CatProcessHandler(data, this);
     }
 

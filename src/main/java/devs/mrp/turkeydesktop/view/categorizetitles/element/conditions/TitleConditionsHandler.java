@@ -17,7 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.text.JTextComponent;
 
-public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AWTEvent, FeedbackerPanelWithFetcher<TitleConditionsEnum, AWTEvent>> {
+public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AWTEvent, FeedbackerPanelWithFetcher<TitleConditionsEnum, AWTEvent>, TitleConditionsPanelFactory> {
 
     private static final int shortWaitingSeconds = 15;
     
@@ -27,15 +27,15 @@ public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AW
     private final TitledLog mTitledLog;
     private final TitleService titleService;
     
-    public TitleConditionsHandler(JFrame frame, PanelHandler<?, ?, ?> caller, TitledLog titledLog, TitleConditionsPanelFactory factory) {
-        super(frame, caller);
+    public TitleConditionsHandler(JFrame frame, PanelHandler<?, ?, ?, ?> caller, TitledLog titledLog, TitleConditionsPanelFactory factory) {
+        super(frame, caller, factory);
         mTitledLog = titledLog;
         titleService = factory.getTitleService();
         this.factory = factory;
     }
     
     @Override
-    protected FeedbackerPanelWithFetcher<TitleConditionsEnum, AWTEvent> initPanel() {
+    protected FeedbackerPanelWithFetcher<TitleConditionsEnum, AWTEvent> initPanel(TitleConditionsPanelFactory factory) {
         return factory.getPanel();
     }
 

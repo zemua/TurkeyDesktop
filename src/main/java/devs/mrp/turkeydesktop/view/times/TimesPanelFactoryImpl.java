@@ -22,7 +22,7 @@ public class TimesPanelFactoryImpl implements TimesPanelFactory {
     }
     
     @Override
-    public PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>> getHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
+    public PanelHandler<TimesEnum, AWTEvent, FeedbackerPanelWithFetcher<TimesEnum, AWTEvent>, TimesPanelFactory> getHandler(JFrame frame, PanelHandler<?, ?, ?, ?> caller) {
         return new TimesHandler(frame, caller, this);
     }
 

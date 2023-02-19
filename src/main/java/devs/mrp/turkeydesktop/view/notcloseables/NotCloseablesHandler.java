@@ -15,15 +15,15 @@ import javax.swing.SwingUtilities;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class NotCloseablesHandler extends PanelHandler<NotCloseablesEnum, Object, FeedbackerPanelWithFetcher<NotCloseablesEnum, Object>> {
+public class NotCloseablesHandler extends PanelHandler<NotCloseablesEnum, Object, FeedbackerPanelWithFetcher<NotCloseablesEnum, Object>, NotCloseablesPanelFactory> {
     
     private final NotCloseablesPanelFactory factory;
     private final ConfirmationWithDelay popupMaker;
     private final TypeService typeService;
     private final CloseableService closeableService;
 
-    public NotCloseablesHandler(JFrame frame, PanelHandler<?, ?, ?> caller, NotCloseablesPanelFactory factory) {
-        super(frame, caller);
+    public NotCloseablesHandler(JFrame frame, PanelHandler<?, ?, ?, ?> caller, NotCloseablesPanelFactory factory) {
+        super(frame, caller, factory);
         this.typeService = factory.getTypeService();
         this.closeableService = factory.getCloseableService();
         this.popupMaker = factory.getPopupMaker();
@@ -31,7 +31,7 @@ public class NotCloseablesHandler extends PanelHandler<NotCloseablesEnum, Object
     }
     
     @Override
-    protected FeedbackerPanelWithFetcher<NotCloseablesEnum, Object> initPanel() {
+    protected FeedbackerPanelWithFetcher<NotCloseablesEnum, Object> initPanel(NotCloseablesPanelFactory factory) {
         this.setPanel(factory.getPanel());
         return this.getPanel();
     }

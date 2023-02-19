@@ -10,7 +10,7 @@ import java.awt.AWTEvent;
 public interface CatProcessPanelFactory {
     
     FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent> getPanel();
-    PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>> getHandler(PanelHandlerData<?> data);
+    PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>, CatProcessPanelFactory> getHandler(PanelHandlerData<?> data);
     LogAndTypeFacadeService getLogAndTypeFacadeService();
     TypeService getTypeService();
     

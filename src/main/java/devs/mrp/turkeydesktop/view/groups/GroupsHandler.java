@@ -14,22 +14,22 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>> {
+public class GroupsHandler extends PanelHandler<GroupsEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent>, GroupsPanelFactory> {
 
     private final GroupsPanelFactory factory;
     private final Group.GroupType type;
     private final GroupService groupService;
     
     public GroupsHandler(PanelHandlerData<Group.GroupType> data, GroupsPanelFactory factory) {
-        super(data.getFrame(), data.getCaller());
+        super(data.getFrame(), data.getCaller(), factory);
         this.type = data.getEntity();
         this.factory = factory;
         this.groupService = factory.getGroupSerice();
     }
     
     @Override
-    protected FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent> initPanel() {
-        return factory.getPanel();
+    protected FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent> initPanel(GroupsPanelFactory fact) {
+        return fact.getPanel();
     }
 
     @Override

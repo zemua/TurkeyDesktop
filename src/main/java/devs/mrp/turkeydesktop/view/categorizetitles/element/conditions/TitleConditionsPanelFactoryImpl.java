@@ -22,7 +22,7 @@ public class TitleConditionsPanelFactoryImpl implements TitleConditionsPanelFact
     }
     
     @Override
-    public PanelHandler<TitleConditionsEnum, AWTEvent, FeedbackerPanelWithFetcher<TitleConditionsEnum, AWTEvent>> getHandler(JFrame frame, PanelHandler<?, ?, ?> caller, TitledLog titledLog) {
+    public PanelHandler<TitleConditionsEnum, AWTEvent, FeedbackerPanelWithFetcher<TitleConditionsEnum, AWTEvent>, TitleConditionsPanelFactory> getHandler(JFrame frame, PanelHandler<?, ?, ?, ?> caller, TitledLog titledLog) {
         return new TitleConditionsHandler(frame, caller, titledLog, this);
     }
 

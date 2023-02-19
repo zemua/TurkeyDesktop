@@ -5,17 +5,17 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.swing.JFrame;
 
-public abstract class PanelHandler<T, E, P extends FeedbackerPanelWithFetcher<T,E>> {
+public abstract class PanelHandler<T, E, P extends FeedbackerPanelWithFetcher<T,E>, FACTORY> {
     
-    private PanelHandler<?, ?, ?> caller;
+    private PanelHandler<?, ?, ?, ?> caller;
     private P panel;
     private JFrame frame;
     private boolean listening = false;
     
-    public PanelHandler(JFrame frame, PanelHandler<?,?,?> caller) {
+    public PanelHandler(JFrame frame, PanelHandler<?,?,?,?> caller, FACTORY fact) {
         this.caller = caller;
         this.frame = frame;
-        panel = initPanel();
+        panel = initPanel(fact);
         initListeners(panel);
     }
     
@@ -31,7 +31,7 @@ public abstract class PanelHandler<T, E, P extends FeedbackerPanelWithFetcher<T,
         return listening;
     }
     
-    protected abstract P initPanel();
+    protected abstract P initPanel(FACTORY fact);
     
     protected abstract void initListeners(P pan);
     
@@ -47,7 +47,7 @@ public abstract class PanelHandler<T, E, P extends FeedbackerPanelWithFetcher<T,
         }
     }
 
-    private PanelHandler<?,?,?> getCaller() {
+    private PanelHandler<?,?,?,?> getCaller() {
         return caller;
     }
 

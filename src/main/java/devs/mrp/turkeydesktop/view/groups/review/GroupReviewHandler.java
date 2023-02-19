@@ -49,7 +49,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 @Slf4j
-public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent>> {
+public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent>, GroupReviewFactory> {
 
     private GroupReviewFactory factory;
     
@@ -75,7 +75,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private JSpinner daySpinner;
 
     public GroupReviewHandler(PanelHandlerData<Group> data, GroupReviewFactory factory) {
-        super(data.getFrame(), data.getCaller());
+        super(data.getFrame(), data.getCaller(), factory);
         this.group = data.getEntity();
         this.factory = factory;
         this.groupConditionFacadeService = factory.groupConditionFacadeService();
@@ -90,8 +90,8 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     }
 
     @Override
-    protected FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent> initPanel() {
-        return factory.getPanel();
+    protected FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent> initPanel(GroupReviewFactory fact) {
+        return fact.getPanel();
     }
 
     @Override
