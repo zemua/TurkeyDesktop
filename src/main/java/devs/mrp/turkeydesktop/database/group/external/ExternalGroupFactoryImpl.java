@@ -16,7 +16,7 @@ public class ExternalGroupFactoryImpl implements ExternalGroupFactory {
     private static DbCache<Long,ExternalGroup> dbCache;
     private static ExternalGroupService externalGroupService;
     
-    private ExternalGroupFactoryImpl(){}
+    protected ExternalGroupFactoryImpl(){}
     
     public static ExternalGroupFactoryImpl getInstance() {
         if (instance == null) {

@@ -16,7 +16,7 @@ public class TypeFactoryImpl implements TypeFactory {
     private static DbCache<String,Type> dbCache;
     private static TypeService typeService;
     
-    private TypeFactoryImpl() {}
+    protected TypeFactoryImpl() {}
     
     public static TypeFactoryImpl getInstance() {
         if (instance == null) {

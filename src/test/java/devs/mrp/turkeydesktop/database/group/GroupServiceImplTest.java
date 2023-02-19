@@ -3,8 +3,6 @@ package devs.mrp.turkeydesktop.database.group;
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -105,19 +103,14 @@ public class GroupServiceImplTest {
         when(generatedId.next()).thenReturn(Boolean.TRUE);
         when(generatedId.getLong(Group.ID_COLUMN)).thenReturn(879L);
         
-        FactoryInitializer initializer = mock(FactoryInitializer.class);
-        DbFactory dbfactory = mock(DbFactory.class);
-        when(initializer.getDbFactory()).thenReturn(dbfactory);
-        when(dbfactory.getDb()).thenReturn(db);
         ResultSet findAllResultSet = mock(ResultSet.class);
         when(repo.findAll()).thenReturn(Single.just(findAllResultSet));
         when(findAllResultSet.next()).thenReturn(false);
         when(repo.add(toBeSaved)).thenReturn(Single.just(879L));
         
-        DbCache<Long, Group> cache = new CacheFactoryTest(initializer, repo).getDbCache();
-        when(factory.getDbCache()).thenReturn(cache);
+        GroupFactoryImpl groupFactory = new CacheFactoryTest(repo);
         
-        GroupService service = new GroupServiceImpl(factory);
+        GroupService service = new GroupServiceImpl(groupFactory);
         service.add(toBeSaved).blockingGet();
         
         var retrieved = service.findAll().toList().blockingGet();
@@ -127,13 +120,17 @@ public class GroupServiceImplTest {
     
     private class CacheFactoryTest extends GroupFactoryImpl {
         GroupDao repo;
-        CacheFactoryTest(FactoryInitializer factory, GroupDao repo) {
-            super(factory);
+        CacheFactoryTest(GroupDao repo) {
             this.repo = repo;
         }
         @Override
         public DbCache<Long, Group> getDbCache() {
             return buildCache(repo);
+        }
+        
+        @Override
+        public GroupService getService() {
+            return mock(GroupService.class);
         }
     }
     

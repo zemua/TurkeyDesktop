@@ -24,7 +24,7 @@ public class ConfigElementFactoryImpl implements ConfigElementFactory {
     private static DbCache<String, ConfigElement> dbCache;
     private static ConfigElementService configElementService;
     
-    private ConfigElementFactoryImpl() {
+    protected ConfigElementFactoryImpl() {
     }
     
     public static ConfigElementFactoryImpl getInstance() {

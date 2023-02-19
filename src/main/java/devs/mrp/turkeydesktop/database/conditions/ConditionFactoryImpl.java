@@ -16,7 +16,7 @@ public class ConditionFactoryImpl implements ConditionFactory {
     private static DbCache<Long, Condition> dbCache;
     private static ConditionService conditionService;
 
-    private ConditionFactoryImpl() {}
+    protected ConditionFactoryImpl() {}
     
     public static ConditionFactoryImpl getInstance() {
         if (instance == null) {

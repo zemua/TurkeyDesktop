@@ -14,7 +14,7 @@ public class CloseableFactoryImpl implements CloseableFactory {
     private static DbCache<String, Closeable> dbCache;
     private static CloseableService closeableService;
     
-    private CloseableFactoryImpl(){}
+    protected CloseableFactoryImpl(){}
     
     public static CloseableFactoryImpl getInstance() {
         if (instance == null) {

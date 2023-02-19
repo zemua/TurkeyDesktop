@@ -3,8 +3,6 @@ package devs.mrp.turkeydesktop.database.group.expor;
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -115,19 +113,14 @@ public class ExportedGroupServiceImplTest {
         when(db.prepareStatementWithGeneratedKeys(ArgumentMatchers.any())).thenReturn(statement);
         when(db.prepareStatement(ArgumentMatchers.any())).thenReturn(statement);
         
-        FactoryInitializer initializer = mock(FactoryInitializer.class);
-        DbFactory dbfactory = mock(DbFactory.class);
-        when(initializer.getDbFactory()).thenReturn(dbfactory);
-        when(dbfactory.getDb()).thenReturn(db);
         ResultSet findAllResultSet = mock(ResultSet.class);
         when(repo.findAll()).thenReturn(Single.just(findAllResultSet));
         when(findAllResultSet.next()).thenReturn(Boolean.FALSE);
         when(repo.add(toBeSaved)).thenReturn(Single.just(id));
         
-        DbCache<ExportedGroupId,ExportedGroup> cache = new CacheFactoryTest(initializer, repo).getDbCache();
-        when(factory.getDbCache()).thenReturn(cache);
+        ExportedGroupFactoryImpl egFactory = new CacheFactoryTest(repo);
         
-        ExportedGroupService service = new ExportedGroupServiceImpl(factory);
+        ExportedGroupService service = new ExportedGroupServiceImpl(egFactory);
         service.add(toBeSaved).blockingGet();
         
         var retrieved = service.findAll().toList().blockingGet();
@@ -139,13 +132,17 @@ public class ExportedGroupServiceImplTest {
     
     private class CacheFactoryTest extends ExportedGroupFactoryImpl {
         ExportedGroupDao repo;
-        CacheFactoryTest(FactoryInitializer factory, ExportedGroupDao repo) {
-            super(factory);
+        CacheFactoryTest(ExportedGroupDao repo) {
             this.repo = repo;
         }
         @Override
         public DbCache<ExportedGroupId,ExportedGroup> getDbCache() {
             return buildCache(repo);
+        }
+        
+        @Override
+        public ExportedGroupService getService() {
+            return mock(ExportedGroupService.class);
         }
     }
     

@@ -17,7 +17,7 @@ public class TitleFactoryImpl implements TitleFactory {
     private static TitleFactoryImpl instance;
     private static DbCache<String, Title> dbCache;
     
-    private TitleFactoryImpl() {}
+    protected TitleFactoryImpl() {}
     
     public static TitleFactoryImpl getInstance() {
         if (instance == null) {

@@ -16,7 +16,7 @@ public class GroupFactoryImpl implements GroupFactory {
     private static DbCache<Long, Group> dbCache;
     private static GroupService groupService;
     
-    private GroupFactoryImpl() {}
+    protected GroupFactoryImpl() {}
     
     public static GroupFactoryImpl getInstance() {
         if (instance == null) {

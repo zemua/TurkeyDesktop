@@ -1,18 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.group.assignations;
 
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 
-/**
- *
- * @author miguel
- */
 public interface GroupAssignationService {
     public Single<Long> add(GroupAssignation element);
     public Single<Long> update(GroupAssignation element);

@@ -18,7 +18,7 @@ public class ImportFactoryImpl implements ImportFactory {
     private static DbCache<String, String> dbCache;
     private static ImportService importService;
     
-    private ImportFactoryImpl() {}
+    protected ImportFactoryImpl() {}
     
     public static ImportFactoryImpl getInstance() {
         if (instance == null) {

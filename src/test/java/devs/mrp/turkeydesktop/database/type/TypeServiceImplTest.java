@@ -3,8 +3,6 @@ package devs.mrp.turkeydesktop.database.type;
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
-import devs.mrp.turkeydesktop.view.container.FactoryInitializer;
 import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -94,19 +92,14 @@ public class TypeServiceImplTest {
         when(db.prepareStatementWithGeneratedKeys(ArgumentMatchers.any())).thenReturn(statement);
         when(db.prepareStatement(ArgumentMatchers.any())).thenReturn(statement);
         
-        FactoryInitializer initializer = mock(FactoryInitializer.class);
-        DbFactory dbfactory = mock(DbFactory.class);
-        when(initializer.getDbFactory()).thenReturn(dbfactory);
-        when(dbfactory.getDb()).thenReturn(db);
         ResultSet findAllResultSet = mock(ResultSet.class);
         when(repo.findAll()).thenReturn(Single.just(findAllResultSet));
         when(findAllResultSet.next()).thenReturn(false);
         when(repo.add(toBeSaved)).thenReturn(Single.just(toBeSaved.getProcess()));
         
-        DbCache<String, Type> cache = new CacheFactoryTest(initializer, repo).getDbCache();
-        when(factory.getDbCache()).thenReturn(cache);
+        TypeFactoryImpl typeFactory = new CacheFactoryTest(repo);
         
-        TypeService service = new TypeServiceImpl(factory);
+        TypeService service = new TypeServiceImpl(typeFactory);
         service.add(toBeSaved).blockingGet();
         
         var retrieved = service.findAll().toList().blockingGet();
@@ -117,10 +110,9 @@ public class TypeServiceImplTest {
     
     private class CacheFactoryTest extends TypeFactoryImpl {
         TypeDao repo;
-        CacheFactoryTest(FactoryInitializer factory, TypeDao repo) {
-            super(factory);
+        CacheFactoryTest(TypeDao repo) {
             this.repo = repo;
-        }
+}
         @Override
         public DbCache<String, Type> getDbCache() {
             return buildCache(repo);

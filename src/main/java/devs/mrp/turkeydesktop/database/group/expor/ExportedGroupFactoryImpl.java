@@ -16,7 +16,7 @@ public class ExportedGroupFactoryImpl implements ExportedGroupFactory {
     private static DbCache<ExportedGroupId,ExportedGroup> dbCache;
     private static ExportedGroupService exportedGroupService;
     
-    private ExportedGroupFactoryImpl(){}
+    protected ExportedGroupFactoryImpl(){}
     
     public static ExportedGroupFactoryImpl getInstance() {
         if (instance == null) {

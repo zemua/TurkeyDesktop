@@ -16,7 +16,7 @@ public class GroupAssignationFactoryImpl implements GroupAssignationFactory {
     private static DbCache<GroupAssignationDao.ElementId, GroupAssignation> dbCache;
     private static GroupAssignationService groupAssignationService;
     
-    private GroupAssignationFactoryImpl(){}
+    protected GroupAssignationFactoryImpl(){}
     
     public static GroupAssignationFactoryImpl getInstance() {
         if (instance == null) {
