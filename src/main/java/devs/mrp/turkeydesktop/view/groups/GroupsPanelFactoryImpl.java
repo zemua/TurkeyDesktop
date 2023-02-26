@@ -14,7 +14,6 @@ import java.awt.AWTEvent;
 public class GroupsPanelFactoryImpl implements GroupsPanelFactory {
     
     private static GroupsPanelFactoryImpl instance;
-    private FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent> panel;
     
     private GroupsPanelFactoryImpl() {}
     
@@ -27,7 +26,7 @@ public class GroupsPanelFactoryImpl implements GroupsPanelFactory {
     
     @Override
     public FeedbackerPanelWithFetcher<GroupsEnum, AWTEvent> getPanel() {
-        return panel;
+        return new GroupsPanel();
     }
     
     @Override

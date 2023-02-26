@@ -36,15 +36,16 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
     private static final int FILTER_NEUTRAL = 4;
     private static final int FILTER_DEPENDS = 5;
     
-    private Logger logger = Logger.getLogger(CatProcessHandler.class.getName());
-    private FeedbackListener<Type.Types,String> mListener;
-    private TypeService typeService;
+    private final Logger logger = Logger.getLogger(CatProcessHandler.class.getName());
+    private final TypeService typeService;
+    private final LogAndTypeFacadeService logAndTypeFacadeService;
     
-    LogAndTypeFacadeService typedService;
+    private FeedbackListener<Type.Types,String> mListener;
     
     public CatProcessHandler(PanelHandlerData<?> data, CatProcessPanelFactory factory) {
         super(data.getFrame(), data.getCaller(), factory);
         typeService = factory.getTypeService();
+        logAndTypeFacadeService = factory.getLogAndTypeFacadeService();
         this.factory = factory;
     }
     
@@ -110,7 +111,7 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
             }
 
         };
-        typedService.getTypedLogGroupedByProcess(from, to)
+        logAndTypeFacadeService.getTypedLogGroupedByProcess(from, to)
                 .toSortedList((c1,c2) -> c2.getValue2().compareTo(c1.getValue2()))
                 .flatMapObservable(Observable::fromIterable)
                 .filter(c -> textFromFilter().isEmpty() ? true : StringUtils.containsIgnoreCase(c.getValue1(), textFromFilter()))
