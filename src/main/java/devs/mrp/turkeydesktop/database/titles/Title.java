@@ -26,7 +26,7 @@ public class Title {
     }
     
     public enum Type {
-        POSITIVE, NEGATIVE, NEUTRAL;
+        POSITIVE, NEUTRAL, NEGATIVE;
     }
 
     public String getSubStr() {
@@ -80,7 +80,5 @@ public class Title {
         }
         return this.type == other.type;
     }
-    
-    
     
 }

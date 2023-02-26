@@ -148,6 +148,32 @@ public class TitleServiceImplTest {
     }
     
     @Test
+    public void testFindContainedByNegativeFirst() {
+        TitleService service = new TitleServiceImpl(factory);
+        
+        Title shortNeutral = new Title("bbb", Title.Type.NEUTRAL);
+        Title longNeutral = new Title("bbbbbb", Title.Type.NEUTRAL);
+        Title shortNegative = new Title("aaa", Title.Type.NEGATIVE);
+        Title longNegative = new Title("aaaaaa", Title.Type.NEGATIVE);
+        Title shortPositive = new Title("ccc", Title.Type.POSITIVE);
+        Title longPositive = new Title("cccccc", Title.Type.POSITIVE);
+        
+        String containingString = "aaaaaabbbbbbcccccc";
+        
+        Observable<Title> obs = Observable.fromIterable(List.of(shortNeutral, longNeutral, shortNegative, longNegative, shortPositive, longPositive));
+        when(dbCache.getAll()).thenReturn(obs);
+        Observable<Title> observable = service.findContainedByAndNegativeFirst(containingString);
+        List<Title> result = observable.toList().blockingGet();
+        
+        assertEquals(Title.Type.NEGATIVE, result.get(0).getType());
+        assertEquals(Title.Type.NEGATIVE, result.get(1).getType());
+        assertEquals(Title.Type.NEUTRAL, result.get(2).getType());
+        assertEquals(Title.Type.NEUTRAL, result.get(3).getType());
+        assertEquals(Title.Type.POSITIVE, result.get(4).getType());
+        assertEquals(Title.Type.POSITIVE, result.get(5).getType());
+    }
+    
+    @Test
     public void test_add_sets_object_id_in_cache() throws SQLException {
         Title toBeSaved = new Title();
         toBeSaved.setSubStr("My uPPeR CaSeD TiTle");
