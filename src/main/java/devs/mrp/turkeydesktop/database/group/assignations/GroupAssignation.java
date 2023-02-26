@@ -3,10 +3,12 @@ package devs.mrp.turkeydesktop.database.group.assignations;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class GroupAssignation {
     
     public static final String TYPE = "TYPE";

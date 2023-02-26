@@ -70,7 +70,7 @@ public class GroupAssignationServiceImpl implements GroupAssignationService {
         return dbCache.getAll()
                 .filter(ga -> GroupAssignation.ElementType.TITLE.equals(ga.getType()))
                 .filter(ga -> StringUtils.containsIgnoreCase(titleId, ga.getElementId()))
-                .sorted((ga1, ga2) -> Integer.compare(ga1.getElementId().length(), ga2.getElementId().length()))
+                .sorted((ga1, ga2) -> Integer.compare(ga2.getElementId().length(), ga1.getElementId().length()))
                 .firstElement();
     }
     
