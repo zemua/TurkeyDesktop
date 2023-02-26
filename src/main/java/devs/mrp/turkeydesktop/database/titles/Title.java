@@ -13,6 +13,11 @@ public class Title {
     public Title(){
     }
     
+    public Title(String substring, Title.Type t) {
+        this.subStr = substring;
+        this.type = t;
+    }
+    
     public static Title from(Title title) {
         Title result = new Title();
         result.setSubStr(title.getSubStr());
@@ -21,7 +26,7 @@ public class Title {
     }
     
     public enum Type {
-        POSITIVE, NEGATIVE, NEUTRAL;
+        POSITIVE, NEUTRAL, NEGATIVE;
     }
 
     public String getSubStr() {
@@ -75,7 +80,5 @@ public class Title {
         }
         return this.type == other.type;
     }
-    
-    
     
 }

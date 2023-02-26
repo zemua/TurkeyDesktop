@@ -3,11 +3,15 @@ package devs.mrp.turkeydesktop.database.group.assignations;
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
 import devs.mrp.turkeydesktop.database.Db;
+import io.reactivex.rxjava3.core.Maybe;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
@@ -85,6 +89,50 @@ public class GroupAssignationServiceImplTest {
         
         Long addResult = service.add(assignation).blockingGet();
         assertEquals(SaveAction.SAVED.get(), addResult);
+    }
+    
+    @Test
+    public void testFindLongestTitle() {
+        GroupAssignationService service = new GroupAssignationServiceImpl(factory);
+        
+        GroupAssignation length1 = new GroupAssignation(GroupAssignation.ElementType.TITLE, "b", 1);
+        GroupAssignation length2 = new GroupAssignation(GroupAssignation.ElementType.TITLE, "bb", 1);
+        GroupAssignation length3 = new GroupAssignation(GroupAssignation.ElementType.TITLE, "bbb", 1);
+        GroupAssignation length4 = new GroupAssignation(GroupAssignation.ElementType.TITLE, "bbbb", 1);
+        GroupAssignation length5 = new GroupAssignation(GroupAssignation.ElementType.TITLE, "bbbbb", 1);
+        GroupAssignation notTitle = new GroupAssignation(GroupAssignation.ElementType.PROCESS, "bbbbbb", 1);
+        
+        String containingString = "bbbbbb";
+        
+        Observable<GroupAssignation> obs = Observable.fromIterable(List.of(length4, length5, notTitle, length1, length2, length3));
+        when(dbCache.getAll()).thenReturn(obs);
+        Maybe<GroupAssignation> result = service.findLongestTitleIdContainedIn(containingString);
+        assertEquals(length5, result.blockingGet());
+        
+        obs = Observable.fromIterable(List.of(length4, notTitle, length1, length2, length3));
+        when(dbCache.getAll()).thenReturn(obs);
+        result = service.findLongestTitleIdContainedIn(containingString);
+        assertEquals(length4, result.blockingGet());
+        
+        obs = Observable.fromIterable(List.of(notTitle, length1, length2, length3));
+        when(dbCache.getAll()).thenReturn(obs);
+        result = service.findLongestTitleIdContainedIn(containingString);
+        assertEquals(length3, result.blockingGet());
+        
+        obs = Observable.fromIterable(List.of(notTitle, length1, length2));
+        when(dbCache.getAll()).thenReturn(obs);
+        result = service.findLongestTitleIdContainedIn(containingString);
+        assertEquals(length2, result.blockingGet());
+        
+        obs = Observable.fromIterable(List.of(notTitle, length1));
+        when(dbCache.getAll()).thenReturn(obs);
+        result = service.findLongestTitleIdContainedIn(containingString);
+        assertEquals(length1, result.blockingGet());
+        
+        obs = Observable.fromIterable(List.of(notTitle));
+        when(dbCache.getAll()).thenReturn(obs);
+        result = service.findLongestTitleIdContainedIn(containingString);
+        assertTrue(result.isEmpty().blockingGet());
     }
     
     @Test
