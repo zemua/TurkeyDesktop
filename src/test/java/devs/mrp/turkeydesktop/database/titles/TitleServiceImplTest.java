@@ -4,11 +4,16 @@ import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
 import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
+import io.reactivex.rxjava3.core.Maybe;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -91,6 +96,55 @@ public class TitleServiceImplTest {
         service.save(title).blockingGet();
         verify(dbCache, atLeast(1)).save(argumentCaptor.capture());
         assertEquals("my upper cased title", argumentCaptor.getValue().getSubStr());
+    }
+    
+    @Test
+    public void testFindLongestTitle() {
+        TitleService service = new TitleServiceImpl(factory);
+        
+        Title shortNeutral = new Title("bbb", Title.Type.NEUTRAL);
+        Title longNeutral = new Title("bbbbbb", Title.Type.NEUTRAL);
+        Title shortNegative = new Title("aaa", Title.Type.NEGATIVE);
+        Title longNegative = new Title("aaaaaa", Title.Type.NEGATIVE);
+        Title shortPositive = new Title("ccc", Title.Type.POSITIVE);
+        Title longPositive = new Title("cccccc", Title.Type.POSITIVE);
+        
+        String containingString = "aaaaaabbbbbbcccccc";
+        
+        Observable<Title> obs = Observable.fromIterable(List.of(shortNeutral, longNeutral, shortNegative, longNegative, shortPositive, longPositive));
+        when(dbCache.getAll()).thenReturn(obs);
+        Maybe<Title> result = service.findLongestContainedBy(containingString);
+        assertEquals(longNegative, result.blockingGet());
+        
+        obs = Observable.fromIterable(List.of(shortNeutral, longNeutral, shortNegative, shortPositive, longPositive));
+        when(dbCache.getAll()).thenReturn(obs);
+        result = service.findLongestContainedBy(containingString);
+        assertEquals(longNeutral, result.blockingGet());
+        
+        obs = Observable.fromIterable(List.of(shortNeutral, shortNegative, shortPositive, longPositive));
+        when(dbCache.getAll()).thenReturn(obs);
+        result = service.findLongestContainedBy(containingString);
+        assertEquals(longPositive, result.blockingGet());
+        
+        obs = Observable.fromIterable(List.of(shortNeutral, shortNegative, shortPositive));
+        when(dbCache.getAll()).thenReturn(obs);
+        result = service.findLongestContainedBy(containingString);
+        assertEquals(shortNegative, result.blockingGet());
+        
+        obs = Observable.fromIterable(List.of(shortNeutral, shortPositive));
+        when(dbCache.getAll()).thenReturn(obs);
+        result = service.findLongestContainedBy(containingString);
+        assertEquals(shortNeutral, result.blockingGet());
+        
+        obs = Observable.fromIterable(List.of(shortPositive));
+        when(dbCache.getAll()).thenReturn(obs);
+        result = service.findLongestContainedBy(containingString);
+        assertEquals(shortPositive, result.blockingGet());
+        
+        obs = Observable.fromIterable(Collections.EMPTY_LIST);
+        when(dbCache.getAll()).thenReturn(obs);
+        result = service.findLongestContainedBy(containingString);
+        assertTrue(result.isEmpty().blockingGet());
     }
     
     @Test
