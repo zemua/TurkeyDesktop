@@ -8,6 +8,9 @@ import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactoryImpl;
 public class TrayChainFactoryImpl implements TrayChainFactory {
     
     private static TrayChainFactoryImpl instance;
+    private static TrayChainBaseHandler trayChainHandler;
+    private static TrayChainBaseHandler linuxHandler;
+    private static TrayChainBaseHandler macosHandler;
     
     private TrayChainFactoryImpl() {}
     
@@ -20,7 +23,10 @@ public class TrayChainFactoryImpl implements TrayChainFactory {
     
     @Override
     public TrayChainBaseHandler getChain() {
-        return new TrayChainCommander(this).getHandlerChain();
+        if (trayChainHandler == null) {
+            trayChainHandler = new TrayChainCommander(this).getHandlerChain();
+        }
+        return trayChainHandler;
     }
 
     @Override
@@ -35,12 +41,18 @@ public class TrayChainFactoryImpl implements TrayChainFactory {
 
     @Override
     public TrayChainBaseHandler getLinuxHandler() {
-        return new TrayChainHandlerLinux(this);
+        if (linuxHandler == null) {
+            linuxHandler = new TrayChainHandlerLinux(this);
+        }
+        return linuxHandler;
     }
 
     @Override
     public TrayChainBaseHandler getMacHandler() {
-        return new TrayChainHandlerMacos(this);
+        if (macosHandler == null) {
+            macosHandler = new TrayChainHandlerMacos(this);
+        }
+        return macosHandler;
     }
     
 }

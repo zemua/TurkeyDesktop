@@ -3,6 +3,8 @@ package devs.mrp.turkeydesktop.view.container;
 import devs.mrp.turkeydesktop.service.watchdog.WatchDog;
 import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactoryImpl;
 import devs.mrp.turkeydesktop.view.PanelHandler;
+import devs.mrp.turkeydesktop.view.container.traychain.TrayChainBaseHandler;
+import devs.mrp.turkeydesktop.view.container.traychain.TrayChainFactoryImpl;
 import devs.mrp.turkeydesktop.view.mainpanel.MainPanelFactoryImpl;
 import javax.swing.JFrame;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +14,7 @@ public class TurkeyDesktop extends javax.swing.JFrame {
 
     private static WatchDog watchDog;
     private static PanelHandler handler;
+    private static TrayChainBaseHandler trayHandler;
 
     /**
      * Creates new form MainContainer
@@ -109,6 +112,9 @@ public class TurkeyDesktop extends javax.swing.JFrame {
         watchDog.begin();
         handler = MainPanelFactoryImpl.getInstance().getMainHandler(this);
         handler.show();
+        trayHandler = TrayChainFactoryImpl.getInstance().getChain();
+        trayHandler.receiveRequest("init", this);
+        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

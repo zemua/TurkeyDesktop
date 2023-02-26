@@ -83,9 +83,11 @@ public class TrayChainHandlerLinux extends TrayChainBaseHandler {
 
     @Override
     protected void setTimeLeft(long millis) {
-        tray.getMenu().remove(tray.getMenu().getLast());
-        timeItem.setText(timeConverter.millisToHM(millis));
-        tray.getMenu().add(timeItem);
+        if (timeItem != null && tray != null) {
+            tray.getMenu().remove(tray.getMenu().getLast());
+            timeItem.setText(timeConverter.millisToHM(millis));
+            tray.getMenu().add(timeItem);
+        }
     }
 
 }
