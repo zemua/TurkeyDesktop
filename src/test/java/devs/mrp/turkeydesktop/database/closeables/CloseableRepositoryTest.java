@@ -1,15 +1,14 @@
 package devs.mrp.turkeydesktop.database.closeables;
 
-import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.Callable;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -18,18 +17,18 @@ import static org.mockito.Mockito.when;
 
 public class CloseableRepositoryTest {
     
-    static Db db = CommonMocks.getMock(Db.class);
+    Db db = mock(Db.class);
     PreparedStatement allPreparedStatement = mock(PreparedStatement.class);
     ResultSet allResultSet = mock(ResultSet.class);
+    CloseableFactory closeableFactory = mock(CloseableFactory.class);
     
-    static CloseableRepository closeableRepository;
-    
+    CloseableRepository closeableRepository;
     Closeable closeable;
     
-    @BeforeClass
-    public static void classSetup() {
-        DbFactory.setDbSupplier(() -> db);
-        closeableRepository = CloseableRepository.getInstance();
+    @Before
+    public void classSetup() {
+        when(closeableFactory.getDb()).thenReturn(db);
+        closeableRepository = new CloseableRepository(closeableFactory);
     }
     
     @Before
@@ -41,7 +40,7 @@ public class CloseableRepositoryTest {
     }
 
     @Test
-    public void testFindByIdReturnsResultSet() throws SQLException {
+    public void testFindByIdReturnsResultSet() throws SQLException, Exception {
         PreparedStatement preparedStatement = mock(PreparedStatement.class);
         ResultSet closeableResult = mock(ResultSet.class);
         
@@ -49,13 +48,17 @@ public class CloseableRepositoryTest {
                 .thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(closeableResult);
         
-        ResultSet result = closeableRepository.findById(closeable.getProcess()).blockingGet();
+        closeableRepository.findById(closeable.getProcess());
+        ArgumentCaptor<Callable<ResultSet>> captor = ArgumentCaptor.forClass(Callable.class);
+        verify(db).singleResultSet(captor.capture());
+        ResultSet result = captor.getValue().call();
+        
         assertEquals(closeableResult, result);
         verify(preparedStatement, times(1)).setString(1, closeable.getProcess());
     }
     
     @Test
-    public void testAddSuccess() throws SQLException {
+    public void testAddSuccess() throws SQLException, Exception {
         PreparedStatement preparedStatement = mock(PreparedStatement.class);
         ResultSet closeableResult = mock(ResultSet.class);
         
@@ -63,20 +66,28 @@ public class CloseableRepositoryTest {
                 .thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(closeableResult);
         
-        String result = closeableRepository.add(closeable).blockingGet();
+        closeableRepository.add(closeable);
+        ArgumentCaptor<Callable<String>> captor = ArgumentCaptor.forClass(Callable.class);
+        verify(db).singleString(captor.capture());
+        String result = captor.getValue().call();
+        
         assertEquals(closeable.getProcess(), result);
         verify(preparedStatement, times(1)).setString(1, closeable.getProcess());
     }
     
     @Test
-    public void testAddException() throws SQLException {
+    public void testAddException() throws SQLException, Exception {
         PreparedStatement preparedStatement = mock(PreparedStatement.class);
         
         when(db.prepareStatement(ArgumentMatchers.anyString()))
                 .thenReturn(preparedStatement);
         when(preparedStatement.executeUpdate()).thenThrow(new SQLException());
         
-        String result = closeableRepository.add(closeable).blockingGet();
+        closeableRepository.add(closeable);
+        ArgumentCaptor<Callable<String>> captor = ArgumentCaptor.forClass(Callable.class);
+        verify(db).singleString(captor.capture());
+        String result = captor.getValue().call();
+        
         assertEquals("", result);
         verify(preparedStatement, times(1)).setString(1, closeable.getProcess());
     }

@@ -1,15 +1,14 @@
 package devs.mrp.turkeydesktop.database.conditions;
 
-import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.Callable;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -18,18 +17,18 @@ import static org.mockito.Mockito.when;
 
 public class ConditionRepositoryTest {
     
-    static Db db = CommonMocks.getMock(Db.class);
+    Db db = mock(Db.class);
     PreparedStatement allPreparedStatement = mock(PreparedStatement.class);
     ResultSet allResultSet = mock(ResultSet.class);
+    ConditionFactory factory = mock(ConditionFactory.class);
     
-    static ConditionRepository conditionRepository;
-    
+    ConditionRepository conditionRepository;
     Condition condition;
     
-    @BeforeClass
-    public static void classSetup() {
-        DbFactory.setDbSupplier(() -> db);
-        conditionRepository = ConditionRepository.getInstance();
+    @Before
+    public void classSetup() {
+        when(factory.getDb()).thenReturn(db);
+        conditionRepository = new ConditionRepository(factory);
     }
     
     @Before
@@ -45,7 +44,7 @@ public class ConditionRepositoryTest {
     }
 
     @Test
-    public void testFindByIdReturnsResultSet() throws SQLException {
+    public void testFindByIdReturnsResultSet() throws SQLException, Exception {
         PreparedStatement preparedStatement = mock(PreparedStatement.class);
         ResultSet conditionResult = mock(ResultSet.class);
         
@@ -53,13 +52,17 @@ public class ConditionRepositoryTest {
                 .thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(conditionResult);
         
-        ResultSet result = conditionRepository.findById(condition.getId()).blockingGet();
+        conditionRepository.findById(condition.getId());
+        ArgumentCaptor<Callable<ResultSet>> captor = ArgumentCaptor.forClass(Callable.class);
+        verify(db).singleResultSet(captor.capture());
+        ResultSet result = captor.getValue().call();
+        
         assertEquals(conditionResult, result);
         verify(preparedStatement, times(1)).setLong(1, condition.getId());
     }
     
     @Test
-    public void testAddSuccess() throws SQLException {
+    public void testAddSuccess() throws SQLException, Exception {
         PreparedStatement preparedStatement = mock(PreparedStatement.class);
         ResultSet generatedId = mock(ResultSet.class);
         
@@ -69,7 +72,11 @@ public class ConditionRepositoryTest {
         when(generatedId.next()).thenReturn(Boolean.TRUE);
         when(generatedId.getLong(1)).thenReturn(3L);
         
-        long longResult = conditionRepository.add(condition).blockingGet();
+        conditionRepository.add(condition);
+        ArgumentCaptor<Callable<Long>> captor = ArgumentCaptor.forClass(Callable.class);
+        verify(db).singleLong(captor.capture());
+        long longResult = captor.getValue().call();
+        
         assertEquals(3L, longResult);
         verify(preparedStatement, times(1)).setLong(1, condition.getGroupId());
         verify(preparedStatement, times(1)).setLong(2, condition.getTargetId());
@@ -78,7 +85,7 @@ public class ConditionRepositoryTest {
     }
     
     @Test
-    public void testAddException() throws SQLException {
+    public void testAddException() throws SQLException, Exception {
         PreparedStatement preparedStatement = mock(PreparedStatement.class);
         ResultSet generatedId = mock(ResultSet.class);
         
@@ -89,7 +96,11 @@ public class ConditionRepositoryTest {
         when(generatedId.getLong(1)).thenReturn(3L);
         when(preparedStatement.executeUpdate()).thenThrow(new SQLException());
         
-        long longResult = conditionRepository.add(condition).blockingGet();
+        conditionRepository.add(condition);
+        ArgumentCaptor<Callable<Long>> captor = ArgumentCaptor.forClass(Callable.class);
+        verify(db).singleLong(captor.capture());
+        long longResult = captor.getValue().call();
+        
         assertEquals(-1L, longResult);
         verify(preparedStatement, times(1)).setLong(1, condition.getGroupId());
         verify(preparedStatement, times(1)).setLong(2, condition.getTargetId());

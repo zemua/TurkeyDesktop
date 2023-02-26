@@ -1,11 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.common;
 
-import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
+import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import io.reactivex.rxjava3.core.Single;
 import java.io.BufferedReader;
@@ -21,26 +16,25 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
-import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 
-/**
- *
- * @author miguel
- */
 public class FileHandler {
     
-    private static final long millisBetweenOperations = 60*1000;
-    private static long lastExport = 0;
-    private static ConfigElementService configService = ConfigElementFactory.getService();
-    private static Map<String,CachedValue> readerCache = new HashMap<>();
-    private static Map<String,Long> lastWrittings = new HashMap<>();
+    private final long millisBetweenOperations = 60*1000;
+    private long lastExport = 0;
+    private Map<String,CachedValue> readerCache = new HashMap<>();
+    private Map<String,Long> lastWrittings = new HashMap<>();
+    private final ConfigElementService configService;
     
-    private static class CachedValue {
+    public FileHandler(ConfigElementService configService) {
+        this.configService = configService;
+    }
+    
+    private class CachedValue {
         String value;
         long lastUpdated;
     }
     
-    public static File createFileIfNotExists(File file, String extension) throws IOException {
+    public File createFileIfNotExists(File file, String extension) throws IOException {
         File target = file;
         String path = target.getPath();
         String mExtension = extension;
@@ -57,11 +51,11 @@ public class FileHandler {
         return target;
     }
     
-    public static void writeToTxt(File file, String text) throws IOException {
+    public void writeToTxt(File file, String text) throws IOException {
         writeToTxt(file, text, false);
     }
     
-    private static void writeToTxt(File file, String text, boolean resetTimer) throws IOException {
+    private void writeToTxt(File file, String text, boolean resetTimer) throws IOException {
         long now = System.currentTimeMillis();
         Long lastWrite = lastWrittings.containsKey(file.getPath()) ? lastWrittings.get(file.getPath()) : 0;
         if (lastWrite + millisBetweenOperations > now) {
@@ -76,11 +70,11 @@ public class FileHandler {
         exportToFile(target, text);
     }
     
-    public static void clearTxt(File file) throws IOException {
+    public void clearTxt(File file) throws IOException {
         writeToTxt(file, StringUtils.EMPTY, true);
     }
     
-    public static void exportAccumulated(long time) throws IOException {
+    public void exportAccumulated(long time) throws IOException {
         long now = System.currentTimeMillis();
         if (lastExport + millisBetweenOperations > now) {
             return;
@@ -101,7 +95,7 @@ public class FileHandler {
                 }).subscribe();
     }
     
-    private static void exportToFile(File file, String text) throws IOException {
+    private void exportToFile(File file, String text) throws IOException {
         if (!file.exists() || !file.canWrite() || !file.isFile())  {
             throw new IOException("Cannot write to file");
         }
@@ -110,7 +104,7 @@ public class FileHandler {
         }
     }
     
-    private static String getCache(File file, long now) throws IOException {
+    private String getCache(File file, long now) throws IOException {
         if (readerCache.containsKey(file.getPath()) && now < readerCache.get(file.getPath()).lastUpdated + millisBetweenOperations) {
             return readerCache.get(file.getPath()).value;
         }
@@ -120,7 +114,7 @@ public class FileHandler {
         return null;
     }
     
-    public static String readFirstLineFromFile(File file) throws IOException {
+    public String readFirstLineFromFile(File file) throws IOException {
         long now = System.currentTimeMillis();
         String cach = getCache(file, now);
         if (Objects.nonNull(cach)){
@@ -139,7 +133,7 @@ public class FileHandler {
         return StringUtils.EMPTY;
     }
     
-    public static String readAllLinesFromFile(File file) throws IOException {
+    public String readAllLinesFromFile(File file) throws IOException {
         long now = System.currentTimeMillis();
         String cach = getCache(file, now);
         if (Objects.nonNull(cach)){

@@ -1,18 +1,30 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.service.watchdog;
 
-/**
- *
- * @author miguel
- */
-public class WatchDogFactory {
+import devs.mrp.turkeydesktop.common.ChainHandler;
+import devs.mrp.turkeydesktop.common.FileHandler;
+import devs.mrp.turkeydesktop.database.group.GroupService;
+import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
+import devs.mrp.turkeydesktop.service.conditionchecker.exporter.ExportWritter;
+import devs.mrp.turkeydesktop.service.processchecker.ProcessChecker;
+import devs.mrp.turkeydesktop.service.resourcehandler.ImagesEnum;
+import devs.mrp.turkeydesktop.service.resourcehandler.ResourceHandler;
+import devs.mrp.turkeydesktop.service.toaster.Toaster;
+import devs.mrp.turkeydesktop.service.watchdog.logger.DbLogger;
+import devs.mrp.turkeydesktop.view.container.traychain.TrayChainBaseHandler;
+import java.awt.Image;
+
+public interface WatchDogFactory {
     
-    public static WatchDog getInstance() {
-        return WatchDogImpl.getInstance();
-    }
+    WatchDog getWatchDog();
+    ConditionChecker getConditionChecker();
+    Toaster getToaster();
+    FileHandler getFileHandler();
+    ExportWritter getExportWritter();
+    GroupService getGroupService();
+    TrayChainBaseHandler getTrayChainBaseHandler();
+    ChainHandler<String> getKillerHandler();
+    ResourceHandler<Image,ImagesEnum> getImageHandler();
+    DbLogger getDbLogger();
+    ProcessChecker getProcessChecker();
     
 }

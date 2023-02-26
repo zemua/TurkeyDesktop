@@ -1,16 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package devs.mrp.turkeydesktop.service.resourcehandler;
 
 import java.awt.Image;
 import java.awt.Toolkit;
 
-/**
- *
- * @author ncm55070
- */
 public class ImageResourceHandler implements ResourceHandler<Image, ImagesEnum> {
 
     @Override

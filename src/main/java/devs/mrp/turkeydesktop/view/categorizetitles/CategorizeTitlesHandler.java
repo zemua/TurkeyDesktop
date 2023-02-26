@@ -1,50 +1,42 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.view.categorizetitles;
 
 import devs.mrp.turkeydesktop.common.Feedbacker;
-import devs.mrp.turkeydesktop.database.titledlog.TitledLogServiceFacadeFactory;
 import devs.mrp.turkeydesktop.database.titledlog.TitledLog;
+import devs.mrp.turkeydesktop.database.titledlog.TitledLogServiceFacade;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.categorizetitles.element.CategorizeTitlesElement;
-import devs.mrp.turkeydesktop.view.categorizetitles.element.conditions.FTitleConditionsPanel;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
-import java.awt.AWTEvent;
-import java.util.Date;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import devs.mrp.turkeydesktop.database.titledlog.TitledLogServiceFacade;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
+import java.awt.AWTEvent;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-/**
- *
- * @author miguel
- */
 @Slf4j
-public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, AWTEvent, FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent>> {
+public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, AWTEvent, FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent>, CategorizeTitlesPanelFactory> {
 
-    TitledLogServiceFacade facadeService = TitledLogServiceFacadeFactory.getService();
+    private final TitledLogServiceFacade facadeService;
+    private final CategorizeTitlesPanelFactory factory;
     Logger logger = Logger.getLogger(CategorizeTitlesHandler.class.getName());
 
-    public CategorizeTitlesHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
-        super(frame, caller);
+    public CategorizeTitlesHandler(JFrame frame, PanelHandler<?, ?, ?, ?> caller, CategorizeTitlesPanelFactory factory) {
+        super(frame, caller, factory);
+        this.factory = factory;
+        this.facadeService = factory.getTitledLogServiceFacade();
     }
 
     @Override
-    protected FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent> initPanel() {
-        return CategorizeTitlesPanelFactory.getPanel();
+    protected FeedbackerPanelWithFetcher<CategorizeTitlesEnum, AWTEvent> initPanel(CategorizeTitlesPanelFactory factory) {
+        return factory.getPanel();
     }
 
     @Override
@@ -154,7 +146,7 @@ public class CategorizeTitlesHandler extends PanelHandler<CategorizeTitlesEnum, 
 
     private void setTagClickListener(Feedbacker<JLabel, String> label, TitledLog titledLog) {
         label.addFeedbackListener((tipo, feedback) -> {
-            var handler = FTitleConditionsPanel.getHandler(getFrame(), CategorizeTitlesHandler.this, titledLog);
+            var handler = factory.getHandler(getFrame(), CategorizeTitlesHandler.this, titledLog);
             handler.show();
         });
     }

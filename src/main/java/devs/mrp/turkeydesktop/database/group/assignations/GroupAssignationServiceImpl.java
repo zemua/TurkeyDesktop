@@ -4,13 +4,17 @@ import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationDao.ElementId;
 import io.reactivex.rxjava3.core.Maybe;
-import org.apache.commons.lang3.StringUtils;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
+import org.apache.commons.lang3.StringUtils;
 
 public class GroupAssignationServiceImpl implements GroupAssignationService {
     
-    public static final DbCache<GroupAssignationDao.ElementId,GroupAssignation> dbCache = GroupAssignationFactory.getDbCache();
+    private final DbCache<GroupAssignationDao.ElementId,GroupAssignation> dbCache;
+    
+    public GroupAssignationServiceImpl(GroupAssignationFactory factory) {
+        this.dbCache = factory.getDbCache();
+    }
     
     @Override
     public Single<Long> add(GroupAssignation assignation) {

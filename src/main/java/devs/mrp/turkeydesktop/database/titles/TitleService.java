@@ -1,19 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.titles;
 
 import io.reactivex.rxjava3.core.Maybe;
-import java.util.Map;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
+import java.util.Map;
 
-/**
- *
- * @author miguel
- */
 public interface TitleService {
     
     public Single<Long> save(Title element);

@@ -1,12 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.logs;
 
-import devs.mrp.turkeydesktop.database.group.GroupFactory;
-import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import java.text.MessageFormat;
@@ -15,14 +8,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.NoArgsConstructor;
-import io.reactivex.rxjava3.core.Single;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
-/**
- *
- * @author miguel
- */
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -48,30 +36,10 @@ public class TimeLog {
     private String windowTitle;
     private long groupId;
     private Type.Types type;
-    
-    private GroupService groupService = GroupFactory.getService();
-    
     private boolean blockable;
 
     public boolean isBlockable() {
         return blockable;
-    }
-
-    public Single<TimeLog> setBlockable(boolean blockable) {
-        // if we are asked to set as not blockable we just do it
-        if (blockable == false) {
-            this.blockable = blockable;
-            return Single.just(this);
-        }
-        // if we are asked to set is as blockable we check if that is possible
-        return groupService.isPreventClose(groupId).map(isPreventCloseResult -> {
-            if (isPreventCloseResult) {
-                this.blockable = false;
-            } else {
-                this.blockable = blockable;
-            }
-            return this;
-        });
     }
 
     public Type.Types getType() {

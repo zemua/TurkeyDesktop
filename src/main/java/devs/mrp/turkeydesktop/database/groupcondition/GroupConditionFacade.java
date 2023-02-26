@@ -1,25 +1,16 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.groupcondition;
 
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
-import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactory;
 import io.reactivex.rxjava3.core.Single;
 
-/**
- *
- * @author miguel
- */
 public class GroupConditionFacade {
     
     private LocaleMessages locale = LocaleMessages.getInstance();
-    private ConditionChecker conditionCheker = ConditionCheckerFactory.getConditionChecker();
+    private ConditionChecker conditionChecker;
+    private TimeConverter timeConverter;
     
     private long conditionId;
     private long groupId;
@@ -29,8 +20,9 @@ public class GroupConditionFacade {
     private long usageTimeCondition;
     private long lastDaysCondition;
     
-    public GroupConditionFacade() {
-        
+    public GroupConditionFacade(GroupConditionFacadeFactory factory) {
+        conditionChecker = factory.conditionCheker();
+        timeConverter = factory.getTimeConverter();
     }
 
     public long getConditionId() {
@@ -102,7 +94,7 @@ public class GroupConditionFacade {
         builder.append(" ");
         builder.append(locale.getString("hasUsed"));
         builder.append(" ");
-        builder.append(TimeConverter.millisToHM(usageTimeCondition));
+        builder.append(timeConverter.millisToHM(usageTimeCondition));
         builder.append(" ");
         if (lastDaysCondition > 0) {
             builder.append(locale.getString("inTheLast"));
@@ -113,7 +105,7 @@ public class GroupConditionFacade {
         } else {
             builder.append(locale.getString("today"));
         }
-        return conditionCheker.isConditionMet(toCondition()).map(isMetResult -> {
+        return conditionChecker.isConditionMet(toCondition()).map(isMetResult -> {
             if (!isMetResult) {
                 builder.append(String.format(" - %s", locale.getString("notMet")));
             }

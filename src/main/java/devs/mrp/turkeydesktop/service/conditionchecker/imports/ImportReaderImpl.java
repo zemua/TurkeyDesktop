@@ -1,11 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.service.conditionchecker.imports;
 
 import devs.mrp.turkeydesktop.common.FileHandler;
+import io.reactivex.rxjava3.core.Single;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -20,20 +16,21 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import io.reactivex.rxjava3.core.Single;
 
-/**
- *
- * @author miguel
- */
 public class ImportReaderImpl implements ImportReader {
     
     // data example type YYYY-MM-DD-XXXXXXXX -> 2022-02-18-28800000
     private static final String ENTRY_PATTERN = "[\\d]{4}-[\\d]{2}-[\\d]{2}-\\d+$";
     private static final Pattern PATTERN = Pattern.compile(ENTRY_PATTERN);
-    
     private static final long timeBetweenSyncs = 1*60*1000; // 1 minute
-    private static Map<String,CachedValues> cachedValues = new HashMap<>();
+    
+    private final Map<String,CachedValues> cachedValues;
+    private final FileHandler fileHandler;
+    
+    public ImportReaderImpl(ImportReaderFactory factory) {
+        this.cachedValues = new HashMap<>();
+        this.fileHandler = factory.getFileHandler();
+    }
             
     private class CachedValues {
         long lastUpdated = 0;
@@ -57,7 +54,7 @@ public class ImportReaderImpl implements ImportReader {
             cached.values = Collections.EMPTY_LIST;
         }
         try {
-            String contents = FileHandler.readAllLinesFromFile(new File(path));
+            String contents = fileHandler.readAllLinesFromFile(new File(path));
             cached.values = Arrays.asList(contents.split(System.lineSeparator()))
                     .stream()
                     .map(line -> mapEntry(line))

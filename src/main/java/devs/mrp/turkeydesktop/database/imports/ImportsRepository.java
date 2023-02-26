@@ -1,34 +1,25 @@
 package devs.mrp.turkeydesktop.database.imports;
 
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
+import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import io.reactivex.rxjava3.core.Single;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ImportsRepository implements ImportsDao {
     
-    private Db dbInstance = DbFactory.getDb();
+    private Db db;
     
-    private static ImportsRepository instance;
-    
-    private ImportsRepository() {
-    }
-    
-    public static ImportsRepository getInstance() {
-        if (instance == null) {
-            instance = new ImportsRepository();
-        }
-        return instance;
+    public ImportsRepository(ImportFactory importFactory) {
+        this.db = importFactory.getDb();
     }
     
     @Override
     public Single<String> add(String importPath) {
-        return Db.singleString(() -> retrieveAddResult(importPath));
+        return db.singleString(() -> retrieveAddResult(importPath));
     }
     
     private String retrieveAddResult(String importPath) {
@@ -49,7 +40,7 @@ public class ImportsRepository implements ImportsDao {
     
     private PreparedStatement buildAddQuery(String importPath) throws SQLException {
         PreparedStatement preparedStatement;
-        preparedStatement = dbInstance.prepareStatement(String.format("INSERT INTO %s (%s) ",
+        preparedStatement = db.prepareStatement(String.format("INSERT INTO %s (%s) ",
                 Db.IMPORTS_TABLE, ConfigurationEnum.IMPORT_PATH.toString())
                 + "VALUES (?)");
         preparedStatement.setString(1, importPath);
@@ -64,11 +55,11 @@ public class ImportsRepository implements ImportsDao {
 
     @Override
     public Single<ResultSet> findAll() {
-        return Db.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s",
+                stm = db.getConnection().prepareStatement(String.format("SELECT * FROM %s",
                         Db.IMPORTS_TABLE));
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
@@ -80,7 +71,7 @@ public class ImportsRepository implements ImportsDao {
 
     @Override
     public Single<ResultSet> findById(String id) {
-        return Db.singleResultSet(() -> retrieveFindByIdResult(id));
+        return db.singleResultSet(() -> retrieveFindByIdResult(id));
     }
     
     private ResultSet retrieveFindByIdResult(String id) {
@@ -100,7 +91,7 @@ public class ImportsRepository implements ImportsDao {
     
     private PreparedStatement buildFindByIdQuery(String id) throws SQLException {
         PreparedStatement preparedStatement;
-        preparedStatement = dbInstance.prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+        preparedStatement = db.prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
                 Db.IMPORTS_TABLE, ConfigurationEnum.IMPORT_PATH.toString()));
         preparedStatement.setString(1, id);
         return preparedStatement;
@@ -108,11 +99,11 @@ public class ImportsRepository implements ImportsDao {
 
     @Override
     public Single<Long> deleteById(String id) {
-        return Db.singleLong(() -> {
+        return db.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
+                stm = db.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
                         Db.IMPORTS_TABLE, ConfigurationEnum.IMPORT_PATH.toString()));
                 stm.setString(1, id);
                 delQty = stm.executeUpdate();

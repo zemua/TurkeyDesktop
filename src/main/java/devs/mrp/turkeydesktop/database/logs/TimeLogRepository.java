@@ -1,20 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.logs;
 
 import devs.mrp.turkeydesktop.common.GenericCache;
-import devs.mrp.turkeydesktop.common.impl.GenericCacheImpl;
 import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.type.Type;
+import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import io.reactivex.rxjava3.core.Single;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -23,41 +17,32 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- *
- * @author miguel
- */
 @Slf4j
 public class TimeLogRepository implements TimeLogDao {
     
-    private final Db dbInstance = Db.getInstance();
+    private final Db db;
     
-    private static TimeLogRepository instance;
-    
-    private static final GenericCache<Long,ResultSet> resultSetCache = new GenericCacheImpl<>();
+    private final GenericCache<Long,ResultSet> resultSetCache;
     private static final long ALL_ELEMENTS_CACHE_CODE = -100;
-    private static final GenericCache<TimeFrame,ResultSet> timeFrameByProcessCache = new GenericCacheImpl<>();
-    private static final GenericCache<TimeFrameOfGroup,ResultSet> groupTimeFrameCache = new GenericCacheImpl<>();
-    private static final GenericCache<TimeFrame,ResultSet> timeFrameByTitleCache = new GenericCacheImpl<>();
+    private final GenericCache<TimeFrame,ResultSet> timeFrameByProcessCache;
+    private final GenericCache<TimeFrameOfGroup,ResultSet> groupTimeFrameCache;
+    private final GenericCache<TimeFrame,ResultSet> timeFrameByTitleCache;
     
-    private TimeLogRepository(){
-        
-    }
-    
-    static TimeLogRepository getInstance() {
-        if (instance == null) {
-            instance = new TimeLogRepository();
-        }
-        return instance;
+    public TimeLogRepository(TimeLogFactory factory){
+        this.db = factory.getDb();
+        this.resultSetCache = factory.<Long,ResultSet>getGenericCache();
+        this.timeFrameByProcessCache = factory.<TimeFrame,ResultSet>getGenericCache();
+        this.groupTimeFrameCache = factory.<TimeFrameOfGroup,ResultSet>getGenericCache();
+        this.timeFrameByTitleCache = factory.<TimeFrame,ResultSet>getGenericCache();
     }
     
     @Override
     public Single<Long> add(TimeLog element) {
-        return Db.singleLong(() -> {
+        return db.singleLong(() -> {
             long result = -1;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s, %s) ", 
+                stm = db.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s, %s) ", 
                         Db.WATCHDOG_TABLE,
                         TimeLog.EPOCH, // 1
                         TimeLog.ELAPSED, // 2
@@ -95,11 +80,11 @@ public class TimeLogRepository implements TimeLogDao {
 
     @Override
     public Single<Long> update(TimeLog element) {
-        return Db.singleLong(() -> {
+        return db.singleLong(() -> {
             long entriesUpdated = -1;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=?, %s=?, %s=?, %s=?, %s=?, %s=?, %s=? WHERE %s=?",
+                stm = db.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=?, %s=?, %s=?, %s=?, %s=?, %s=?, %s=? WHERE %s=?",
                         Db.WATCHDOG_TABLE, TimeLog.EPOCH, TimeLog.ELAPSED, TimeLog.COUNTED, TimeLog.PID, TimeLog.PROCESS_NAME, TimeLog.WINDOW_TITLE, Group.GROUP, Type.TYPE, TimeLog.ID));
                 stm.setLong(1, element.getEpoch());
                 stm.setLong(2, element.getElapsed());
@@ -120,7 +105,7 @@ public class TimeLogRepository implements TimeLogDao {
 
     @Override
     public Single<ResultSet> findAll() {
-        return Db.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = resultSetCache.get(ALL_ELEMENTS_CACHE_CODE, () -> {
                 try {
                     PreparedStatement stm;
@@ -128,7 +113,7 @@ public class TimeLogRepository implements TimeLogDao {
                     LocalDateTime now = LocalDateTime.now().minusHours(24);
                     ZonedDateTime zdt = ZonedDateTime.of(now, ZoneId.systemDefault());
                     long frame = zdt.toInstant().toEpochMilli();
-                    stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s>?",
+                    stm = db.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s>?",
                             Db.WATCHDOG_TABLE, TimeLog.EPOCH));
                     stm.setLong(1, frame);
                     return stm.executeQuery();
@@ -143,11 +128,11 @@ public class TimeLogRepository implements TimeLogDao {
 
     @Override
     public Single<ResultSet> findById(Long id) {
-        return Db.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
         ResultSet rs = resultSetCache.get(id, () -> {
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+                stm = db.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
                         Db.WATCHDOG_TABLE, TimeLog.ID));
                 stm.setLong(1, id);
                 return stm.executeQuery();
@@ -163,11 +148,11 @@ public class TimeLogRepository implements TimeLogDao {
 
     @Override
     public Single<Long> deleteById(Long id) {
-        return Db.singleLong(() -> {
+        return db.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
+                stm = db.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
                         Db.WATCHDOG_TABLE, TimeLog.ID));
                 stm.setLong(1, id);
                 delQty = stm.executeUpdate();
@@ -189,11 +174,11 @@ public class TimeLogRepository implements TimeLogDao {
 
     @Override
     public Single<ResultSet> getTimeFrameGroupedByProcess(long from, long to) {
-        return Db.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = timeFrameByProcessCache.get(new TimeFrame(from, to), () -> {
                 PreparedStatement stm;
                 try {
-                    stm = dbInstance.getConnection().prepareStatement(String.format("SELECT %s, SUM(%s) FROM %s WHERE %s>=? AND %s<=? GROUP BY %s",
+                    stm = db.getConnection().prepareStatement(String.format("SELECT %s, SUM(%s) FROM %s WHERE %s>=? AND %s<=? GROUP BY %s",
                             TimeLog.PROCESS_NAME, TimeLog.ELAPSED, Db.WATCHDOG_TABLE, TimeLog.EPOCH, TimeLog.EPOCH, TimeLog.PROCESS_NAME));
                     stm.setLong(1, from);
                     stm.setLong(2, to);
@@ -218,11 +203,11 @@ public class TimeLogRepository implements TimeLogDao {
     
     @Override
     public Single<ResultSet> getTimeFrameOfGroup(long groupId, long from, long to) {
-        return Db.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = groupTimeFrameCache.get(new TimeFrameOfGroup(groupId, from, to), () -> {
                 PreparedStatement stm;
                 try {
-                    stm = dbInstance.getConnection().prepareStatement(String.format("SELECT %s, SUM(%s) FROM %s WHERE %s>=? AND %s<=? AND %s=? GROUP BY %s",
+                    stm = db.getConnection().prepareStatement(String.format("SELECT %s, SUM(%s) FROM %s WHERE %s>=? AND %s<=? AND %s=? GROUP BY %s",
                             Group.GROUP, TimeLog.ELAPSED, Db.WATCHDOG_TABLE, TimeLog.EPOCH, TimeLog.EPOCH, Group.GROUP, Group.GROUP));
                     stm.setLong(1, from);
                     stm.setLong(2, to);
@@ -239,11 +224,11 @@ public class TimeLogRepository implements TimeLogDao {
 
     @Override
     public Single<ResultSet> getMostRecent() {
-        return Db.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s ORDER BY %s DESC LIMIT 1",
+                stm = db.getConnection().prepareStatement(String.format("SELECT * FROM %s ORDER BY %s DESC LIMIT 1",
                         Db.WATCHDOG_TABLE, TimeLog.EPOCH));
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
@@ -255,11 +240,11 @@ public class TimeLogRepository implements TimeLogDao {
     
     @Override
     public Single<ResultSet> getGroupedByTitle(long from, long to) {
-        return Db.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = timeFrameByTitleCache.get(new TimeFrame(from, to), () -> {
                 PreparedStatement stm;
                 try {
-                    stm = dbInstance.getConnection().prepareStatement(String.format("SELECT %s, SUM(%s) FROM %s WHERE %s>=? AND %s<=? GROUP BY %s",
+                    stm = db.getConnection().prepareStatement(String.format("SELECT %s, SUM(%s) FROM %s WHERE %s>=? AND %s<=? GROUP BY %s",
                             TimeLog.WINDOW_TITLE,
                             TimeLog.ELAPSED,
                             Db.WATCHDOG_TABLE,

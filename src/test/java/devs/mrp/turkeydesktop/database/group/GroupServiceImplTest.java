@@ -2,31 +2,35 @@ package devs.mrp.turkeydesktop.database.group;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
-import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
 import io.reactivex.rxjava3.core.Single;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import static org.junit.Assert.assertEquals;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class GroupServiceImplTest {
     
-    static final Db db = CommonMocks.getMock(Db.class);
-    static final DbCache<Long, Group> dbCache = mock(DbCache.class);
-    static final GroupRepository groupRepository = mock(GroupRepository.class);
+    Db db = mock(Db.class);
+    DbCache<Long, Group> dbCache = mock(DbCache.class);
+    GroupRepository repo = mock(GroupRepository.class);
     
-    @BeforeClass
-    public static void setupClass() {
-        DbFactory.setDbSupplier(() -> db);
-        GroupFactory.setDbCacheSupplier(() -> dbCache);
+    GroupFactory factory = mock(GroupFactory.class);
+    
+    @Before
+    public void setupClass() {
+        when(factory.getDb()).thenReturn(db);
+        when(factory.getDbCache()).thenReturn(dbCache);
     }
 
     @Test
     public void testAddNullGroup() {
-        GroupService service = new GroupServiceImpl();
+        GroupService service = new GroupServiceImpl(factory);
         Group group = null;
         
         Long addResult = service.add(group).blockingGet();
@@ -35,7 +39,7 @@ public class GroupServiceImplTest {
     
     @Test
     public void testAddWithBlankName() {
-        GroupService service = new GroupServiceImpl();
+        GroupService service = new GroupServiceImpl(factory);
         Group group = new Group();
         group.setName("");
         group.setPreventClose(true);
@@ -47,7 +51,7 @@ public class GroupServiceImplTest {
     
     @Test
     public void testAddWithNullName() {
-        GroupService service = new GroupServiceImpl();
+        GroupService service = new GroupServiceImpl(factory);
         Group group = new Group();
         group.setName(null);
         group.setPreventClose(true);
@@ -59,7 +63,7 @@ public class GroupServiceImplTest {
     
     @Test
     public void testAddWithNullType() {
-        GroupService service = new GroupServiceImpl();
+        GroupService service = new GroupServiceImpl(factory);
         Group group = new Group();
         group.setName("some name");
         group.setPreventClose(true);
@@ -71,7 +75,7 @@ public class GroupServiceImplTest {
     
     @Test
     public void testAddSuccess() {
-        GroupService service = new GroupServiceImpl();
+        GroupService service = new GroupServiceImpl(factory);
         Group group = new Group();
         group.setName("some name");
         group.setPreventClose(true);
@@ -81,6 +85,53 @@ public class GroupServiceImplTest {
         
         Long addResult = service.add(group).blockingGet();
         assertEquals(SaveAction.SAVED.get(), addResult);
+    }
+    
+    @Test
+    public void test_add_sets_object_id_in_cache() throws SQLException {        
+        Group toBeSaved = new Group();
+        toBeSaved.setId(0);
+        toBeSaved.setName("some name");
+        toBeSaved.setPreventClose(true);
+        toBeSaved.setType(Group.GroupType.POSITIVE);
+        
+        PreparedStatement statement = mock(PreparedStatement.class);
+        ResultSet generatedId = mock(ResultSet.class);
+        when(db.prepareStatementWithGeneratedKeys(ArgumentMatchers.any())).thenReturn(statement);
+        when(db.prepareStatement(ArgumentMatchers.any())).thenReturn(statement);
+        when(statement.getGeneratedKeys()).thenReturn(generatedId);
+        when(generatedId.next()).thenReturn(Boolean.TRUE);
+        when(generatedId.getLong(Group.ID_COLUMN)).thenReturn(879L);
+        
+        ResultSet findAllResultSet = mock(ResultSet.class);
+        when(repo.findAll()).thenReturn(Single.just(findAllResultSet));
+        when(findAllResultSet.next()).thenReturn(false);
+        when(repo.add(toBeSaved)).thenReturn(Single.just(879L));
+        
+        GroupFactoryImpl groupFactory = new CacheFactoryTest(repo);
+        
+        GroupService service = new GroupServiceImpl(groupFactory);
+        service.add(toBeSaved).blockingGet();
+        
+        var retrieved = service.findAll().toList().blockingGet();
+        
+        assertEquals(879, retrieved.get(0).getId());
+    }
+    
+    private class CacheFactoryTest extends GroupFactoryImpl {
+        GroupDao repo;
+        CacheFactoryTest(GroupDao repo) {
+            this.repo = repo;
+        }
+        @Override
+        public DbCache<Long, Group> getDbCache() {
+            return buildCache(repo);
+        }
+        
+        @Override
+        public GroupService getService() {
+            return mock(GroupService.class);
+        }
     }
     
 }

@@ -1,16 +1,15 @@
 package devs.mrp.turkeydesktop.database.group.assignations;
 
-import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationDao.ElementId;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.Callable;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -19,18 +18,18 @@ import static org.mockito.Mockito.when;
 
 public class GroupAssignationRepositoryTest {
     
-    static Db db = CommonMocks.getMock(Db.class);
+    Db db = mock(Db.class);
     PreparedStatement allPreparedStatement = mock(PreparedStatement.class);
     ResultSet allResultSet = mock(ResultSet.class);
-    
-    static GroupAssignationRepository groupAssignationRepository;
+    GroupAssignationRepository groupAssignationRepository;
+    GroupAssignationFactory factory = mock(GroupAssignationFactory.class);
     
     GroupAssignation groupAssignation;
     
-    @BeforeClass
-    public static void classSetup() {
-        DbFactory.setDbSupplier(() -> db);
-        groupAssignationRepository = GroupAssignationRepository.getInstance();
+    @Before
+    public void classSetup() {
+        when(factory.getDb()).thenReturn(db);
+        groupAssignationRepository = new GroupAssignationRepository(factory);
     }
     
     @Before
@@ -44,7 +43,7 @@ public class GroupAssignationRepositoryTest {
     }
 
     @Test
-    public void testFindByElementIdReturnsResultSet() throws SQLException {
+    public void testFindByElementIdReturnsResultSet() throws SQLException, Exception {
         PreparedStatement preparedStatement = mock(PreparedStatement.class);
         ResultSet groupResult = mock(ResultSet.class);
         
@@ -52,21 +51,29 @@ public class GroupAssignationRepositoryTest {
                 .thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(groupResult);
         
-        ResultSet result = groupAssignationRepository.findByElementId(groupAssignation.getType(), groupAssignation.getElementId()).blockingGet();
+        groupAssignationRepository.findByElementId(groupAssignation.getType(), groupAssignation.getElementId());
+        ArgumentCaptor<Callable<ResultSet>> captor = ArgumentCaptor.forClass(Callable.class);
+        verify(db).singleResultSet(captor.capture());
+        ResultSet result = captor.getValue().call();
+        
         assertEquals(groupResult, result);
         verify(preparedStatement, times(1)).setString(1, groupAssignation.getType().toString());
         verify(preparedStatement, times(1)).setString(2, groupAssignation.getElementId());
     }
     
     @Test
-    public void testAddSuccess() throws SQLException {
+    public void testAddSuccess() throws SQLException, Exception {
         PreparedStatement preparedStatement = mock(PreparedStatement.class);
         ElementId expectedResult = new ElementId(groupAssignation.getType(), groupAssignation.getElementId());
         
         when(db.prepareStatement("INSERT INTO GROUP_ASSIGNATION_TABLE (TYPE, ELEMENT_ID, GROUP_ID) VALUES (?, ?, ?)"))
                 .thenReturn(preparedStatement);
         
-        ElementId idResult = groupAssignationRepository.add(groupAssignation).blockingGet();
+        groupAssignationRepository.add(groupAssignation);
+        ArgumentCaptor<Callable<ElementId>> captor = ArgumentCaptor.forClass(Callable.class);
+        verify(db).singleGeneric(captor.capture());
+        ElementId idResult = captor.getValue().call();
+        
         assertEquals(expectedResult, idResult);
         verify(preparedStatement, times(1)).setString(1, groupAssignation.getType().toString());
         verify(preparedStatement, times(1)).setString(2, groupAssignation.getElementId());
@@ -74,7 +81,7 @@ public class GroupAssignationRepositoryTest {
     }
     
     @Test
-    public void testAddException() throws SQLException {
+    public void testAddException() throws SQLException, Exception {
         PreparedStatement preparedStatement = mock(PreparedStatement.class);
         ElementId expectedResult = new ElementId(groupAssignation.getType(), "");
         
@@ -82,7 +89,11 @@ public class GroupAssignationRepositoryTest {
                 .thenReturn(preparedStatement);
         when(preparedStatement.executeUpdate()).thenThrow(new SQLException());
         
-        ElementId idResult = groupAssignationRepository.add(groupAssignation).blockingGet();
+        groupAssignationRepository.add(groupAssignation);
+        ArgumentCaptor<Callable<ElementId>> captor = ArgumentCaptor.forClass(Callable.class);
+        verify(db).singleGeneric(captor.capture());
+        ElementId idResult = captor.getValue().call();
+        
         assertEquals(expectedResult, idResult);
         verify(preparedStatement, times(1)).setString(1, groupAssignation.getType().toString());
         verify(preparedStatement, times(1)).setString(2, groupAssignation.getElementId());

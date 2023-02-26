@@ -1,15 +1,14 @@
 package devs.mrp.turkeydesktop.database.group.expor;
 
-import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.Callable;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -18,18 +17,19 @@ import static org.mockito.Mockito.when;
 
 public class ExportedGroupRepositoryTest {
     
-    static Db db = CommonMocks.getMock(Db.class);
+    Db db = mock(Db.class);
     PreparedStatement allPreparedStatement = mock(PreparedStatement.class);
     ResultSet allResultSet = mock(ResultSet.class);
+    ExportedGroupRepository exportedGroupRepository;
     
-    static ExportedGroupRepository exportedGroupRepository;
+    ExportedGroupFactory factory = mock(ExportedGroupFactory.class);
     
     ExportedGroup exportedGroup;
     
-    @BeforeClass
-    public static void classSetup() {
-        DbFactory.setDbSupplier(() -> db);
-        exportedGroupRepository = ExportedGroupRepository.getInstance();
+    @Before
+    public void classSetup() {
+        when(factory.getDb()).thenReturn(db);
+        exportedGroupRepository = new ExportedGroupRepository(factory);
     }
     
     @Before
@@ -43,7 +43,7 @@ public class ExportedGroupRepositoryTest {
     }
 
     @Test
-    public void testFindByIdReturnsResultSet() throws SQLException {
+    public void testFindByIdReturnsResultSet() throws SQLException, Exception {
         PreparedStatement preparedStatement = mock(PreparedStatement.class);
         ResultSet expectedResult = mock(ResultSet.class);
         ExportedGroupId id = new ExportedGroupId(exportedGroup.getGroup(), exportedGroup.getFile());
@@ -52,21 +52,29 @@ public class ExportedGroupRepositoryTest {
                 .thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(expectedResult);
         
-        ResultSet result = exportedGroupRepository.findById(id).blockingGet();
+        exportedGroupRepository.findById(id);
+        ArgumentCaptor<Callable<ResultSet>> captor = ArgumentCaptor.forClass(Callable.class);
+        verify(db).singleResultSet(captor.capture());
+        ResultSet result = captor.getValue().call();
+        
         assertEquals(expectedResult, result);
         verify(preparedStatement, times(1)).setLong(1, id.getGroup());
         verify(preparedStatement, times(1)).setString(2, id.getFile());
     }
     
     @Test
-    public void testAddSuccess() throws SQLException {
+    public void testAddSuccess() throws SQLException, Exception {
         PreparedStatement preparedStatement = mock(PreparedStatement.class);
         ExportedGroupId expectedResult = new ExportedGroupId(exportedGroup.getGroup(), exportedGroup.getFile());
         
         when(db.prepareStatement(ArgumentMatchers.contains("INSERT INTO GROUPS_EXPORT_TABLE (GROUP_COLUMN, FILE, FOR_DAYS) VALUES (?, ?, ?)")))
                 .thenReturn(preparedStatement);
         
-        ExportedGroupId exportedIdResult = exportedGroupRepository.add(exportedGroup).blockingGet();
+        exportedGroupRepository.add(exportedGroup);
+        ArgumentCaptor<Callable<ExportedGroupId>> captor = ArgumentCaptor.forClass(Callable.class);
+        verify(db).singleGeneric(captor.capture());
+        ExportedGroupId exportedIdResult = captor.getValue().call();
+        
         assertEquals(expectedResult, exportedIdResult);
         verify(preparedStatement, times(1)).setLong(1, exportedGroup.getGroup());
         verify(preparedStatement, times(1)).setString(2, exportedGroup.getFile());
@@ -74,7 +82,7 @@ public class ExportedGroupRepositoryTest {
     }
     
     @Test
-    public void testAddException() throws SQLException {
+    public void testAddException() throws SQLException, Exception {
         PreparedStatement preparedStatement = mock(PreparedStatement.class);
         ExportedGroupId expectedResult = new ExportedGroupId(-1, "");
         
@@ -82,7 +90,11 @@ public class ExportedGroupRepositoryTest {
                 .thenReturn(preparedStatement);
         when(preparedStatement.executeUpdate()).thenThrow(new SQLException());
         
-        ExportedGroupId exportedIdResult = exportedGroupRepository.add(exportedGroup).blockingGet();
+        exportedGroupRepository.add(exportedGroup);
+        ArgumentCaptor<Callable<ExportedGroupId>> captor = ArgumentCaptor.forClass(Callable.class);
+        verify(db).singleGeneric(captor.capture());
+        ExportedGroupId exportedIdResult = captor.getValue().call();
+        
         assertEquals(expectedResult, exportedIdResult);
         verify(preparedStatement, times(1)).setLong(1, exportedGroup.getGroup());
         verify(preparedStatement, times(1)).setString(2, exportedGroup.getFile());

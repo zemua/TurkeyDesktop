@@ -2,12 +2,13 @@ package devs.mrp.turkeydesktop.database.conditions;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
-import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
 import io.reactivex.rxjava3.core.Single;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import static org.junit.Assert.assertEquals;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import static org.mockito.Mockito.mock;
@@ -15,19 +16,21 @@ import static org.mockito.Mockito.when;
 
 public class ConditionServiceImplTest {
     
-    static final Db db = CommonMocks.getMock(Db.class);
-    static final DbCache<Long, Condition> dbCache = mock(DbCache.class);
-    static final ConditionRepository conditionRepository = mock(ConditionRepository.class);
+    Db db = mock(Db.class);
+    DbCache<Long, Condition> dbCache = mock(DbCache.class);
+    ConditionRepository repo = mock(ConditionRepository.class);
+    
+    ConditionFactory factory = mock(ConditionFactory.class);
 
-    @BeforeClass
-    public static void setupClass() {
-        DbFactory.setDbSupplier(() -> db);
-        ConditionFactory.setDbCacheSupplier(() -> dbCache);
+    @Before
+    public void setupClass() {
+        when(factory.getDb()).thenReturn(db);
+        when(factory.getDbCache()).thenReturn(dbCache);
     }
     
     @Test
     public void testAddNullCondition() {
-        ConditionService service = new ConditionServiceImpl();
+        ConditionService service = new ConditionServiceImpl(factory);
         Condition condition = null;
         
         Long saveResult = service.add(condition).blockingGet();
@@ -36,7 +39,7 @@ public class ConditionServiceImplTest {
     
     @Test
     public void testAddInvalidGroup() {
-        ConditionService service = new ConditionServiceImpl();
+        ConditionService service = new ConditionServiceImpl(factory);
         Condition condition = new Condition();
         condition.setGroupId(0);
         condition.setLastDaysCondition(3);
@@ -49,7 +52,7 @@ public class ConditionServiceImplTest {
     
     @Test
     public void testAddInvalidTarget() {
-        ConditionService service = new ConditionServiceImpl();
+        ConditionService service = new ConditionServiceImpl(factory);
         Condition condition = new Condition();
         condition.setGroupId(2);
         condition.setLastDaysCondition(3);
@@ -62,7 +65,7 @@ public class ConditionServiceImplTest {
     
     @Test
     public void testAddSuccess() {
-        ConditionService service = new ConditionServiceImpl();
+        ConditionService service = new ConditionServiceImpl(factory);
         Condition condition = new Condition();
         condition.setGroupId(2);
         condition.setLastDaysCondition(3);
@@ -73,6 +76,54 @@ public class ConditionServiceImplTest {
         
         Long saveResult = service.add(condition).blockingGet();
         assertEquals(SaveAction.SAVED.get(), saveResult);
+    }
+    
+    @Test
+    public void test_add_sets_object_id_in_cache() throws SQLException {
+        Condition toBeSaved = new Condition();
+        toBeSaved.setId(0);
+        toBeSaved.setGroupId(4);
+        toBeSaved.setLastDaysCondition(3);
+        toBeSaved.setTargetId(2);
+        toBeSaved.setUsageTimeCondition(123456);
+        
+        PreparedStatement statement = mock(PreparedStatement.class);
+        ResultSet generatedId = mock(ResultSet.class);
+        when(db.prepareStatementWithGeneratedKeys(ArgumentMatchers.any())).thenReturn(statement);
+        when(db.prepareStatement(ArgumentMatchers.any())).thenReturn(statement);
+        when(statement.getGeneratedKeys()).thenReturn(generatedId);
+        when(generatedId.next()).thenReturn(Boolean.TRUE);
+        when(generatedId.getLong(Condition.ID_POSITION)).thenReturn(879L);
+        
+        ResultSet findAllResultSet = mock(ResultSet.class);
+        when(repo.findAll()).thenReturn(Single.just(findAllResultSet));
+        when(findAllResultSet.next()).thenReturn(false);
+        when(repo.add(toBeSaved)).thenReturn(Single.just(879L));
+        
+        ConditionFactoryImpl cf = new CacheFactoryTest(repo);
+        
+        ConditionService service = new ConditionServiceImpl(cf);
+        service.add(toBeSaved).blockingGet();
+        
+        var retrieved = service.findAll().toList().blockingGet();
+        
+        assertEquals(879, retrieved.get(0).getId());
+    }
+    
+    private class CacheFactoryTest extends ConditionFactoryImpl {
+        ConditionDao repo;
+        CacheFactoryTest(ConditionDao repo) {
+            this.repo = repo;
+        }
+        @Override
+        public DbCache<Long, Condition> getDbCache() {
+            return buildCache(repo);
+        }
+        @Override
+        public ConditionService getService() {
+            return mock(ConditionService.class);
+        }
+        
     }
     
 }

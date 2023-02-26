@@ -1,7 +1,6 @@
 package devs.mrp.turkeydesktop.database.group;
 
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
 import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,23 +10,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GroupRepository implements GroupDao {
     
-    private Db dbInstance = DbFactory.getDb();
+    private GroupFactory factory;
+    private Db db;
     
-    private static GroupRepository instance;
-    
-    private GroupRepository() {
-    }
-    
-    public static GroupRepository getInstance() {
-        if (instance == null) {
-            instance = new GroupRepository();
-        }
-        return instance;
+    public GroupRepository(GroupFactory groupFactory) {
+        this.factory = groupFactory;
+        this.db = groupFactory.getDb();
     }
     
     @Override
     public Single<Long> add(Group group) {
-        return Db.singleLong(() -> retrieveAddGeneratedId(group));
+        return db.singleLong(() -> retrieveAddGeneratedId(group));
     }
     
     private long retrieveAddGeneratedId(Group group) {
@@ -47,7 +40,7 @@ public class GroupRepository implements GroupDao {
     }
     
     private PreparedStatement buildAddQuery(Group group) throws SQLException {
-        PreparedStatement preparedStatement = dbInstance.prepareStatementWithGeneratedKeys(String.format("INSERT INTO %s (%s, %s) ",
+        PreparedStatement preparedStatement = db.prepareStatementWithGeneratedKeys(String.format("INSERT INTO %s (%s, %s) ",
                 Db.GROUPS_TABLE, Group.NAME, Group.TYPE)
                 + "VALUES (?, ?)");
         preparedStatement.setString(1, group.getName());
@@ -66,11 +59,11 @@ public class GroupRepository implements GroupDao {
 
     @Override
     public Single<Long> update(Group element) {
-        return Db.singleLong(() -> {
+        return db.singleLong(() -> {
             long result = -1;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=?, %s=? WHERE %s=? ",
+                stm = db.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=?, %s=? WHERE %s=? ",
                         Db.GROUPS_TABLE, Group.NAME, Group.TYPE, Group.PREVENT_CLOSE, Group.ID));
                 stm.setString(1, element.getName());
                 stm.setString(2, element.getType().toString());
@@ -86,11 +79,11 @@ public class GroupRepository implements GroupDao {
 
     @Override
     public Single<ResultSet> findAll() {
-        return Db.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = null;
                 PreparedStatement stm;
                 try {
-                    stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s",
+                    stm = db.getConnection().prepareStatement(String.format("SELECT * FROM %s",
                             Db.GROUPS_TABLE));
                     rs = stm.executeQuery();
                 } catch (SQLException ex) {
@@ -102,7 +95,7 @@ public class GroupRepository implements GroupDao {
 
     @Override
     public Single<ResultSet> findById(Long id) {
-        return Db.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet resultSet = null;
             try {
                 resultSet = retrieveById(id);
@@ -119,7 +112,7 @@ public class GroupRepository implements GroupDao {
     }
     
     private PreparedStatement buildFindByIdQuery(Long id) throws SQLException {
-        PreparedStatement preparedStatement = dbInstance.prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+        PreparedStatement preparedStatement = db.prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
                 Db.GROUPS_TABLE, Group.ID));
         preparedStatement.setLong(1, id);
         return preparedStatement;
@@ -127,11 +120,11 @@ public class GroupRepository implements GroupDao {
 
     @Override
     public Single<Long> deleteById(Long id) {
-        return Db.singleLong(() -> {
+        return db.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
+                stm = db.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
                         Db.GROUPS_TABLE, Group.ID));
                 stm.setLong(1, id);
                 delQty = stm.executeUpdate();
@@ -144,11 +137,11 @@ public class GroupRepository implements GroupDao {
 
     @Override
     public Single<ResultSet> findAllOfType(Group.GroupType type) {
-        return Db.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+                stm = db.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
                         Db.GROUPS_TABLE, Group.TYPE));
                 stm.setString(1, type.toString());
                 rs = stm.executeQuery();
@@ -161,11 +154,11 @@ public class GroupRepository implements GroupDao {
     
     @Override
     public Single<Integer> setPreventClose(long groupId, boolean preventClose) {
-        return Db.singleInt(() -> {
+        return db.singleInt(() -> {
             int affectedRows = 0;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s = ? WHERE %s = ?",
+                stm = db.getConnection().prepareStatement(String.format("UPDATE %s SET %s = ? WHERE %s = ?",
                         Db.GROUPS_TABLE, Group.PREVENT_CLOSE, Group.ID));
                 stm.setBoolean(1, preventClose);
                 stm.setLong(2, groupId);

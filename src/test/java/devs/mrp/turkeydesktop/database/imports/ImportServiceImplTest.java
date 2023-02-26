@@ -2,12 +2,14 @@ package devs.mrp.turkeydesktop.database.imports;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
-import devs.mrp.turkeydesktop.common.impl.CommonMocks;
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
 import io.reactivex.rxjava3.core.Single;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import static org.junit.Assert.assertEquals;
-import org.junit.BeforeClass;
+import static org.junit.Assert.assertTrue;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import static org.mockito.Mockito.mock;
@@ -15,19 +17,20 @@ import static org.mockito.Mockito.when;
 
 public class ImportServiceImplTest {
     
-    static final Db db = CommonMocks.getMock(Db.class);
-    static final DbCache<String,String> dbCache = mock(DbCache.class);
-    static final ImportsRepository importsRepository = mock(ImportsRepository.class);
+    Db db = mock(Db.class);
+    DbCache<String,String> dbCache = mock(DbCache.class);
+    ImportsRepository repo = mock(ImportsRepository.class);
+    ImportFactory factory = mock(ImportFactory.class);
 
-    @BeforeClass
-    public static void setupClass() {
-        DbFactory.setDbSupplier(() -> db);
-        ImportFactory.setDbCacheSupplier(() -> dbCache);
+    @Before
+    public void setupClass() {
+        when(factory.getDb()).thenReturn(db);
+        when(factory.getDbCache()).thenReturn(dbCache);
     }
     
     @Test
     public void testSaveInvalidNull() {
-        ImportService service = new ImportServiceImpl();
+        ImportService service = new ImportServiceImpl(factory);
         String path = null;
         
         Long result = service.add(path).blockingGet();
@@ -36,7 +39,7 @@ public class ImportServiceImplTest {
     
     @Test
     public void testSaveInvalidEmpty() {
-        ImportService service = new ImportServiceImpl();
+        ImportService service = new ImportServiceImpl(factory);
         String path = "";
         
         Long result = service.add(path).blockingGet();
@@ -45,7 +48,7 @@ public class ImportServiceImplTest {
     
     @Test
     public void testSaveSuccess() {
-        ImportService service = new ImportServiceImpl();
+        ImportService service = new ImportServiceImpl(factory);
         String path = "my/valid/path";
         
         when(dbCache.save(ArgumentMatchers.contains(path)))
@@ -53,6 +56,40 @@ public class ImportServiceImplTest {
         
         Long result = service.add(path).blockingGet();
         assertEquals(SaveAction.SAVED.get(), result);
+    }
+    
+    @Test
+    public void test_add_sets_object_id_in_cache() throws SQLException {
+        String toBeSaved = "this is my imported path";
+        
+        PreparedStatement statement = mock(PreparedStatement.class);
+        when(db.prepareStatementWithGeneratedKeys(ArgumentMatchers.any())).thenReturn(statement);
+        when(db.prepareStatement(ArgumentMatchers.any())).thenReturn(statement);
+        
+        ResultSet findAllResultSet = mock(ResultSet.class);
+        when(repo.findAll()).thenReturn(Single.just(findAllResultSet));
+        when(findAllResultSet.next()).thenReturn(false);
+        when(repo.add(toBeSaved)).thenReturn(Single.just(toBeSaved));
+        
+        ImportFactoryImpl importFactory = new CacheFactoryTest(repo);
+        
+        ImportService service = new ImportServiceImpl(importFactory);
+        service.add(toBeSaved).blockingGet();
+        
+        var retrieved = service.findAll().toList().blockingGet();
+        
+        assertTrue(retrieved.contains("this is my imported path"));
+    }
+    
+    private class CacheFactoryTest extends ImportFactoryImpl {
+        ImportsDao repo;
+        CacheFactoryTest(ImportsDao repo) {
+            this.repo = repo;
+        }
+        @Override
+        public DbCache<String, String> getDbCache() {
+            return buildCache(repo);
+        }
     }
     
 }

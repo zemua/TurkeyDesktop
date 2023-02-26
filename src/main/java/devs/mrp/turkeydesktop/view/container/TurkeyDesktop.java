@@ -1,27 +1,20 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.view.container;
 
-import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactory;
-import devs.mrp.turkeydesktop.view.PanelHandler;
-import devs.mrp.turkeydesktop.view.container.traychain.TrayChainFactory;
-import devs.mrp.turkeydesktop.view.mainpanel.MainPanelFactory;
-import javax.swing.JFrame;
 import devs.mrp.turkeydesktop.service.watchdog.WatchDog;
+import devs.mrp.turkeydesktop.service.watchdog.WatchDogFactoryImpl;
+import devs.mrp.turkeydesktop.view.PanelHandler;
+import devs.mrp.turkeydesktop.view.container.traychain.TrayChainBaseHandler;
+import devs.mrp.turkeydesktop.view.container.traychain.TrayChainFactoryImpl;
+import devs.mrp.turkeydesktop.view.mainpanel.MainPanelFactoryImpl;
+import javax.swing.JFrame;
+import lombok.extern.slf4j.Slf4j;
 
-/**
- *
- * @author miguel
- */
+@Slf4j
 public class TurkeyDesktop extends javax.swing.JFrame {
 
     private static WatchDog watchDog;
     private static PanelHandler handler;
-    private static FactoryInitializer factoryInitializer = new FactoryInitializer();
+    private static TrayChainBaseHandler trayHandler;
 
     /**
      * Creates new form MainContainer
@@ -29,16 +22,6 @@ public class TurkeyDesktop extends javax.swing.JFrame {
     public TurkeyDesktop() {
         super();
         initComponents();
-        initHandler();
-        TrayChainFactory.getChain().receiveRequest("System Tray", this);
-        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-    }
-
-    private void initHandler() {
-        watchDog = WatchDogFactory.getInstance();
-        watchDog.begin();
-        handler = MainPanelFactory.getMainHandler(this);
-        handler.show();
     }
 
     /**
@@ -71,7 +54,6 @@ public class TurkeyDesktop extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        factoryInitializer.initialize();
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -103,11 +85,36 @@ public class TurkeyDesktop extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                if (Db.getInstance().verifyCanGetDb()) {
-                    new TurkeyDesktop().setVisible(false);
+                try {
+                    initializeTurkey();
+                } catch (Exception e) {
+                    log.error("Problem initializing", e);
                 }
             }
         });
+    }
+    
+    private static void initializeTurkey() {
+        JFrame td = initializeFrame();
+        td.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+    }
+    
+    private static JFrame initializeFrame() {
+        TurkeyDesktop td = new TurkeyDesktop();
+        td.setVisible(false);
+        td.initHandler();
+        td.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        return td;
+    }
+    
+    private void initHandler() {
+        watchDog = WatchDogFactoryImpl.getInstance().getWatchDog();
+        watchDog.begin();
+        handler = MainPanelFactoryImpl.getInstance().getMainHandler(this);
+        handler.show();
+        trayHandler = TrayChainFactoryImpl.getInstance().getChain();
+        trayHandler.receiveRequest("init", this);
+        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

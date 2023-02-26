@@ -1,73 +1,73 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.service.conditionchecker;
 
 import devs.mrp.turkeydesktop.common.ChainHandler;
 import devs.mrp.turkeydesktop.common.FileHandler;
 import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
-import devs.mrp.turkeydesktop.database.conditions.ConditionFactory;
+import devs.mrp.turkeydesktop.database.conditions.ConditionService;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
-import devs.mrp.turkeydesktop.database.config.ConfigElementFactory;
+import devs.mrp.turkeydesktop.database.config.ConfigElementService;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
-import devs.mrp.turkeydesktop.database.group.external.ExternalGroupFactory;
 import devs.mrp.turkeydesktop.database.imports.ImportService;
-import devs.mrp.turkeydesktop.database.imports.ImportFactory;
-import devs.mrp.turkeydesktop.database.logs.TimeLogServiceFactory;
+import devs.mrp.turkeydesktop.database.logs.TimeLogService;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
-import devs.mrp.turkeydesktop.service.conditionchecker.idle.IdleChainCommander;
 import devs.mrp.turkeydesktop.service.conditionchecker.idle.LongWrapper;
 import devs.mrp.turkeydesktop.service.conditionchecker.imports.ImportReader;
-import devs.mrp.turkeydesktop.service.conditionchecker.imports.ImportReaderFactory;
 import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
-import java.io.File;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Pattern;
-import devs.mrp.turkeydesktop.database.logs.TimeLogService;
-import java.time.LocalDateTime;
-import java.util.concurrent.atomic.AtomicLong;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.core.SingleSource;
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
-import devs.mrp.turkeydesktop.database.config.ConfigElementService;
-import devs.mrp.turkeydesktop.database.conditions.ConditionService;
 
-/**
- *
- * @author miguel
- */
 @Slf4j
 public class ConditionCheckerImpl implements ConditionChecker {
 
-    private ConditionService conditionService = ConditionFactory.getService();
-    private TimeLogService timeLogService = TimeLogServiceFactory.getService();
-    private ConfigElementService configService = ConfigElementFactory.getService();
-    private ImportService importService = ImportFactory.getService();
-    private ChainHandler<LongWrapper> idleHandler = new IdleChainCommander().getHandlerChain();
-    private ExternalGroupService externalGroupService = ExternalGroupFactory.getService();
-    private ImportReader importReader = ImportReaderFactory.getReader();
+    private final ConditionService conditionService;
+    private final TimeLogService timeLogService;
+    private final ConfigElementService configService;
+    private final ImportService importService;
+    private final ChainHandler<LongWrapper> idleHandler;
+    private final ExternalGroupService externalGroupService;
+    private final ImportReader importReader;
     private static long avoidMessageFlood = 1000*90; // if the idle time surpases 2+ minutes stop flooding notifications
+    private final TimeConverter timeConverter;
+    private final FileHandler fileHandler;
     
     private Logger logger = Logger.getLogger(ConditionCheckerImpl.class.getName());
 
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
     private static final Pattern NUMBER_PATTERN = Pattern.compile("^-?\\d+$");
+    private final Toaster toaster;
+    
+    public ConditionCheckerImpl(ConditionCheckerFactory factory) {
+        this.configService = factory.getConfigElementService();
+        this.toaster = factory.getToaster();
+        this.timeConverter = factory.getTimeConverter();
+        this.fileHandler = factory.fileHandler();
+        this.conditionService = factory.getConditionService();
+        this.timeLogService = factory.getTimeLogService();
+        this.idleHandler = factory.gettIdleHandler();
+        this.importReader = factory.getImportReader();
+        this.importService = factory.getImportService();
+        this.externalGroupService = factory.getExternalGroupService();
+    }
 
     @Override
     public Single<Boolean> isConditionMet(Condition condition) {
-        SingleSource<Long> beginning = TimeConverter.beginningOfOffsetDaysConsideringDayChange(condition.getLastDaysCondition());
-        SingleSource<Long> end = TimeConverter.endOfTodayConsideringDayChange();
+        SingleSource<Long> beginning = timeConverter.beginningOfOffsetDaysConsideringDayChange(condition.getLastDaysCondition());
+        SingleSource<Long> end = timeConverter.endOfTodayConsideringDayChange();
         return Single.zip(beginning, end, (beginningResult, endResult) -> {
             log.debug("Getting time spent on group {} from epoch {} to {}", condition.getTargetId(), beginningResult, endResult);
             Single<Long> spent = timeLogService.timeSpentOnGroupForFrame(condition.getTargetId(), beginningResult, endResult);
@@ -125,7 +125,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
             if (!lockDownActivatedResult){
                 return Single.just(false);
             }
-            Long hourNow = TimeConverter.epochToMilisOnGivenDay(now);
+            Long hourNow = timeConverter.epochToMilisOnGivenDay(now);
             return lockDownStart().flatMap(lockDownStartResult -> {
                 return lockDownEnd().flatMap(lockDownEndResult -> {
                     Long from = lockDownStartResult;
@@ -137,11 +137,11 @@ public class ConditionCheckerImpl implements ConditionChecker {
                     boolean isLockDown = (from < to && (from <= hourNow && hourNow <= to))
                             || (from > to && (hourNow >= from || hourNow <= to));
                     if (isLockDown) {
-                        Toaster.sendToast(localeMessages.getString("isLockDown"));
+                        toaster.sendToast(localeMessages.getString("isLockDown"));
                     } else {
                         return closeToLock(hourNow, from).map(res -> {
                             if (res) {
-                                Toaster.sendToast(localeMessages.getString("closeToLock"));
+                                toaster.sendToast(localeMessages.getString("closeToLock"));
                             }
                             return false; // close but not yet
                         });
@@ -185,11 +185,11 @@ public class ConditionCheckerImpl implements ConditionChecker {
                             return Single.just(false);
                         }
                         return configService.findById(ConfigurationEnum.LOCK_NOTIFY_MINUTES).map(lockNotifyMinutes -> {
-                            Long minutesNotice = TimeConverter.getMinutes(Long.valueOf(lockNotifyMinutes.getValue()));
+                            Long minutesNotice = timeConverter.getMinutes(Long.valueOf(lockNotifyMinutes.getValue()));
                             if (hourNow < from) {
                                 return (from - hourNow < 60 * 1000 * minutesNotice);
                             } else if (hourNow > from) {
-                                return (from + TimeConverter.hoursToMilis(24) - hourNow < 60 * 1000 * minutesNotice);
+                                return (from + timeConverter.hoursToMilis(24) - hourNow < 60 * 1000 * minutesNotice);
                             }
                             return false;
                         });
@@ -220,7 +220,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
         return importService.findAll().map(path -> {
                         String firstLine = "";
                         try {
-                            firstLine = FileHandler.readFirstLineFromFile(new File(path));
+                            firstLine = fileHandler.readFirstLineFromFile(new File(path));
                         } catch (IOException e) {
                             logger.log(Level.SEVERE, "Cannot read from file " + path, e);
                         }
@@ -268,7 +268,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
         return isIdle().flatMap(idle -> {
             return isIdleFlood().map(flood -> {
                 if (idle && sendToast && !flood) {
-                    Toaster.sendToast(localeMessages.getString("idleMsg"));
+                    toaster.sendToast(localeMessages.getString("idleMsg"));
                 }
                 return idle;
             });
@@ -279,7 +279,7 @@ public class ConditionCheckerImpl implements ConditionChecker {
     public Single<Boolean> notifyCloseToConditionsRefresh() {
         return closeToConditionsRefresh().map(result -> {
             if (result) {
-                Toaster.sendToast(localeMessages.getString("conditionsRefreshSoon"));
+                toaster.sendToast(localeMessages.getString("conditionsRefreshSoon"));
             }
             return result;
         });
@@ -293,14 +293,14 @@ public class ConditionCheckerImpl implements ConditionChecker {
             }
             return configService.findById(ConfigurationEnum.CHANGE_OF_DAY).flatMap(changeOfDayResult -> {
                 return configService.findById(ConfigurationEnum.NOTIFY_CHANGE_OF_DAY_MINUTES).map(changeOfDayMinutes -> {
-                    Long changeOfDay = TimeConverter.hoursToMilis(Long.valueOf(changeOfDayResult.getValue()));
+                    Long changeOfDay = timeConverter.hoursToMilis(Long.valueOf(changeOfDayResult.getValue()));
 
                     Long minutesNotice = Long.valueOf(changeOfDayMinutes.getValue());
-                    Long hourNow = TimeConverter.epochToMilisOnGivenDay(System.currentTimeMillis());
+                    Long hourNow = timeConverter.epochToMilisOnGivenDay(System.currentTimeMillis());
                     if (hourNow < changeOfDay) {
                         return changeOfDay - hourNow < 60 * 1000 * minutesNotice;
                     } else if (hourNow > changeOfDay) {
-                        return changeOfDay + TimeConverter.hoursToMilis(24) - hourNow < 60 * 1000 * minutesNotice;
+                        return changeOfDay + timeConverter.hoursToMilis(24) - hourNow < 60 * 1000 * minutesNotice;
                     }
                     return false;
                 });

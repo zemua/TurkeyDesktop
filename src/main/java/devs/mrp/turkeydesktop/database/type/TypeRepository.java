@@ -1,31 +1,24 @@
 package devs.mrp.turkeydesktop.database.type;
 
 import devs.mrp.turkeydesktop.database.Db;
+import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import io.reactivex.rxjava3.core.Single;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class TypeRepository implements TypeDao {
     
-    private Db dbInstance = TypeFactory.getDb();
+    private Db db;
     
-    private static TypeRepository instance;
-    
-    private TypeRepository(){}
-    
-    public static TypeRepository getInstance() {
-        if (instance == null) {
-            instance = new TypeRepository();
-        }
-        return instance;
+    public TypeRepository(TypeFactory typeFactory){
+        this.db = typeFactory.getDb();
     }
     
     @Override
     public Single<String> add(Type type) {
-        return Db.singleString(() -> retrieveAddResult(type));
+        return db.singleString(() -> retrieveAddResult(type));
     }
     
     private String retrieveAddResult(Type type) {
@@ -45,7 +38,7 @@ public class TypeRepository implements TypeDao {
     }
     
     private PreparedStatement buildAddQuery(Type type) throws SQLException {
-        PreparedStatement preparedStatement = dbInstance.prepareStatement(String.format("INSERT INTO %s (%s, %s) ",
+        PreparedStatement preparedStatement = db.prepareStatement(String.format("INSERT INTO %s (%s, %s) ",
                 Db.CATEGORIZED_TABLE, Type.PROCESS_NAME, Type.TYPE)
                 + "VALUES (?,?)");
         preparedStatement.setString(1, type.getProcess());
@@ -55,11 +48,11 @@ public class TypeRepository implements TypeDao {
 
     @Override
     public Single<Long> update(Type type) {
-        return Db.singleLong(() -> {
+        return db.singleLong(() -> {
             long entriesUpdated = -1;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("UPDATE %s SET %s=? WHERE %s=?",
+                stm = db.getConnection().prepareStatement(String.format("UPDATE %s SET %s=? WHERE %s=?",
                         Db.CATEGORIZED_TABLE, Type.TYPE, Type.PROCESS_NAME));
                 stm.setString(1, type.getType().toString());
                 stm.setString(2, type.getProcess());
@@ -73,11 +66,11 @@ public class TypeRepository implements TypeDao {
 
     @Override
     public Single<ResultSet> findAll() {
-        return Db.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s",
+                stm = db.getConnection().prepareStatement(String.format("SELECT * FROM %s",
                         Db.CATEGORIZED_TABLE));
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
@@ -89,11 +82,11 @@ public class TypeRepository implements TypeDao {
     
     @Override
     public Single<ResultSet> findByType(String type) {
-        return Db.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+                stm = db.getConnection().prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
                         Db.CATEGORIZED_TABLE, Type.TYPE));
                 stm.setString(1, type);
                 rs = stm.executeQuery();
@@ -106,7 +99,7 @@ public class TypeRepository implements TypeDao {
 
     @Override
     public Single<ResultSet> findById(String id) {
-        return Db.singleResultSet(() -> retrieveFindById(id));
+        return db.singleResultSet(() -> retrieveFindById(id));
     }
     
     private ResultSet retrieveFindById(String id) {
@@ -125,7 +118,7 @@ public class TypeRepository implements TypeDao {
     }
     
     private PreparedStatement buildFindByIdQuery(String id) throws SQLException {
-        PreparedStatement preparedStatement = dbInstance.prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+        PreparedStatement preparedStatement = db.prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
                 Db.CATEGORIZED_TABLE, Type.PROCESS_NAME));
         preparedStatement.setString(1, id);
         return preparedStatement;
@@ -133,11 +126,11 @@ public class TypeRepository implements TypeDao {
 
     @Override
     public Single<Long> deleteById(String id) {
-        return Db.singleLong(() -> {
+        return db.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
+                stm = db.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
                         Db.CATEGORIZED_TABLE, Type.PROCESS_NAME));
                 stm.setString(1, id);
                 delQty = stm.executeUpdate();

@@ -1,51 +1,38 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.view.notcloseables;
 
 import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
-import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
 import devs.mrp.turkeydesktop.database.closeables.CloseableService;
-import devs.mrp.turkeydesktop.database.closeables.CloseableFactory;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.database.type.TypeService;
-import devs.mrp.turkeydesktop.database.type.TypeFactory;
-import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.groups.review.switchable.Switchable;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
-import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- *
- * @author miguel
- */
 @Slf4j
-public class NotCloseablesHandler extends PanelHandler<NotCloseablesEnum, Object, FeedbackerPanelWithFetcher<NotCloseablesEnum, Object>> {
+public class NotCloseablesHandler extends PanelHandler<NotCloseablesEnum, Object, FeedbackerPanelWithFetcher<NotCloseablesEnum, Object>, NotCloseablesPanelFactory> {
     
-    private ConfirmationWithDelay popupMaker = new ConfirmationWithDelayFactory();
-    
-    private static final Logger logger = Logger.getLogger(NotCloseablesHandler.class.getName());
-    private final LocaleMessages localeMessages = LocaleMessages.getInstance();
-    
-    private final TypeService typeService = TypeFactory.getService();
-    private final CloseableService closeableService = CloseableFactory.getService();
+    private final NotCloseablesPanelFactory factory;
+    private final ConfirmationWithDelay popupMaker;
+    private final TypeService typeService;
+    private final CloseableService closeableService;
 
-    public NotCloseablesHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
-        super(frame, caller);
+    public NotCloseablesHandler(JFrame frame, PanelHandler<?, ?, ?, ?> caller, NotCloseablesPanelFactory factory) {
+        super(frame, caller, factory);
+        this.typeService = factory.getTypeService();
+        this.closeableService = factory.getCloseableService();
+        this.popupMaker = factory.getPopupMaker();
+        this.factory = factory;
     }
     
     @Override
-    protected FeedbackerPanelWithFetcher<NotCloseablesEnum, Object> initPanel() {
-        this.setPanel(NotCloseablesPanelFactory.getPanel());
+    protected FeedbackerPanelWithFetcher<NotCloseablesEnum, Object> initPanel(NotCloseablesPanelFactory factory) {
+        this.setPanel(factory.getPanel());
         return this.getPanel();
     }
 

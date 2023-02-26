@@ -1,32 +1,26 @@
 package devs.mrp.turkeydesktop.database.closeables;
 
 import devs.mrp.turkeydesktop.database.Db;
-import devs.mrp.turkeydesktop.database.DbFactory;
+import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import io.reactivex.rxjava3.core.Single;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class CloseableRepository implements CloseableDao {
     
-    private static CloseableRepository instance;
+    private CloseableFactory factory;
+    private Db db;
     
-    private Db dbInstance = DbFactory.getDb();
-    
-    private CloseableRepository() {}
-    
-    public static CloseableRepository getInstance() {
-        if (instance == null) {
-            instance = new CloseableRepository();
-        }
-        return instance;
+    public CloseableRepository(CloseableFactory factory) {
+        this.factory = factory;
+        db = factory.getDb();
     }
     
     @Override
     public Single<String> add(Closeable element) {
-        return Db.singleString(()-> retrieveAddResult(element));
+        return db.singleString(()-> retrieveAddResult(element));
     }
     
     public String retrieveAddResult(Closeable element) {
@@ -46,7 +40,7 @@ public class CloseableRepository implements CloseableDao {
     }
     
     private PreparedStatement buildAddQuery(Closeable element) throws SQLException {
-        PreparedStatement preparedStatement = dbInstance.prepareStatement(String.format("INSERT INTO %s (%s) ",
+        PreparedStatement preparedStatement = db.prepareStatement(String.format("INSERT INTO %s (%s) ",
                 Db.CLOSEABLES_TABLE, Closeable.PROCESS_NAME)
                 + "VALUES (?)");
         preparedStatement.setString(1, element.getProcess());
@@ -61,11 +55,11 @@ public class CloseableRepository implements CloseableDao {
 
     @Override
     public Single<ResultSet> findAll() {
-        return Db.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT * FROM %s",
+                stm = db.getConnection().prepareStatement(String.format("SELECT * FROM %s",
                         Db.CLOSEABLES_TABLE));
                 rs = stm.executeQuery();
             } catch (SQLException ex) {
@@ -77,7 +71,7 @@ public class CloseableRepository implements CloseableDao {
 
     @Override
     public Single<ResultSet> findById(String id) {
-        return Db.singleResultSet(() -> retrieveFindByIdResult(id));
+        return db.singleResultSet(() -> retrieveFindByIdResult(id));
     }
     
     private ResultSet retrieveFindByIdResult(String id) {
@@ -97,7 +91,7 @@ public class CloseableRepository implements CloseableDao {
     
     private PreparedStatement buildFindByIdQuery(String id) throws SQLException {
         PreparedStatement preparedStatement;
-        preparedStatement = dbInstance.prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
+        preparedStatement = db.prepareStatement(String.format("SELECT * FROM %s WHERE %s=?",
                 Db.CLOSEABLES_TABLE, Closeable.PROCESS_NAME));
         preparedStatement.setString(1, id);
         return preparedStatement;
@@ -105,11 +99,11 @@ public class CloseableRepository implements CloseableDao {
 
     @Override
     public Single<Long> deleteById(String id) {
-        return Db.singleLong(() -> {
+        return db.singleLong(() -> {
             long delQty = -1;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
+                stm = db.getConnection().prepareStatement(String.format("DELETE FROM %s WHERE %s=?",
                         Db.CLOSEABLES_TABLE, Closeable.PROCESS_NAME));
                 stm.setString(1, id);
                 delQty = stm.executeUpdate();

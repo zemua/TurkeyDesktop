@@ -1,49 +1,31 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.database.titledlog;
 
 import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.type.Type;
+import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import io.reactivex.rxjava3.core.Single;
 
-/**
- *
- * @author miguel
- */
 public class TitledLogRepoFacade implements TitledLogDaoFacade {
     
-    private final Db dbInstance = Db.getInstance();
+    private final Db db;
     private Logger logger = Logger.getLogger(TitledLogRepoFacade.class.getName());
     
-    private static TitledLogRepoFacade instance;
-    
-    private TitledLogRepoFacade() {
-        
-    }
-    
-    public static TitledLogRepoFacade getInstance() {
-        if (instance == null) {
-            instance = new TitledLogRepoFacade();
-        }
-        return instance;
+    public TitledLogRepoFacade(TitledLogFacadeFactory factory) {
+        db = factory.getDb();
     }
     
     @Override
     public Single<ResultSet> getTimeFrameOfDependablesGroupedByTitle(long from, long to) {
-        return Db.singleResultSet(() -> {
+        return db.singleResultSet(() -> {
             ResultSet rs = null;
             PreparedStatement stm;
             try {
-                stm = dbInstance.getConnection().prepareStatement(String.format("SELECT %s, SUM(%s) FROM %s LEFT JOIN %s ON %s WHERE %s>=? AND %s<=? AND %s=? GROUP BY %s",
+                stm = db.getConnection().prepareStatement(String.format("SELECT %s, SUM(%s) FROM %s LEFT JOIN %s ON %s WHERE %s>=? AND %s<=? AND %s=? GROUP BY %s",
                         Db.WATCHDOG_TABLE + "." + TimeLog.WINDOW_TITLE, // select window title
                         TimeLog.ELAPSED, // and sum elapsed
                         Db.WATCHDOG_TABLE, // from watchdog logs

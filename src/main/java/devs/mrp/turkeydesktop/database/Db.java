@@ -1,10 +1,9 @@
 package devs.mrp.turkeydesktop.database;
 
-import devs.mrp.turkeydesktop.common.TimeConverter;
 import devs.mrp.turkeydesktop.database.closeables.Closeable;
 import devs.mrp.turkeydesktop.database.conditions.Condition;
-import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
+import devs.mrp.turkeydesktop.database.group.Group;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.expor.ExportedGroup;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroup;
@@ -12,7 +11,6 @@ import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.titles.Title;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
-import devs.mrp.turkeydesktop.service.watchdog.WatchDogImpl;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -48,49 +46,43 @@ public class Db {
     public static final String CONFIG_TABLE = "CONFIG_TABLE";
     public static final String IMPORTS_TABLE = "IMPORTS_TABLE";
 
-    private static final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
-    private static Db instance = null;
-    private static Connection con = null;
+    private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
+    private Connection con = null;
     
     private LocaleMessages localeMessages = LocaleMessages.getInstance();
     
-    private Db() {
-    }
-
-    public static Db getInstance() {
-        if (instance == null) {
-            instance = new Db();
-            instance.inicializar();
-        }
-        return instance;
+    private DbFactory factory;
+    
+    Db(DbFactory factory) {
+        this.factory = factory;
     }
     
-    public static Single<String> singleString(Callable<String> callable) {
+    public Single<String> singleString(Callable<String> callable) {
         log.debug("Creating singleString from {}", Arrays.toString(Thread.currentThread().getStackTrace()));
         return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.from(dbExecutor)).observeOn(Schedulers.computation());
     }
     
-    public static Single<Long> singleLong(Callable<Long> callable) {
+    public Single<Long> singleLong(Callable<Long> callable) {
         log.debug("Creating singleLong from {}", Arrays.toString(Thread.currentThread().getStackTrace()));
         return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.from(dbExecutor)).observeOn(Schedulers.computation());
     }
     
-    public static Single<Integer> singleInt(Callable<Integer> callable) {
+    public Single<Integer> singleInt(Callable<Integer> callable) {
         log.debug("Creating singleInt from {}", Arrays.toString(Thread.currentThread().getStackTrace()));
         return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.from(dbExecutor)).observeOn(Schedulers.computation());
     }
     
-    public static Single<Boolean> singleBoolean(Callable<Boolean> callable) {
+    public Single<Boolean> singleBoolean(Callable<Boolean> callable) {
         log.debug("Creating singleBoolean from {}", Arrays.toString(Thread.currentThread().getStackTrace()));
         return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.from(dbExecutor)).observeOn(Schedulers.computation());
     }
     
-    public static Single<ResultSet> singleResultSet(Callable<ResultSet> callable) {
+    public Single<ResultSet> singleResultSet(Callable<ResultSet> callable) {
         log.debug("Creating singleResultSet from {}", Arrays.toString(Thread.currentThread().getStackTrace()));
         return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.from(dbExecutor)).observeOn(Schedulers.computation());
     }
     
-    public static <T> Single<T> singleGeneric(Callable<T> callable) {
+    public <T> Single<T> singleGeneric(Callable<T> callable) {
         log.debug("Creating singleGeneric from {}", Arrays.toString(Thread.currentThread().getStackTrace()));
         return Single.defer(() -> Single.fromCallable(callable)).subscribeOn(Schedulers.from(dbExecutor)).observeOn(Schedulers.computation());
     }
@@ -126,7 +118,7 @@ public class Db {
             System.out.println("error trying to get DB connection");
             Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
             con = null;
-            WatchDogImpl.getInstance().stop();
+            factory.getWatchDog().stop();
             JOptionPane.showMessageDialog(null, localeMessages.getString("anotherConnOpen"));
             System.exit(0);
         }
@@ -136,7 +128,7 @@ public class Db {
         return Objects.isNull(con);
     }
 
-    private void inicializar() {
+    void inicializar() {
         setConnection();
 
         execute(String.format("CREATE TABLE IF NOT EXISTS %s("
@@ -231,9 +223,7 @@ public class Db {
         execute(String.format("DELETE FROM %s WHERE %s < %s",
                 WATCHDOG_TABLE,
                 TimeLog.EPOCH,
-                TimeConverter.beginningOfOffsetDays(30)));
-        
-        //close();
+                factory.getTimeConverter().beginningOfOffsetDays(30)));
     }
 
     public Connection getConnection() {
@@ -249,33 +239,7 @@ public class Db {
         return con.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS);
     }
 
-    private void close() {
-        try {
-            if (con.isClosed()) {
-                return;
-            }
-            con.commit();
-            con.close();
-        } catch (SQLException ex) {
-            Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    private ResultSet getQuery(String str) {
-        //setConnection();
-        ResultSet rs = null;
-        try {
-            Statement stm = con.createStatement();
-            rs = stm.executeQuery(str);
-        } catch (SQLException ex) {
-            Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        //close();
-        return rs;
-    }
-
     private boolean execute(String str) {
-        //setConnection();
         boolean rs = false;
         try {
             Statement stm = con.createStatement();
@@ -283,20 +247,6 @@ public class Db {
         } catch (SQLException ex) {
             Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
         }
-        //close();
-        return rs;
-    }
-
-    private int executeUpdate(String str) {
-        //setConnection();
-        int rs = 0;
-        try {
-            Statement stm = con.createStatement();
-            rs = stm.executeUpdate(str);
-        } catch (SQLException ex) {
-            Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        //close();
         return rs;
     }
 }

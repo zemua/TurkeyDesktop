@@ -1,40 +1,31 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.view.categorizeprocesspanel;
 
 import devs.mrp.turkeydesktop.common.ConfirmationWithDelay;
 import devs.mrp.turkeydesktop.common.FeedbackListener;
 import devs.mrp.turkeydesktop.common.Tripla;
 import devs.mrp.turkeydesktop.common.impl.ConfirmationWithDelayFactory;
-import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeServiceFactory;
-import devs.mrp.turkeydesktop.database.type.TypeFactory;
+import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeService;
 import devs.mrp.turkeydesktop.database.type.Type;
+import devs.mrp.turkeydesktop.database.type.TypeService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
+import devs.mrp.turkeydesktop.view.PanelHandlerData;
 import devs.mrp.turkeydesktop.view.categorizeprocesspanel.list.CategorizerElement;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
-import java.awt.AWTEvent;
-import java.util.Date;
-import java.util.logging.Logger;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import devs.mrp.turkeydesktop.database.logandtype.LogAndTypeFacadeService;
-import devs.mrp.turkeydesktop.database.type.TypeService;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
+import java.awt.AWTEvent;
+import java.util.Date;
 import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import org.apache.commons.lang3.StringUtils;
 
-/**
- *
- * @author miguel
- */
-public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>> {
+public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent>, CatProcessPanelFactory> {
+    
+    private CatProcessPanelFactory factory;
 
     private ConfirmationWithDelay popupMaker = new ConfirmationWithDelayFactory();
     
@@ -45,20 +36,22 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
     private static final int FILTER_NEUTRAL = 4;
     private static final int FILTER_DEPENDS = 5;
     
-    private Logger logger = Logger.getLogger(CatProcessHandler.class.getName());
+    private final Logger logger = Logger.getLogger(CatProcessHandler.class.getName());
+    private final TypeService typeService;
+    private final LogAndTypeFacadeService logAndTypeFacadeService;
+    
     private FeedbackListener<Type.Types,String> mListener;
-    private TypeService typeService;
     
-    LogAndTypeFacadeService typedService = LogAndTypeServiceFactory.getService();
-    
-    public CatProcessHandler(JFrame frame, PanelHandler<?, ?, ?> caller) {
-        super(frame, caller);
-        typeService = TypeFactory.getService();
+    public CatProcessHandler(PanelHandlerData<?> data, CatProcessPanelFactory factory) {
+        super(data.getFrame(), data.getCaller(), factory);
+        typeService = factory.getTypeService();
+        logAndTypeFacadeService = factory.getLogAndTypeFacadeService();
+        this.factory = factory;
     }
     
     @Override
-    protected FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent> initPanel() {
-        return CatProcessPanelFactory.getPanel();
+    protected FeedbackerPanelWithFetcher<CatProcessEnum, AWTEvent> initPanel(CatProcessPanelFactory factory) {
+        return factory.getPanel();
     }
 
     @Override
@@ -118,7 +111,7 @@ public class CatProcessHandler extends PanelHandler<CatProcessEnum, AWTEvent, Fe
             }
 
         };
-        typedService.getTypedLogGroupedByProcess(from, to)
+        logAndTypeFacadeService.getTypedLogGroupedByProcess(from, to)
                 .toSortedList((c1,c2) -> c2.getValue2().compareTo(c1.getValue2()))
                 .flatMapObservable(Observable::fromIterable)
                 .filter(c -> textFromFilter().isEmpty() ? true : StringUtils.containsIgnoreCase(c.getValue1(), textFromFilter()))

@@ -9,16 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ImportServiceImpl implements ImportService {
     
-    private static DbCache<String,String> dbCache;
+    private DbCache<String,String> dbCache;
     
-    public ImportServiceImpl() {
-        setCacheInstance();
-    }
-    
-    private void setCacheInstance() {
-        if (dbCache == null) {
-            dbCache = ImportFactory.getDbCache();
-        }
+    public ImportServiceImpl(ImportFactory importFactory) {
+        this.dbCache = importFactory.getDbCache();
     }
 
     @Override

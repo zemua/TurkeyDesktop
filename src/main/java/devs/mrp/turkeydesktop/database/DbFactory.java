@@ -1,17 +1,12 @@
 package devs.mrp.turkeydesktop.database;
 
-import java.util.function.Supplier;
+import devs.mrp.turkeydesktop.common.TimeConverter;
+import devs.mrp.turkeydesktop.service.watchdog.WatchDog;
 
-public class DbFactory {
+public interface DbFactory {
     
-    private static Supplier<Db> dbSupplier;
-    
-    public static void setDbSupplier(Supplier<Db> dbSupplier) {
-        DbFactory.dbSupplier = dbSupplier;
-    }
-    
-    public static Db getDb() {
-        return dbSupplier.get();
-    }
+    Db getDb();
+    WatchDog getWatchDog();
+    TimeConverter getTimeConverter();
     
 }
