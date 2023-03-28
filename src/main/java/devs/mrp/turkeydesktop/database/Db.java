@@ -188,6 +188,12 @@ public class Db {
                 + "%s INT NOT NULL, " // timeframe in days for the usage time to be met
                 + "PRIMARY KEY (%s))",
                 CONDITIONS_TABLE, Condition.ID, Condition.GROUP_ID, Condition.TARGET_ID, Condition.USAGE_TIME_CONDITION, Condition.LAST_DAYS_CONDITION, Condition.ID));
+        
+        execute(String.format("CREATE INDEX IF NOT EXISTS %s ON %s(%s)",
+                "CONDITION_GROUP_INDEX", CONDITIONS_TABLE, Condition.GROUP_ID));
+        
+        execute(String.format("CREATE INDEX IF NOT EXISTS %s ON %s(%s)",
+                "CONDITION_TARGET_INDEX", CONDITIONS_TABLE, Condition.TARGET_ID));
 
         execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
                 + "%s VARCHAR(500) NOT NULL," // file path
@@ -200,6 +206,9 @@ public class Db {
                 + "%s VARCHAR(500) NOT NULL," // file path with date-time data
                 + "PRIMARY KEY (%s))",
                 GROUPS_EXTERNAL_TABLE, ExternalGroup.ID, ExternalGroup.GROUP, ExternalGroup.FILE, ExternalGroup.ID));
+        
+        execute(String.format("CREATE INDEX IF NOT EXISTS %s ON %s(%s)",
+                "EXTERNAL_GROUP_INDEX", GROUPS_EXTERNAL_TABLE, ExternalGroup.GROUP));
 
         // only one per group max
         execute(String.format("CREATE TABLE IF NOT EXISTS %s(" // table name
