@@ -138,11 +138,13 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                             element.setGroupId(result.getGroupId());
                             if (!lockdown) {
                                 return Single.zip(conditionChecker.areConditionsMet(element.getGroupId()), conditionChecker.isIdleWithToast(true), (areMet, isIdle) -> {
+                                    element.setIdle(isIdle);
                                     element.setCounted(!isIdle && areMet ? Math.abs(element.getElapsed()) : 0);
                                     return factory.asNotBlockable(element).blockingGet();
                                 });
                             } // when in lockdown, don't disccount points if idle
                             return conditionChecker.isIdle().flatMap(isIdle -> {
+                                element.setIdle(isIdle);
                                 if (!isIdle) {
                                     element.setCounted(-1 * proportion * element.getElapsed());
                                     return factory.asNotBlockable(element);
@@ -208,6 +210,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
         boolean isNeutral = title.getType().equals(Title.Type.NEUTRAL);
         return conditionChecker.areConditionsMet(element.getGroupId()).flatMap(areMet -> {
             return conditionChecker.isIdleWithToast(isPositive).flatMap(isIdle -> {
+                element.setIdle(isIdle);
                 if (isNeutral || (isPositive && (isIdle || !areMet))) {
                     element.setCounted(0);
                     return Single.just(element);

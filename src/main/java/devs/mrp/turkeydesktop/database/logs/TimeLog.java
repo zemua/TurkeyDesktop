@@ -25,6 +25,7 @@ public class TimeLog {
     public static final String PID = "PID";
     public static final String PROCESS_NAME = "PROCESS_NAME";
     public static final String WINDOW_TITLE = "WINDOW_TITLE";
+    public static final String IDLE = "IDLE";
     
     private long id;
     private long epoch;
@@ -37,6 +38,15 @@ public class TimeLog {
     private long groupId;
     private Type.Types type;
     private boolean blockable;
+    private boolean idle;
+
+    public boolean isIdle() {
+        return idle;
+    }
+
+    public void setIdle(boolean idle) {
+        this.idle = idle;
+    }
 
     public boolean isBlockable() {
         return blockable;

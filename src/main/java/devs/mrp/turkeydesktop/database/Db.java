@@ -233,6 +233,10 @@ public class Db {
                 WATCHDOG_TABLE,
                 TimeLog.EPOCH,
                 factory.getTimeConverter().beginningOfOffsetDays(30)));
+        
+        execute(String.format("ALTER TABLE %s " // table name
+                + "ADD COLUMN IF NOT EXISTS %s BOOLEAN DEFAULT FALSE",  // column to add
+                WATCHDOG_TABLE, TimeLog.IDLE));
     }
 
     public Connection getConnection() {
