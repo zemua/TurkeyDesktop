@@ -74,6 +74,7 @@ public class TimeLogFactoryImpl implements TimeLogFactory {
                 .windowTitle(timeLog.getWindowTitle())
                 .groupId(timeLog.getGroupId())
                 .type(timeLog.getType())
+                .idle(timeLog.isIdle())
                 .blockable(true)
                 .build());
     }
@@ -95,6 +96,7 @@ public class TimeLogFactoryImpl implements TimeLogFactory {
                         .windowTitle(timeLog.getWindowTitle())
                         .groupId(timeLog.getGroupId())
                         .type(timeLog.getType())
+                        .idle(timeLog.isIdle())
                         .blockable(false)
                         .build();
                     } else {

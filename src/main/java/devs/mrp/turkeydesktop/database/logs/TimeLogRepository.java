@@ -42,7 +42,7 @@ public class TimeLogRepository implements TimeLogDao {
             long result = -1;
             PreparedStatement stm;
             try {
-                stm = db.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s, %s) ", 
+                stm = db.getConnection().prepareStatement(String.format("INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ", 
                         Db.WATCHDOG_TABLE,
                         TimeLog.EPOCH, // 1
                         TimeLog.ELAPSED, // 2
@@ -52,8 +52,9 @@ public class TimeLogRepository implements TimeLogDao {
                         TimeLog.PROCESS_NAME, // 6
                         TimeLog.WINDOW_TITLE, // 7
                         Group.GROUP, // 8
-                        Type.TYPE) // 9
-                        + "VALUES (?,?,?,?,?,?,?,?,?)",
+                        Type.TYPE, // 9
+                        TimeLog.IDLE) // 10
+                        + "VALUES (?,?,?,?,?,?,?,?,?,?)",
                         Statement.RETURN_GENERATED_KEYS);
                 stm.setLong(1, element.getEpoch());
                 stm.setLong(2, element.getElapsed());
@@ -66,6 +67,7 @@ public class TimeLogRepository implements TimeLogDao {
                 if (element.getType() != null) {
                     stm.setString(9, element.getType().toString());
                 }
+                stm.setBoolean(10, element.isIdle());
                 stm.executeUpdate();
                 ResultSet generatedId = stm.getGeneratedKeys();
                 if (generatedId.next()) {
@@ -207,8 +209,8 @@ public class TimeLogRepository implements TimeLogDao {
             ResultSet rs = groupTimeFrameCache.get(new TimeFrameOfGroup(groupId, from, to), () -> {
                 PreparedStatement stm;
                 try {
-                    stm = db.getConnection().prepareStatement(String.format("SELECT %s, SUM(%s) FROM %s WHERE %s>=? AND %s<=? AND %s=? GROUP BY %s",
-                            Group.GROUP, TimeLog.ELAPSED, Db.WATCHDOG_TABLE, TimeLog.EPOCH, TimeLog.EPOCH, Group.GROUP, Group.GROUP));
+                    stm = db.getConnection().prepareStatement(String.format("SELECT %s, SUM(%s) FROM %s WHERE %s>=? AND %s<=? AND %s=? AND COALESCE(%s, FALSE) = FALSE GROUP BY %s",
+                            Group.GROUP, TimeLog.ELAPSED, Db.WATCHDOG_TABLE, TimeLog.EPOCH, TimeLog.EPOCH, Group.GROUP, TimeLog.IDLE, Group.GROUP));
                     stm.setLong(1, from);
                     stm.setLong(2, to);
                     stm.setLong(3, groupId);
