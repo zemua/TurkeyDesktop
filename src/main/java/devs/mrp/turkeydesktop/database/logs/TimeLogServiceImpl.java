@@ -55,6 +55,7 @@ public class TimeLogServiceImpl implements TimeLogService {
                 element.setWindowTitle(element.getWindowTitle().substring(0, 499));
             }
             lastTimeLog = element;
+            log.debug("Adding time log: {}", element);
             return repo.add(element);
         }
     }

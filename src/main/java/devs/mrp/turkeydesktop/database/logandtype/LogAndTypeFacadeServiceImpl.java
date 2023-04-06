@@ -19,8 +19,10 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.sql.SQLException;
 import java.util.Date;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+@Slf4j
 public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
     
     private final LogAndTypeFacadeFactory factory;
@@ -139,12 +141,14 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                             if (!lockdown) {
                                 return Single.zip(conditionChecker.areConditionsMet(element.getGroupId()), conditionChecker.isIdleWithToast(true), (areMet, isIdle) -> {
                                     element.setIdle(isIdle);
+                                    log.debug("Setting iddle to {}", isIdle);
                                     element.setCounted(!isIdle && areMet ? Math.abs(element.getElapsed()) : 0);
                                     return factory.asNotBlockable(element).blockingGet();
                                 });
                             } // when in lockdown, don't disccount points if idle
                             return conditionChecker.isIdle().flatMap(isIdle -> {
                                 element.setIdle(isIdle);
+                                log.debug("Setting iddle to {}", isIdle);
                                 if (!isIdle) {
                                     element.setCounted(-1 * proportion * element.getElapsed());
                                     return factory.asNotBlockable(element);
@@ -211,6 +215,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
         return conditionChecker.areConditionsMet(element.getGroupId()).flatMap(areMet -> {
             return conditionChecker.isIdleWithToast(isPositive).flatMap(isIdle -> {
                 element.setIdle(isIdle);
+                log.debug("Setting iddle to {}", isIdle);
                 if (isNeutral || (isPositive && (isIdle || !areMet))) {
                     element.setCounted(0);
                     return Single.just(element);
