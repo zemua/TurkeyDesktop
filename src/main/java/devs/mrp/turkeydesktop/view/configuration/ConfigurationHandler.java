@@ -384,8 +384,8 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
         int proportion = (Integer)slider.getValue();
         configService.configElement(ConfigurationEnum.PROPORTION).subscribe(proportionResult -> {
             int savedProportion = Integer.valueOf(proportionResult.getValue());
-            // if we are decreasing and target value is lower than 4...
-            if (proportion < 4 && proportion < savedProportion) {
+            // if we are decreasing...
+            if (proportion < savedProportion) {
                 slider.setEnabled(false);
                 popupMaker.show(frame,
                         localeMessages.getString("areYouSureYouShouldDoThis"),
@@ -729,11 +729,11 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                         return element;
                     }
                     @Override
-                    protected void initializeOtherElements() {
+                    protected void initializeOtherElements(String s) {
                         // ¯\_ (ツ)_/¯
                     }
                     @Override
-                    protected void addOtherItems(JPanel panel) {
+                    protected void addOtherItems(JPanel panel, String s) {
                         // ¯\_ (ツ)_/¯
                     }
                 };

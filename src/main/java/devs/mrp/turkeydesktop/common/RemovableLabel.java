@@ -28,9 +28,9 @@ public abstract class RemovableLabel<ELEMENT> extends JPanel implements Feedback
     
     public RemovableLabel(ELEMENT element) {
         this.element = element;
-        initializeLabel();
+        initializeLabel(element);
         initializeButton();
-        initializeOtherElements();
+        initializeOtherElements(element);
         initializePanel();
     }
     
@@ -46,7 +46,7 @@ public abstract class RemovableLabel<ELEMENT> extends JPanel implements Feedback
     
     protected abstract String getNameFromElement(ELEMENT element);
     
-    protected void initializeLabel() {
+    protected void initializeLabel(ELEMENT element) {
         label = new JLabel();
         label.setText(getNameFromElement(element));
         label.addMouseListener(new MouseAdapter() {
@@ -94,16 +94,16 @@ public abstract class RemovableLabel<ELEMENT> extends JPanel implements Feedback
         }
     }
     
-    protected abstract void initializeOtherElements();
+    protected abstract void initializeOtherElements(ELEMENT element);
     
     protected void initializePanel() {
         this.setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.LINE_AXIS));
         this.setAlignmentX(Component.LEFT_ALIGNMENT);
         this.add(label);
-        addOtherItems(this);
+        addOtherItems(this, element);
         this.add(button);
     }
     
-    protected abstract void addOtherItems(JPanel panel);
+    protected abstract void addOtherItems(JPanel panel, ELEMENT element);
     
 }

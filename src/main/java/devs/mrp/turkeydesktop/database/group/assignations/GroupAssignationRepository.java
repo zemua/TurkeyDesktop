@@ -134,13 +134,13 @@ public class GroupAssignationRepository implements GroupAssignationDao {
     @Deprecated
     @Override
     public Single<ResultSet> findById(GroupAssignationDao.ElementId id) {
-        throw new RuntimeException("Not supported operation");
+        return findByElementId(id.getType(), id.getElementId());
     }
 
     @Deprecated
     @Override
     public Single<Long> deleteById(GroupAssignationDao.ElementId id) {
-        throw new RuntimeException("Not supported operation");
+        return deleteByElementId(id.getType(), id.getElementId());
     }
     
     @Override

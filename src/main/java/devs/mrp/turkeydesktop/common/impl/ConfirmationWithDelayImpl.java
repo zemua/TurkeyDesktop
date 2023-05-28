@@ -73,16 +73,15 @@ public class ConfirmationWithDelayImpl extends JFrame implements ActionListener,
 
     @Override
     public void actionPerformed(ActionEvent ae) {
+        frame.setEnabled(true);
+        popup.hide();
         String action = ae.getActionCommand();
         if (action.equals(confirmValue)) {
-            popup.hide();
             runnablePositive.run();
         }
         else {
-            popup.hide();
             runnableNegative.run();
         }
-        frame.setEnabled(true);
     }
     
     private void countdown(JButton button, int seconds, String btnText) {

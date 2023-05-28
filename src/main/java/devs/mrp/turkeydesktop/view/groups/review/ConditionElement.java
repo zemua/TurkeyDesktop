@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.view.groups.review;
 
 import devs.mrp.turkeydesktop.common.RemovableLabel;
@@ -16,10 +11,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-/**
- *
- * @author miguel
- */
 public class ConditionElement extends RemovableLabel<GroupConditionFacade> {
 
     public ConditionElement(GroupConditionFacade element) {
@@ -32,7 +23,7 @@ public class ConditionElement extends RemovableLabel<GroupConditionFacade> {
     }
     
     @Override
-    protected void initializeLabel() {
+    protected void initializeLabel(GroupConditionFacade element) {
         element.stringify().subscribe(stringResult -> {
             label = new JLabel();
             label.setText(stringResult);
@@ -49,11 +40,11 @@ public class ConditionElement extends RemovableLabel<GroupConditionFacade> {
     }
 
     @Override
-    protected void initializeOtherElements() {
+    protected void initializeOtherElements(GroupConditionFacade facade) {
     }
 
     @Override
-    protected void addOtherItems(JPanel panel) {
+    protected void addOtherItems(JPanel panel, GroupConditionFacade facade) {
     }
     
     @Override
@@ -85,7 +76,7 @@ public class ConditionElement extends RemovableLabel<GroupConditionFacade> {
         setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.LINE_AXIS));
         setAlignmentX(Component.LEFT_ALIGNMENT);
         add(label);
-        addOtherItems(this);
+        addOtherItems(this, element);
         add(button);
     }
     

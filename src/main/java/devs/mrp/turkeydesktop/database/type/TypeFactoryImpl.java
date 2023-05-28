@@ -4,6 +4,8 @@ import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.factory.DbCacheFactory;
 import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.database.DbFactoryImpl;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactoryImpl;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
 import io.reactivex.rxjava3.core.Observable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -69,6 +71,11 @@ public class TypeFactoryImpl implements TypeFactory {
             }
             submitter.onComplete();
         });
+    }
+
+    @Override
+    public GroupAssignationService getGroupAssignationService() {
+        return GroupAssignationFactoryImpl.getInstance().getService();
     }
     
 }

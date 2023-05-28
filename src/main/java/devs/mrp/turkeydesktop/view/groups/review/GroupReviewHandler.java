@@ -18,11 +18,14 @@ import devs.mrp.turkeydesktop.database.group.facade.AssignableElement;
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElementService;
 import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacade;
 import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacadeService;
+import devs.mrp.turkeydesktop.database.titles.TitleService;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.database.type.Type.Types;
+import devs.mrp.turkeydesktop.database.type.TypeService;
 import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.PanelHandlerData;
+import devs.mrp.turkeydesktop.view.groups.review.switchable.RemovableSwitchable;
 import devs.mrp.turkeydesktop.view.groups.review.switchable.Switchable;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import io.reactivex.rxjava3.core.Observable;
@@ -68,6 +71,9 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private final ExportedGroupService exportedGroupService;
     private final GroupConditionFacadeService groupConditionFacadeService;
     private final TimeConverter timeConverter;
+    
+    private final TitleService titleService;
+    private final TypeService processService;
 
     private JComboBox<Group> targetComboBox;
     private JSpinner hourSpinner;
@@ -87,6 +93,8 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         this.externalGroupService = factory.getExternalGroupService();
         this.exportedGroupService = factory.getExportedGroupService();
         this.timeConverter = factory.getTimeConverter();
+        this.titleService = factory.getTitleService();
+        this.processService = factory.getProcessService();
     }
 
     @Override
@@ -305,8 +313,39 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                     assignableBelongsToGroup(a),
                     assignableIsEnabled(a));
             setProcessSwitchableListener(switchable, a.getElementName(), type);
-            panel.add(switchable);
+            RemovableSwitchable removable = new RemovableSwitchable(switchable);
+            addRemovableListener(removable, type, panel, a.getElementName());
+            panel.add(removable);
         });
+    }
+    
+    private void addRemovableListener(RemovableSwitchable removable, GroupAssignation.ElementType type, JPanel panel, String id) {
+        removable.addFeedbackListener((element, feedback) -> {
+            if (feedback.equals(RemovableLabel.Action.DELETE)) {
+                if (group.getType().equals(Group.GroupType.POSITIVE)) {
+                    removeElement(removable, type, panel, id);
+                } else {
+                    popupMaker.show(this.getFrame(), () -> {
+                        // positive
+                        removeElement(removable, type, panel, id);
+                    }, () -> {
+                        // negative
+                        // nothing to do here
+                    });
+                }
+            }
+        });
+    }
+    
+    private void removeElement(RemovableSwitchable removable, GroupAssignation.ElementType type, JPanel panel, String id) {
+        if (type.equals(GroupAssignation.ElementType.PROCESS)) {
+            processService.deleteById(id).subscribe();
+        } else if (type.equals(GroupAssignation.ElementType.TITLE)) {
+            titleService.deleteBySubString(id).subscribe();
+        }
+        panel.remove(removable);
+        panel.updateUI();
+        panel.repaint();
     }
     
     private boolean assignableBelongsToGroup(AssignableElement assignable) {
@@ -597,12 +636,12 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                         }
 
                         @Override
-                        protected void initializeOtherElements() {
+                        protected void initializeOtherElements(ExternalGroup eg) {
                             // ¯\_ (ツ)_/¯
                         }
 
                         @Override
-                        protected void addOtherItems(JPanel panel) {
+                        protected void addOtherItems(JPanel panel, ExternalGroup eg) {
                             // ¯\_ (ツ)_/¯
                         }
                     };

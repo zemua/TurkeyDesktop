@@ -9,6 +9,8 @@ import devs.mrp.turkeydesktop.database.group.expor.ExportedGroupService;
 import devs.mrp.turkeydesktop.database.group.external.ExternalGroupService;
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElementService;
 import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacadeService;
+import devs.mrp.turkeydesktop.database.titles.TitleService;
+import devs.mrp.turkeydesktop.database.type.TypeService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
 import java.awt.AWTEvent;
@@ -27,5 +29,7 @@ public interface GroupReviewFactory {
     ExternalGroupService getExternalGroupService();
     ExportedGroupService getExportedGroupService();
     TimeConverter getTimeConverter();
+    TitleService getTitleService();
+    TypeService getProcessService();
     
 }

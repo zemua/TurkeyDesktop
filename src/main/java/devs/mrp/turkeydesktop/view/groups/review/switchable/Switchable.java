@@ -16,13 +16,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-/**
- *
- * @author miguel
- * 
- * Long is the id of the element for recognition on feedback
- * Boolean indicates wether the checkbox has been activated or deactivated
- */
 public class Switchable extends JPanel implements Feedbacker<String, Boolean> {
     
     private LocaleMessages locale = LocaleMessages.getInstance();
@@ -47,6 +40,14 @@ public class Switchable extends JPanel implements Feedbacker<String, Boolean> {
     @Override
     public void giveFeedback(String id, Boolean activated) {
         listeners.forEach(l -> l.giveFeedback(id, activated));
+    }
+    
+    public JLabel getLabel() {
+        return label;
+    }
+    
+    public JCheckBox getCheckBox() {
+        return check;
     }
     
     private void initializeLayout() {
