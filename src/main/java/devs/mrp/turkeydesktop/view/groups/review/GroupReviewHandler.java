@@ -322,7 +322,17 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
     private void addRemovableListener(RemovableSwitchable removable, GroupAssignation.ElementType type, JPanel panel, String id) {
         removable.addFeedbackListener((element, feedback) -> {
             if (feedback.equals(RemovableLabel.Action.DELETE)) {
-                removeElement(removable, type, panel, id);
+                if (group.getType().equals(Group.GroupType.POSITIVE)) {
+                    removeElement(removable, type, panel, id);
+                } else {
+                    popupMaker.show(this.getFrame(), () -> {
+                        // positive
+                        removeElement(removable, type, panel, id);
+                    }, () -> {
+                        // negative
+                        // nothing to do here
+                    });
+                }
             }
         });
     }
