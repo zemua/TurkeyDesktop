@@ -137,13 +137,15 @@ public class TitleConditionsHandler extends PanelHandler<TitleConditionsEnum, AW
         Title title = new Title();
         title.setSubStr(substr);
         title.setType(type);
-        titleService.save(title).subscribe();
-        fillConditions();
+        titleService.save(title)
+                .doOnSuccess(l -> fillConditions())
+                .subscribe();
     }
     
     private void removeCondition(String substr) {
-        titleService.deleteBySubString(substr).subscribe();
-        fillConditions();
+        titleService.deleteBySubString(substr)
+                .doOnSuccess(l -> fillConditions())
+                .subscribe();
         
     }
 
