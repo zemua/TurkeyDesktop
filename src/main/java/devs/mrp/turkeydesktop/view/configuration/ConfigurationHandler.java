@@ -729,11 +729,11 @@ public class ConfigurationHandler extends PanelHandler<ConfigurationPanelEnum, A
                         return element;
                     }
                     @Override
-                    protected void initializeOtherElements() {
+                    protected void initializeOtherElements(String s) {
                         // ¯\_ (ツ)_/¯
                     }
                     @Override
-                    protected void addOtherItems(JPanel panel) {
+                    protected void addOtherItems(JPanel panel, String s) {
                         // ¯\_ (ツ)_/¯
                     }
                 };

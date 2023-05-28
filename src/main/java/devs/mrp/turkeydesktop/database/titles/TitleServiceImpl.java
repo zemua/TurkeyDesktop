@@ -55,11 +55,10 @@ public class TitleServiceImpl implements TitleService {
         if (subStr == null) {
             return Single.just(-1L);
         }
-        return Single.zip(dbCache.remove(subStr).map(b -> b?1L:0L),
-                assignationService.deleteByTitleId(subStr),
-                (r1,r2) ->{
-                    return r1;
-                });
+        return dbCache.remove(subStr).map(b -> {
+            assignationService.deleteByTitleId(subStr).subscribe();
+            return b?1L:0L;
+        });
     }
 
     @Override

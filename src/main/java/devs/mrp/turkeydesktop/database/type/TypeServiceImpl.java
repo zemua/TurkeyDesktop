@@ -2,6 +2,7 @@ package devs.mrp.turkeydesktop.database.type;
 
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
@@ -11,9 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 public class TypeServiceImpl implements TypeService {
     
     private final DbCache<String,Type> dbCache;
+    private final GroupAssignationService assignationService;
     
     public TypeServiceImpl(TypeFactory typeFactory) {
         this.dbCache = typeFactory.getDbCache();
+        this.assignationService = typeFactory.getGroupAssignationService();
     }
 
     @Override
@@ -49,7 +52,10 @@ public class TypeServiceImpl implements TypeService {
 
     @Override
     public Single<Long> deleteById(String id) {
-        return dbCache.remove(id).map(b -> b?1L:0L);
+        return dbCache.remove(id).map(b -> {
+            assignationService.deleteByProcessId(id).subscribe();
+            return b?1L:0L;
+        });
     }
 
 }

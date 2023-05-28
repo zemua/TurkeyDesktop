@@ -17,6 +17,10 @@ import devs.mrp.turkeydesktop.database.group.facade.AssignableElementFactoryImpl
 import devs.mrp.turkeydesktop.database.group.facade.AssignableElementService;
 import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacadeFactoryImpl;
 import devs.mrp.turkeydesktop.database.groupcondition.GroupConditionFacadeService;
+import devs.mrp.turkeydesktop.database.titles.TitleFactoryImpl;
+import devs.mrp.turkeydesktop.database.titles.TitleService;
+import devs.mrp.turkeydesktop.database.type.TypeFactoryImpl;
+import devs.mrp.turkeydesktop.database.type.TypeService;
 import devs.mrp.turkeydesktop.view.PanelHandler;
 import devs.mrp.turkeydesktop.view.PanelHandlerData;
 import devs.mrp.turkeydesktop.view.mainpanel.FeedbackerPanelWithFetcher;
@@ -90,6 +94,16 @@ public class GroupReviewFactoryImpl implements GroupReviewFactory {
     @Override
     public TimeConverter getTimeConverter() {
         return CommonBeans.getTimeConverter();
+    }
+
+    @Override
+    public TitleService getTitleService() {
+        return TitleFactoryImpl.getInstance().getService();
+    }
+
+    @Override
+    public TypeService getProcessService() {
+        return TypeFactoryImpl.getInstance().getService();
     }
     
 }

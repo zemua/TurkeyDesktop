@@ -92,11 +92,8 @@ public class DbCacheImpl<KEY, VALUE> implements DbCache<KEY, VALUE> {
     
     @Override
     public Single<Boolean> remove(KEY key) {
-        if (cacheMap.containsKey(key)) {
-            cacheMap.remove(key);
-            return repo.deleteById(key).map(l -> l>0);
-        }
-        return Single.just(Boolean.FALSE);
+        cacheMap.remove(key);
+        return repo.deleteById(key).map(l -> l>0);
     }
 
     @Override
