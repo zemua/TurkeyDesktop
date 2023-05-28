@@ -3,6 +3,7 @@ package devs.mrp.turkeydesktop.database.type;
 import devs.mrp.turkeydesktop.common.DbCache;
 import devs.mrp.turkeydesktop.common.SaveAction;
 import devs.mrp.turkeydesktop.database.Db;
+import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
 import io.reactivex.rxjava3.core.Single;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -112,10 +113,20 @@ public class TypeServiceImplTest {
         TypeDao repo;
         CacheFactoryTest(TypeDao repo) {
             this.repo = repo;
-}
+        }
         @Override
         public DbCache<String, Type> getDbCache() {
             return buildCache(repo);
+        }
+        
+        @Override
+        public Db getDb() {
+            return db;
+        }
+        
+        @Override
+        public GroupAssignationService getGroupAssignationService() {
+            return mock(GroupAssignationService.class);
         }
     }
     
