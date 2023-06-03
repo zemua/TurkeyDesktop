@@ -88,6 +88,19 @@ inside this file copy this adapted to your personal case
 </plist>
 ```
 
+WARNING: After the update to Mac's Ventura 13.4 the app will have problems to resolve the windows titles when starting this way. Seems that the launcher in charge of firing the task has no access to the window environment, and calls to retrieve the title using Mac's osascript would just not be executed. For the time being the easiest solution is to set a script in the desktop to run the app in background and just double click it on login. To run the app without a console add "&" at the end of the run command as is shown below. In the future we are planning to do a browser extension to categorize activity by the domain or title.
+
+```
+#!/bin/zsh
+## This is only if you have several sdk in your machine and you need to manage them
+## see sdk_man for reference, you should have it installed
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+sdk use java 11.0.13-zulu
+## this is the only important part that runs the jar file
+java -Dapple.awt.UIElement="true" -jar /Users/username/TurkeyDesktop/TurkeyDesktop-1.0-SNAPSHOT-jar-with-dependencies.jar &
+```
+
 To run it in Ubuntu at startup
 
 create a script .sh file with this content (you can do the same SDK_MAN stuff as above)
