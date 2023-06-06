@@ -131,13 +131,11 @@ public class GroupAssignationRepository implements GroupAssignationDao {
         });
     }
 
-    @Deprecated
     @Override
     public Single<ResultSet> findById(GroupAssignationDao.ElementId id) {
         return findByElementId(id.getType(), id.getElementId());
     }
 
-    @Deprecated
     @Override
     public Single<Long> deleteById(GroupAssignationDao.ElementId id) {
         return deleteByElementId(id.getType(), id.getElementId());

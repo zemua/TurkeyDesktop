@@ -119,6 +119,7 @@ public class Db {
             Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
             con = null;
             factory.getWatchDog().stop();
+            log.debug("Stack trace de la doble llamada a la db: " + Arrays.deepToString(Thread.currentThread().getStackTrace()));
             JOptionPane.showMessageDialog(null, localeMessages.getString("anotherConnOpen"));
             System.exit(0);
         }
