@@ -54,32 +54,25 @@ Receive notifications when time is running out or you are approaching the lockdo
 
 # Run At Startup
 
-To run it in Macos create a .sh file with this content
-
-```
-#!/bin/zsh
-## This is only if you have several sdk in your machine and you need to manage them
-## see sdk_man for reference, you should have it installed
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-sdk use java 11.0.13-zulu
-## this is the only important part that runs the jar file
-java -Dapple.awt.UIElement="true" -jar /Users/username/TurkeyDesktop/TurkeyDesktop-1.0-SNAPSHOT-jar-with-dependencies.jar
-```
-
-Then go to ~/Library/LaunchAgents
+To run it in Macos go to ~/Library/LaunchAgents
 create a file devs.mrp.turkeydesktop.plist
 inside this file copy this adapted to your personal case
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" 
+"http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
     <dict>
         <key>Label</key>
         	<string>devs.mrp.turkeydesktop</string>
-	<key>Program</key>
-        	<string>/Users/username/TurkeyDesktop.sh</string>
+	<key>ProgramArguments</key>
+    	<array>
+		<string>java</string>
+		<string>-Dapple.awt.UIElement="true"</string>
+		<string>-jar</string>
+		<string>/Users/username/TurkeyDesktop/TurkeyDesktop-1.0-SNAPSHOT-jar-with-dependencies.jar</string>
+	</array>
         <key>RunAtLoad</key>
         	<true/>
         <key>KeepAlive</key>
@@ -87,16 +80,6 @@ inside this file copy this adapted to your personal case
     </dict>
 </plist>
 ```
-
-WARNING: After the update to Mac's Ventura 13.4 I got problems having my machine run correctly the app on startup, that is because Mac's launchctl seems not to be very friendly with shell scripts, and the permission window for accesibility never pops up, and so Turkey app cannot fetch window titles. To fix this the launcher has to be a binary file, you can compile the script to binary with the following:
-```
-brew install shc
-shc -f /Users/username/TurkeyDesktop.sh
-mv /Users/username/TurkeyDesktop.sh.x /Users/username/TurkeyLauncher
-```
-And modify your devs.mrp.turkeydesktop.plist to point to /Users/username/TurkeyLauncher instead of /Users/username/TurkeyDesktop.sh
-
-
 
 To run it in Ubuntu at startup
 
