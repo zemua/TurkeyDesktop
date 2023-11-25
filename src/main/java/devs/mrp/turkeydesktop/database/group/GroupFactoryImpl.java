@@ -73,6 +73,7 @@ public class GroupFactoryImpl implements GroupFactory {
             el.setName(set.getString(Group.NAME));
             el.setType(Group.GroupType.valueOf(set.getString(Group.TYPE)));
             el.setPreventClose(set.getBoolean(Group.PREVENT_CLOSE));
+            el.setDisablePoints(set.getBoolean(Group.DISABLE_POINTS));
         } catch (SQLException ex) {
             log.error("Error extracting Group from ResultSet", ex);
         }

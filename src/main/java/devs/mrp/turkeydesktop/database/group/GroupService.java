@@ -16,4 +16,5 @@ public interface GroupService {
     
     public Single<Integer> setPreventClose(long groupId, boolean preventClose);
     public Single<Boolean> isPreventClose(long groupId);
+    public Single<Boolean> isDisablePoints(long groupId);
 }

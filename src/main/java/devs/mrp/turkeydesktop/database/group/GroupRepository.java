@@ -63,12 +63,13 @@ public class GroupRepository implements GroupDao {
             long result = -1;
             PreparedStatement stm;
             try {
-                stm = db.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=?, %s=? WHERE %s=? ",
-                        Db.GROUPS_TABLE, Group.NAME, Group.TYPE, Group.PREVENT_CLOSE, Group.ID));
+                stm = db.getConnection().prepareStatement(String.format("UPDATE %s SET %s=?, %s=?, %s=?, %s=? WHERE %s=? ",
+                        Db.GROUPS_TABLE, Group.NAME, Group.TYPE, Group.PREVENT_CLOSE, Group.DISABLE_POINTS, Group.ID));
                 stm.setString(1, element.getName());
                 stm.setString(2, element.getType().toString());
                 stm.setBoolean(3, element.isPreventClose());
-                stm.setLong(4, element.getId());
+                stm.setBoolean(4, element.isDisablePoints());
+                stm.setLong(5, element.getId());
                 result = stm.executeUpdate();
             } catch (SQLException ex) {
                 log.error("Error updating Group " + element, ex);

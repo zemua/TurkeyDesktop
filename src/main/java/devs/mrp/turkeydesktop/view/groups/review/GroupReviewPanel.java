@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package devs.mrp.turkeydesktop.view.groups.review;
 
 import devs.mrp.turkeydesktop.common.FeedbackListener;
@@ -16,10 +11,6 @@ import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import org.apache.commons.lang3.StringUtils;
 
-/**
- *
- * @author miguel
- */
 public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum, AWTEvent> {
     
     private List<FeedbackListener<GroupReviewEnum, AWTEvent>> listeners = new ArrayList<>();
@@ -83,6 +74,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         textFilter = new javax.swing.JTextField();
         jButton3 = new javax.swing.JButton();
         preventClose = new javax.swing.JCheckBox();
+        diablePointsIncreasing = new javax.swing.JCheckBox();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("messages"); // NOI18N
         jButton1.setText(bundle.getString("back")); // NOI18N
@@ -396,6 +388,13 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
             }
         });
 
+        diablePointsIncreasing.setText(bundle.getString("disablePointsIncreasing")); // NOI18N
+        diablePointsIncreasing.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                diablePointsIncreasingActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -418,6 +417,8 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                         .addComponent(jButton3)
                         .addGap(18, 18, 18)
                         .addComponent(preventClose)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(diablePointsIncreasing)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -432,7 +433,8 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                     .addComponent(jLabel11)
                     .addComponent(textFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton3)
-                    .addComponent(preventClose))
+                    .addComponent(preventClose)
+                    .addComponent(diablePointsIncreasing))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTabbedPane1)
                 .addContainerGap())
@@ -526,6 +528,10 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
         giveFeedback(GroupReviewEnum.ORDER_DROPDOWN, evt);
     }//GEN-LAST:event_orderDropdownActionPerformed
 
+    private void diablePointsIncreasingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_diablePointsIncreasingActionPerformed
+        giveFeedback(GroupReviewEnum.DISABLE_POINTS, evt);
+    }//GEN-LAST:event_diablePointsIncreasingActionPerformed
+
     @Override
     public Object getProperty(GroupReviewEnum property) {
         switch (property) {
@@ -565,6 +571,8 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
                 return textFilter;
             case PREVENT_CLOSE:
                 return preventClose;
+            case DISABLE_POINTS:
+                return diablePointsIncreasing;
             default:
                 return null;
         }
@@ -612,6 +620,7 @@ public class GroupReviewPanel extends FeedbackerPanelWithFetcher<GroupReviewEnum
     private javax.swing.JPanel configurationPanel;
     private javax.swing.JSpinner daySpinner;
     private javax.swing.JTextField deleteText;
+    private javax.swing.JCheckBox diablePointsIncreasing;
     private javax.swing.JButton exportGroupButton;
     private javax.swing.JSpinner exportGroupDaysSpinner;
     private javax.swing.JButton externalTimeButton;

@@ -5,6 +5,7 @@ import devs.mrp.turkeydesktop.common.Tripla;
 import devs.mrp.turkeydesktop.database.closeables.CloseableService;
 import devs.mrp.turkeydesktop.database.config.ConfigElement;
 import devs.mrp.turkeydesktop.database.config.ConfigElementService;
+import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignation;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
@@ -33,6 +34,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
     private final GroupAssignationService groupAssignationService;
     private final CloseableService closeableService;
     private final ConditionChecker conditionChecker;
+    private final GroupService groupService;
     private final ConfigElementService configService;
     private final TimeConverter timeConverter;
     
@@ -46,6 +48,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
         this.logService = factory.getTimeLogService();
         this.typeService = factory.getTypeService();
         this.titleService = factory.getTitleService();
+        this.groupService = factory.getGroupService();
         this.factory = factory;
     }
 
@@ -93,7 +96,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
             type.setType(Type.Types.UNDEFINED);
         }
         TimeLog element = factory.asNotBlockable(elementParam).blockingGet();
-        switch (type.getType()){ // TODO make chain of responsibility to handle each case in a more clean way
+        switch (type.getType()){ // TODO use strategy to handle each case in a more clean way
             case NEUTRAL:
                 element.setType(Type.Types.NEUTRAL);
                 element.setGroupId(-1);
@@ -139,10 +142,14 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                         .flatMap(result -> {
                             element.setGroupId(result.getGroupId());
                             if (!lockdown) {
-                                return Single.zip(conditionChecker.areConditionsMet(element.getGroupId()), conditionChecker.isIdleWithToast(true), (areMet, isIdle) -> {
+                                // TODO check if summing is enabled for this group
+                                return Single.zip(conditionChecker.areConditionsMet(element.getGroupId()),
+                                        conditionChecker.isIdleWithToast(true),
+                                        groupService.isDisablePoints(element.getGroupId()),
+                                        (conditionsMet, isIdle, disabledPoints) -> {
                                     element.setIdle(isIdle);
                                     log.debug("Setting iddle to {}", isIdle);
-                                    element.setCounted(!isIdle && areMet ? Math.abs(element.getElapsed()) : 0);
+                                    element.setCounted(!isIdle && conditionsMet && !disabledPoints ? Math.abs(element.getElapsed()) : 0);
                                     return factory.asNotBlockable(element).blockingGet();
                                 });
                             } // when in lockdown, don't disccount points if idle
