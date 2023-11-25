@@ -229,6 +229,11 @@ public class Db {
                 + "ADD COLUMN IF NOT EXISTS %s BOOLEAN DEFAULT FALSE", // id
                 GROUPS_TABLE, Group.PREVENT_CLOSE));
         
+        // add disable points increasing boolean to group table
+        execute(String.format("ALTER TABLE %s " // table name
+                + "ADD COLUMN IF NOT EXISTS %s BOOLEAN DEFAULT FALSE", // id
+                GROUPS_TABLE, Group.DISABLE_POINTS));
+        
         // REMOVE OLD LOG ENTRIES THAT ARE OF NO USE
         execute(String.format("DELETE FROM %s WHERE %s < %s",
                 WATCHDOG_TABLE,

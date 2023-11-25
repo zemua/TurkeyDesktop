@@ -10,6 +10,8 @@ import devs.mrp.turkeydesktop.database.closeables.CloseableFactoryImpl;
 import devs.mrp.turkeydesktop.database.closeables.CloseableService;
 import devs.mrp.turkeydesktop.database.config.ConfigElementFactoryImpl;
 import devs.mrp.turkeydesktop.database.config.ConfigElementService;
+import devs.mrp.turkeydesktop.database.group.GroupFactoryImpl;
+import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationFactoryImpl;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
@@ -120,6 +122,11 @@ public class LogAndTypeFacadeFactoryImpl implements LogAndTypeFacadeFactory {
     @Override
     public Single<TimeLog> asNotBlockable(TimeLog timeLog) {
         return TimeLogFactoryImpl.getInstance().asNotBlockable(timeLog);
+    }
+
+    @Override
+    public GroupService getGroupService() {
+        return GroupFactoryImpl.getInstance().getService();
     }
     
 }

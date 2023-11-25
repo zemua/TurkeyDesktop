@@ -5,6 +5,7 @@ import devs.mrp.turkeydesktop.common.Tripla;
 import devs.mrp.turkeydesktop.database.Db;
 import devs.mrp.turkeydesktop.database.closeables.CloseableService;
 import devs.mrp.turkeydesktop.database.config.ConfigElementService;
+import devs.mrp.turkeydesktop.database.group.GroupService;
 import devs.mrp.turkeydesktop.database.group.assignations.GroupAssignationService;
 import devs.mrp.turkeydesktop.database.logs.TimeLog;
 import devs.mrp.turkeydesktop.database.logs.TimeLogService;
@@ -25,6 +26,7 @@ public interface LogAndTypeFacadeFactory {
     Consumer<TimeLog> getConsumer(Consumer<TimeLog> consumer);
     Db getDb();
     LogAndTypeFacadeDao getRepo();
+    GroupService getGroupService();
     GroupAssignationService getGroupAssignationService();
     CloseableService getCloseableService();
     TimeConverter getTimeConverter();

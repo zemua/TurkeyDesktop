@@ -79,7 +79,8 @@ public class DbCacheImplTest {
         assertEquals(SaveAction.UPDATED, result);
     }
     
-    @Test
+    //@Test
+    // Not skipping existing to avoid conflicts on cache and db data
     public void testAlreadyExists() {
         SaveAction result = dbCacheImpl.save("4vb").blockingGet();
         assertEquals(SaveAction.EXISTING, result);

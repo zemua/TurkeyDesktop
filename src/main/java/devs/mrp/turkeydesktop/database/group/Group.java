@@ -10,11 +10,13 @@ public class Group {
     public static final String NAME = "NAME";
     public static final String TYPE = "TYPE";
     public static final String PREVENT_CLOSE = "PREVENT_CLOSE";
+    public static final String DISABLE_POINTS = "DISABLE_POINTS";
     
     private long id;
     private String name;
     private GroupType type;
     private Boolean preventClose;
+    private Boolean disablePoints;
 
     public boolean isPreventClose() {
         if (GroupType.POSITIVE.equals(type)) {
@@ -25,9 +27,23 @@ public class Group {
         }
         return preventClose;
     }
+    
+    public boolean isDisablePoints() {
+        if (GroupType.NEGATIVE.equals(type)) {
+            return true;
+        }
+        if (Objects.isNull(disablePoints)) {
+            return false;
+        }
+        return disablePoints;
+    }
 
     public void setPreventClose(boolean closeable) {
         this.preventClose = closeable;
+    }
+    
+    public void setDisablePoints(boolean disabled) {
+        this.disablePoints = disabled;
     }
     
     public enum GroupType {

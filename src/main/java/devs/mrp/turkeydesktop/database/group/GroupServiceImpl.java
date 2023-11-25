@@ -75,6 +75,14 @@ public class GroupServiceImpl implements GroupService {
         return findById(groupId).map(group -> group != null && group.isPreventClose()).defaultIfEmpty(false);
     }
     
+    @Override
+    public Single<Boolean> isDisablePoints(long groupId) {
+        if (doesNotBelongToAGroup(groupId)) {
+            return Single.just(false);
+        }
+        return findById(groupId).map(group -> group != null && group.isDisablePoints()).defaultIfEmpty(false);
+    }
+    
     private boolean doesNotBelongToAGroup(long groupId) {
         return groupId < 1;
     }

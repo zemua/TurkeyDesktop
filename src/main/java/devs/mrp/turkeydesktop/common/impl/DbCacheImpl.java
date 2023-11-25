@@ -42,7 +42,7 @@ public class DbCacheImpl<KEY, VALUE> implements DbCache<KEY, VALUE> {
     public Single<SaveAction> save(VALUE value) {
         KEY key = keyExtractor.apply(value);
         Single<KeyAndAction> updateOutput = addOrUpdate(key, value)
-            .doOnSuccess(keyAndAction ->  cacheMap.put(keyAndAction.key, keySetter.apply(value, keyAndAction.key)));
+            .doOnSuccess(keyAndAction -> cacheMap.put(keyAndAction.key, keySetter.apply(value, keyAndAction.key)));
         return updateOutput.map(output -> output.action);
     }
     
@@ -50,13 +50,8 @@ public class DbCacheImpl<KEY, VALUE> implements DbCache<KEY, VALUE> {
         Single<KeyAndAction> result;
         if (canAddNew(key)) {
             result = repo.add(value).map(id -> new KeyAndAction(id, SaveAction.SAVED));
-        } else if (canUpdate(key, value)) {
-            result = repo.update(value).map(qty -> new KeyAndAction(key, SaveAction.UPDATED));
-        } else if (existing(key, value)) {
-            result = Single.just(new KeyAndAction(key, SaveAction.EXISTING));
         } else {
-            log.error("Neither canAddNew, canUpdate, nor existing");
-            throw new TurkeyDbException();
+            result = repo.update(value).map(qty -> new KeyAndAction(key, SaveAction.UPDATED));
         }
         return result;
     }

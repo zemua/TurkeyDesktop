@@ -166,6 +166,13 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                             logger.log(Level.SEVERE, "error setting prevent close option", ex);
                         }
                         break;
+                    case DISABLE_POINTS:
+                        try {
+                            handleDisablePoints();
+                        } catch (Exception ex) {
+                            logger.log(Level.SEVERE, "error setting disable points option", ex);
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -183,6 +190,7 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
             refreshExternalTime();
             setConfiguration();
             showHideSetPreventClosing();
+            showHideSetDisablePoints();
         } catch (Exception e) {
             logger.log(Level.SEVERE, "error setting up UI", e);
             exit();
@@ -537,6 +545,24 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
         }
     }
 
+    private void showHideSetDisablePoints() {
+        Optional opt = getObjectFromPanel(GroupReviewEnum.DISABLE_POINTS, JCheckBox.class);
+        if (opt.isEmpty()) {
+            return;
+        }
+        JCheckBox checkbox = (JCheckBox) opt.get();
+        if (Group.GroupType.NEGATIVE.equals(group.getType())) {
+            checkbox.setVisible(false);
+        } else {
+            checkbox.setVisible(true);
+            if (group.isDisablePoints()) {
+                checkbox.setSelected(true);
+            } else {
+                checkbox.setSelected(false);
+            }
+        }
+    }
+
     private void saveGroupName() throws Exception {
         Object nameObject = this.getPanel().getProperty(GroupReviewEnum.GROUP_NAME_TEXT);
         if (nameObject == null || !(nameObject instanceof JTextField)) {
@@ -748,6 +774,35 @@ public class GroupReviewHandler extends PanelHandler<GroupReviewEnum, AWTEvent, 
                 });
             } else {
                 group.setPreventClose(false);
+                groupService.update(group).subscribe();
+            }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error setting prevent close");
+        }
+    }
+    
+    private void handleDisablePoints() {
+        Optional opt = getObjectFromPanel(GroupReviewEnum.DISABLE_POINTS, JCheckBox.class);
+        if (opt.isEmpty()) {
+            return;
+        }
+        JCheckBox disablePoints = (JCheckBox) opt.get();
+        boolean isDisablePoints = disablePoints.isSelected();
+        try {
+            if (!isDisablePoints) {
+                disablePoints.setEnabled(true);
+                popupMaker.show(getFrame(), () ->{
+                    // positive runnable
+                    group.setDisablePoints(false);
+                    groupService.update(group).subscribe();
+                    disablePoints.setEnabled(true);
+                }, () -> {
+                    // negative runnable
+                    disablePoints.setEnabled(true);
+                    disablePoints.setSelected(true);
+                });
+            } else {
+                group.setDisablePoints(true);
                 groupService.update(group).subscribe();
             }
         } catch (Exception e) {
