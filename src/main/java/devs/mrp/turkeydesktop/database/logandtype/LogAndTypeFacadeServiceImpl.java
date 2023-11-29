@@ -227,8 +227,15 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                     element.setCounted(0);
                     return Single.just(element);
                 }
-                element.setCounted(isPositive ? Math.abs(elapsed) : - Math.abs(elapsed) * proportion);
-                return closeableService.canBeClosed(element.getProcessName()).flatMap(b -> {
+                return groupService.isDisablePoints(element.getGroupId())
+                        .flatMap(disabledSum -> {
+                            if (disabledSum) {
+                                element.setCounted(0);
+                            } else {
+                                element.setCounted(isPositive ? Math.abs(elapsed) : - Math.abs(elapsed) * proportion);
+                            }
+                            
+                            return closeableService.canBeClosed(element.getProcessName()).flatMap(b -> {
                             Single<TimeLog> result;
                             if (b) {
                                 result = factory.asBlockable(element);
@@ -236,7 +243,9 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                                 result = factory.asNotBlockable(element);
                             }
                             return result;
+                            });
                         });
+                
             });
         });
     }
