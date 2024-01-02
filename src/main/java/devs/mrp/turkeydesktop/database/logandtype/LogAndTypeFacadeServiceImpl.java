@@ -112,6 +112,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                 return titleService.findLongestContainedBy(element.getWindowTitle().toLowerCase())
                         .switchIfEmpty(Single.just(new Title()))
                         .flatMap(title -> {
+                            log.debug("Type {} for title in this window is: {}", title.getType(), title.getSubStr());
                             if (title.getSubStr() == null) {
                                 title.setSubStr(StringUtils.EMPTY);
                             }
@@ -128,6 +129,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                             return groupAssignationService.findGroupOfAssignation(title.getSubStr())
                                 .defaultIfEmpty(GroupAssignation.builder().groupId(-1).build())
                                 .flatMap(assignation -> {
+                                    log.debug("This is assigned to group: {}", assignation);
                                     element.setGroupId(assignation.getGroupId());
                                     if (!lockdown){
                                         return setCountedDependingOnTitle(element, title, element.getElapsed(), proportion);
@@ -229,9 +231,11 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                 }
                 return groupService.isDisablePoints(element.getGroupId())
                         .flatMap(disabledSum -> {
-                            if (disabledSum) {
+                            if (isPositive && disabledSum) {
+                                log.debug("Sum disabled in positive, setting counted to 0");
                                 element.setCounted(0);
                             } else {
+                                log.debug("Adjusting counted for positive/negative");
                                 element.setCounted(isPositive ? Math.abs(elapsed) : - Math.abs(elapsed) * proportion);
                             }
                             
