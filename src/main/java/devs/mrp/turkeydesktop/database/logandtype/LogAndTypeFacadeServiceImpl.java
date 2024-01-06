@@ -14,7 +14,9 @@ import devs.mrp.turkeydesktop.database.titles.Title;
 import devs.mrp.turkeydesktop.database.titles.TitleService;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.database.type.TypeService;
+import devs.mrp.turkeydesktop.i18n.LocaleMessages;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
+import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import devs.mrp.turkeydesktop.view.configuration.ConfigurationEnum;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
@@ -37,6 +39,9 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
     private final GroupService groupService;
     private final ConfigElementService configService;
     private final TimeConverter timeConverter;
+    private final Toaster toaster;
+    
+    private final LocaleMessages localeMessages = LocaleMessages.getInstance();
     
     public LogAndTypeFacadeServiceImpl(LogAndTypeFacadeFactory factory) {
         this.conditionChecker = factory.conditionChecker();
@@ -49,6 +54,7 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
         this.typeService = factory.getTypeService();
         this.titleService = factory.getTitleService();
         this.groupService = factory.getGroupService();
+        this.toaster = factory.getToaster();
         this.factory = factory;
     }
 
@@ -106,6 +112,9 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                 element.setType(Type.Types.UNDEFINED);
                 element.setGroupId(-1);
                 element.setCounted(lockdown && !idle ? -1 * proportion * element.getElapsed() : 0);
+                if (!idle) {
+                    toaster.sendToast(localeMessages.getString("notCategorized"));
+                }
                 return factory.asNotBlockable(element);
             case DEPENDS:
                 element.setType(Type.Types.DEPENDS);
@@ -117,6 +126,9 @@ public class LogAndTypeFacadeServiceImpl implements LogAndTypeFacadeService {
                                 title.setSubStr(StringUtils.EMPTY);
                             }
                             if (title.getType() == null) {
+                                if (!idle) {
+                                    toaster.sendToast(localeMessages.getString("notCategorized"));
+                                }
                                 title.setType(Title.Type.NEUTRAL);
                             }
                             if (StringUtils.EMPTY.equals(title.getSubStr())){
