@@ -13,6 +13,7 @@ import devs.mrp.turkeydesktop.database.titles.TitleService;
 import devs.mrp.turkeydesktop.database.type.Type;
 import devs.mrp.turkeydesktop.database.type.TypeService;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
+import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import io.reactivex.rxjava3.core.Single;
 import java.util.List;
 import java.util.function.Consumer;
@@ -22,6 +23,7 @@ public interface LogAndTypeFacadeFactory {
     ConditionChecker conditionChecker();
     ConfigElementService configService();
     LogAndTypeFacadeService getService();
+    Toaster getToaster();
     Consumer<List<Tripla<String, Long, Type.Types>>> getTriplaConsumer(Consumer<List<Tripla<String, Long, Type.Types>>> consumer);
     Consumer<TimeLog> getConsumer(Consumer<TimeLog> consumer);
     Db getDb();

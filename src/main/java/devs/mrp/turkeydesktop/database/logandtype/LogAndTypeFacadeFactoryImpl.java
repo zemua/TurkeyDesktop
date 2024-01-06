@@ -24,6 +24,7 @@ import devs.mrp.turkeydesktop.database.type.TypeFactoryImpl;
 import devs.mrp.turkeydesktop.database.type.TypeService;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionChecker;
 import devs.mrp.turkeydesktop.service.conditionchecker.ConditionCheckerFactoryImpl;
+import devs.mrp.turkeydesktop.service.toaster.Toaster;
 import io.reactivex.rxjava3.core.Single;
 import java.util.List;
 import java.util.function.Consumer;
@@ -69,6 +70,11 @@ public class LogAndTypeFacadeFactoryImpl implements LogAndTypeFacadeFactory {
     @Override
     public ConfigElementService configService() {
         return ConfigElementFactoryImpl.getInstance().getService();
+    }
+    
+    @Override
+    public Toaster getToaster() {
+        return CommonBeans.getToaster();
     }
 
     @Override
