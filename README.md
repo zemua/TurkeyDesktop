@@ -52,7 +52,7 @@ Receive notifications when time is running out or you are approaching the lockdo
 
 
 
-# Run At Startup
+# Run At Startup in Mac OS
 
 To run it in Macos go to ~/Library/LaunchAgents
 create a file devs.mrp.turkeydesktop.plist
@@ -68,7 +68,7 @@ inside this file copy this adapted to your personal case
         	<string>devs.mrp.turkeydesktop</string>
 	<key>ProgramArguments</key>
     	<array>
-		<string>java</string>
+		<string>/Path/to/your/java</string>
 		<string>-Dapple.awt.UIElement="true"</string>
 		<string>-jar</string>
 		<string>/Users/username/TurkeyDesktop/TurkeyDesktop-1.0-SNAPSHOT-jar-with-dependencies.jar</string>
@@ -81,11 +81,18 @@ inside this file copy this adapted to your personal case
 </plist>
 ```
 
-To run it in Ubuntu at startup
+# To run it in Ubuntu at startup
 
-create a script .sh file with this content (you can do the same SDK_MAN stuff as above)
+create a script .sh file with this content (SDK_MAN stuff optional)
 ```
 #!/bin/bash
+
+## This is only if you have several sdk in your machine and you need to manage them
+## see sdk_man for reference, you should have it installed
+export SDKMAN_DIR="/opt/homebrew/opt/SDKMAN-cli/libexec"
+[[ -s "/opt/homebrew/opt/SDKMAN-cli/libexec/bin/sdkman-init.sh" ]] && source "/opt/homebrew/opt/SDKMAN-cli/libexec/bin/sdkman-init.sh"
+sdk use java 11.0.26-tem
+
 java -jar ~/TurkeyDesktop-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
@@ -95,7 +102,7 @@ Then search for "startup apps" application and add a new command
 /home/username/initTurkey.sh
 ```
 
-# Ubuntu
+# Ubuntu dependencies
 
 For this to work in Ubuntu you need to install the following
 
@@ -106,7 +113,7 @@ xdotool works with X.org so if you have installed some recent version of Ubuntu 
 
 You can still choose to use X.org from the login screen in the configuration cog, details here: https://itsfoss.com/switch-xorg-wayland/
 
-# Mac
+# Mac disable closing hot-keys
 
 To disable the application from closing instantly in Mac when you have the window focused and press "command+q" you can use the following workaround:
 Go to System Preferences, then Keyboard. Select Shortcuts. On the left pane, find Accessibility. Now on the right pane enable Invert colors and then click on the shortcut box to reassign the shortcut to Cmd+Q
