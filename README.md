@@ -83,7 +83,7 @@ inside this file copy this adapted to your personal case
 
 
 More visual way:
-
+```
 start Automator.app
 select Application
 click Show library in the toolbar (if hidden)
@@ -94,6 +94,7 @@ save somewhere (for example you can make an Applications folder in your HOME, yo
 go to System Preferences -> Users & Groups -> Login items (or System Preferences -> Accounts -> Login items / depending of your MacOS version)
 add this app
 test & done
+```
 
 
 # To run it in Ubuntu at startup
@@ -109,6 +110,22 @@ export SDKMAN_DIR="/opt/homebrew/opt/SDKMAN-cli/libexec"
 sdk use java 11.0.26-tem
 
 java -jar ~/TurkeyDesktop-1.0-SNAPSHOT-jar-with-dependencies.jar
+```
+
+you may need a slightly different workaround
+```
+#!/bin/zsh
+
+## This is only if you have several sdk in your machine and you need to manage them
+## see sdk_man for reference, you should have it installed
+export SDKMAN_DIR="/opt/homebrew/opt/SDKMAN-cli/libexec"
+[[ -s "/opt/homebrew/opt/SDKMAN-cli/libexec/bin/sdkman-init.sh" ]] && source "/opt/homebrew/opt/SDKMAN-cli/libexec/bin/sdkman-init.sh"
+sdk use java 11.0.26-tem
+
+## this is the only important part that runs the jar file
+nohup java -Dapple.awt.UIElement="true" -jar /Users/yourfolder/TurkeyDesktop-1.0-SNAPSHOT-jar-with-dependencies.jar /dev/null 2>&1 &
+
+
 ```
 
 Give this script file permissions to run as an application
