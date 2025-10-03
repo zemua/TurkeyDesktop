@@ -81,6 +81,21 @@ inside this file copy this adapted to your personal case
 </plist>
 ```
 
+
+More visual way:
+
+start Automator.app
+select Application
+click Show library in the toolbar (if hidden)
+add Run shell script (from the Actions/Utilities)
+copy & paste your script into the window
+test it
+save somewhere (for example you can make an Applications folder in your HOME, you will get an your_name.app)
+go to System Preferences -> Users & Groups -> Login items (or System Preferences -> Accounts -> Login items / depending of your MacOS version)
+add this app
+test & done
+
+
 # To run it in Ubuntu at startup
 
 create a script .sh file with this content (SDK_MAN stuff optional)
